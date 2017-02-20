@@ -25,7 +25,7 @@ Support
 At SDL we take your investment in Digital Experience very seriously, and will do our best to support you throughout this journey. 
 If you encounter any issues with the Digital Experience Accelerator, please reach out to us via one of the following channels:
 
-- Report issues directly in [this repository](https://github.com/sdl/dxa-web-application-java/issues)
+- Report issues directly in [this repository](https://github.com/sdl/dxa-model-service/issues)
 - Ask questions 24/7 on the SDL Web Community at https://tridion.stackexchange.com
 - Contact Technical Support through the Customer Support Web Portal at https://www.sdl.com/support
 
