@@ -1,0 +1,12 @@
+server:
+  port: 8999
+
+logging:
+  config: classpath:logback-spring.xml
+
+spring:
+  output:
+    ansi:
+      enabled: always
+  cache:
+    type: none
