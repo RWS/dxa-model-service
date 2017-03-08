@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
+import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
@@ -13,6 +14,7 @@ import com.tridion.broker.querying.Query;
 import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.broker.querying.criteria.content.PublicationCriteria;
 import com.tridion.broker.querying.criteria.operators.AndCriteria;
+import com.tridion.broker.querying.criteria.operators.OrCriteria;
 import com.tridion.broker.querying.filter.LimitFilter;
 import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
@@ -22,10 +24,13 @@ import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+
+import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 
 @Slf4j
@@ -36,7 +41,7 @@ public class ModelDataService {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public ModelDataService(ObjectMapper objectMapper) {
+    public ModelDataService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -51,12 +56,14 @@ public class ModelDataService {
      */
     @NotNull
     public PageModelData loadPage(int publicationId, @NotNull String path) throws ContentProviderException {
-        Query query = new Query(new AndCriteria(
-                new PageURLCriteria(path),
-                new PublicationCriteria(publicationId)
-        ));
+        // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
+        OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
+                new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
+                new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
+
+        Query query = new Query(new AndCriteria(urlCriteria, new PublicationCriteria(publicationId)));
         query.setResultFilter(new LimitFilter(1));
-        query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.DESCENDING));
+        query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.ASCENDING));
 
         try {
             String[] result = query.executeQuery();
