@@ -56,10 +56,10 @@ public class ModelDataService {
      */
     @NotNull
     public PageModelData loadPage(int publicationId, @NotNull String path) throws ContentProviderException {
-        OrCriteria urlCriteria = new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)));
-        if (!PathUtils.hasExtension(path)) {
-            urlCriteria.addCriteria(new PageURLCriteria(normalizePathToDefaults(path + "/")));
-        }
+        // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
+        OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
+                new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
+                new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
 
         Query query = new Query(new AndCriteria(urlCriteria, new PublicationCriteria(publicationId)));
         query.setResultFilter(new LimitFilter(1));
