@@ -22,6 +22,7 @@ import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class ModelDataService {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public ModelDataService(ObjectMapper objectMapper) {
+    public ModelDataService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
