@@ -27,7 +27,7 @@
         <cil.version>8.5.0-1008</cil.version>
 
         <mvn.discovery.url>http://dxadevweb85.ams.dev:8082/discovery.svc</mvn.discovery.url>
-        <mvn.server.port>8997</mvn.server.port>
+        <mvn.server.port>8998</mvn.server.port>
     </properties>
 
     <dependencies>
