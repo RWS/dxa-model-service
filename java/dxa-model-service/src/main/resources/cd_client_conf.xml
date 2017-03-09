@@ -3,11 +3,7 @@
                CacheUri="ehcache-cil.xml"
                CacheExpirationDuration="600" ServiceAvailabilityCheck="true"
                CacheProviderClass="com.sdl.web.client.cache.GeneralCacheProvider" CacheConnectionTimeout="10000">
-    <!--<DiscoveryService ServiceUri="http://cd-dxa.ams.dev:8082/discovery.svc"/>-->
+    <DiscoveryService ServiceUri="@mvn.discovery.url@"/>
 
-    <!--<DiscoveryService ServiceUri="http://dxadevweb8.ams.dev:8082/discovery.svc"/> &lt;!&ndash;8881 staging&ndash;&gt;-->
-    <DiscoveryService ServiceUri="http://dxadevweb85.ams.dev:8082/discovery.svc"/> <!--8880 staging autotest-parent -->
-    <!--<DiscoveryService ServiceUri="http://dxadevweb8.ams.dev:8182/discovery.svc"/> &lt;!&ndash;8980 live&ndash;&gt;-->
-    <!--<DiscoveryService ServiceUri="http://dxaweb8.ams.dev:8082/discovery.svc"/> &lt;!&ndash;8098 staging&ndash;&gt;-->
     <TokenService ClientId="cduser" ClientSecret="encrypted:o/cgCBwmULeOyUZghFaKJA=="/>
 </ServiceConfig>

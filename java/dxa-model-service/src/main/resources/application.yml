@@ -1,5 +1,5 @@
 server:
-  port: 8999
+  port: @mvn.server.port@
 
 logging:
   config: classpath:logback-spring.xml
@@ -9,4 +9,4 @@ spring:
     ansi:
       enabled: always
   cache:
-    type: none
+    type: simple
