@@ -35,14 +35,31 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 @Slf4j
 @Service
-@Cacheable("model-data")
-public class ModelDataService {
+public class ContentService {
 
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public ModelDataService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
+    public ContentService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    /**
+     * Loads a page from CD and converts it to the {@link PageModelData}.
+     * See {@link #loadPageContent(int, String)} for details.
+     */
+    @NotNull
+    @Cacheable(value = "pmd", key = "#root.methodName + #publicationId + #path")
+    public PageModelData loadPageModel(int publicationId, @NotNull String path) throws ContentProviderException {
+        return _parseResponse(loadPageContent(publicationId, path), PageModelData.class);
+    }
+
+    private <T extends ViewModelData> T _parseResponse(String content, Class<T> expectedClass) throws ContentProviderException {
+        try {
+            return objectMapper.readValue(content, expectedClass);
+        } catch (IOException e) {
+            throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
+        }
     }
 
     /**
@@ -54,8 +71,10 @@ public class ModelDataService {
      * @throws PageNotFoundException    if the page doesn't exist
      * @throws ContentProviderException if couldn't load or parse the page content
      */
-    @NotNull
-    public PageModelData loadPage(int publicationId, @NotNull String path) throws ContentProviderException {
+    @Cacheable(value = "default", key = "#root.methodName + #publicationId + #path")
+    public String loadPageContent(int publicationId, @NotNull String path) throws ContentProviderException {
+        log.debug("Trying to request a page with localization id = '{}' and path = '{}'", publicationId, path);
+
         // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
         OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
@@ -75,25 +94,9 @@ public class ModelDataService {
             }
 
             CharacterData pageContent = new PageContentFactory().getPageContent(publicationId, TcmUtils.getItemId(result[0]));
-            return _parseResponse(pageContent, PageModelData.class);
-        } catch (StorageException e) {
+            return pageContent.getString();
+        } catch (StorageException | IOException e) {
             throw new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page URL '" + path + "'", e);
-        }
-    }
-
-    private <T extends ViewModelData> T _parseResponse(CharacterData characterData, Class<T> expectedClass) throws ContentProviderException {
-        try {
-            return _parseResponse(characterData.getString(), expectedClass);
-        } catch (IOException e) {
-            throw new ContentProviderException("Couldn't read content from character data '" + characterData + "' for " + expectedClass, e);
-        }
-    }
-
-    private <T extends ViewModelData> T _parseResponse(String content, Class<T> expectedClass) throws ContentProviderException {
-        try {
-            return objectMapper.readValue(content, expectedClass);
-        } catch (IOException e) {
-            throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }
 
@@ -108,6 +111,7 @@ public class ModelDataService {
      * @throws ContentProviderException if couldn't load or parse the page content
      */
     @NotNull
+    @Cacheable(value = "emd", key = "#root.methodName + #publicationId + #componentId + #templateId")
     public EntityModelData loadEntity(int publicationId, int componentId, int templateId) throws ContentProviderException {
         String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
         String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
