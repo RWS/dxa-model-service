@@ -1,7 +1,9 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.api.datamodel.model.PageModelData;
-import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
+import com.sdl.dxa.modelservice.service.PageContentService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +11,17 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.sdl.dxa.common.dto.PageRequestDto.ContentType.MODEL;
+import static com.sdl.dxa.common.dto.PageRequestDto.ContentType.RAW;
+
 @Slf4j
 @RestController
-@RequestMapping("/PageModel/{uriType}/{localizationId}/**")
+@RequestMapping(value = "/PageModel/{uriType}/{localizationId}/**")
 public class PageModelController {
 
     /**
@@ -31,18 +37,25 @@ public class PageModelController {
      */
     private static final String PAGE_URL_REGEX = "/[^/]+/[^/]+/[^/]+//?";
 
-    private final ContentService contentService;
+    private final PageContentService contentService;
 
     @Autowired
-    public PageModelController(ContentService contentService) {
+    public PageModelController(PageContentService contentService) {
         this.contentService = contentService;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PageModelData getPageModel(@PathVariable String uriType,
                                       @PathVariable int localizationId,
+                                      @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                       HttpServletRequest request) throws ContentProviderException {
-        return contentService.loadPageModel(localizationId, getPageUrl(request));
+        return contentService.loadPageModel(PageRequestDto.builder()
+                .publicationId(localizationId)
+                .uriType(uriType)
+                .path(getPageUrl(request))
+                .includePages(pageInclusion)
+                .contentType(MODEL)
+                .build());
     }
 
     private String getPageUrl(HttpServletRequest request) {
@@ -52,7 +65,14 @@ public class PageModelController {
     @GetMapping(params = "raw")
     public String getPageSource(@PathVariable String uriType,
                                 @PathVariable int localizationId,
+                                @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                 HttpServletRequest request) throws ContentProviderException {
-        return contentService.loadPageContent(localizationId, getPageUrl(request));
+        return contentService.loadPageContent(PageRequestDto.builder()
+                .publicationId(localizationId)
+                .uriType(uriType)
+                .path(getPageUrl(request))
+                .includePages(pageInclusion)
+                .contentType(RAW)
+                .build());
     }
 }

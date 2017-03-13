@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
+import com.sdl.dxa.common.dto.EntityRequestDto;
+import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
@@ -35,7 +37,8 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 @Slf4j
 @Service
-public class ContentService {
+@Cacheable(value = "content-service")
+public class ContentService implements PageContentService, EntityContentService {
 
     private final ObjectMapper objectMapper;
 
@@ -44,14 +47,10 @@ public class ContentService {
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * Loads a page from CD and converts it to the {@link PageModelData}.
-     * See {@link #loadPageContent(int, String)} for details.
-     */
+    @Override
     @NotNull
-    @Cacheable(value = "pmd", key = "#root.methodName + #publicationId + #path")
-    public PageModelData loadPageModel(int publicationId, @NotNull String path) throws ContentProviderException {
-        return _parseResponse(loadPageContent(publicationId, path), PageModelData.class);
+    public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
+        return _parseResponse(loadPageContent(pageRequest), PageModelData.class);
     }
 
     private <T extends ViewModelData> T _parseResponse(String content, Class<T> expectedClass) throws ContentProviderException {
@@ -62,17 +61,12 @@ public class ContentService {
         }
     }
 
-    /**
-     * Loads a page from CD.
-     *
-     * @param publicationId current publication id
-     * @param path          page URL to look up
-     * @return a page model data, never null
-     * @throws PageNotFoundException    if the page doesn't exist
-     * @throws ContentProviderException if couldn't load or parse the page content
-     */
-    @Cacheable(value = "default", key = "#root.methodName + #publicationId + #path")
-    public String loadPageContent(int publicationId, @NotNull String path) throws ContentProviderException {
+    @Override
+    @NotNull
+    public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
+        int publicationId = pageRequest.getPublicationId();
+        String path = pageRequest.getPath();
+
         log.debug("Trying to request a page with localization id = '{}' and path = '{}'", publicationId, path);
 
         // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
@@ -100,19 +94,13 @@ public class ContentService {
         }
     }
 
-    /**
-     * Loads an Entity model.
-     *
-     * @param publicationId current publication ID
-     * @param componentId   component to load
-     * @param templateId    template to load
-     * @return an entity model data, never null
-     * @throws DxaItemNotFoundException if the component wasn't found
-     * @throws ContentProviderException if couldn't load or parse the page content
-     */
+    @Override
     @NotNull
-    @Cacheable(value = "emd", key = "#root.methodName + #publicationId + #componentId + #templateId")
-    public EntityModelData loadEntity(int publicationId, int componentId, int templateId) throws ContentProviderException {
+    public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
+        int publicationId = entityRequest.getPublicationId();
+        int componentId = entityRequest.getComponentId();
+        int templateId = entityRequest.getTemplateId();
+
         String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
         String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
 
