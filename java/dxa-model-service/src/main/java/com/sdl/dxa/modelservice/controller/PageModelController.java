@@ -3,7 +3,7 @@ package com.sdl.dxa.modelservice.controller;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
-import com.sdl.dxa.modelservice.service.PageContentService;
+import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +37,10 @@ public class PageModelController {
      */
     private static final String PAGE_URL_REGEX = "/[^/]+/[^/]+/[^/]+//?";
 
-    private final PageContentService contentService;
+    private final PageModelService contentService;
 
     @Autowired
-    public PageModelController(PageContentService contentService) {
+    public PageModelController(PageModelService contentService) {
         this.contentService = contentService;
     }
 

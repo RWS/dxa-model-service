@@ -2,7 +2,7 @@ package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.common.dto.EntityRequestDto;
-import com.sdl.dxa.modelservice.service.EntityContentService;
+import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/EntityModel/{uriType}/{localizationId}/{componentId:\\d+}-{templateId:\\d+}")
 public class EntityModelController {
 
-    private final EntityContentService contentService;
+    private final EntityModelService contentService;
 
     @Autowired
-    public EntityModelController(EntityContentService contentService) {
+    public EntityModelController(EntityModelService contentService) {
         this.contentService = contentService;
     }
 
@@ -33,6 +33,10 @@ public class EntityModelController {
         log.debug("trying to load an entity with URI type = '{}' and localization id = '{}', and componentId = '{}', templateId = '{}'",
                 uriType, localizationId, componentId, templateId);
 
-        return contentService.loadEntity(EntityRequestDto.build(localizationId, componentId, templateId));
+        return contentService.loadEntity(EntityRequestDto.builder()
+                .publicationId(localizationId)
+                .componentId(componentId)
+                .templateId(templateId)
+                .build());
     }
 }
