@@ -1,6 +1,5 @@
 package com.sdl.dxa.modelservice.controller;
 
-import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
@@ -9,13 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestController
-public class ModelDataController {
+@RequestMapping("/PageModel/{uriType}/{localizationId}/**")
+public class PageModelController {
 
     /**
      * {@code /PageModel/tcm/42/example/path/to/site}<br/>
@@ -33,11 +34,11 @@ public class ModelDataController {
     private final ContentService contentService;
 
     @Autowired
-    public ModelDataController(ContentService contentService) {
+    public PageModelController(ContentService contentService) {
         this.contentService = contentService;
     }
 
-    @GetMapping(value = "/PageModel/{uriType}/{localizationId}/**", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public PageModelData getPageModel(@PathVariable String uriType,
                                       @PathVariable int localizationId,
                                       HttpServletRequest request) throws ContentProviderException {
@@ -45,25 +46,13 @@ public class ModelDataController {
     }
 
     private String getPageUrl(HttpServletRequest request) {
-        return request.getRequestURI().replaceFirst(PAGE_URL_REGEX, "/");
+        return request.getRequestURI().replaceFirst(PageModelController.PAGE_URL_REGEX, "/");
     }
 
-    @GetMapping(value = "/PageSource/{uriType}/{localizationId}/**")
+    @GetMapping(params = "raw")
     public String getPageSource(@PathVariable String uriType,
                                 @PathVariable int localizationId,
                                 HttpServletRequest request) throws ContentProviderException {
         return contentService.loadPageContent(localizationId, getPageUrl(request));
-    }
-
-    @GetMapping(value = "/EntityModel/{uriType}/{localizationId}/{componentId:\\d+}-{templateId:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public EntityModelData getEntityModel(@PathVariable String uriType,
-                                          @PathVariable int localizationId,
-                                          @PathVariable int componentId,
-                                          @PathVariable int templateId) throws ContentProviderException {
-
-        log.debug("trying to load an entity with URI type = '{}' and localization id = '{}', and componentId = '{}', templateId = '{}'",
-                uriType, localizationId, componentId, templateId);
-
-        return contentService.loadEntity(localizationId, componentId, templateId);
     }
 }
