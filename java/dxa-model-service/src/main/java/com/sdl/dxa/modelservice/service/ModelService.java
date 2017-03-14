@@ -1,6 +1,7 @@
 package com.sdl.dxa.modelservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.KeywordModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
@@ -27,6 +28,8 @@ import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
+import com.tridion.taxonomies.Keyword;
+import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -105,7 +108,8 @@ public class ModelService implements PageModelService, EntityModelService {
         return pageModelData;
     }
 
-    private void _expandObject(Object value, PageRequestDto pageRequest) {
+    private void _expandObject(Object value, PageRequestDto pageRequest) throws ContentProviderException {
+        log.trace("Expanding '{}' under request '{}'", value, pageRequest);
         if (value instanceof PageModelData) { // got something, maybe it's a Page?
             _expandPageModel((PageModelData) value, pageRequest);
         } else if (value instanceof RegionModelData) { // this is not a page, so maybe region?
@@ -128,15 +132,15 @@ public class ModelService implements PageModelService, EntityModelService {
             if (_isModelToExpand(value)) { // ok, we have one of concrete models, do we want to expand it?
                 // we want to expand it, let's finally decide what is it and expand
                 if (value instanceof KeywordModelData) {
-                    _expandKeyword((KeywordModelData) value);
+                    _expandKeyword((KeywordModelData) value, pageRequest);
                 } else if (value instanceof EntityModelData) {
-                    _expandEntity((EntityModelData) value);
+                    _expandEntity((EntityModelData) value, pageRequest);
                 }
             }
         }
     }
 
-    private void _expandPageModel(PageModelData page, PageRequestDto pageRequest) {
+    private void _expandPageModel(PageModelData page, PageRequestDto pageRequest) throws ContentProviderException {
         // let's expand all regions, one by one
         for (RegionModelData region : page.getRegions()) {
             _expandObject(region, pageRequest);
@@ -145,7 +149,7 @@ public class ModelService implements PageModelService, EntityModelService {
         _expandObject(page.getMetadata(), pageRequest);
     }
 
-    private void _expandRegionModel(RegionModelData region, PageRequestDto pageRequest) {
+    private void _expandRegionModel(RegionModelData region, PageRequestDto pageRequest) throws ContentProviderException {
         if (region.getRegions() != null) { // then it may have nested regions
             for (RegionModelData nestedRegion : region.getRegions()) {
                 _expandObject(nestedRegion, pageRequest);
@@ -162,7 +166,7 @@ public class ModelService implements PageModelService, EntityModelService {
         _expandObject(region.getMetadata(), pageRequest);
     }
 
-    private void _expandCollection(Object value, PageRequestDto pageRequest) {
+    private void _expandCollection(Object value, PageRequestDto pageRequest) throws ContentProviderException {
         Collection<?> values;
 
         if (value instanceof Map) { // ok, found a Map (CMD?)
@@ -183,18 +187,32 @@ public class ModelService implements PageModelService, EntityModelService {
     }
 
     private boolean _isModelToExpand(Object value) {
-        return (value instanceof KeywordModelData/* && ((KeywordModelData) value).getTitle() == null*/)
-                || (value instanceof EntityModelData/* && ((EntityModelData) value).getSchemaId() == null*/);
+        return (value instanceof KeywordModelData && ((KeywordModelData) value).getTitle() == null)
+                || (value instanceof EntityModelData && ((EntityModelData) value).getSchemaId() == null);
     }
 
-    private void _expandEntity(EntityModelData value) {
+    private void _expandEntity(EntityModelData value, PageRequestDto pageRequest) {
         EntityModelData entity = value;
         log.debug("Found entity {}", entity.getId());
     }
 
-    private void _expandKeyword(KeywordModelData value) {
-        KeywordModelData keyword = value;
-        log.debug("Found keyword {}", keyword.getId());
+    private void _expandKeyword(KeywordModelData keywordModel, PageRequestDto pageRequest) throws ContentProviderException {
+        String keywordURI = TcmUtils.buildKeywordTcmUri(String.valueOf(pageRequest.getPublicationId()), keywordModel.getId());
+        log.trace("Found keyword to expand, uri = '{}'", keywordURI);
+        Keyword keyword = new TaxonomyFactory().getTaxonomyKeyword(keywordURI);
+
+        if (keyword == null) {
+            throw new ContentProviderException("Keyword " + keywordModel.getId() + " in publication " + pageRequest.getPublicationId() + " cannot be found, is it published?");
+        }
+
+        ContentModelData metadata = new ContentModelData();
+        keyword.getKeywordMeta().getNameValues().forEach((key, values) -> metadata.put(key, values.getMultipleValues()));
+
+        keywordModel.setDescription(keyword.getKeywordDescription())
+                .setKey(keyword.getKeywordKey())
+                .setTitle(keyword.getKeywordName())
+                .setTaxonomyId(String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyURI())))
+                .setMetadata(metadata);
     }
 
     @Contract("!null, _ -> !null")
