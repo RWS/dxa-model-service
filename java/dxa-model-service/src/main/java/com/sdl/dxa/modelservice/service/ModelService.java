@@ -2,9 +2,13 @@ package com.sdl.dxa.modelservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.api.datamodel.model.KeywordModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
+import com.sdl.dxa.api.datamodel.model.util.CanWrapContentAndMetadata;
+import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
+import com.sdl.dxa.api.datamodel.model.util.ModelDataWrapper;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
@@ -24,6 +28,7 @@ import com.tridion.content.PageContentFactory;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +36,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
@@ -88,10 +95,109 @@ public class ModelService implements PageModelService, EntityModelService {
         }
     }
 
+    @Contract("!null, _ -> !null")
     private PageModelData _processPageModel(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
-        return _expandIncludePages(pageModel, pageRequest);
+        PageModelData pageModelData = _expandIncludePages(pageModel, pageRequest);
+
+        // let's check every leaf here if we need to expand it
+        _expandObject(pageModelData, pageRequest);
+
+        return pageModelData;
     }
 
+    private void _expandObject(Object value, PageRequestDto pageRequest) {
+        if (value instanceof PageModelData) { // got something, maybe it's a Page?
+            _expandPageModel((PageModelData) value, pageRequest);
+        } else if (value instanceof RegionModelData) { // this is not a page, so maybe region?
+            _expandRegionModel((RegionModelData) value, pageRequest);
+        } else if (_isCollectionType(value)) { // this is not a page nor a region, maybe it's one one collections?
+            _expandCollection(value, pageRequest);
+        } else {
+            // it's one of concrete models
+
+            if (value instanceof CanWrapContentAndMetadata) { // if it may have own content or metadata, let's process it also, maybe we can find models there
+                ModelDataWrapper wrapper = ((CanWrapContentAndMetadata) value).getDataWrapper();
+                if (wrapper.getContent() != null) {
+                    _expandObject(wrapper.getContent(), pageRequest);
+                }
+                if (wrapper.getMetadata() != null) {
+                    _expandObject(wrapper.getMetadata(), pageRequest);
+                }
+            }
+
+            if (_isModelToExpand(value)) { // ok, we have one of concrete models, do we want to expand it?
+                // we want to expand it, let's finally decide what is it and expand
+                if (value instanceof KeywordModelData) {
+                    _expandKeyword((KeywordModelData) value);
+                } else if (value instanceof EntityModelData) {
+                    _expandEntity((EntityModelData) value);
+                }
+            }
+        }
+    }
+
+    private void _expandPageModel(PageModelData page, PageRequestDto pageRequest) {
+        // let's expand all regions, one by one
+        for (RegionModelData region : page.getRegions()) {
+            _expandObject(region, pageRequest);
+        }
+        // pages may have metadata, process it
+        _expandObject(page.getMetadata(), pageRequest);
+    }
+
+    private void _expandRegionModel(RegionModelData region, PageRequestDto pageRequest) {
+        if (region.getRegions() != null) { // then it may have nested regions
+            for (RegionModelData nestedRegion : region.getRegions()) {
+                _expandObject(nestedRegion, pageRequest);
+            }
+        }
+
+        if (region.getEntities() != null) { // or maybe it has entities?
+            for (EntityModelData entity : region.getEntities()) {
+                _expandObject(entity, pageRequest);
+            }
+        }
+
+        // regions may have metadata, process it
+        _expandObject(region.getMetadata(), pageRequest);
+    }
+
+    private void _expandCollection(Object value, PageRequestDto pageRequest) {
+        Collection<?> values;
+
+        if (value instanceof Map) { // ok, found a Map (CMD?)
+            values = ((Map) value).values();
+        } else if (value instanceof ListWrapper) { // if it's not a map, then it's probable a ListWrapper
+            values = ((ListWrapper) value).getValues();
+        } else { // should have been handled previously, but maybe we lost a type and it's just a collection?
+            values = (Collection) value;
+        }
+
+        for (Object element : values) { // let's expand our collection element by element
+            _expandObject(element, pageRequest);
+        }
+    }
+
+    private boolean _isCollectionType(Object value) {
+        return value instanceof ListWrapper || value instanceof Collection || value instanceof Map;
+    }
+
+    private boolean _isModelToExpand(Object value) {
+        return (value instanceof KeywordModelData/* && ((KeywordModelData) value).getTitle() == null*/)
+                || (value instanceof EntityModelData/* && ((EntityModelData) value).getSchemaId() == null*/);
+    }
+
+    private void _expandEntity(EntityModelData value) {
+        EntityModelData entity = value;
+        log.debug("Found entity {}", entity.getId());
+    }
+
+    private void _expandKeyword(KeywordModelData value) {
+        KeywordModelData keyword = value;
+        log.debug("Found keyword {}", keyword.getId());
+    }
+
+    @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
         if (pageRequest.getIncludePages() == PageRequestDto.PageInclusion.EXCLUDE) {
             log.debug("Page {} requested excluding included regions {}", pageModel, pageRequest);
@@ -106,9 +212,12 @@ public class ModelService implements PageModelService, EntityModelService {
             log.trace("Found include region include id = {}", region.getIncludePageId());
 
             String includePageContent = _getPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
-            PageModelData includePage = _processPageModel(_parseResponse(includePageContent, PageModelData.class), pageRequest);
+            // maybe it has inner regions which we need to include?
+            PageModelData includePage = _expandIncludePages(_parseResponse(includePageContent, PageModelData.class), pageRequest);
 
-            includePage.getRegions().forEach(region::addRegion);
+            if (includePage.getRegions() != null) {
+                includePage.getRegions().forEach(region::addRegion);
+            }
         }
         return pageModel;
     }
