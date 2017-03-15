@@ -211,7 +211,7 @@ public class ModelService implements PageModelService, EntityModelService {
         }
 
         ContentModelData metadata = new ContentModelData();
-        keyword.getKeywordMeta().getNameValues().forEach((key, values) -> metadata.put(key, values.getMultipleValues()));
+        keyword.getKeywordMeta().getNameValues().forEach((key, values) -> metadata.put(key, new ListWrapper<Object>(values.getMultipleValues())));
 
         keywordModel.setDescription(keyword.getKeywordDescription())
                 .setKey(keyword.getKeywordKey())
