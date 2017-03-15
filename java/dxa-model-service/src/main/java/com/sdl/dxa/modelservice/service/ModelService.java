@@ -191,9 +191,14 @@ public class ModelService implements PageModelService, EntityModelService {
                 || (value instanceof EntityModelData && ((EntityModelData) value).getSchemaId() == null);
     }
 
-    private void _expandEntity(EntityModelData value, PageRequestDto pageRequest) {
-        EntityModelData entity = value;
-        log.debug("Found entity {}", entity.getId());
+    private void _expandEntity(EntityModelData toExpand, PageRequestDto pageRequest) throws ContentProviderException {
+        EntityRequestDto entityRequest = EntityRequestDto.builder()
+                .entityId(toExpand.getId())
+                .publicationId(pageRequest.getPublicationId())
+                .build();
+
+        log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
+        toExpand.copyFrom(loadEntity(entityRequest));
     }
 
     private void _expandKeyword(KeywordModelData keywordModel, PageRequestDto pageRequest) throws ContentProviderException {
