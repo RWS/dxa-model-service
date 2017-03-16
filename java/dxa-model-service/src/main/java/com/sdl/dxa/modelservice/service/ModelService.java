@@ -28,6 +28,7 @@ import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
+import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +40,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
@@ -210,14 +213,41 @@ public class ModelService implements PageModelService, EntityModelService {
             throw new ContentProviderException("Keyword " + keywordModel.getId() + " in publication " + pageRequest.getPublicationId() + " cannot be found, is it published?");
         }
 
-        ContentModelData metadata = new ContentModelData();
-        keyword.getKeywordMeta().getNameValues().forEach((key, values) -> metadata.put(key, new ListWrapper<Object>(values.getMultipleValues())));
-
         keywordModel.setDescription(keyword.getKeywordDescription())
                 .setKey(keyword.getKeywordKey())
                 .setTitle(keyword.getKeywordName())
                 .setTaxonomyId(String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyURI())))
-                .setMetadata(metadata);
+                .setMetadata(_getMetadata(keyword, pageRequest));
+    }
+
+    @NotNull
+    private ContentModelData _getMetadata(Keyword keyword, PageRequestDto pageRequest) throws ContentProviderException {
+        ContentModelData metadata = new ContentModelData();
+        for (Map.Entry<String, NameValuePair> entry : keyword.getKeywordMeta().getNameValues().entrySet()) {
+            String key = entry.getKey();
+            NameValuePair value = entry.getValue();
+
+            ListWrapper<?> values = null;
+
+            String firstValue = String.valueOf(value.getFirstValue());
+            if (TcmUtils.isTcmUri(firstValue) && TcmUtils.getItemType(firstValue) == TcmUtils.KEYWORD_ITEM_TYPE) {
+
+                List<KeywordModelData> data = new ArrayList<>();
+
+                for (Object uri : value.getMultipleValues()) {
+                    KeywordModelData keywordModelData = new KeywordModelData().setId(String.valueOf(TcmUtils.getItemId(String.valueOf(uri))));
+                    _expandObject(keywordModelData, pageRequest);
+                    data.add(keywordModelData);
+                }
+
+                values = new ListWrapper.KeywordModelDataListWrapper(data);
+            }
+
+            values = values == null ? new ListWrapper<>(value.getMultipleValues()) : values;
+
+            metadata.put(key, values);
+        }
+        return metadata;
     }
 
     @Contract("!null, _ -> !null")
