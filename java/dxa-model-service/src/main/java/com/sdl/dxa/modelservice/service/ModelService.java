@@ -112,6 +112,11 @@ public class ModelService implements PageModelService, EntityModelService {
     }
 
     private void _expandObject(Object value, PageRequestDto pageRequest) throws ContentProviderException {
+        if (!pageRequest.depthIncreaseAndCheckIfSafe()) {
+            log.warn("Went too deep expanding the model for page request {}, returning from here", pageRequest);
+            return;
+        }
+
         log.trace("Expanding '{}' under request '{}'", value, pageRequest);
         if (value instanceof PageModelData) { // got something, maybe it's a Page?
             _expandPageModel((PageModelData) value, pageRequest);
@@ -121,15 +126,8 @@ public class ModelService implements PageModelService, EntityModelService {
             _expandCollection(value, pageRequest);
         } else {
             // it's one of concrete models
-
             if (value instanceof CanWrapContentAndMetadata) { // if it may have own content or metadata, let's process it also, maybe we can find models there
-                ModelDataWrapper wrapper = ((CanWrapContentAndMetadata) value).getDataWrapper();
-                if (wrapper.getContent() != null) {
-                    _expandObject(wrapper.getContent(), pageRequest);
-                }
-                if (wrapper.getMetadata() != null) {
-                    _expandObject(wrapper.getMetadata(), pageRequest);
-                }
+                _expandWrapper((CanWrapContentAndMetadata) value, pageRequest);
             }
 
             if (_isModelToExpand(value)) { // ok, we have one of concrete models, do we want to expand it?
@@ -140,6 +138,17 @@ public class ModelService implements PageModelService, EntityModelService {
                     _expandEntity((EntityModelData) value, pageRequest);
                 }
             }
+        }
+        pageRequest.depthDecrease();
+    }
+
+    private void _expandWrapper(CanWrapContentAndMetadata value, PageRequestDto pageRequest) throws ContentProviderException {
+        ModelDataWrapper wrapper = value.getDataWrapper();
+        if (wrapper.getContent() != null) {
+            _expandObject(wrapper.getContent(), pageRequest);
+        }
+        if (wrapper.getMetadata() != null) {
+            _expandObject(wrapper.getMetadata(), pageRequest);
         }
     }
 
