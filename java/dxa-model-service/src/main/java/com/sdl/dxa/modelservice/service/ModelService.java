@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
@@ -222,24 +222,28 @@ public class ModelService implements PageModelService, EntityModelService {
 
     @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
-        if (pageRequest.getIncludePages() == PageRequestDto.PageInclusion.EXCLUDE) {
-            log.debug("Page {} requested excluding included regions {}", pageModel, pageRequest);
-            return pageModel;
-        }
-
-        List<RegionModelData> regions = pageModel.getRegions();
-        for (RegionModelData region : regions) {
+        Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
+        while (iterator.hasNext()) {
+            RegionModelData region = iterator.next();
             if (region.getIncludePageId() == null) {
                 continue;
             }
-            log.trace("Found include region include id = {}", region.getIncludePageId());
 
-            String includePageContent = _getPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
-            // maybe it has inner regions which we need to include?
-            PageModelData includePage = _expandIncludePages(_parseResponse(includePageContent, PageModelData.class), pageRequest);
+            log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
 
-            if (includePage.getRegions() != null) {
-                includePage.getRegions().forEach(region::addRegion);
+            switch (pageRequest.getIncludePages()) {
+                case EXCLUDE:
+                    iterator.remove();
+                    break;
+                case INCLUDE:
+                default:
+                    String includePageContent = _getPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
+                    // maybe it has inner regions which we need to include?
+                    PageModelData includePage = _expandIncludePages(_parseResponse(includePageContent, PageModelData.class), pageRequest);
+
+                    if (includePage.getRegions() != null) {
+                        includePage.getRegions().forEach(region::addRegion);
+                    }
             }
         }
         return pageModel;
