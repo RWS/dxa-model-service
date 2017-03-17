@@ -14,6 +14,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -56,9 +57,13 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private final ObjectMapper objectMapper;
 
+    private final LinkResolver linkResolver;
+
     @Autowired
-    public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
+    public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
+                        LinkResolver linkResolver) {
         this.objectMapper = objectMapper;
+        this.linkResolver = linkResolver;
     }
 
     @Override
@@ -207,6 +212,7 @@ public class ModelService implements PageModelService, EntityModelService {
         EntityRequestDto entityRequest = EntityRequestDto.builder()
                 .entityId(toExpand.getId())
                 .publicationId(pageRequest.getPublicationId())
+                .resolveLink(true)
                 .build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
@@ -312,7 +318,13 @@ public class ModelService implements PageModelService, EntityModelService {
         if (componentPresentation == null) {
             throw new DxaItemNotFoundException("Cannot find a CP for componentUri" + componentUri + ", templateUri" + templateUri);
         }
-        return _parseResponse(componentPresentation.getContent(), EntityModelData.class);
+        EntityModelData modelData = _parseResponse(componentPresentation.getContent(), EntityModelData.class);
+
+        if (entityRequest.isResolveLink()) {
+            modelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(publicationId)));
+        }
+
+        return modelData;
     }
 
     private <T extends ViewModelData> T _parseResponse(String content, Class<T> expectedClass) throws ContentProviderException {
