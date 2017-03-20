@@ -215,7 +215,7 @@ public class ModelService implements PageModelService, EntityModelService {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey, meta ->
                                 TcmUtils.isTcmUri(meta.getValue()) ?
-                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId())) :
+                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true) :
                                         richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId()))));
     }
 
