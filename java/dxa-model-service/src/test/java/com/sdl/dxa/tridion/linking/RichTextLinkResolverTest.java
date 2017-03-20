@@ -29,9 +29,9 @@ public class RichTextLinkResolverTest {
 
     @Before
     public void init() {
-        when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"))).thenReturn("");
-        when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"))).thenReturn("");
-        when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"))).thenReturn("resolved-link");
+        when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"), eq(true))).thenReturn("");
+        when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"), eq(true))).thenReturn("");
+        when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"), eq(true))).thenReturn("resolved-link");
     }
 
     @Test
