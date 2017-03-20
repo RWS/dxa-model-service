@@ -135,13 +135,18 @@ public class ModelService implements PageModelService, EntityModelService {
                 _expandWrapper((CanWrapContentAndMetadata) value, pageRequest);
             }
 
-            if (_isModelToExpand(value)) { // ok, we have one of concrete models, do we want to expand it?
-                // we want to expand it, let's finally decide what is it and expand
-                if (value instanceof KeywordModelData) {
-                    _expandKeyword((KeywordModelData) value, pageRequest);
-                } else if (value instanceof EntityModelData) {
-                    _expandEntity((EntityModelData) value, pageRequest);
+            // ok, we have one of concrete models, which one? do we want to process/expand it?
+            if (value instanceof EntityModelData) {
+                EntityModelData entityModelData = (EntityModelData) value;
+                if (_isModelToExpand(entityModelData)) {
+                    _expandEntity(entityModelData, pageRequest);
                 }
+                String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
+                _resolveLink(pageRequest.getPublicationId(), componentUri, entityModelData);
+            }
+
+            if (value instanceof KeywordModelData && _isModelToExpand(value)) {
+                _expandKeyword((KeywordModelData) value, pageRequest);
             }
         }
         pageRequest.depthDecrease();
@@ -212,7 +217,6 @@ public class ModelService implements PageModelService, EntityModelService {
         EntityRequestDto entityRequest = EntityRequestDto.builder()
                 .entityId(toExpand.getId())
                 .publicationId(pageRequest.getPublicationId())
-                .resolveLink(true)
                 .build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
@@ -318,13 +322,17 @@ public class ModelService implements PageModelService, EntityModelService {
         if (componentPresentation == null) {
             throw new DxaItemNotFoundException("Cannot find a CP for componentUri" + componentUri + ", templateUri" + templateUri);
         }
-        EntityModelData modelData = _parseResponse(componentPresentation.getContent(), EntityModelData.class);
 
+        EntityModelData modelData = _parseResponse(componentPresentation.getContent(), EntityModelData.class);
         if (entityRequest.isResolveLink()) {
-            modelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(publicationId)));
+            _resolveLink(publicationId, componentUri, modelData);
         }
 
         return modelData;
+    }
+
+    private void _resolveLink(int publicationId, String componentUri, EntityModelData modelData) {
+        modelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(publicationId)));
     }
 
     private <T extends ViewModelData> T _parseResponse(String content, Class<T> expectedClass) throws ContentProviderException {
