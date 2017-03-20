@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Component
-public class LinkResolver extends AbstractLinkResolver {
+public class LinkResolverImpl extends AbstractLinkResolver {
 
     @Override
     protected Function<ResolvingData, Optional<String>> _binaryResolver() {

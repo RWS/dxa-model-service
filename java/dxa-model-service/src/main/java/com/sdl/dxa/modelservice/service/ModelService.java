@@ -6,6 +6,7 @@ import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.KeywordModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
+import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.api.datamodel.model.util.CanWrapContentAndMetadata;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
@@ -13,6 +14,7 @@ import com.sdl.dxa.api.datamodel.model.util.ModelDataWrapper;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
@@ -43,9 +45,14 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
@@ -59,11 +66,15 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private final LinkResolver linkResolver;
 
+    private final RichTextLinkResolver richTextLinkResolver;
+
     @Autowired
     public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                        LinkResolver linkResolver) {
+                        LinkResolver linkResolver,
+                        RichTextLinkResolver richTextLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
+        this.richTextLinkResolver = richTextLinkResolver;
     }
 
     @Override
@@ -117,39 +128,68 @@ public class ModelService implements PageModelService, EntityModelService {
     }
 
     private void _expandObject(Object value, PageRequestDto pageRequest) throws ContentProviderException {
-        if (!pageRequest.depthIncreaseAndCheckIfSafe()) {
-            log.warn("Went too deep expanding the model for page request {}, returning from here", pageRequest);
-            return;
-        }
+        try {
+            if (!pageRequest.depthIncreaseAndCheckIfSafe()) {
+                log.warn("Went too deep expanding the model for page request {}, returning from here", pageRequest);
+                return;
+            }
 
-        log.trace("Expanding '{}' under request '{}'", value, pageRequest);
-        if (value instanceof PageModelData) { // got something, maybe it's a Page?
-            _expandPageModel((PageModelData) value, pageRequest);
-        } else if (value instanceof RegionModelData) { // this is not a page, so maybe region?
-            _expandRegionModel((RegionModelData) value, pageRequest);
-        } else if (_isCollectionType(value)) { // this is not a page nor a region, maybe it's one one collections?
-            _expandCollection(value, pageRequest);
-        } else {
-            // it's one of concrete models
-            if (value instanceof CanWrapContentAndMetadata) { // if it may have own content or metadata, let's process it also, maybe we can find models there
-                _expandWrapper((CanWrapContentAndMetadata) value, pageRequest);
+            log.trace("Expanding '{}' under request '{}'", value, pageRequest);
+
+            if (_isCollectionType(value)) { // is it a collection type?
+                // then let's expand everything and do not expect it to have anything more than concrete types
+                _expandCollection(value, pageRequest);
+                return;
             }
 
             // ok, we have one of concrete models, which one? do we want to process/expand it?
-            if (value instanceof EntityModelData) {
-                EntityModelData entityModelData = (EntityModelData) value;
-                if (_isModelToExpand(entityModelData)) {
-                    _expandEntity(entityModelData, pageRequest);
-                }
-                String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
-                _resolveLink(pageRequest.getPublicationId(), componentUri, entityModelData);
+            if (value instanceof PageModelData) { // maybe it's a Page?
+                _expandPageModel((PageModelData) value, pageRequest);
+            } else if (value instanceof RegionModelData) { // this is not a page, so maybe region?
+                _expandRegionModel((RegionModelData) value, pageRequest);
+            } else { // it's one of data models (entities, keywords, etc...)
+                _expandDataModel(value, pageRequest);
             }
 
-            if (value instanceof KeywordModelData && _isModelToExpand(value)) {
-                _expandKeyword((KeywordModelData) value, pageRequest);
+            // if it may have own content or metadata, let's process it also, maybe we can find models there
+            // should go last because content may appear during other expansions
+            if (value instanceof CanWrapContentAndMetadata) {
+                _expandWrapper((CanWrapContentAndMetadata) value, pageRequest);
             }
+        } finally {
+            pageRequest.depthDecrease();
         }
-        pageRequest.depthDecrease();
+    }
+
+    private void _expandDataModel(Object value, PageRequestDto pageRequest) throws ContentProviderException {
+        if (value instanceof EntityModelData) {
+            EntityModelData entityModelData = (EntityModelData) value;
+            if (_isModelToExpand(entityModelData)) {
+                _expandEntity(entityModelData, pageRequest);
+            }
+            String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
+            _resolveLink(pageRequest.getPublicationId(), componentUri, entityModelData);
+        }
+
+        if (value instanceof KeywordModelData && _isModelToExpand(value)) {
+            _expandKeyword((KeywordModelData) value, pageRequest);
+        }
+
+        if (value instanceof RichTextData) {
+            _resolveRichTextDataLinks((RichTextData) value, pageRequest);
+        }
+    }
+
+    private void _resolveRichTextDataLinks(RichTextData richTextData, PageRequestDto pageRequest) {
+        Set<String> notResolvedLinks = new HashSet<>();
+        List<Object> fragments = richTextData.getValues().stream()
+                .map(fragment ->
+                        fragment instanceof String ?
+                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks) :
+                                fragment)
+                .collect(Collectors.toList());
+
+        richTextData.setFragments(fragments);
     }
 
     private void _expandWrapper(CanWrapContentAndMetadata value, PageRequestDto pageRequest) throws ContentProviderException {
@@ -167,8 +207,16 @@ public class ModelService implements PageModelService, EntityModelService {
         for (RegionModelData region : page.getRegions()) {
             _expandObject(region, pageRequest);
         }
-        // pages may have metadata, process it
-        _expandObject(page.getMetadata(), pageRequest);
+
+        // pages may have meta (sic!: not metadata which is part of content wrapper), process it
+        page.setMeta(Optional.ofNullable(page.getMeta())
+                .orElse(Collections.emptyMap())
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey, meta ->
+                                TcmUtils.isTcmUri(meta.getValue()) ?
+                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId())) :
+                                        richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId()))));
     }
 
     private void _expandRegionModel(RegionModelData region, PageRequestDto pageRequest) throws ContentProviderException {
@@ -183,9 +231,6 @@ public class ModelService implements PageModelService, EntityModelService {
                 _expandObject(entity, pageRequest);
             }
         }
-
-        // regions may have metadata, process it
-        _expandObject(region.getMetadata(), pageRequest);
     }
 
     private void _expandCollection(Object value, PageRequestDto pageRequest) throws ContentProviderException {
