@@ -254,8 +254,17 @@ public class ModelService implements PageModelService, EntityModelService {
     }
 
     private boolean _isModelToExpand(Object value) {
-        return (value instanceof KeywordModelData && ((KeywordModelData) value).getTitle() == null)
-                || (value instanceof EntityModelData && ((EntityModelData) value).getSchemaId() == null);
+        return _isKeywordToExpand(value) || _isEntityToExpand(value);
+    }
+
+    private boolean _isKeywordToExpand(Object value) {
+        return value instanceof KeywordModelData && ((KeywordModelData) value).getTitle() == null;
+    }
+
+    private boolean _isEntityToExpand(Object value) {
+        return value instanceof EntityModelData
+                && ((EntityModelData) value).getSchemaId() == null
+                && ((EntityModelData) value).getId().matches("\\d+-\\d+");
     }
 
     private void _expandEntity(EntityModelData toExpand, PageRequestDto pageRequest) throws ContentProviderException {
@@ -291,27 +300,40 @@ public class ModelService implements PageModelService, EntityModelService {
             String key = entry.getKey();
             NameValuePair value = entry.getValue();
 
-            ListWrapper<?> values = null;
+            metadata.put(key, _getMetadataValues(pageRequest, value));
+        }
+        return metadata;
+    }
 
-            String firstValue = String.valueOf(value.getFirstValue());
-            if (TcmUtils.isTcmUri(firstValue) && TcmUtils.getItemType(firstValue) == TcmUtils.KEYWORD_ITEM_TYPE) {
+    @NotNull
+    private ListWrapper<?> _getMetadataValues(PageRequestDto pageRequest, NameValuePair value) throws ContentProviderException {
+        ListWrapper<?> values = null;
 
-                List<KeywordModelData> data = new ArrayList<>();
-
+        String firstValue = String.valueOf(value.getFirstValue());
+        if (TcmUtils.isTcmUri(firstValue)) {
+            int itemType = TcmUtils.getItemType(firstValue);
+            if (itemType == TcmUtils.KEYWORD_ITEM_TYPE) {
+                List<KeywordModelData> keywords = new ArrayList<>();
                 for (Object uri : value.getMultipleValues()) {
                     KeywordModelData keywordModelData = new KeywordModelData().setId(String.valueOf(TcmUtils.getItemId(String.valueOf(uri))));
                     _expandObject(keywordModelData, pageRequest);
-                    data.add(keywordModelData);
+                    keywords.add(keywordModelData);
                 }
-
-                values = new ListWrapper.KeywordModelDataListWrapper(data);
+                values = new ListWrapper.KeywordModelDataListWrapper(keywords);
+            } else if (itemType == TcmUtils.COMPONENT_ITEM_TYPE) {
+                values = new ListWrapper.EntityModelDataListWrapper(
+                        value.getMultipleValues().stream()
+                                .map(String::valueOf)
+                                .map(uri -> EntityModelData.builder()
+                                        .id(String.valueOf(TcmUtils.getItemId(uri)))
+                                        .linkUrl(linkResolver.resolveLink(uri, String.valueOf(pageRequest.getPublicationId())))
+                                        .build())
+                                .collect(Collectors.toList()));
             }
-
-            values = values == null ? new ListWrapper<>(value.getMultipleValues()) : values;
-
-            metadata.put(key, values);
         }
-        return metadata;
+
+        values = values == null ? new ListWrapper<>(value.getMultipleValues()) : values;
+        return values;
     }
 
     @Contract("!null, _ -> !null")
