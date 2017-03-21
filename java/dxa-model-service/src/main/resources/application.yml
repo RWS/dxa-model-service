@@ -1,0 +1,12 @@
+server:
+  port: @mvn.server.port@
+
+logging:
+  config: classpath:logback-spring.xml
+
+spring:
+  output:
+    ansi:
+      enabled: always
+  cache:
+    type: simple
