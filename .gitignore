@@ -2,6 +2,8 @@
 .project
 .checkstyle
 *.iml
+*.ipr
+*.iws
 .idea
 .settings/
 target/
