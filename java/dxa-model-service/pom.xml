@@ -72,7 +72,6 @@
     </dependencies>
 
     <build>
-        <finalName>dxa-model-service</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
