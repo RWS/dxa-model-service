@@ -18,7 +18,7 @@
     <description>DXA Model Service Assembly</description>
 
     <properties>
-        <standalone.path>.</standalone.path>
+        <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}/src/main/resources</resources.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
     </properties>
@@ -60,6 +60,45 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${standalone.build.dir}/bin</basedir>
+                    <includes>
+                        <include>*.ps1</include>
+                        <include>start.sh</include>
+                    </includes>
+                    <replacements>
+                        <!-- @formatter:off -->
+                        <replacement>
+                            <token>--server.port=8080</token>
+                            <value>--server.port=8998</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDLDeliveryServices</token>
+                            <value>DXAModelService</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDL Delivery Services</token>
+                            <value>DXA Model Service</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDL Delivery Platform Micro Services</token>
+                            <value>DXA Model Service</value>
+                        </replacement>
+                        <!-- @formatter:on -->
+                    </replacements>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
