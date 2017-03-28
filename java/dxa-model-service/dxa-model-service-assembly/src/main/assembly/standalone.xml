@@ -1,0 +1,74 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>standalone</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>${standalone.build.dir}</directory>
+            <outputDirectory>${standalone.path}</outputDirectory>
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${resources.dir}</directory>
+            <outputDirectory>${standalone.path}</outputDirectory>
+            <includes>
+                <include>README.md</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${resources.dir}</directory>
+            <outputDirectory>${standalone.path}/config</outputDirectory>
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <includes>
+                <include>*:jar:*</include>
+            </includes>
+            <excludes>
+                <!-- Exclude service container artifacts -->
+                <exclude>com.tridion:cd_common_util</exclude>
+                <exclude>com.sdl.delivery:service-container-assembly</exclude>
+                <exclude>com.sdl.delivery:service-container-core</exclude>
+                <exclude>org.apache.deamon:apache-procrun:exe:procrun:1.0</exclude>
+                <exclude>org.aspectj:aspectjweaver</exclude>
+                <exclude>com.fasterxml:classmate</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-*</exclude>
+                <exclude>org.hibernate:hibernate-validator</exclude>
+                <exclude>org.jboss.logging:jboss-logging</exclude>
+                <exclude>org.slf4j:jcl-*</exclude>
+                <exclude>org.slf4j:jul-*</exclude>
+                <exclude>org.slf4j:log4j-*</exclude>
+                <exclude>org.slf4j:slf4j-*</exclude>
+                <exclude>ch.qos.logback:logback-*</exclude>
+                <exclude>org.yaml:snakeyaml</exclude>
+                <exclude>org.springframework:spring-aop</exclude>
+                <exclude>org.springframework:spring-beans</exclude>
+                <exclude>org.springframework.boot:spring-boot</exclude>
+                <exclude>org.springframework.boot:spring-boot-*</exclude>
+                <exclude>org.springframework:spring-context</exclude>
+                <exclude>org.springframework:spring-core</exclude>
+                <exclude>org.springframework:spring-expression</exclude>
+                <exclude>org.springframework:spring-web*</exclude>
+                <exclude>org.apache.tomcat.embed:tomcat-embed-*</exclude>
+                <exclude>javax.validation:validation-api</exclude>
+            </excludes>
+            <outputDirectory>${standalone.path}/services/model-service</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>

@@ -1,8 +1,5 @@
-server:
-  port: @mvn.server.port@
-
 logging:
-  config: classpath:logback-spring.xml
+  config: classpath:dxa-logback.xml
 
 spring:
   output:

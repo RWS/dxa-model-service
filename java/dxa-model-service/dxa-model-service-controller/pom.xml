@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>dxa-model-service</artifactId>
+        <groupId>com.sdl.dxa</groupId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>dxa-model-service-controller</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>DXA Model Service Controller</name>
+    <description>DXA Model Service Controller</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <dxa.version>${project.version}</dxa.version>
+        <cil.version>8.5.0-1008</cil.version>
+    </properties>
+
+    <dependencies>
+        <!-- DXA & SDL Web -->
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-data-model</artifactId>
+            <version>${dxa.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-common</artifactId>
+            <version>${dxa.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>cil</artifactId>
+            <type>pom</type>
+            <version>${cil.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>ugc_container</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>ugc_taglib</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
