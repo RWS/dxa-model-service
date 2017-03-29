@@ -30,6 +30,13 @@
                 <exclude>README.md</exclude>
             </excludes>
         </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>${standalone.path}/services/model-service</outputDirectory>
+            <includes>
+                <include>${project.build.finalName}.${project.packaging}</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
