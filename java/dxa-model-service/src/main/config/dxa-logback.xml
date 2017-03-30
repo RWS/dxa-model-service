@@ -2,8 +2,8 @@
     <!-- Properties and variables -->
     <property name="log.pattern" value="%highlight(%d{HH:mm:ss.SSS} [%thread] %-5level) %logger{36} - %msg%n"/>
     <property name="log.history" value="7"/>
-    <property name="log.level" value="DEBUG"/>
-    <property name="cil.log.level" value="DEBUG"/>
+    <property name="log.level" value="WARN"/>
+    <property name="cil.log.level" value="WARN"/>
     <property name="log.encoding" value="UTF-8"/>
     <property name="log.folder" value="dxa-model-service-logs"/>
 
