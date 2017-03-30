@@ -28,7 +28,7 @@
         <service-container.version>8.5.0-1016</service-container.version>
 
         <standalone.path>standalone</standalone.path>
-        <resources.dir>${project.basedir}/src/main/resources</resources.dir>
+        <resources.dir>${project.basedir}/src/main/config</resources.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
     </properties>
 
