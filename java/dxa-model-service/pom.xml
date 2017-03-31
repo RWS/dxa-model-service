@@ -26,6 +26,7 @@
         <dxa.version>${project.version}</dxa.version>
         <cil.version>8.5.0-1008</cil.version>
         <service-container.version>8.5.0-1016</service-container.version>
+        <discovery-registration-api.version>8.5.0-1016</discovery-registration-api.version>
 
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}/src/main/config</resources.dir>
@@ -66,6 +67,12 @@
             <artifactId>service-container-assembly</artifactId>
             <type>zip</type>
             <version>${service-container.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-registration-api</artifactId>
+            <version>${discovery-registration-api.version}</version>
         </dependency>
 
         <dependency>
@@ -119,6 +126,7 @@
             <plugin>
                 <groupId>com.google.code.maven-replacer-plugin</groupId>
                 <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
@@ -157,6 +165,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
@@ -165,10 +174,10 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <finalName>${project.artifactId}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/standalone.xml</descriptor>
                             </descriptors>
-                            <finalName>${project.artifactId}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>true</attach>
                         </configuration>
