@@ -6,4 +6,6 @@ spring:
     ansi:
       enabled: always
   cache:
-    type: simple
+    type: jcache
+    jcache:
+      config: ehcache-cil.xml

@@ -59,7 +59,7 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 @Slf4j
 @Service
-@Cacheable(value = "model-service")
+@Cacheable(value = "defaultCache")
 public class ModelService implements PageModelService, EntityModelService {
 
     private final ObjectMapper objectMapper;
