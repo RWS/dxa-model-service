@@ -6,3 +6,5 @@ spring:
     type: jcache
     jcache:
       config: ehcache-cil.xml
+logging:
+  config: config/logback.xml
