@@ -5,7 +5,7 @@
     <property name="log.level" value="${log.level:-INFO}"/>
     <property name="cil.log.level" value="${cil.log.level:-WARN}"/>
     <property name="log.encoding" value="UTF-8"/>
-    <property name="log.folder" value="dxa-model-service-logs"/>
+    <property name="log.folder" value="${log.folder:-C:/SDLWeb/log}"/>
 
     <!-- Appenders -->
     <appender name="appender.cil" class="ch.qos.logback.core.rolling.RollingFileAppender">

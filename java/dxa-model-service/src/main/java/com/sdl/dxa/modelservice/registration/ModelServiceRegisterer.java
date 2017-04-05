@@ -12,7 +12,7 @@ import com.sdl.web.discovery.registration.ODataClientProvider;
 import com.sdl.web.discovery.registration.SecuredODataClient;
 import com.sdl.web.discovery.registration.capability.ContentServiceCapabilityBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -28,13 +28,13 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Service
-@Profile("auto-registration")
+@Conditional(AutoRegistrationCondition.class)
 public class ModelServiceRegisterer {
+
+    static final String CONFIG_FILE_NAME = "cd_storage_conf.xml";
 
     private static final XPathConfigurationPath CONTENT_SERVICE_CAPABILITY_ROLE_XPATH =
             new XPathConfigurationPath("/Roles/Role[@Name=\"ContentServiceCapability\"]");
-
-    private static final String CONFIG_FILE_NAME = "cd_storage_conf.xml";
 
     private final SecuredODataClient dataClient;
 
