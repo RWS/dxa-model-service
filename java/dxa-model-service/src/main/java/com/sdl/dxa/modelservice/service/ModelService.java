@@ -59,7 +59,7 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 @Slf4j
 @Service
-@Cacheable(value = "model-service")
+@Cacheable(value = "defaultCache")
 public class ModelService implements PageModelService, EntityModelService {
 
     private final ObjectMapper objectMapper;
@@ -204,8 +204,10 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private void _expandPageModel(PageModelData page, PageRequestDto pageRequest) throws ContentProviderException {
         // let's expand all regions, one by one
-        for (RegionModelData region : page.getRegions()) {
-            _expandObject(region, pageRequest);
+        if (page.getRegions() != null) {
+            for (RegionModelData region : page.getRegions()) {
+                _expandObject(region, pageRequest);
+            }
         }
 
         // pages may have meta (sic!: not metadata which is part of content wrapper), process it
@@ -338,28 +340,30 @@ public class ModelService implements PageModelService, EntityModelService {
 
     @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
-        Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
-        while (iterator.hasNext()) {
-            RegionModelData region = iterator.next();
-            if (region.getIncludePageId() == null) {
-                continue;
-            }
+        if (pageModel.getRegions() != null) {
+            Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
+            while (iterator.hasNext()) {
+                RegionModelData region = iterator.next();
+                if (region.getIncludePageId() == null) {
+                    continue;
+                }
 
-            log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
+                log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
 
-            switch (pageRequest.getIncludePages()) {
-                case EXCLUDE:
-                    iterator.remove();
-                    break;
-                case INCLUDE:
-                default:
-                    String includePageContent = _getPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
-                    // maybe it has inner regions which we need to include?
-                    PageModelData includePage = _expandIncludePages(_parseResponse(includePageContent, PageModelData.class), pageRequest);
+                switch (pageRequest.getIncludePages()) {
+                    case EXCLUDE:
+                        iterator.remove();
+                        break;
+                    case INCLUDE:
+                    default:
+                        String includePageContent = _getPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
+                        // maybe it has inner regions which we need to include?
+                        PageModelData includePage = _expandIncludePages(_parseResponse(includePageContent, PageModelData.class), pageRequest);
 
-                    if (includePage.getRegions() != null) {
-                        includePage.getRegions().forEach(region::addRegion);
-                    }
+                        if (includePage.getRegions() != null) {
+                            includePage.getRegions().forEach(region::addRegion);
+                        }
+                }
             }
         }
         return pageModel;

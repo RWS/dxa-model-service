@@ -5,16 +5,16 @@
 
     <groupId>com.sdl.dxa</groupId>
     <artifactId>dxa-model-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>dxa-model-service</name>
+    <name>DXA Model Service</name>
     <description>DXA Model Service</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.2.RELEASE</version>
+        <version>1.5.1.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -23,11 +23,14 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
 
-        <dxa.version>2.0.0-SNAPSHOT</dxa.version>
+        <dxa.version>${project.version}</dxa.version>
         <cil.version>8.5.0-1008</cil.version>
+        <service-container.version>8.5.0-1016</service-container.version>
+        <discovery-registration-api.version>8.5.0-1016</discovery-registration-api.version>
 
-        <mvn.discovery.url>http://dxadevweb85.ams.dev:8082/discovery.svc</mvn.discovery.url>
-        <mvn.server.port>8998</mvn.server.port>
+        <standalone.path>standalone</standalone.path>
+        <resources.dir>${project.basedir}/src/main/config</resources.dir>
+        <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
     </properties>
 
     <dependencies>
@@ -47,11 +50,49 @@
             <artifactId>cil</artifactId>
             <type>pom</type>
             <version>${cil.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>ugc_container</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>ugc_taglib</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>service-container-assembly</artifactId>
+            <type>zip</type>
+            <version>${service-container.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-registration-api</artifactId>
+            <version>${discovery-registration-api.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
         </dependency>
 
         <dependency>
@@ -72,31 +113,114 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-assembly</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.sdl.delivery</groupId>
+                                    <artifactId>service-container-assembly</artifactId>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${standalone.build.dir}</outputDirectory>
+                            <silent>true</silent>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <delimiters>
-                        <delimiter>@</delimiter>
-                    </delimiters>
-                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                    <basedir>${standalone.build.dir}/bin</basedir>
+                    <includes>
+                        <include>*.ps1</include>
+                        <include>start.sh</include>
+                    </includes>
+                    <replacements>
+                        <!-- @formatter:off -->
+                        <replacement>
+                            <token>--server.port=8080</token>
+                            <value>--server.port=8998</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDLDeliveryServices</token>
+                            <value>DXAModelService</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDL Delivery Services</token>
+                            <value>DXA Model Service</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDL Delivery Platform Micro Services</token>
+                            <value>DXA Model Service</value>
+                        </replacement>
+                        <!-- @formatter:on -->
+                    </replacements>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/standalone.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-leftovers</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <verbose>true</verbose>
+                            <filesets>
+                                <fileset>
+                                    <directory>${standalone.build.dir}</directory>
+                                    <followSymlinks>false</followSymlinks>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
-
 </project>

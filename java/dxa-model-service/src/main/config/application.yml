@@ -1,0 +1,10 @@
+spring:
+  output:
+    ansi:
+      enabled: detect
+  cache:
+    type: jcache
+    jcache:
+      config: ehcache-cil.xml
+logging:
+  config: config/logback.xml
