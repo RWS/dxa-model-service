@@ -28,6 +28,8 @@
         <service-container.version>8.5.0-1016</service-container.version>
         <discovery-registration-api.version>8.5.0-1016</discovery-registration-api.version>
 
+        <powermock.version>1.6.6</powermock.version>
+
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}/src/main/config</resources.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
@@ -103,6 +105,18 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
