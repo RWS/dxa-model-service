@@ -1,6 +1,7 @@
 package com.sdl.dxa;
 
 import com.sdl.web.ambient.client.AmbientClientFilter;
+import com.tridion.ambientdata.web.AmbientDataServletFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,5 +23,10 @@ public class DxaModelServiceApplication {
     @Bean
     public AmbientClientFilter ambientClientFilter() {
         return new AmbientClientFilter();
+    }
+
+    @Bean
+    public AmbientDataServletFilter ambientDataServletFilter() {
+        return new AmbientDataServletFilter();
     }
 }

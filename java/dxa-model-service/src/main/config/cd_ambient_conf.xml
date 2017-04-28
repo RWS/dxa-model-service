@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               Version="8.1"
+               Version="8.5"
                xsi:noNamespaceSchemaLocation="../schemas/cd_ambient_conf.xsd">
+
+    <Security OAuthEnabled="true">
+        <RequestValidator>com.sdl.web.oauth.validator.OAuth2RequestValidator</RequestValidator>
+        <!--
+        Built-in authentication server's configuration.
+        -->
+        <AuthenticationServer>
+            <SharedSecret>sample_passphrase</SharedSecret>
+        </AuthenticationServer>
+    </Security>
 
     <ForwardedClaims CookieName="TAFContext">
         <Claim Uri="taf:session:preview:preview_session"/>
@@ -69,7 +79,5 @@
 
     <!-- The claim store provider that will be used. -->
     <!-- For Java -->
-    <!--<ClaimStoreProvider>com.tridion.ambientdata.claimstore.providers.JavaClaimStoreProvider</ClaimStoreProvider>-->
-    <!-- For .NET -->
-    <!--<ClaimStoreProvider>com.tridion.ambientdata.claimstore.providers.DotNetClaimStoreProvider</ClaimStoreProvider>-->
+    <ClaimStoreProvider>com.tridion.ambientdata.claimstore.providers.JavaClaimStoreProvider</ClaimStoreProvider>
 </Configuration>

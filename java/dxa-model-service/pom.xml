@@ -27,6 +27,7 @@
         <cil.version>8.5.0-1008</cil.version>
         <service-container.version>8.5.0-1016</service-container.version>
         <discovery-registration-api.version>8.5.0-1016</discovery-registration-api.version>
+        <cd-ambient.version>8.5.0-1013</cd-ambient.version>
 
         <powermock.version>1.6.6</powermock.version>
 
@@ -69,12 +70,43 @@
             <artifactId>service-container-assembly</artifactId>
             <type>zip</type>
             <version>${service-container.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>discovery-registration-api</artifactId>
             <version>${discovery-registration-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth-common</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-api</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-engine</artifactId>
+            <version>${cd-ambient.version}</version>
         </dependency>
 
         <dependency>
