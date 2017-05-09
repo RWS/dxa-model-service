@@ -9,7 +9,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -28,21 +28,21 @@ public class OnDemandNavigationControllerTest {
         //when, then
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(content().string("subtree, includeAncestors = false, descendantLevels = 1"));
+                .andExpect(jsonPath("$[0].Id").value("subtree-false-1"));
 
         mockMvc.perform(
                 get(url)
                         .param("includeAncestors", "false")
                         .param("descendantLevels", "1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("subtree, includeAncestors = false, descendantLevels = 1"));
+                .andExpect(jsonPath("$[0].Id").value("subtree-false-1"));
 
         mockMvc.perform(
                 get(url)
                         .param("includeAncestors", "true")
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("subtree, includeAncestors = true, descendantLevels = 2"));
+                .andExpect(jsonPath("$[0].Id").value("subtree-true-2"));
 
     }
 
@@ -54,21 +54,21 @@ public class OnDemandNavigationControllerTest {
         //when, then
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(content().string("subtree/123, includeAncestors = false, descendantLevels = 1"));
+                .andExpect(jsonPath("$[0].Id").value("subtree/123-false-1"));
 
         mockMvc.perform(
                 get(url)
                         .param("includeAncestors", "false")
                         .param("descendantLevels", "1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("subtree/123, includeAncestors = false, descendantLevels = 1"));
+                .andExpect(jsonPath("$[0].Id").value("subtree/123-false-1"));
 
         mockMvc.perform(
                 get(url)
                         .param("includeAncestors", "true")
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("subtree/123, includeAncestors = true, descendantLevels = 2"));
+                .andExpect(jsonPath("$[0].Id").value("subtree/123-true-2"));
 
     }
 }
