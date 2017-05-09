@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-public class OnDemandNavigationControllerTest {
+public class DynamicNavigationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -28,21 +28,21 @@ public class OnDemandNavigationControllerTest {
         //when, then
         mockMvc.perform(get(url))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].Id").value("subtree-false-1"));
+                .andExpect(jsonPath("$[0].Id").value("subtree/null-false-1"));
 
         mockMvc.perform(
                 get(url)
                         .param("includeAncestors", "false")
                         .param("descendantLevels", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].Id").value("subtree-false-1"));
+                .andExpect(jsonPath("$[0].Id").value("subtree/null-false-1"));
 
         mockMvc.perform(
                 get(url)
                         .param("includeAncestors", "true")
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].Id").value("subtree-true-2"));
+                .andExpect(jsonPath("$[0].Id").value("subtree/null-true-2"));
 
     }
 
@@ -70,5 +70,31 @@ public class OnDemandNavigationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].Id").value("subtree/123-true-2"));
 
+    }
+
+    @Test
+    public void shouldAcceptLocalizationId_AndReturnNavigationModel() throws Exception {
+        //given 
+        String url = "/api/navigation";
+
+        //when, then
+        mockMvc.perform(get(url).param("localizationId", "123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Id").value("model-123"));
+
+        mockMvc.perform(get(url + "/").param("localizationId", "123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.Id").value("model-123"));
+    }
+
+    @Test
+    public void shouldFailOnInvalidRequest() throws Exception {
+        String url = "/api/navigation";
+
+        //when, then
+        mockMvc.perform(get(url).param("localizationId", "string instead of integer"))
+                .andExpect(status().is(400));
+
+        mockMvc.perform(get(url)).andExpect(status().is(400));
     }
 }
