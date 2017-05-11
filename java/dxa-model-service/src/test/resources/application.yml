@@ -1,2 +1,0 @@
-logging:
-  config: src/main/config/logback.xml
