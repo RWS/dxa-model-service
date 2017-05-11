@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 @Slf4j
 @Service
-//@Cacheable(value = "defaultCache")
+@Cacheable(value = "defaultCache")
 public class ModelService implements PageModelService, EntityModelService {
 
     private final ObjectMapper objectMapper;
