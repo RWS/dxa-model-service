@@ -49,13 +49,15 @@ public class PageModelController {
                                       @PathVariable int localizationId,
                                       @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                       HttpServletRequest request) throws ContentProviderException {
-        return contentService.loadPageModel(PageRequestDto.builder()
+        PageRequestDto pageRequest = PageRequestDto.builder()
                 .publicationId(localizationId)
                 .uriType(uriType)
                 .path(getPageUrl(request))
                 .includePages(pageInclusion)
                 .contentType(MODEL)
-                .build());
+                .build();
+        log.trace("requesting pageModel with {}", pageRequest);
+        return contentService.loadPageModel(pageRequest);
     }
 
     private String getPageUrl(HttpServletRequest request) {
@@ -67,12 +69,14 @@ public class PageModelController {
                                 @PathVariable int localizationId,
                                 @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                 HttpServletRequest request) throws ContentProviderException {
-        return contentService.loadPageContent(PageRequestDto.builder()
+        PageRequestDto pageRequest = PageRequestDto.builder()
                 .publicationId(localizationId)
                 .uriType(uriType)
                 .path(getPageUrl(request))
                 .includePages(pageInclusion)
                 .contentType(RAW)
-                .build());
+                .build();
+        log.trace("requesting pageSource with {}", pageRequest);
+        return contentService.loadPageContent(pageRequest);
     }
 }

@@ -80,7 +80,12 @@ public class ModelService implements PageModelService, EntityModelService {
     @Override
     @NotNull
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
-        PageModelData pageModel = _parseResponse(loadPageContent(pageRequest), PageModelData.class);
+        String pageContent = loadPageContent(pageRequest);
+        log.trace("Loaded page content for {}", pageRequest);
+
+        PageModelData pageModel = _parseResponse(pageContent, PageModelData.class);
+        log.trace("Parsed page content to page model {}", pageModel);
+
         return _processPageModel(pageModel, pageRequest);
     }
 
@@ -96,33 +101,39 @@ public class ModelService implements PageModelService, EntityModelService {
         OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
-
         Query query = new Query(new AndCriteria(urlCriteria, new PublicationCriteria(publicationId)));
         query.setResultFilter(new LimitFilter(1));
         query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.ASCENDING));
 
+        log.trace("Query {} for {}", query, pageRequest);
+
         try {
             String[] result = query.executeQuery();
-
             log.debug("Requested publication '{}', path '{}', result is '{}'", publicationId, path, result);
-
             if (result.length == 0) {
+                log.debug("Page not found for {}", pageRequest);
                 throw new PageNotFoundException(publicationId, path);
             }
 
             return _getPageContent(publicationId, TcmUtils.getItemId(result[0]));
         } catch (StorageException e) {
-            throw new ContentProviderException("Couldn't communicate to CD broker DB while loading a page " +
+            ContentProviderException exception = new ContentProviderException("Couldn't communicate to CD broker DB while loading a page " +
                     "with localization ID '" + publicationId + "' and page URL '" + path + "'", e);
+            log.warn("Issues communicating with CD", exception);
+            throw exception;
         }
     }
 
     @Contract("!null, _ -> !null")
     private PageModelData _processPageModel(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
+        log.trace("processing page model {} for page request {}", pageModel, pageRequest);
+
         PageModelData pageModelData = _expandIncludePages(pageModel, pageRequest);
+        log.trace("expanded include pages for {}", pageRequest);
 
         // let's check every leaf here if we need to expand it
         _expandObject(pageModelData, pageRequest);
+        log.trace("expanded the whole model for {}", pageRequest);
 
         return pageModelData;
     }
@@ -371,9 +382,12 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private String _getPageContent(int publicationId, int pageId) throws ContentProviderException {
         try {
+            log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
             return new PageContentFactory().getPageContent(publicationId, pageId).getString();
         } catch (IOException e) {
-            throw new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);
+            ContentProviderException exception = new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);
+            log.warn("Failed to load page content", exception);
+            throw exception;
         }
     }
 

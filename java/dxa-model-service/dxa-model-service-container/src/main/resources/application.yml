@@ -6,6 +6,11 @@ spring:
     type: jcache
     jcache:
       config: ehcache-cil.xml
+logging:
+  config: config/logback.xml
+
+---
+
 server:
   tomcat:
     additional-tld-skip-patterns: xercesImpl.jar, xml-apis.jar, serializer.jar
