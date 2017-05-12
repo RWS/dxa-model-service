@@ -1,0 +1,2 @@
+logging:
+  config: src/test/resources/logback.xml
