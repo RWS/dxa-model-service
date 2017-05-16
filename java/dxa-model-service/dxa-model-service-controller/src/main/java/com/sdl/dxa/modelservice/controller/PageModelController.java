@@ -64,10 +64,7 @@ public class PageModelController {
                     .build();
 
             log.trace("requesting pageModel with {}", pageRequest);
-
             return new ResponseEntity<>(contentService.loadPageModel(pageRequest), HttpStatus.OK);
-
-
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
