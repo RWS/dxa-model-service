@@ -7,10 +7,12 @@ import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -28,11 +30,15 @@ public class PageModelController {
     /**
      * {@code /PageModel/tcm/42/example/path/to/site}<br/>
      * {@code /PageModel/tcm/42//example/path/to/site}<br/>
-     * <p>Explanation:</p>
+     * {@code /context/PageModel/tcm/42/example/path/to/site}<br/>
+     * {@code /context/PageModel/tcm/42//example/path/to/site}<br/>
+     * <p>Selects {@code /example/path/to/site} in all four cases.</p>
+     * <p>Explanation of Regex:</p>
      * <ol>
-     * <li>Starts with {@code /}</li>
-     * <li>Followed by not {@code /}</li>
-     * <li>1 & 2 repeats 3 times: {@code /PageModel}, {@code /tcm}, {@code /42}</li>
+     * <li>Starts with 1+ (lazily) amount of not empty non-numbers with leading slash: {@code (/[^\\d]+)+?}</li> which is everything before localization ID
+     * <li>Followed by slash and not empty number {@code /\\d+}</li> which is the localization ID
+     * <li>Followed by optional slash {@code /?}</li>
+     * <li>Followed by named group pageUrl with the rest of URL {@code (?<pageUrl>/.*)}</li> which is the page URL
      * <li>Page path can start with {@code /} or {@code //}, so {@code /example/path/to/site} or {@code //example/path/to/site} both are ok</li>
      * </ol>
      */
@@ -45,61 +51,61 @@ public class PageModelController {
         this.contentService = contentService;
     }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<PageModelData> getPageModel(@PathVariable String uriType,
                                                       @PathVariable int localizationId,
                                                       @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                                       HttpServletRequest request) throws ContentProviderException {
-        Optional<String> pageUrl = getPageUrl(request);
-        if(pageUrl.isPresent()) {
-            PageRequestDto pageRequest = PageRequestDto.builder()
-                    .publicationId(localizationId)
-                    .uriType(uriType)
-                    .path(pageUrl.get())
-                    .includePages(pageInclusion)
-                    .contentType(MODEL)
-                    .build();
+        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, MODEL, request);
 
-            log.trace("requesting pageModel with {}", pageRequest);
-            return new ResponseEntity<>(contentService.loadPageModel(pageRequest), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (pageRequestDto == null) {
+            return ResponseEntity.badRequest().build();
         }
+
+        log.trace("requesting pageModel with {}", pageRequestDto);
+        return ResponseEntity.ok(contentService.loadPageModel(pageRequestDto));
+    }
+
+    @RequestMapping(params = "raw")
+    public ResponseEntity<String> getPageSource(@PathVariable String uriType,
+                                                @PathVariable int localizationId,
+                                                @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
+                                                HttpServletRequest request) throws ContentProviderException {
+        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, RAW, request);
+
+        if (pageRequestDto == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        log.trace("requesting pageSource with {}", pageRequestDto);
+        return ResponseEntity.ok(contentService.loadPageContent(pageRequestDto));
+    }
+
+    private PageRequestDto buildPageRequest(String uriType, int localizationId, PageInclusion pageInclusion,
+                                            PageRequestDto.ContentType contentType, HttpServletRequest request) {
+        Optional<String> pageUrl = getPageUrl(request);
+        if (!pageUrl.isPresent()) {
+            log.warn("Page URL is not found in request URI {}", request.getRequestURI());
+
+            return null;
+        }
+
+        return PageRequestDto.builder()
+                .publicationId(localizationId)
+                .uriType(uriType)
+                .path(pageUrl.get())
+                .includePages(pageInclusion)
+                .contentType(contentType)
+                .build();
     }
 
     private Optional<String> getPageUrl(HttpServletRequest request) {
-        Matcher m = PageModelController.PAGE_URL_REGEX.matcher(request.getRequestURI().substring(request.getContextPath().length()));
-        if(m.matches()) {
+        String requestUri = request.getRequestURI().substring(request.getContextPath().length());
+        Matcher m = PAGE_URL_REGEX.matcher(requestUri);
+        if (m.matches()) {
             return Optional.of(m.group("pageUrl"));
         }
 
         return Optional.empty();
-    }
-
-    @RequestMapping(
-            method = RequestMethod.GET,
-            params = "raw"
-    )
-    public ResponseEntity<String> getPageSource(@PathVariable String uriType,
-                                @PathVariable int localizationId,
-                                @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
-                                HttpServletRequest request) throws ContentProviderException {
-        Optional<String> pageUrl = getPageUrl(request);
-        if (pageUrl.isPresent()) {
-            PageRequestDto pageRequest = PageRequestDto.builder()
-                    .publicationId(localizationId)
-                    .uriType(uriType)
-                    .path(pageUrl.get())
-                    .includePages(pageInclusion)
-                    .contentType(RAW)
-                    .build();
-            log.trace("requesting pageSource with {}", pageRequest);
-            return new ResponseEntity<>(contentService.loadPageContent(pageRequest), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
     }
 }
