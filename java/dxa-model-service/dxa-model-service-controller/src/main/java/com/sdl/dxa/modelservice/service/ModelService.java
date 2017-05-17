@@ -140,7 +140,7 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private void _expandObject(Object value, PageRequestDto pageRequest) throws ContentProviderException {
         try {
-            if (!pageRequest.depthIncreaseAndCheckIfSafe()) {
+            if (!pageRequest.getDepthCounter().depthIncreaseAndCheckIfSafe()) {
                 log.warn("Went too deep expanding the model for page request {}, returning from here", pageRequest);
                 return;
             }
@@ -168,7 +168,7 @@ public class ModelService implements PageModelService, EntityModelService {
                 _expandWrapper((CanWrapContentAndMetadata) value, pageRequest);
             }
         } finally {
-            pageRequest.depthDecrease();
+            pageRequest.getDepthCounter().depthDecrease();
         }
     }
 

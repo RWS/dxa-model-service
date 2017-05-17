@@ -1,7 +1,11 @@
 package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
+import com.sdl.dxa.common.dto.SitemapRequestDto;
+import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,9 +19,15 @@ import java.util.Collections;
 @RestController
 public class DynamicNavigationController {
 
+    @Autowired
+    private DynamicNavigationProvider dynamicNavigationProvider;
+
     @RequestMapping
-    public SitemapItemModelData navigationModel(@RequestParam(value = "localizationId") Integer localizationId) {
-        return new SitemapItemModelData().setId(String.format("model-%s", localizationId));
+    public ResponseEntity<SitemapItemModelData> navigationModel(@RequestParam(value = "localizationId") Integer localizationId) {
+        SitemapRequestDto requestDto = SitemapRequestDto.builder().localizationId(localizationId).build();
+
+        return dynamicNavigationProvider.getNavigationModel(requestDto).map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(value = {"/subtree", "/subtree/{sitemapItemId}"}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

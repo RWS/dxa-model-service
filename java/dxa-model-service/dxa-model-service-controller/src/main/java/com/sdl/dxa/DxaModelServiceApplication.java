@@ -1,15 +1,19 @@
 package com.sdl.dxa;
 
 import com.sdl.web.ambient.client.AmbientClientFilter;
+import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
+import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
 import com.tridion.ambientdata.web.AmbientDataServletFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 
 @EnableCaching
 @SpringBootApplication
+@PropertySource("classpath:application.properties")
 public class DxaModelServiceApplication {
 
     /**
@@ -28,5 +32,10 @@ public class DxaModelServiceApplication {
     @Bean
     public AmbientDataServletFilter ambientDataServletFilter() {
         return new AmbientDataServletFilter();
+    }
+
+    @Bean
+    public WebTaxonomyFactory webTaxonomyFactory() {
+        return new WebTaxonomyFactoryImpl();
     }
 }

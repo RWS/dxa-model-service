@@ -1,13 +1,24 @@
 package com.sdl.dxa.modelservice.controller.api;
 
+import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
+import com.sdl.dxa.common.dto.SitemapRequestDto;
+import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Optional;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -19,6 +30,9 @@ public class DynamicNavigationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private DynamicNavigationProvider navigationProvider;
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {
@@ -76,15 +90,28 @@ public class DynamicNavigationControllerTest {
     public void shouldAcceptLocalizationId_AndReturnNavigationModel() throws Exception {
         //given 
         String url = "/api/navigation";
+        Optional<SitemapItemModelData> modelData = Optional.of(new SitemapItemModelData());
+        doReturn(modelData).when(navigationProvider).getNavigationModel(any());
 
         //when, then
         mockMvc.perform(get(url).param("localizationId", "123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.Id").value("model-123"));
+                .andExpect(status().isOk());
 
         mockMvc.perform(get(url + "/").param("localizationId", "123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.Id").value("model-123"));
+                .andExpect(status().isOk());
+
+        verify(navigationProvider, times(2)).getNavigationModel(eq(SitemapRequestDto.builder().localizationId(123).build()));
+    }
+
+    @Test
+    public void shouldSend404_IfThereIsNoNavigationModel() throws Exception {
+        //given
+        String url = "/api/navigation";
+        doReturn(Optional.empty()).when(navigationProvider).getNavigationModel(any());
+
+        //when, then
+        mockMvc.perform(get(url).param("localizationId", "123"))
+                .andExpect(status().is(404));
     }
 
     @Test
