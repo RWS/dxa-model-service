@@ -67,7 +67,7 @@ public class PageModelControllerTest {
     private void expectForUrl(String expected, String url, String contextPath) throws Exception {
         MockHttpServletRequestBuilder requestBuilder = get(url);
         if (contextPath != null) {
-            requestBuilder.servletPath(contextPath);
+            requestBuilder.contextPath(contextPath);
         }
         mvc.perform(requestBuilder).andExpect(status().isOk());
 
