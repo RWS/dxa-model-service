@@ -4,6 +4,7 @@ import com.sdl.web.ambient.client.AmbientClientFilter;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
 import com.tridion.ambientdata.web.AmbientDataServletFilter;
+import com.tridion.taxonomies.TaxonomyRelationManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,5 +38,10 @@ public class DxaModelServiceApplication {
     @Bean
     public WebTaxonomyFactory webTaxonomyFactory() {
         return new WebTaxonomyFactoryImpl();
+    }
+
+    @Bean
+    public TaxonomyRelationManager taxonomyRelationManager() {
+        return new TaxonomyRelationManager();
     }
 }
