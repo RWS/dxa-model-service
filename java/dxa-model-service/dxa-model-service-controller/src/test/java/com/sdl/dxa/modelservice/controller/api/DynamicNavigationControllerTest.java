@@ -3,7 +3,7 @@ package com.sdl.dxa.modelservice.controller.api;
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
-import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProvider;
+import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProviderImpl;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ public class DynamicNavigationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private DynamicNavigationProvider navigationProvider;
+    private DynamicNavigationProviderImpl navigationProvider;
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {

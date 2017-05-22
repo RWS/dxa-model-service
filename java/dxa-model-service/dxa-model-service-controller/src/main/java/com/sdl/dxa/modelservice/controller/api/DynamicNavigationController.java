@@ -3,7 +3,7 @@ package com.sdl.dxa.modelservice.controller.api;
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
-import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProvider;
+import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProviderImpl;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,13 +20,16 @@ import java.util.Collection;
 @RestController
 public class DynamicNavigationController {
 
+    private final DynamicNavigationProviderImpl dynamicNavigationProvider;
+
     @Autowired
-    private DynamicNavigationProvider dynamicNavigationProvider;
+    public DynamicNavigationController(DynamicNavigationProviderImpl dynamicNavigationProvider) {
+        this.dynamicNavigationProvider = dynamicNavigationProvider;
+    }
 
     @RequestMapping
     public ResponseEntity<SitemapItemModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
-        SitemapRequestDto requestDto = SitemapRequestDto.builder()
-                .localizationId(localizationId)
+        SitemapRequestDto requestDto = SitemapRequestDto.builder(localizationId)
                 .navigationFilter(NavigationFilter.DEFAULT)
                 .expandLevels(DepthCounter.UNLIMITED_DEPTH)
                 .build();
@@ -46,7 +49,7 @@ public class DynamicNavigationController {
         navigationFilter.setWithAncestors(includeAncestors);
 
         return dynamicNavigationProvider.getNavigationSubtree(
-                SitemapRequestDto.builder()
+                SitemapRequestDto.builder(localizationId)
                         .sitemapId(sitemapItemId)
                         .navigationFilter(navigationFilter)
                         .localizationId(localizationId)
