@@ -3,7 +3,8 @@ package com.sdl.dxa.modelservice.controller.api;
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
-import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProviderImpl;
+import com.sdl.dxa.tridion.navigation.dynamic.DynamicNavigationProvider;
+import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationProvider;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,11 +21,15 @@ import java.util.Collection;
 @RestController
 public class DynamicNavigationController {
 
-    private final DynamicNavigationProviderImpl dynamicNavigationProvider;
+    private final DynamicNavigationProvider dynamicNavigationProvider;
+
+    private final OnDemandNavigationProvider onDemandNavigationProvider;
 
     @Autowired
-    public DynamicNavigationController(DynamicNavigationProviderImpl dynamicNavigationProvider) {
+    public DynamicNavigationController(DynamicNavigationProvider dynamicNavigationProvider,
+                                       OnDemandNavigationProvider onDemandNavigationProvider) {
         this.dynamicNavigationProvider = dynamicNavigationProvider;
+        this.onDemandNavigationProvider = onDemandNavigationProvider;
     }
 
     @RequestMapping
@@ -48,7 +53,7 @@ public class DynamicNavigationController {
         navigationFilter.setDescendantLevels(descendantLevels);
         navigationFilter.setWithAncestors(includeAncestors);
 
-        return dynamicNavigationProvider.getNavigationSubtree(
+        return onDemandNavigationProvider.getNavigationSubtree(
                 SitemapRequestDto.builder(localizationId)
                         .sitemapId(sitemapItemId)
                         .navigationFilter(navigationFilter)

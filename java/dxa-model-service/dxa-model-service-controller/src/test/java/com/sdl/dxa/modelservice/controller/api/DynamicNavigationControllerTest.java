@@ -3,7 +3,8 @@ package com.sdl.dxa.modelservice.controller.api;
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
-import com.sdl.dxa.modelservice.service.api.navigation.dynamic.DynamicNavigationProviderImpl;
+import com.sdl.dxa.tridion.navigation.dynamic.DynamicNavigationProvider;
+import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationProvider;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,13 +37,16 @@ public class DynamicNavigationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private DynamicNavigationProviderImpl navigationProvider;
+    private DynamicNavigationProvider navigationProvider;
+
+    @MockBean
+    private OnDemandNavigationProvider onDemandNavigationProvider;
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {
         //given
         String url = "/api/navigation/42/subtree";
-        doReturn(Collections.emptySet()).when(navigationProvider).getNavigationSubtree(any());
+        doReturn(Collections.emptySet()).when(onDemandNavigationProvider).getNavigationSubtree(any());
 
         //when, then
         mockMvc.perform(get(url))
@@ -60,15 +64,15 @@ public class DynamicNavigationControllerTest {
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk());
 
-        verify(navigationProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, null)));
-        verify(navigationProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, null)));
+        verify(onDemandNavigationProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, null)));
+        verify(onDemandNavigationProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, null)));
     }
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithSiteMapId() throws Exception {
         //given 
         String url = "/api/navigation/42/subtree/t1-k2";
-        doReturn(Collections.emptySet()).when(navigationProvider).getNavigationSubtree(any());
+        doReturn(Collections.emptySet()).when(onDemandNavigationProvider).getNavigationSubtree(any());
 
         //when, then
         mockMvc.perform(get(url))
@@ -86,8 +90,8 @@ public class DynamicNavigationControllerTest {
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk());
 
-        verify(navigationProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, "t1-k2")));
-        verify(navigationProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, "t1-k2")));
+        verify(onDemandNavigationProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, "t1-k2")));
+        verify(onDemandNavigationProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, "t1-k2")));
     }
 
     private ArgumentMatcher<SitemapRequestDto> getArgumentMatcher(int localizationId, boolean includeAncestors, int descendantLevels, int expandlevels, String sitemapId) {
