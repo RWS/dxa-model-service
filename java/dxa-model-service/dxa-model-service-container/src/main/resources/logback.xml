@@ -1,6 +1,6 @@
 ﻿<configuration scan="true" scanPeriod="1 minute">
     <!-- Properties and variables -->
-    <property name="log.pattern" value="%highlight(%date %-5level) %logger{0} - %message%n"/>
+    <property name="log.pattern" value="%date %-5level %logger{0} - %message%n"/>
     <property name="log.history" value="7"/>
     <property name="log.level" value="${log.level:-INFO}"/>
     <property name="cil.log.level" value="${cil.log.level:-WARN}"/>
