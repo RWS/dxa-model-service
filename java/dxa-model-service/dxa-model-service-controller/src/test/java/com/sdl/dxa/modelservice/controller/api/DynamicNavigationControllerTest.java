@@ -46,7 +46,7 @@ public class DynamicNavigationControllerTest {
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {
         //given
         String url = "/api/navigation/42/subtree";
-        doReturn(Collections.emptySet()).when(onDemandNavigationProvider).getNavigationSubtree(any());
+        doReturn(Optional.of(Collections.emptySet())).when(onDemandNavigationProvider).getNavigationSubtree(any());
 
         //when, then
         mockMvc.perform(get(url))
@@ -72,7 +72,7 @@ public class DynamicNavigationControllerTest {
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithSiteMapId() throws Exception {
         //given 
         String url = "/api/navigation/42/subtree/t1-k2";
-        doReturn(Collections.emptySet()).when(onDemandNavigationProvider).getNavigationSubtree(any());
+        doReturn(Optional.of(Collections.emptySet())).when(onDemandNavigationProvider).getNavigationSubtree(any());
 
         //when, then
         mockMvc.perform(get(url))
