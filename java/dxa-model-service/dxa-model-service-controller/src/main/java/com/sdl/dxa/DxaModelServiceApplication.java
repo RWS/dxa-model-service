@@ -17,7 +17,7 @@ public class DxaModelServiceApplication {
      */
     public static void main(String[] args) {
         SpringApplication.run(DxaModelServiceApplication.class, args);
-        AnsiOutput.setEnabled(AnsiOutput.Enabled.ALWAYS);
+        AnsiOutput.setEnabled(AnsiOutput.Enabled.DETECT);
     }
 
     @Bean
