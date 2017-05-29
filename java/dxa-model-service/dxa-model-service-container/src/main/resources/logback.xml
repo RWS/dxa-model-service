@@ -1,6 +1,7 @@
 ﻿<configuration scan="true" scanPeriod="1 minute">
     <!-- Properties and variables -->
-    <property name="log.pattern" value="%highlight(%date %-5level) %logger{0} - %message%n"/>
+    <property name="log.pattern" value="%date %-5level %logger{15} - %message %n"/>
+    <property name="log.color.pattern" value="%date %highlight(%-5level) %cyan(%logger{15}) - %message %n"/>
     <property name="log.history" value="7"/>
     <property name="log.level" value="${log.level:-INFO}"/>
     <property name="cil.log.level" value="${cil.log.level:-WARN}"/>
@@ -31,9 +32,10 @@
         <prudent>true</prudent>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
         <encoder>
             <charset>${log.encoding}</charset>
-            <pattern>${log.pattern}</pattern>
+            <pattern>${log.color.pattern}</pattern>
         </encoder>
     </appender>
 
