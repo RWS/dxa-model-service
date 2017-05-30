@@ -35,7 +35,7 @@ public class DynamicNavigationController {
     @RequestMapping
     public ResponseEntity<SitemapItemModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
         SitemapRequestDto requestDto = SitemapRequestDto.builder(localizationId)
-                .navigationFilter(NavigationFilter.DEFAULT)
+                .navigationFilter(new NavigationFilter().setDescendantLevels(-1))
                 .expandLevels(DepthCounter.UNLIMITED_DEPTH)
                 .build();
 

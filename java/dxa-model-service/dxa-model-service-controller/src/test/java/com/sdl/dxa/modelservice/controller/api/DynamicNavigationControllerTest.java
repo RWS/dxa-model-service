@@ -122,7 +122,7 @@ public class DynamicNavigationControllerTest {
 
         mockMvc.perform(get(url + "/")).andExpect(status().isOk());
 
-        verify(navigationProvider, times(2)).getNavigationModel(argThat(getArgumentMatcher(42, false, 1, Integer.MAX_VALUE, null)));
+        verify(navigationProvider, times(2)).getNavigationModel(argThat(getArgumentMatcher(42, false, -1, Integer.MAX_VALUE, null)));
     }
 
     @Test
