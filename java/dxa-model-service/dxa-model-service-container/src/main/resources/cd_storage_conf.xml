@@ -15,7 +15,7 @@
                 This configuration is intended to be read by Model Service since it's not complete
                 and doesn't have enough information for Discovery Service.
 
-                This file is ignored unless Spring Profile 'auto-registration' is on.
+                This file is ignored unless you specify '- - register' (without spaces!) flag on JVM run.
 
                 Properties listed here are merged into existing of a ContentServiceCapability.
 

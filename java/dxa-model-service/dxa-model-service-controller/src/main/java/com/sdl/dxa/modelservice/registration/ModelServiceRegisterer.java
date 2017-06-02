@@ -62,6 +62,12 @@ public class ModelServiceRegisterer {
         ContentServiceCapability newCapability = loadNewCapability(role, environment);
         log.trace("Loaded a capability from local configuration file {}, {}", CONFIG_FILE_NAME, storedCapability);
 
+        KeyValuePair registeredFrom = new KeyValuePair();
+        registeredFrom.setKey("last-registered-by");
+        registeredFrom.setValue(System.getProperty("user.name"));
+
+        newCapability.getExtensionProperties().add(registeredFrom);
+
         List<KeyValuePair> mergedProperties = mergeExtensionProperties(newCapability, storedCapability);
         log.debug("Merged properties: {}", mergedProperties);
 
