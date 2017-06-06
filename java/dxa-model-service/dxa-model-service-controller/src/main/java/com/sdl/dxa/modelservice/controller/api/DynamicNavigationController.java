@@ -1,6 +1,7 @@
 package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
+import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
 import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
@@ -33,7 +34,7 @@ public class DynamicNavigationController {
     }
 
     @RequestMapping
-    public ResponseEntity<SitemapItemModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
+    public ResponseEntity<TaxonomyNodeModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
         SitemapRequestDto requestDto = SitemapRequestDto.builder(localizationId)
                 .navigationFilter(new NavigationFilter().setDescendantLevels(-1))
                 .expandLevels(DepthCounter.UNLIMITED_DEPTH)
