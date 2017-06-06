@@ -1,6 +1,7 @@
 package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
+import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
 import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
@@ -114,7 +115,7 @@ public class DynamicNavigationControllerTest {
     public void shouldAcceptLocalizationId_AndReturnNavigationModel() throws Exception {
         //given 
         String url = "/api/navigation/42";
-        Optional<SitemapItemModelData> modelData = Optional.of(new SitemapItemModelData());
+        Optional<SitemapItemModelData> modelData = Optional.of(new TaxonomyNodeModelData());
         doReturn(modelData).when(navigationModelProvider).getNavigationModel(any());
 
         //when, then
