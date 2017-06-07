@@ -1,10 +1,11 @@
 package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
+import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
-import com.sdl.dxa.tridion.navigation.dynamic.DynamicNavigationProvider;
-import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationProvider;
+import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
+import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationModelProvider;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,25 +22,25 @@ import java.util.Collection;
 @RestController
 public class DynamicNavigationController {
 
-    private final DynamicNavigationProvider dynamicNavigationProvider;
+    private final NavigationModelProvider navigationModelProvider;
 
-    private final OnDemandNavigationProvider onDemandNavigationProvider;
+    private final OnDemandNavigationModelProvider onDemandNavigationModelProvider;
 
     @Autowired
-    public DynamicNavigationController(DynamicNavigationProvider dynamicNavigationProvider,
-                                       OnDemandNavigationProvider onDemandNavigationProvider) {
-        this.dynamicNavigationProvider = dynamicNavigationProvider;
-        this.onDemandNavigationProvider = onDemandNavigationProvider;
+    public DynamicNavigationController(NavigationModelProvider navigationModelProvider,
+                                       OnDemandNavigationModelProvider onDemandNavigationModelProvider) {
+        this.navigationModelProvider = navigationModelProvider;
+        this.onDemandNavigationModelProvider = onDemandNavigationModelProvider;
     }
 
     @RequestMapping
-    public ResponseEntity<SitemapItemModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
+    public ResponseEntity<TaxonomyNodeModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
         SitemapRequestDto requestDto = SitemapRequestDto.builder(localizationId)
                 .navigationFilter(new NavigationFilter().setDescendantLevels(-1))
                 .expandLevels(DepthCounter.UNLIMITED_DEPTH)
                 .build();
 
-        return dynamicNavigationProvider.getNavigationModel(requestDto).map(ResponseEntity::ok)
+        return navigationModelProvider.getNavigationModel(requestDto).map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -53,7 +54,7 @@ public class DynamicNavigationController {
         navigationFilter.setDescendantLevels(descendantLevels);
         navigationFilter.setWithAncestors(includeAncestors);
 
-        return onDemandNavigationProvider.getNavigationSubtree(
+        return onDemandNavigationModelProvider.getNavigationSubtree(
                 SitemapRequestDto.builder(localizationId)
                         .sitemapId(sitemapItemId)
                         .navigationFilter(navigationFilter)

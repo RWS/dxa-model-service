@@ -1,10 +1,11 @@
 package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
+import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
-import com.sdl.dxa.tridion.navigation.dynamic.DynamicNavigationProvider;
-import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationProvider;
+import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
+import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationModelProvider;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,16 +38,16 @@ public class DynamicNavigationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private DynamicNavigationProvider navigationProvider;
+    private NavigationModelProvider navigationModelProvider;
 
     @MockBean
-    private OnDemandNavigationProvider onDemandNavigationProvider;
+    private OnDemandNavigationModelProvider onDemandNavigationModelProvider;
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {
         //given
         String url = "/api/navigation/42/subtree";
-        doReturn(Optional.of(Collections.emptySet())).when(onDemandNavigationProvider).getNavigationSubtree(any());
+        doReturn(Optional.of(Collections.emptySet())).when(onDemandNavigationModelProvider).getNavigationSubtree(any());
 
         //when, then
         mockMvc.perform(get(url))
@@ -64,15 +65,15 @@ public class DynamicNavigationControllerTest {
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk());
 
-        verify(onDemandNavigationProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, null)));
-        verify(onDemandNavigationProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, null)));
+        verify(onDemandNavigationModelProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, null)));
+        verify(onDemandNavigationModelProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, null)));
     }
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithSiteMapId() throws Exception {
         //given 
         String url = "/api/navigation/42/subtree/t1-k2";
-        doReturn(Optional.of(Collections.emptySet())).when(onDemandNavigationProvider).getNavigationSubtree(any());
+        doReturn(Optional.of(Collections.emptySet())).when(onDemandNavigationModelProvider).getNavigationSubtree(any());
 
         //when, then
         mockMvc.perform(get(url))
@@ -90,8 +91,8 @@ public class DynamicNavigationControllerTest {
                         .param("descendantLevels", "2"))
                 .andExpect(status().isOk());
 
-        verify(onDemandNavigationProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, "t1-k2")));
-        verify(onDemandNavigationProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, "t1-k2")));
+        verify(onDemandNavigationModelProvider, times(2)).getNavigationSubtree(argThat(getArgumentMatcher(42, false, 1, 1, "t1-k2")));
+        verify(onDemandNavigationModelProvider).getNavigationSubtree(argThat(getArgumentMatcher(42, true, 2, 2, "t1-k2")));
     }
 
     private ArgumentMatcher<SitemapRequestDto> getArgumentMatcher(int localizationId, boolean includeAncestors, int descendantLevels, int expandlevels, String sitemapId) {
@@ -114,22 +115,22 @@ public class DynamicNavigationControllerTest {
     public void shouldAcceptLocalizationId_AndReturnNavigationModel() throws Exception {
         //given 
         String url = "/api/navigation/42";
-        Optional<SitemapItemModelData> modelData = Optional.of(new SitemapItemModelData());
-        doReturn(modelData).when(navigationProvider).getNavigationModel(any());
+        Optional<SitemapItemModelData> modelData = Optional.of(new TaxonomyNodeModelData());
+        doReturn(modelData).when(navigationModelProvider).getNavigationModel(any());
 
         //when, then
         mockMvc.perform(get(url)).andExpect(status().isOk());
 
         mockMvc.perform(get(url + "/")).andExpect(status().isOk());
 
-        verify(navigationProvider, times(2)).getNavigationModel(argThat(getArgumentMatcher(42, false, -1, Integer.MAX_VALUE, null)));
+        verify(navigationModelProvider, times(2)).getNavigationModel(argThat(getArgumentMatcher(42, false, -1, Integer.MAX_VALUE, null)));
     }
 
     @Test
     public void shouldSend404_IfThereIsNoNavigationModel() throws Exception {
         //given
         String url = "/api/navigation/42";
-        doReturn(Optional.empty()).when(navigationProvider).getNavigationModel(any());
+        doReturn(Optional.empty()).when(navigationModelProvider).getNavigationModel(any());
 
         //when, then
         mockMvc.perform(get(url)).andExpect(status().is(404));
