@@ -287,7 +287,12 @@ public class ModelService implements PageModelService, EntityModelService {
                 .build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
-        toExpand.copyFrom(loadEntity(entityRequest));
+        try {
+            toExpand.copyFrom(loadEntity(entityRequest));
+        } catch (ContentProviderException e) {
+            log.warn("Cannot expand entity {} for page {}", toExpand, pageRequest, e);
+            throw e;
+        }
     }
 
     private void _expandKeyword(KeywordModelData keywordModel, PageRequestDto pageRequest) throws ContentProviderException {
