@@ -60,7 +60,6 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 @Slf4j
 @Service
-@Cacheable(value = "defaultCache")
 public class ModelService implements PageModelService, EntityModelService {
 
     private final ObjectMapper objectMapper;
@@ -86,6 +85,7 @@ public class ModelService implements PageModelService, EntityModelService {
 
     @Override
     @NotNull
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
@@ -98,6 +98,7 @@ public class ModelService implements PageModelService, EntityModelService {
 
     @Override
     @NotNull
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
         int publicationId = pageRequest.getPublicationId();
         String path = pageRequest.getPath();
@@ -406,6 +407,7 @@ public class ModelService implements PageModelService, EntityModelService {
 
     @Override
     @NotNull
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         int publicationId = entityRequest.getPublicationId();
         int componentId = entityRequest.getComponentId();
