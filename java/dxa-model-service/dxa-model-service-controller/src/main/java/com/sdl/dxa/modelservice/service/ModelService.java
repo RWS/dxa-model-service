@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +68,12 @@ public class ModelService implements PageModelService, EntityModelService {
     private final LinkResolver linkResolver;
 
     private final RichTextLinkResolver richTextLinkResolver;
+
+    @Value("${dxa.errors.missing.keyword.suppress}")
+    private boolean suppressMissingKeyword;
+
+    @Value("${dxa.errors.missing.entity.suppress}")
+    private boolean suppressMissingEntity;
 
     @Autowired
     public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
@@ -290,8 +297,7 @@ public class ModelService implements PageModelService, EntityModelService {
         try {
             toExpand.copyFrom(loadEntity(entityRequest));
         } catch (ContentProviderException e) {
-            log.warn("Cannot expand entity {} for page {}", toExpand, pageRequest, e);
-            throw e;
+            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, suppressMissingEntity, e);
         }
     }
 
@@ -300,15 +306,17 @@ public class ModelService implements PageModelService, EntityModelService {
         log.trace("Found keyword to expand, uri = '{}'", keywordURI);
         Keyword keyword = new TaxonomyFactory().getTaxonomyKeyword(keywordURI);
 
-        if (keyword == null) {
-            throw new ContentProviderException("Keyword " + keywordModel.getId() + " in publication " + pageRequest.getPublicationId() + " cannot be found, is it published?");
+        if (keyword != null) {
+            keywordModel.setDescription(keyword.getKeywordDescription())
+                    .setKey(keyword.getKeywordKey())
+                    .setTitle(keyword.getKeywordName())
+                    .setTaxonomyId(String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyURI())))
+                    .setMetadata(_getMetadata(keyword, pageRequest));
+        } else {
+            _suppressIfNeeded("Keyword " + keywordModel.getId() + " in publication " +
+                            pageRequest.getPublicationId() + " cannot be found, is it published?",
+                    suppressMissingKeyword);
         }
-
-        keywordModel.setDescription(keyword.getKeywordDescription())
-                .setKey(keyword.getKeywordKey())
-                .setTitle(keyword.getKeywordName())
-                .setTaxonomyId(String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyURI())))
-                .setMetadata(_getMetadata(keyword, pageRequest));
     }
 
     @NotNull
@@ -430,6 +438,20 @@ public class ModelService implements PageModelService, EntityModelService {
             return objectMapper.readValue(content, expectedClass);
         } catch (IOException e) {
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
+        }
+    }
+
+    private void _suppressIfNeeded(String message, boolean suppressingFlag) throws ContentProviderException {
+        log.warn(message);
+        if (!suppressingFlag) {
+            throw new ContentProviderException(message);
+        }
+    }
+
+    private void _suppressIfNeeded(String message, boolean suppressingFlag, ContentProviderException e) throws ContentProviderException {
+        log.warn(message, e);
+        if (!suppressingFlag) {
+            throw new ContentProviderException(message, e);
         }
     }
 

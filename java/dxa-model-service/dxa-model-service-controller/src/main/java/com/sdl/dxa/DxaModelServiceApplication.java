@@ -14,7 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @EnableCaching
 @SpringBootApplication
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:dxa.properties")
 public class DxaModelServiceApplication {
 
     /**
