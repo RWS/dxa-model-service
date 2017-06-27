@@ -1,7 +1,11 @@
 package com.sdl.dxa.modelservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
+import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.modelservice.spring.Config;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.web.api.broker.querying.filter.BrokerResultFilter;
 import com.sdl.web.api.broker.querying.filter.LimitFilter;
@@ -13,6 +17,8 @@ import com.tridion.broker.querying.Query;
 import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
+import com.tridion.dcp.ComponentPresentation;
+import com.tridion.dcp.ComponentPresentationFactory;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
@@ -20,12 +26,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.core.io.ClassPathResource;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -39,8 +48,8 @@ public class ModelServiceTest {
     @Mock
     private Query query;
 
-    @Mock
-    private ObjectMapper objectMapper;
+    @Spy
+    private ObjectMapper objectMapper = new DataModelSpringConfiguration().dxaR2ObjectMapper();
 
     @Mock
     private LinkResolver linkResolver;
@@ -54,6 +63,15 @@ public class ModelServiceTest {
     @Mock
     private CharacterData pageContentMock;
 
+    @Mock
+    private ComponentPresentationFactory componentPresentationFactory;
+
+    @Mock
+    private ComponentPresentation dcp;
+
+    @Spy
+    private Config config = new Config();
+
     @InjectMocks
     private ModelService modelService;
 
@@ -61,6 +79,12 @@ public class ModelServiceTest {
     public void init() throws Exception {
         PowerMockito.whenNew(PageContentFactory.class).withNoArguments().thenReturn(pageContentFactory);
         when(pageContentFactory.getPageContent(1, 2)).thenReturn(pageContentMock);
+
+        PowerMockito.whenNew(ComponentPresentationFactory.class).withAnyArguments().thenReturn(componentPresentationFactory);
+        doReturn(dcp).when(componentPresentationFactory).getComponentPresentation(eq("tcm:42-1"), eq("tcm:42-10247-32"));
+
+        String value = objectMapper.writeValueAsString(objectMapper.readTree(new ClassPathResource("dcp.json").getFile()));
+        when(dcp.getContent()).thenReturn(value);
 
         PowerMockito.whenNew(Query.class).withAnyArguments().thenReturn(query);
     }
@@ -141,6 +165,18 @@ public class ModelServiceTest {
 
         //then
         //exception
+    }
+
+    @Test
+    public void shouldGetDefaultDynamicTemplate_ForDCP_WhenNoTemplateSet() throws ContentProviderException {
+        //given 
+        EntityRequestDto entityRequest = EntityRequestDto.builder().publicationId(42).componentId(1).build();
+
+        //when
+        EntityModelData entity = modelService.loadEntity(entityRequest);
+
+        //then
+        assertEquals("1468", entity.getId());
     }
 
 }

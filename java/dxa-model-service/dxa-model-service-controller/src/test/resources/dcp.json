@@ -1,0 +1,22 @@
+{
+  "Id": "1468",
+  "Content": {
+    "headline": "Articles",
+    "image": {
+      "$type": "EntityModelData",
+      "Id": "760"
+    },
+    "articleBody": {
+      "$type": "ContentModelData",
+      "content": "Content"
+    }
+  },
+  "Metadata": {
+    "standardMeta": {
+      "$type": "ContentModelData",
+      "description": "Description",
+      "introText": "IntroText"
+    }
+  },
+  "SchemaId": "80"
+}

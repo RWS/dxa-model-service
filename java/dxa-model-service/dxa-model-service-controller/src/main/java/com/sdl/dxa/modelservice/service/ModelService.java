@@ -14,6 +14,7 @@ import com.sdl.dxa.api.datamodel.model.util.ModelDataWrapper;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.modelservice.spring.Config;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -39,7 +40,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -68,18 +68,16 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private final RichTextLinkResolver richTextLinkResolver;
 
-    @Value("${dxa.errors.missing.keyword.suppress}")
-    private boolean suppressMissingKeyword;
-
-    @Value("${dxa.errors.missing.entity.suppress}")
-    private boolean suppressMissingEntity;
+    private final Config config;
 
     @Autowired
     public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                         LinkResolver linkResolver,
+                        Config config,
                         RichTextLinkResolver richTextLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
+        this.config = config;
         this.richTextLinkResolver = richTextLinkResolver;
     }
 
@@ -298,7 +296,7 @@ public class ModelService implements PageModelService, EntityModelService {
         try {
             toExpand.copyFrom(loadEntity(entityRequest));
         } catch (ContentProviderException e) {
-            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, suppressMissingEntity, e);
+            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, config.getErrors().isMissingEntitySuppress(), e);
         }
     }
 
@@ -316,7 +314,7 @@ public class ModelService implements PageModelService, EntityModelService {
         } else {
             _suppressIfNeeded("Keyword " + keywordModel.getId() + " in publication " +
                             pageRequest.getPublicationId() + " cannot be found, is it published?",
-                    suppressMissingKeyword);
+                    config.getErrors().isMissingKeywordSuppress());
         }
     }
 
@@ -411,7 +409,8 @@ public class ModelService implements PageModelService, EntityModelService {
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         int publicationId = entityRequest.getPublicationId();
         int componentId = entityRequest.getComponentId();
-        int templateId = entityRequest.getTemplateId();
+        int templateId = entityRequest.getTemplateId() <= 0 ?
+                config.getDefaults().getDynamicTemplateId(publicationId) : entityRequest.getTemplateId();
 
         String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
         String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
