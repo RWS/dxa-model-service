@@ -5,7 +5,6 @@ import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
-import com.sdl.dxa.modelservice.spring.Config;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.web.api.broker.querying.filter.BrokerResultFilter;
 import com.sdl.web.api.broker.querying.filter.LimitFilter;
@@ -69,15 +68,18 @@ public class ModelServiceTest {
     @Mock
     private ComponentPresentation dcp;
 
-    @Spy
-    private Config config = new Config();
+    @Mock
+    private ConfigService configService;
+
+    @Mock
+    private ConfigService.Defaults defaults;
 
     @InjectMocks
     private ModelService modelService;
 
     @Before
     public void init() throws Exception {
-        PowerMockito.whenNew(PageContentFactory.class).withNoArguments().thenReturn(pageContentFactory);
+        PowerMockito.whenNew(PageContentFactory.class).withAnyArguments().thenReturn(pageContentFactory);
         when(pageContentFactory.getPageContent(1, 2)).thenReturn(pageContentMock);
 
         PowerMockito.whenNew(ComponentPresentationFactory.class).withAnyArguments().thenReturn(componentPresentationFactory);
@@ -87,6 +89,10 @@ public class ModelServiceTest {
         when(dcp.getContent()).thenReturn(value);
 
         PowerMockito.whenNew(Query.class).withAnyArguments().thenReturn(query);
+
+        when(configService.getDefaults()).thenReturn(defaults);
+
+        when(defaults.getDynamicTemplateId(eq(42))).thenReturn(10247);
     }
 
     @Test

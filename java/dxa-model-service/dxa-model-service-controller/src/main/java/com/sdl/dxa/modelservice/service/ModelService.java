@@ -14,7 +14,6 @@ import com.sdl.dxa.api.datamodel.model.util.ModelDataWrapper;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.modelservice.spring.Config;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -68,16 +67,16 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private final RichTextLinkResolver richTextLinkResolver;
 
-    private final Config config;
+    private final ConfigService configService;
 
     @Autowired
     public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                         LinkResolver linkResolver,
-                        Config config,
+                        ConfigService configService,
                         RichTextLinkResolver richTextLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
-        this.config = config;
+        this.configService = configService;
         this.richTextLinkResolver = richTextLinkResolver;
     }
 
@@ -296,7 +295,7 @@ public class ModelService implements PageModelService, EntityModelService {
         try {
             toExpand.copyFrom(loadEntity(entityRequest));
         } catch (ContentProviderException e) {
-            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, config.getErrors().isMissingEntitySuppress(), e);
+            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, configService.getErrors().isMissingEntitySuppress(), e);
         }
     }
 
@@ -314,7 +313,7 @@ public class ModelService implements PageModelService, EntityModelService {
         } else {
             _suppressIfNeeded("Keyword " + keywordModel.getId() + " in publication " +
                             pageRequest.getPublicationId() + " cannot be found, is it published?",
-                    config.getErrors().isMissingKeywordSuppress());
+                    configService.getErrors().isMissingKeywordSuppress());
         }
     }
 
@@ -410,7 +409,7 @@ public class ModelService implements PageModelService, EntityModelService {
         int publicationId = entityRequest.getPublicationId();
         int componentId = entityRequest.getComponentId();
         int templateId = entityRequest.getTemplateId() <= 0 ?
-                config.getDefaults().getDynamicTemplateId(publicationId) : entityRequest.getTemplateId();
+                configService.getDefaults().getDynamicTemplateId(publicationId) : entityRequest.getTemplateId();
 
         String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
         String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
