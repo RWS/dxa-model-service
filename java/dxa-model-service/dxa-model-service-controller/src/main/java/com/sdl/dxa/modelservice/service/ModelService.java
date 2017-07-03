@@ -37,6 +37,7 @@ import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
@@ -143,10 +144,15 @@ public class ModelService implements PageModelService, EntityModelService {
         return pageModelData;
     }
 
-    private void _expandObject(Object value, PageRequestDto pageRequest) throws ContentProviderException {
+    private void _expandObject(@Nullable Object value, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
         try {
             if (!pageRequest.getDepthCounter().depthIncreaseAndCheckIfSafe()) {
                 log.warn("Went too deep expanding the model for page request {}, returning from here", pageRequest);
+                return;
+            }
+
+            if (value == null) {
+                log.warn("Cannot expand null value for {}, returning from here", pageRequest);
                 return;
             }
 
@@ -345,14 +351,15 @@ public class ModelService implements PageModelService, EntityModelService {
                 }
                 values = new ListWrapper.KeywordModelDataListWrapper(keywords);
             } else if (itemType == TcmUtils.COMPONENT_ITEM_TYPE) {
-                values = new ListWrapper.EntityModelDataListWrapper(
-                        value.getMultipleValues().stream()
-                                .map(String::valueOf)
-                                .map(uri -> EntityModelData.builder()
-                                        .id(String.valueOf(TcmUtils.getItemId(uri)))
-                                        .linkUrl(linkResolver.resolveLink(uri, String.valueOf(pageRequest.getPublicationId())))
-                                        .build())
-                                .collect(Collectors.toList()));
+                List<EntityModelData> entities = new ArrayList<>();
+                for (Object uri : value.getMultipleValues()) {
+                    String id = String.valueOf(TcmUtils.getItemId(String.valueOf(uri))) + "-" +
+                            configService.getDefaults().getDynamicTemplateId(pageRequest.getPublicationId());
+                    EntityModelData entityModelData = EntityModelData.builder().id(id).build();
+                    _expandObject(entityModelData, pageRequest);
+                    entities.add(entityModelData);
+                }
+                values = new ListWrapper.EntityModelDataListWrapper(entities);
             }
         }
 
