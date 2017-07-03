@@ -1,0 +1,15 @@
+{
+  "defaultLocalization": true,
+  "staging": true,
+  "mediaRoot": "MediaRoot",
+  "siteLocalizations": [
+    {
+      "Id": "42",
+      "Path": "/publication",
+      "Language": "Lang",
+      "IsMaster": true
+    }
+  ],
+  "files": [],
+  "dataPresentationTemplateUri": "tcm:0-666-1"
+}

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/EntityModel/{uriType}/{localizationId}/{componentId:\\d+}-{templateId:\\d+}")
+@RequestMapping("/EntityModel/{uriType}/{localizationId}")
 public class EntityModelController {
 
     private final EntityModelService contentService;
@@ -24,13 +24,24 @@ public class EntityModelController {
         this.contentService = contentService;
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{componentId:\\d+}-{templateId:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public EntityModelData getEntityModel(@PathVariable String uriType,
                                           @PathVariable int localizationId,
                                           @PathVariable int componentId,
                                           @PathVariable int templateId) throws ContentProviderException {
+        return _getEntityModel(uriType, localizationId, componentId, templateId);
+    }
 
-        log.debug("trying to load an entity with URI type = '{}' and localization id = '{}', and componentId = '{}', templateId = '{}'",
+    @GetMapping(path = "/{componentId:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public EntityModelData getEntityModel(@PathVariable String uriType,
+                                          @PathVariable int localizationId,
+                                          @PathVariable int componentId) throws ContentProviderException {
+
+        return _getEntityModel(uriType, localizationId, componentId, -1);
+    }
+
+    private EntityModelData _getEntityModel(String uriType, int localizationId, int componentId, int templateId) throws ContentProviderException {
+        log.debug("trying to load an entity with URI type = '{}' and localization id = '{}', and componentId = '{}', templateId (-1 for no template) = '{}'",
                 uriType, localizationId, componentId, templateId);
 
         return contentService.loadEntity(EntityRequestDto.builder()
