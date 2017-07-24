@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sdl.dxa</groupId>
+    <artifactId>dxa-model-service-assembly</artifactId>
+    <version>2.0.0-CTP2</version>
+    <packaging>pom</packaging>
+
+    <name>DXA Model Service Assembly</name>
+    <description>DXA Model Service Assembly</description>
+
+    <properties>
+        <service-container.version>8.5.0-1016</service-container.version>
+
+        <standalone.path>standalone</standalone.path>
+        <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
+        <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-model-service-controller</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>service-container-assembly</artifactId>
+            <type>zip</type>
+            <version>${service-container.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>dxa-model-service</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-assembly</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.sdl.delivery</groupId>
+                                    <artifactId>service-container-assembly</artifactId>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${standalone.build.dir}</outputDirectory>
+                            <silent>true</silent>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${standalone.build.dir}/bin</basedir>
+                    <includes>
+                        <include>*.ps1</include>
+                        <include>start.sh</include>
+                    </includes>
+                    <replacements>
+                        <!-- @formatter:off -->
+                        <replacement>
+                            <token>--server.port=8080</token>
+                            <value>--server.port=8998</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDLDeliveryServices</token>
+                            <value>SDLDXAModelService</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDL Delivery Services</token>
+                            <value>SDL DXA Model Service</value>
+                        </replacement>
+                        <replacement>
+                            <token>SDL Delivery Platform Micro Services</token>
+                            <value>SDL DXA Model Service</value>
+                        </replacement>
+                        <!-- @formatter:on -->
+                    </replacements>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.build.finalName}</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/standalone.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>clean-leftovers</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <verbose>true</verbose>
+                            <filesets>
+                                <fileset>
+                                    <directory>${standalone.build.dir}</directory>
+                                    <followSymlinks>false</followSymlinks>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

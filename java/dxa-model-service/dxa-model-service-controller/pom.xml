@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sdl.dxa</groupId>
+    <artifactId>dxa-model-service-controller</artifactId>
+    <version>2.0.0-CTP2</version>
+    <packaging>jar</packaging>
+
+    <name>DXA Model Service</name>
+    <description>DXA Model Service</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.1.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+
+        <dxa.version>${project.version}</dxa.version>
+        <cil.version>8.5.0-1008</cil.version>
+        <discovery-registration-api.version>8.5.0-1016</discovery-registration-api.version>
+        <cd-ambient.version>8.5.0-1013</cd-ambient.version>
+
+        <powermock.version>1.6.6</powermock.version>
+    </properties>
+
+    <dependencies>
+        <!-- DXA & SDL Web -->
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-data-model</artifactId>
+            <version>${dxa.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-common</artifactId>
+            <version>${dxa.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-tridion-common</artifactId>
+            <version>${dxa.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>cil</artifactId>
+            <type>pom</type>
+            <version>${cil.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>ugc_container</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>ugc_taglib</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-registration-api</artifactId>
+            <version>${discovery-registration-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth-common</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-api</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-engine</artifactId>
+            <version>${cd-ambient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+        </dependency>
+
+        <!-- For colored output on Windows -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
