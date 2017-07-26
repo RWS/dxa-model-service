@@ -2,6 +2,7 @@ package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
 import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
@@ -55,8 +56,11 @@ public class PageModelController {
     public ResponseEntity<PageModelData> getPageModel(@PathVariable String uriType,
                                                       @PathVariable int localizationId,
                                                       @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
+                                                      @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                                       HttpServletRequest request) throws ContentProviderException {
-        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, MODEL, request);
+
+
+        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, MODEL, request);
 
         if (pageRequestDto == null) {
             return ResponseEntity.badRequest().build();
@@ -70,8 +74,9 @@ public class PageModelController {
     public ResponseEntity<String> getPageSource(@PathVariable String uriType,
                                                 @PathVariable int localizationId,
                                                 @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
+                                                @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                                 HttpServletRequest request) throws ContentProviderException {
-        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, RAW, request);
+        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, RAW, request);
 
         if (pageRequestDto == null) {
             return ResponseEntity.badRequest().build();
@@ -82,7 +87,8 @@ public class PageModelController {
     }
 
     private PageRequestDto buildPageRequest(String uriType, int localizationId, PageInclusion pageInclusion,
-                                            PageRequestDto.ContentType contentType, HttpServletRequest request) {
+                                            DataModelType dataModelType, PageRequestDto.ContentType contentType,
+                                            HttpServletRequest request) {
         Optional<String> pageUrl = getPageUrl(request);
         if (!pageUrl.isPresent()) {
             log.warn("Page URL is not found in request URI {}", request.getRequestURI());
@@ -94,6 +100,7 @@ public class PageModelController {
                 .publicationId(localizationId)
                 .uriType(uriType)
                 .path(pageUrl.get())
+                .dataModelType(dataModelType)
                 .includePages(pageInclusion)
                 .contentType(contentType)
                 .build();
