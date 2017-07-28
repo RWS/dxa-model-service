@@ -1,4 +1,4 @@
-package com.sdl.dxa.modelservice.service.expansion;
+package com.sdl.dxa.modelservice.service;
 
 /**
  * Exception may happen during data model expansion.

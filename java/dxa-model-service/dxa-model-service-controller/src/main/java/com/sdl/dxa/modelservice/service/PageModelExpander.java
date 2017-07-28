@@ -1,4 +1,4 @@
-package com.sdl.dxa.modelservice.service.expansion;
+package com.sdl.dxa.modelservice.service;
 
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
@@ -9,8 +9,6 @@ import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
-import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.modelservice.service.ModelService;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;

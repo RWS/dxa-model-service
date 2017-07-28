@@ -8,7 +8,7 @@ import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.modelservice.service.expansion.ModelExpanderFactory;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
@@ -49,17 +49,18 @@ public class ModelService implements PageModelService, EntityModelService {
 
     private final ConfigService configService;
 
-    private final ModelExpanderFactory modelExpanderFactory;
+
+    private final RichTextLinkResolver richTextLinkResolver;
 
     @Autowired
     public ModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                         LinkResolver linkResolver,
                         ConfigService configService,
-                        ModelExpanderFactory modelExpanderFactory) {
+                        RichTextLinkResolver richTextLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
         this.configService = configService;
-        this.modelExpanderFactory = modelExpanderFactory;
+        this.richTextLinkResolver = richTextLinkResolver;
     }
 
     @Override
@@ -119,10 +120,14 @@ public class ModelService implements PageModelService, EntityModelService {
         log.trace("expanded include pages for {}", pageRequest);
 
         // let's check every leaf here if we need to expand it
-        modelExpanderFactory.getFor(pageRequest).expandPage(pageModelData);
+        _getModelExpander(pageRequest).expandPage(pageModelData);
         log.trace("expanded the whole model for {}", pageRequest);
 
         return pageModelData;
+    }
+
+    private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto) {
+        return new PageModelExpander(pageRequestDto, this, richTextLinkResolver, linkResolver, configService);
     }
 
     @Contract("!null, _ -> !null")
