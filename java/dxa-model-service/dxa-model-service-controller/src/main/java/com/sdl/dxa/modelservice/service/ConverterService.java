@@ -21,6 +21,7 @@ import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.ComponentTemplate;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldSet;
+import org.dd4t.contentmodel.FieldType;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.Publication;
 import org.dd4t.contentmodel.impl.ComponentImpl;
@@ -224,7 +225,56 @@ public class ConverterService {
 
         page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
         page.setTitle(toConvert.getTitle());
+        //todo UrlPath?
+
+
+        Map<String, RegionModelData> regions = new HashMap<>();
+        for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
+            ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
+            Component component = componentPresentation.getComponent();
+
+            EntityModelData entity = new EntityModelData();
+            entity.setId(String.valueOf(TcmUtils.getItemId(component.getId())));
+
+            entity.setContent(convertContent(component.getContent()));
+
+            String regionName = componentTemplate.getMetadata().containsKey("regionView") ?
+                    componentTemplate.getMetadata().get("regionView").getValues().get(0).toString() : "Main";
+
+            RegionModelData currentRegion = regions.containsKey(regionName) ? regions.get(regionName) : new RegionModelData();
+            currentRegion.getEntities().add(entity);
+        }
 
         return page;
+    }
+
+    private ContentModelData convertContent(Map<String, Field> content) {
+        ContentModelData data = new ContentModelData();
+        for (Map.Entry<String, Field> entry : content.entrySet()) {
+            String key = entry.getKey();
+            Field value = entry.getValue();
+            FieldType fieldType = value.getFieldType();
+            switch (fieldType) {
+                case EMBEDDED:
+                    if (value.getValues().size() == 1) {
+                        data.put(key, convertContent(((EmbeddedField) value).getEmbeddedValues().get(0).getContent()));
+                    } else {
+
+                        ListWrapper.ContentModelDataListWrapper wrapper = new ListWrapper.ContentModelDataListWrapper(
+                                ((EmbeddedField) value).getEmbeddedValues().stream()
+                                        .map(fieldSet -> convertContent(fieldSet.getContent()))
+                                        .collect(Collectors.toList()));
+                        data.put(key, wrapper);
+                    }
+                    break;
+                case COMPONENTLINK:
+                    data.put(key, new EntityModelData());
+                    break;
+                case TEXT:
+                default:
+                    data.put(key, value.getValues().get(0));
+            }
+        }
+        return data;
     }
 }
