@@ -1,28 +1,47 @@
 package com.sdl.dxa.modelservice.service;
 
+import com.google.common.collect.Lists;
+import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
+import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.webapp.common.util.TcmUtils;
+import com.tridion.broker.StorageException;
 import com.tridion.dcp.ComponentPresentationFactory;
+import com.tridion.meta.PageMeta;
+import com.tridion.meta.PageMetaFactory;
+import com.tridion.meta.PublicationMeta;
+import com.tridion.meta.PublicationMetaFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.Component;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.ComponentTemplate;
+import org.dd4t.contentmodel.Field;
+import org.dd4t.contentmodel.FieldSet;
 import org.dd4t.contentmodel.Page;
+import org.dd4t.contentmodel.Publication;
 import org.dd4t.contentmodel.impl.ComponentImpl;
+import org.dd4t.contentmodel.impl.ComponentLinkField;
 import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
 import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
+import org.dd4t.contentmodel.impl.EmbeddedField;
+import org.dd4t.contentmodel.impl.FieldSetImpl;
 import org.dd4t.contentmodel.impl.PageImpl;
+import org.dd4t.contentmodel.impl.PublicationImpl;
+import org.dd4t.contentmodel.impl.TextField;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,26 +71,48 @@ public class ConverterService {
      * @return equal DD4T model, {@code null} in case parameter is {@code null}
      */
     @Contract("!null, _ -> !null; null, _ -> null")
-    public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequestDto) {
+    public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequestDto) throws StorageException {
         if (toConvert == null) {
             log.warn("Model to convert is null, returning null");
             return null;
         }
 
+        PageMeta pageMeta = new PageMetaFactory(pageRequestDto.getPublicationId()).getMeta(toConvert.getId());
+
         PageImpl page = new PageImpl();
 
         page.setId(TcmUtils.buildPageTcmUri(String.valueOf(pageRequestDto.getPublicationId()), toConvert.getId()));
         page.setTitle(toConvert.getTitle());
+        page.setVersion(pageMeta.getMajorVersion());
+        page.setLastPublishedDate(new DateTime(pageMeta.getLastPublicationDate()));
+        page.setRevisionDate(new DateTime(pageMeta.getModificationDate()));
+        page.setFileName(pageMeta.getPath()); // todo extract index out of /path/index.html
+        page.setFileExtension(pageMeta.getPath()); // todo extract html out of /path/index.html or page template
 
+
+        PublicationMeta publicationMeta = new PublicationMetaFactory().getMeta(pageRequestDto.getPublicationId());
+        Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
+        publication.setTitle(publicationMeta.getTitle());
+        page.setPublication(publication);
+
+
+        PublicationMeta owningPublicationMeta = new PublicationMetaFactory().getMeta(String.valueOf(pageMeta.getOwningPublicationId()));
+        PublicationImpl owningPublication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(owningPublicationMeta.getId()));
+        owningPublication.setTitle(owningPublicationMeta.getTitle());
+        page.setOwningPublication(owningPublication);
+
+
+        // todo structure group
+
+        // todo metadata fields
+
+        //todo load page template and fill /PageTemplate
 
         List<ComponentPresentation> componentPresentations = new ArrayList<>();
         for (RegionModelData region : toConvert.getRegions()) {
             componentPresentations.addAll(_loadComponentPresentations(region, pageRequestDto, new ComponentPresentationFactory(pageRequestDto.getPublicationId())));
         }
         page.setComponentPresentations(componentPresentations);
-
-
-        //todo load page template and fill /PageTemplate
 
         return page;
     }
@@ -89,27 +130,80 @@ public class ConverterService {
     }
 
 
-    private ComponentPresentation _fromEntityModel(EntityModelData entity, @NotNull PageRequestDto pageRequestDto, ComponentPresentationFactory factory) {
-        String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequestDto.getPublicationId()), entity.getId());
-        com.tridion.dcp.ComponentPresentation cp = factory.getComponentPresentation(componentUri, entity.getComponentTemplateId());
+    public ComponentPresentation _fromEntityModel(EntityModelData entity, @NotNull PageRequestDto pageRequestDto, ComponentPresentationFactory factory) {
+//        String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequestDto.getPublicationId()), entity.getId());
+//        com.tridion.dcp.ComponentPresentation cp = factory.getComponentPresentation(componentUri, entity.getComponentTemplateId());
 
 
         ComponentPresentation presentation = new ComponentPresentationImpl();
 
-        Component component = new ComponentImpl();
-        component.setId(TcmUtils.buildTcmUri(String.valueOf(pageRequestDto.getPublicationId()), entity.getId()));
-//        entity.getContent().entrySet()
-
-
         ComponentTemplate template = new ComponentTemplateImpl();
-        template.setId(TcmUtils.buildTemplateTcmUri(pageRequestDto.getPublicationId(), cp.getComponentTemplateId()));
+//        template.setId(TcmUtils.buildTemplateTcmUri(pageRequestDto.getPublicationId(), cp.getComponentTemplateId()));
         //todo load template and fill the rest
 
 
-        presentation.setComponent(component);
+        presentation.setComponent(_fromEntity(entity, pageRequestDto));
         presentation.setComponentTemplate(template);
 
         return presentation;
+    }
+
+    private Component _fromEntity(EntityModelData entity, @NotNull PageRequestDto pageRequestDto) {
+        Component component = new ComponentImpl();
+        component.setId(TcmUtils.buildTcmUri(String.valueOf(pageRequestDto.getPublicationId()), entity.getId()));
+
+        component.setContent(convertContent(entity.getContent(), pageRequestDto));
+        return component;
+    }
+
+    private Map<String, Field> convertContent(ContentModelData contentModelData, @NotNull PageRequestDto pageRequestDto) {
+        Map<String, Field> fields = new HashMap<>(contentModelData.size());
+
+        for (Map.Entry<String, Object> entry : contentModelData.entrySet()) {
+            Object value = entry.getValue();
+            String name = entry.getKey();
+
+            if (ListWrapper.ContentModelDataListWrapper.class.isAssignableFrom(value.getClass())) {
+                EmbeddedField embeddedField = new EmbeddedField();
+                fields.put(name, embeddedField);
+
+                List<FieldSet> list = new ArrayList<>();
+                ListWrapper.ContentModelDataListWrapper wrapper = (ListWrapper.ContentModelDataListWrapper) value;
+                for (ContentModelData data : wrapper.getValues()) {
+                    FieldSetImpl fieldSet = new FieldSetImpl();
+                    list.add(fieldSet);
+                    fieldSet.setContent(convertContent(data, pageRequestDto));
+                }
+
+                embeddedField.setName(name);
+                embeddedField.setEmbeddedValues(list);
+            } else if (ContentModelData.class.isAssignableFrom(value.getClass())) {
+                EmbeddedField embeddedField = new EmbeddedField();
+                fields.put(name, embeddedField);
+                List<FieldSet> list = new ArrayList<>();
+
+                FieldSetImpl fieldSet = new FieldSetImpl();
+                fieldSet.setContent(convertContent((ContentModelData) value, pageRequestDto));
+                list.add(fieldSet);
+
+                embeddedField.setName(name);
+                embeddedField.setEmbeddedValues(list);
+            } else if (value instanceof String) {
+                TextField textField = new TextField();
+                fields.put(name, textField);
+                textField.setName(name);
+                textField.setTextValues(Lists.newArrayList((String) value));
+            } else if (EntityModelData.class.isAssignableFrom(value.getClass())) {
+                ComponentLinkField linkField = new ComponentLinkField();
+                linkField.setName(name);
+                linkField.setLinkedComponentValues(Lists.newArrayList(_fromEntity((EntityModelData) value, pageRequestDto)));
+                fields.put(name, linkField);
+            } else { // todo add KMD
+                log.warn("Field of type {} is not supported", value.getClass());
+            }
+        }
+
+        return fields;
     }
 
     /**
