@@ -5,6 +5,7 @@ import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.tridion.broker.StorageException;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.impl.BaseField;
 import org.dd4t.contentmodel.impl.ComponentImpl;
@@ -37,6 +38,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = ConverterServiceTest.SpringConfigurationContext.class)
 public class ConverterServiceTest {
 
+    PageModelData r2PageDataModel = null;
+
+    PageImpl dd4tPageDataModel = null;
+
     @Autowired
     private DataBindFactory dd4tPageFactory;
 
@@ -48,12 +53,8 @@ public class ConverterServiceTest {
 
     private PageRequestDto dto;
 
-    PageModelData r2PageDataModel = null;
-
-    PageImpl dd4tPageDataModel = null;
-
     @Before
-    public void init() throws ContentProviderException, IOException, FactoryException {
+    public void init() throws ContentProviderException, IOException, FactoryException, StorageException {
 
         dto = PageRequestDto.builder()
                 .publicationId(1)
@@ -61,7 +62,7 @@ public class ConverterServiceTest {
                 .build();
 
         //when
-        dd4tPageDataModel = dd4tPageFactory.buildPage(new String(Files.readAllBytes(new ClassPathResource("models/dd4t.json").getFile().toPath())), PageImpl.class);
+        dd4tPageDataModel = DataBindFactory.buildPage(new String(Files.readAllBytes(new ClassPathResource("models/dd4t.json").getFile().toPath())), PageImpl.class);
         r2PageDataModel = r2Mapper.readValue(new ClassPathResource("models/r2.json").getFile(), PageModelData.class);
 
         // TODO: Remove mocking when converter's implementation is ready
@@ -84,7 +85,7 @@ public class ConverterServiceTest {
     }
 
     @Test
-    public void shouldConvertR2ModelToLegacy() {
+    public void shouldConvertR2ModelToLegacy() throws StorageException {
         //given
         PageImpl expected = dd4tPageDataModel;
 
