@@ -71,7 +71,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T")).andExpect(status().isOk());
 
         //then
-        verify(this.modelService, atLeastOnce()).loadPageModel(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.MODEL, "/"));
+        verify(this.modelService, atLeastOnce()).loadLegacyPageModel(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.MODEL, "/"));
     }
 
     @Test

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ModelService.class)
+@PrepareForTest(ModelServiceImpl.class)
 public class ModelServiceTest {
 
     @Mock
@@ -75,7 +75,7 @@ public class ModelServiceTest {
     private ConfigService.Defaults defaults;
 
     @InjectMocks
-    private ModelService modelService;
+    private ModelServiceImpl modelService;
 
     @Before
     public void init() throws Exception {

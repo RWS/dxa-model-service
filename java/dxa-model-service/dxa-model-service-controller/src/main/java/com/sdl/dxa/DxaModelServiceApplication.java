@@ -5,6 +5,13 @@ import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
 import com.tridion.ambientdata.web.AmbientDataServletFilter;
 import com.tridion.taxonomies.TaxonomyRelationManager;
+import org.dd4t.contentmodel.impl.BaseField;
+import org.dd4t.contentmodel.impl.ComponentImpl;
+import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
+import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
+import org.dd4t.core.databind.DataBinder;
+import org.dd4t.databind.DataBindFactory;
+import org.dd4t.databind.builder.json.JsonDataBinder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,5 +50,24 @@ public class DxaModelServiceApplication {
     @Bean
     public TaxonomyRelationManager taxonomyRelationManager() {
         return new TaxonomyRelationManager();
+    }
+
+    @Bean
+    public DataBinder dd4tDataBinder() {
+        JsonDataBinder dataBinder = JsonDataBinder.getInstance();
+        dataBinder.setRenderDefaultComponentModelsOnly(true);
+        dataBinder.setRenderDefaultComponentsIfNoModelFound(true);
+        dataBinder.setConcreteComponentImpl(ComponentImpl.class);
+        dataBinder.setConcreteComponentPresentationImpl(ComponentPresentationImpl.class);
+        dataBinder.setConcreteComponentTemplateImpl(ComponentTemplateImpl.class);
+        dataBinder.setConcreteFieldImpl(BaseField.class);
+        return dataBinder;
+    }
+
+    @Bean
+    public DataBindFactory dd4tPageFactory() {
+        DataBindFactory bindFactory = DataBindFactory.getInstance();
+        bindFactory.setDataBinder(dd4tDataBinder());
+        return bindFactory;
     }
 }

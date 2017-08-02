@@ -1,21 +1,18 @@
 package com.sdl.dxa.modelservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.DxaModelServiceApplication;
 import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.tridion.broker.StorageException;
+import org.apache.commons.io.IOUtils;
 import org.dd4t.contentmodel.Page;
-import org.dd4t.contentmodel.impl.BaseField;
-import org.dd4t.contentmodel.impl.ComponentImpl;
-import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
-import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
 import org.dd4t.contentmodel.impl.PageImpl;
 import org.dd4t.core.databind.DataBinder;
 import org.dd4t.core.exceptions.FactoryException;
 import org.dd4t.databind.DataBindFactory;
-import org.dd4t.databind.builder.json.JsonDataBinder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +25,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -38,38 +34,52 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = ConverterServiceTest.SpringConfigurationContext.class)
 public class ConverterServiceTest {
 
-    PageModelData r2PageDataModel = null;
-
-    PageImpl dd4tPageDataModel = null;
-
     @Autowired
-    private DataBindFactory dd4tPageFactory;
-
-    @Autowired
-    private ObjectMapper r2Mapper;
+    private ObjectMapper r2ObjectMapper;
 
     @Mock
     private ConverterService converter;
 
-    private PageRequestDto dto;
+    private PageModelData r2PageDataModel;
+
+    private Page dd4tPageDataModel;
+
+    private PageRequestDto pageRequestDto;
+
+    private String dd4tSource;
+
+    private String r2Source;
 
     @Before
     public void init() throws ContentProviderException, IOException, FactoryException, StorageException {
 
-        dto = PageRequestDto.builder()
+        pageRequestDto = PageRequestDto.builder()
                 .publicationId(1)
                 .uriType("tcm")
                 .build();
 
-        //when
-        dd4tPageDataModel = DataBindFactory.buildPage(new String(Files.readAllBytes(new ClassPathResource("models/dd4t.json").getFile().toPath())), PageImpl.class);
-        r2PageDataModel = r2Mapper.readValue(new ClassPathResource("models/r2.json").getFile(), PageModelData.class);
+        dd4tSource = IOUtils.toString(new ClassPathResource("models/dd4t.json").getInputStream(), "UTF-8");
+        r2Source = IOUtils.toString(new ClassPathResource("models/r2.json").getInputStream(), "UTF-8");
+
+        dd4tPageDataModel = DataBindFactory.buildPage(dd4tSource, PageImpl.class);
+        r2PageDataModel = r2ObjectMapper.readValue(r2Source, PageModelData.class);
 
         // TODO: Remove mocking when converter's implementation is ready
-        when(converter.convertToDd4t(eq(r2PageDataModel), eq(dto)))
+        when(converter.convertToDd4t(eq(r2PageDataModel), eq(pageRequestDto)))
                 .thenReturn(dd4tPageDataModel);
-        when(converter.convertToR2(eq(dd4tPageDataModel), eq(dto)))
+        when(converter.convertToR2(eq(dd4tPageDataModel), eq(pageRequestDto)))
                 .thenReturn(r2PageDataModel);
+    }
+
+    @Test
+    public void shouldDetectCorrectModel_OfJsonContent() {
+        //when
+        PageRequestDto.DataModelType dd4t = ConverterService.getModelType(dd4tSource);
+        PageRequestDto.DataModelType r2 = ConverterService.getModelType(r2Source);
+
+        //then
+        assertEquals(PageRequestDto.DataModelType.DD4T, dd4t);
+        assertEquals(PageRequestDto.DataModelType.R2, r2);
     }
 
     @Test
@@ -78,19 +88,19 @@ public class ConverterServiceTest {
         PageModelData expected = r2PageDataModel;
 
         //when
-        PageModelData actual = converter.convertToR2(dd4tPageDataModel, dto);
+        PageModelData actual = converter.convertToR2(dd4tPageDataModel, pageRequestDto);
 
         //then
         assertEquals(actual, expected);
     }
 
     @Test
-    public void shouldConvertR2ModelToLegacy() throws StorageException {
+    public void shouldConvertR2ModelToLegacy() throws ContentProviderException {
         //given
-        PageImpl expected = dd4tPageDataModel;
+        Page expected = dd4tPageDataModel;
 
         //when
-        Page actual = converter.convertToDd4t(r2PageDataModel, dto);
+        Page actual = converter.convertToDd4t(r2PageDataModel, pageRequestDto);
 
         //then
         assertEquals(actual, expected);
@@ -106,26 +116,12 @@ public class ConverterServiceTest {
 
         @Bean
         public DataBinder dataBinder() {
-            JsonDataBinder dataBinder = JsonDataBinder.getInstance();
-            dataBinder.setRenderDefaultComponentModelsOnly(true);
-            dataBinder.setRenderDefaultComponentsIfNoModelFound(true);
-            dataBinder.setConcreteComponentImpl(ComponentImpl.class);
-            // Important! If use 2.0.11 version of DD4T the you need to set concrete implementation for Component presentation an template(2 lines below)
-            // In 2.2.1-DXA version everything is set under the hood
-            dataBinder.setConcreteComponentPresentationImpl(ComponentPresentationImpl.class);
-            dataBinder.setConcreteComponentTemplateImpl(ComponentTemplateImpl.class);
-
-            dataBinder.setConcreteFieldImpl(BaseField.class);
-            return dataBinder;
+            return new DxaModelServiceApplication().dd4tDataBinder();
         }
 
         @Bean
         public DataBindFactory dd4tPageFactory() {
-            DataBindFactory bindFactory = DataBindFactory.getInstance();
-            bindFactory.setDataBinder(dataBinder());
-            return bindFactory;
+            return new DxaModelServiceApplication().dd4tPageFactory();
         }
-
     }
-
 }

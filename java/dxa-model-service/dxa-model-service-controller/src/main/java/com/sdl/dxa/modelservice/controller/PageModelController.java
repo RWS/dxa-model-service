@@ -1,10 +1,9 @@
 package com.sdl.dxa.modelservice.controller;
 
-import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
-import com.sdl.dxa.modelservice.service.PageModelService;
+import com.sdl.dxa.modelservice.service.ModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,49 +44,40 @@ public class PageModelController {
      */
     private static final Pattern PAGE_URL_REGEX = Pattern.compile("(/[^\\d]+)+?/\\d+/?(?<pageUrl>/.*)", Pattern.CASE_INSENSITIVE);
 
-    private final PageModelService contentService;
+    private final ModelService modelService;
 
     @Autowired
-    public PageModelController(PageModelService contentService) {
-        this.contentService = contentService;
+    public PageModelController(ModelService modelService) {
+        this.modelService = modelService;
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<PageModelData> getPageModel(@PathVariable String uriType,
-                                                      @PathVariable int localizationId,
-                                                      @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
-                                                      @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
-                                                      HttpServletRequest request) throws ContentProviderException {
-
-
-        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, MODEL, request);
-
-        if (pageRequestDto == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        log.trace("requesting pageModel with {}", pageRequestDto);
-        return ResponseEntity.ok(contentService.loadPageModel(pageRequestDto));
-    }
-
-    @RequestMapping(params = "raw")
-    public ResponseEntity<String> getPageSource(@PathVariable String uriType,
-                                                @PathVariable int localizationId,
-                                                @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
-                                                @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
-                                                HttpServletRequest request) throws ContentProviderException {
-        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, RAW, request);
+    public ResponseEntity getPage(@PathVariable String uriType,
+                                  @PathVariable int localizationId,
+                                  @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
+                                  @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
+                                  @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
+                                  HttpServletRequest request) throws ContentProviderException {
+        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
 
         if (pageRequestDto == null) {
             return ResponseEntity.badRequest().build();
         }
 
         log.trace("requesting pageSource with {}", pageRequestDto);
-        return ResponseEntity.ok(contentService.loadPageContent(pageRequestDto));
+        Object result;
+        if (isRawContent) {
+            result = modelService.loadPageContent(pageRequestDto);
+        } else {
+            result = dataModelType == DataModelType.R2 ?
+                    modelService.loadPageModel(pageRequestDto) :
+                    modelService.loadLegacyPageModel(pageRequestDto);
+        }
+        return ResponseEntity.ok(result);
     }
 
     private PageRequestDto buildPageRequest(String uriType, int localizationId, PageInclusion pageInclusion,
-                                            DataModelType dataModelType, PageRequestDto.ContentType contentType,
+                                            DataModelType dataModelType, boolean isRawContent,
                                             HttpServletRequest request) {
         Optional<String> pageUrl = getPageUrl(request);
         if (!pageUrl.isPresent()) {
@@ -102,7 +92,7 @@ public class PageModelController {
                 .path(pageUrl.get())
                 .dataModelType(dataModelType)
                 .includePages(pageInclusion)
-                .contentType(contentType)
+                .contentType(isRawContent ? RAW : MODEL)
                 .build();
     }
 

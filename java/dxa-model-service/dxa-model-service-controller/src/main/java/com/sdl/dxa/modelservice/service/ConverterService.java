@@ -8,6 +8,7 @@ import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
+import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.broker.StorageException;
 import com.tridion.dcp.ComponentPresentationFactory;
@@ -60,8 +61,8 @@ public class ConverterService {
      * @return type of the model
      */
     public static DataModelType getModelType(String jsonContent) {
-        // todo implement
-        return DataModelType.DD4T;
+        // todo implement normally
+        return jsonContent.contains("UrlPath") ? DataModelType.R2 : DataModelType.DD4T;
     }
 
     /**
@@ -72,13 +73,14 @@ public class ConverterService {
      * @return equal DD4T model, {@code null} in case parameter is {@code null}
      */
     @Contract("!null, _ -> !null; null, _ -> null")
-    public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequestDto) throws StorageException {
+    public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequestDto) throws ContentProviderException {
         if (toConvert == null) {
             log.warn("Model to convert is null, returning null");
             return null;
         }
 
-        PageMeta pageMeta = new PageMetaFactory(pageRequestDto.getPublicationId()).getMeta(toConvert.getId());
+        PageMeta pageMeta = new PageMetaFactory(pageRequestDto.getPublicationId())
+                .getMeta(TcmUtils.buildPageTcmUri(String.valueOf(pageRequestDto.getPublicationId()), toConvert.getId()));
 
         PageImpl page = new PageImpl();
 
@@ -91,17 +93,20 @@ public class ConverterService {
         page.setFileExtension(pageMeta.getPath()); // todo extract html out of /path/index.html or page template
 
 
-        PublicationMeta publicationMeta = new PublicationMetaFactory().getMeta(pageRequestDto.getPublicationId());
-        Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
-        publication.setTitle(publicationMeta.getTitle());
-        page.setPublication(publication);
+        try {
+            PublicationMeta publicationMeta = new PublicationMetaFactory().getMeta(pageRequestDto.getPublicationId());
+            Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
+            publication.setTitle(publicationMeta.getTitle());
+            page.setPublication(publication);
 
 
-        PublicationMeta owningPublicationMeta = new PublicationMetaFactory().getMeta(String.valueOf(pageMeta.getOwningPublicationId()));
-        PublicationImpl owningPublication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(owningPublicationMeta.getId()));
-        owningPublication.setTitle(owningPublicationMeta.getTitle());
-        page.setOwningPublication(owningPublication);
-
+            PublicationMeta owningPublicationMeta = new PublicationMetaFactory().getMeta(pageMeta.getOwningPublicationId());
+            PublicationImpl owningPublication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(owningPublicationMeta.getId()));
+            owningPublication.setTitle(owningPublicationMeta.getTitle());
+            page.setOwningPublication(owningPublication);
+        } catch (StorageException e) {
+            throw new ContentProviderException("Error loading metadata", e);
+        }
 
         // todo structure group
 
@@ -120,12 +125,16 @@ public class ConverterService {
 
     private List<ComponentPresentation> _loadComponentPresentations(RegionModelData region,
                                                                     @NotNull PageRequestDto pageRequestDto, ComponentPresentationFactory factory) {
-        Stream<ComponentPresentation> nestedRegions = region.getRegions().parallelStream()
-                .map(nested -> _loadComponentPresentations(nested, pageRequestDto, factory))
-                .flatMap(List::stream);
 
-        Stream<ComponentPresentation> currentRegion = region.getEntities().parallelStream()
-                .map(entity -> _fromEntityModel(entity, pageRequestDto, factory));
+        Stream<ComponentPresentation> nestedRegions =
+                region.getRegions() != null ? region.getRegions().parallelStream()
+                        .map(nested -> _loadComponentPresentations(nested, pageRequestDto, factory))
+                        .flatMap(List::stream) :
+                        Stream.empty();
+
+        Stream<ComponentPresentation> currentRegion = region.getEntities() != null ?
+                region.getEntities().parallelStream().map(entity -> _fromEntityModel(entity, pageRequestDto, factory))
+                : Stream.empty();
 
         return Stream.concat(nestedRegions, currentRegion).collect(Collectors.toList());
     }
@@ -157,7 +166,12 @@ public class ConverterService {
         return component;
     }
 
+    @Contract("null, _ -> null; !null, _ -> !null")
     private Map<String, Field> convertContent(ContentModelData contentModelData, @NotNull PageRequestDto pageRequestDto) {
+        if (contentModelData == null) {
+            return null;
+        }
+
         Map<String, Field> fields = new HashMap<>(contentModelData.size());
 
         for (Map.Entry<String, Object> entry : contentModelData.entrySet()) {
