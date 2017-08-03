@@ -8,6 +8,7 @@ import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
