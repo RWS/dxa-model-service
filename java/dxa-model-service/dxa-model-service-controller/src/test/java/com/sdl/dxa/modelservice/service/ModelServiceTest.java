@@ -18,6 +18,7 @@ import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Before;
@@ -31,6 +32,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.IOException;
+
+import static com.sdl.dxa.modelservice.service.ModelServiceImpl.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -93,6 +97,23 @@ public class ModelServiceTest {
         when(configService.getDefaults()).thenReturn(defaults);
 
         when(defaults.getDynamicTemplateId(eq(42))).thenReturn(10247);
+    }
+
+
+    @Test
+    public void shouldDetectCorrectModel_OfJsonContent() throws IOException {
+        //given
+        String dd4tSource = IOUtils.toString(new ClassPathResource("models/dd4t.json").getInputStream(), "UTF-8");
+        String r2Source = IOUtils.toString(new ClassPathResource("models/r2.json").getInputStream(), "UTF-8");
+
+
+        //when
+        PageRequestDto.DataModelType dd4t = getModelType(dd4tSource);
+        PageRequestDto.DataModelType r2 = getModelType(r2Source);
+
+        //then
+        assertEquals(PageRequestDto.DataModelType.DD4T, dd4t);
+        assertEquals(PageRequestDto.DataModelType.R2, r2);
     }
 
     @Test

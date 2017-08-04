@@ -1,4 +1,4 @@
-package com.sdl.dxa.modelservice.service;
+package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
@@ -7,7 +7,6 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
-import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.broker.StorageException;
@@ -25,7 +24,6 @@ import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.ComponentTemplate;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldSet;
-import org.dd4t.contentmodel.FieldType;
 import org.dd4t.contentmodel.Keyword;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
@@ -46,7 +44,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,34 +58,13 @@ import java.util.stream.Collectors;
 import static com.sdl.webapp.common.util.TcmUtils.PAGE_TEMPLATE_ITEM_TYPE;
 import static com.sdl.webapp.common.util.TcmUtils.buildPageTcmUri;
 
-/**
- * Converter service is capable to convert R2 to DD4T data models both ways.
- */
 @Slf4j
-@Service
-public class ConverterService {
+@org.springframework.stereotype.Component
+public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     private static final Pattern FILE_NAME_PATTERN = Pattern.compile(".*/(?<fileName>[^/.]*)\\.(?<extension>[^/.]*)$");
 
-    /**
-     * Detects model type from json content string.
-     *
-     * @param jsonContent json content of a page
-     * @return type of the model
-     */
-    public static DataModelType getModelType(String jsonContent) {
-        // todo implement normally
-        return jsonContent.contains("UrlPath") ? DataModelType.R2 : DataModelType.DD4T;
-    }
-
-    /**
-     * Converts the given R2 data model to DD4T data model.
-     *
-     * @param toConvert   R2 page model to convert
-     * @param pageRequest current page request
-     * @return equal DD4T model, {@code null} in case parameter is {@code null}
-     */
-    @Contract("!null, _ -> !null; null, _ -> null")
+    @Override
     public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
         if (toConvert == null) {
             log.warn("Model to convert is null, returning null");
@@ -334,76 +310,5 @@ public class ConverterService {
         TextField textField = new TextField();
         textField.setTextValues(strings);
         return textField;
-    }
-
-    /**
-     * Converts the given DD4T data model to R2 data model.
-     *
-     * @param toConvert      DD4T page model to convert
-     * @param pageRequestDto current page request
-     * @return equal R2 model, {@code null} in case parameter is {@code null}
-     */
-    @Contract("!null, _ -> !null; null, _ -> null")
-    public PageModelData convertToR2(@Nullable Page toConvert, @NotNull PageRequestDto pageRequestDto) {
-        if (toConvert == null) {
-            log.warn("Model to convert is null, returning null");
-            return null;
-        }
-
-        PageModelData page = new PageModelData();
-
-        page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
-        page.setTitle(toConvert.getTitle());
-        //todo UrlPath?
-
-
-        Map<String, RegionModelData> regions = new HashMap<>();
-        for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
-            ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
-            Component component = componentPresentation.getComponent();
-
-            EntityModelData entity = new EntityModelData();
-            entity.setId(String.valueOf(TcmUtils.getItemId(component.getId())));
-
-            entity.setContent(_convertContent(component.getContent()));
-
-            String regionName = componentTemplate.getMetadata().containsKey("regionView") ?
-                    componentTemplate.getMetadata().get("regionView").getValues().get(0).toString() : "Main";
-
-            RegionModelData currentRegion = regions.containsKey(regionName) ? regions.get(regionName) : new RegionModelData();
-            currentRegion.getEntities().add(entity);
-        }
-
-        return page;
-    }
-
-    private ContentModelData _convertContent(Map<String, Field> content) {
-        ContentModelData data = new ContentModelData();
-        for (Map.Entry<String, Field> entry : content.entrySet()) {
-            String key = entry.getKey();
-            Field value = entry.getValue();
-            FieldType fieldType = value.getFieldType();
-            switch (fieldType) {
-                case EMBEDDED:
-                    if (value.getValues().size() == 1) {
-                        data.put(key, _convertContent(((EmbeddedField) value).getEmbeddedValues().get(0).getContent()));
-                    } else {
-
-                        ListWrapper.ContentModelDataListWrapper wrapper = new ListWrapper.ContentModelDataListWrapper(
-                                ((EmbeddedField) value).getEmbeddedValues().stream()
-                                        .map(fieldSet -> _convertContent(fieldSet.getContent()))
-                                        .collect(Collectors.toList()));
-                        data.put(key, wrapper);
-                    }
-                    break;
-                case COMPONENTLINK:
-                    data.put(key, new EntityModelData());
-                    break;
-                case TEXT:
-                default:
-                    data.put(key, value.getValues().get(0));
-            }
-        }
-        return data;
     }
 }

@@ -8,6 +8,8 @@ import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
+import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
@@ -53,7 +55,9 @@ public class ModelServiceImpl implements ModelService {
 
     private final ConfigService configService;
 
-    private final ConverterService converterService;
+    private final ToDd4tConverter toDd4tConverter;
+
+    private final ToR2Converter toR2Converter;
 
     private final RichTextLinkResolver richTextLinkResolver;
 
@@ -61,13 +65,26 @@ public class ModelServiceImpl implements ModelService {
     public ModelServiceImpl(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                             LinkResolver linkResolver,
                             ConfigService configService,
-                            ConverterService converterService,
+                            ToDd4tConverter toDd4tConverter,
+                            ToR2Converter toR2Converter,
                             RichTextLinkResolver richTextLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
         this.configService = configService;
-        this.converterService = converterService;
+        this.toDd4tConverter = toDd4tConverter;
+        this.toR2Converter = toR2Converter;
         this.richTextLinkResolver = richTextLinkResolver;
+    }
+
+    /**
+     * Detects model type from json content string.
+     *
+     * @param jsonContent json content of a page
+     * @return type of the model
+     */
+    public static PageRequestDto.DataModelType getModelType(String jsonContent) {
+        // todo implement normally
+        return jsonContent.contains("UrlPath") ? PageRequestDto.DataModelType.R2 : PageRequestDto.DataModelType.DD4T;
     }
 
     @Override
@@ -77,11 +94,11 @@ public class ModelServiceImpl implements ModelService {
         String pageContent = loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
 
-        PageRequestDto.DataModelType publishedModelType = ConverterService.getModelType(pageContent);
+        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
         if (publishedModelType == PageRequestDto.DataModelType.R2) {
             log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", pageRequest);
             PageModelData page = _processR2PageModel(pageContent, pageRequest);
-            return converterService.convertToDd4t(page, pageRequest);
+            return toDd4tConverter.convertToDd4t(page, pageRequest);
         }
 
         return _processDd4tPageModel(pageContent, pageRequest);
@@ -94,11 +111,11 @@ public class ModelServiceImpl implements ModelService {
         String pageContent = loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
 
-        PageRequestDto.DataModelType publishedModelType = ConverterService.getModelType(pageContent);
+        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
         if (publishedModelType == PageRequestDto.DataModelType.DD4T) {
             log.info("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", pageRequest);
             Page page = _processDd4tPageModel(pageContent, pageRequest);
-            return converterService.convertToR2(page, pageRequest);
+            return toR2Converter.convertToR2(page, pageRequest);
         }
 
         return _processR2PageModel(pageContent, pageRequest);

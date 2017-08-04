@@ -1,4 +1,4 @@
-package com.sdl.dxa.modelservice.service;
+package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.DxaModelServiceApplication;
@@ -31,24 +31,23 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = ConverterServiceTest.SpringConfigurationContext.class)
-public class ConverterServiceTest {
+@ContextConfiguration(classes = ConvertersTest.SpringConfigurationContext.class)
+public class ConvertersTest {
 
     @Autowired
     private ObjectMapper r2ObjectMapper;
 
     @Mock
-    private ConverterService converter;
+    private ToDd4tConverter toDd4tConverter;
+
+    @Mock
+    private ToR2Converter toR2Converter;
 
     private PageModelData r2PageDataModel;
 
     private Page dd4tPageDataModel;
 
     private PageRequestDto pageRequestDto;
-
-    private String dd4tSource;
-
-    private String r2Source;
 
     @Before
     public void init() throws ContentProviderException, IOException, FactoryException, StorageException {
@@ -58,29 +57,19 @@ public class ConverterServiceTest {
                 .uriType("tcm")
                 .build();
 
-        dd4tSource = IOUtils.toString(new ClassPathResource("models/dd4t.json").getInputStream(), "UTF-8");
-        r2Source = IOUtils.toString(new ClassPathResource("models/r2.json").getInputStream(), "UTF-8");
+        String dd4tSource = IOUtils.toString(new ClassPathResource("models/dd4t.json").getInputStream(), "UTF-8");
+        String r2Source = IOUtils.toString(new ClassPathResource("models/r2.json").getInputStream(), "UTF-8");
 
         dd4tPageDataModel = DataBindFactory.buildPage(dd4tSource, PageImpl.class);
         r2PageDataModel = r2ObjectMapper.readValue(r2Source, PageModelData.class);
 
-        // TODO: Remove mocking when converter's implementation is ready
-        when(converter.convertToDd4t(eq(r2PageDataModel), eq(pageRequestDto)))
+        // TODO: Remove mocking when toDd4tConverter's implementation is ready
+        when(toDd4tConverter.convertToDd4t(eq(r2PageDataModel), eq(pageRequestDto)))
                 .thenReturn(dd4tPageDataModel);
-        when(converter.convertToR2(eq(dd4tPageDataModel), eq(pageRequestDto)))
+        when(toR2Converter.convertToR2(eq(dd4tPageDataModel), eq(pageRequestDto)))
                 .thenReturn(r2PageDataModel);
     }
 
-    @Test
-    public void shouldDetectCorrectModel_OfJsonContent() {
-        //when
-        PageRequestDto.DataModelType dd4t = ConverterService.getModelType(dd4tSource);
-        PageRequestDto.DataModelType r2 = ConverterService.getModelType(r2Source);
-
-        //then
-        assertEquals(PageRequestDto.DataModelType.DD4T, dd4t);
-        assertEquals(PageRequestDto.DataModelType.R2, r2);
-    }
 
     @Test
     public void shouldConvertLegacyModelToR2() {
@@ -88,7 +77,7 @@ public class ConverterServiceTest {
         PageModelData expected = r2PageDataModel;
 
         //when
-        PageModelData actual = converter.convertToR2(dd4tPageDataModel, pageRequestDto);
+        PageModelData actual = toR2Converter.convertToR2(dd4tPageDataModel, pageRequestDto);
 
         //then
         assertEquals(actual, expected);
@@ -100,7 +89,7 @@ public class ConverterServiceTest {
         Page expected = dd4tPageDataModel;
 
         //when
-        Page actual = converter.convertToDd4t(r2PageDataModel, pageRequestDto);
+        Page actual = toDd4tConverter.convertToDd4t(r2PageDataModel, pageRequestDto);
 
         //then
         assertEquals(actual, expected);
