@@ -223,7 +223,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
         Map<String, Field> content = new HashMap<>();
         for (Map.Entry<String, Object> entry : contentModelData.entrySet()) {
-            Field convertedField = _convertEmbeddedToField(entry, pageRequestDto);
+            Field convertedField = _convertToField(entry, pageRequestDto);
             if (convertedField != null) {
                 content.put(entry.getKey(), convertedField);
             } else {
@@ -234,7 +234,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
     @Nullable
-    private Field _convertEmbeddedToField(@NotNull Map.Entry<String, Object> entry, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
+    private Field _convertToField(@NotNull Map.Entry<String, Object> entry, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
         Object value = entry.getValue();
         Field field = null;
 
