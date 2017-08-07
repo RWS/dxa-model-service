@@ -1,5 +1,6 @@
 package com.sdl.dxa.modelservice.service.processing.conversion;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
@@ -7,6 +8,10 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
+import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.broker.StorageException;
@@ -39,18 +44,24 @@ import org.dd4t.contentmodel.impl.KeywordImpl;
 import org.dd4t.contentmodel.impl.PageImpl;
 import org.dd4t.contentmodel.impl.PageTemplateImpl;
 import org.dd4t.contentmodel.impl.PublicationImpl;
+import org.dd4t.contentmodel.impl.SchemaImpl;
+import org.dd4t.contentmodel.impl.StructureGroupImpl;
 import org.dd4t.contentmodel.impl.TextField;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,6 +74,21 @@ import static com.sdl.webapp.common.util.TcmUtils.buildPageTcmUri;
 public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     private static final Pattern FILE_NAME_PATTERN = Pattern.compile(".*/(?<fileName>[^/.]*)\\.(?<extension>[^/.]*)$");
+
+    private final ContentService contentService;
+
+    private final ConfigService configService;
+
+    private final ObjectMapper objectMapper;
+
+    @Autowired
+    public ToDd4tConverterImpl(ContentService contentService,
+                               ConfigService configService,
+                               @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
+        this.contentService = contentService;
+        this.configService = configService;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
@@ -95,9 +121,9 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         page.setPublication(_loadPublication(publicationId));
         page.setOwningPublication(_loadPublication(pageMeta.getOwningPublicationId()));
 
-        // todo structure group
+        page.setStructureGroup(_loadStructureGroup(toConvert, pageRequest, page));
 
-        // todo metadata fields
+        page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest));
 
         page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest));
 
@@ -112,6 +138,32 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         }
 
         return page;
+    }
+
+    @Nullable
+    private StructureGroupImpl _loadStructureGroup(@NotNull PageModelData toConvert, @NotNull PageRequestDto pageRequest, PageImpl page) throws ContentProviderException {
+        if (toConvert.getStructureGroupId() == null) {
+            return null;
+        }
+
+        String content = contentService.loadPageContent(pageRequest.toBuilder().path(pageRequest.getPath() + "/navigation.json").build());
+        Optional<LightSitemapItem> sitemapItem;
+        try {
+            sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
+                    pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
+        } catch (IOException e) {
+            throw new ContentProviderException("Error parsing navigation.json", e);
+        }
+
+        if (sitemapItem.isPresent()) {
+            StructureGroupImpl structureGroup = new StructureGroupImpl();
+            structureGroup.setPublicationId(page.getPublication().getId());
+            structureGroup.setId(sitemapItem.get().getId());
+            structureGroup.setTitle(sitemapItem.get().getTitle());
+            return structureGroup;
+        } else {
+            return null;
+        }
     }
 
     private PageTemplate _buildPageTemplate(PageTemplateData pageTemplateData, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
@@ -189,8 +241,15 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setContent(_convertContent(entity.getContent(), pageRequestDto));
         component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));
         component.setRevisionDate(new DateTime(meta.getModificationDate()));
-        // todo schema
-        // todo metadata fields
+        component.setMetadata(_convertContent(entity.getMetadata(), pageRequestDto));
+
+        LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequestDto.getPublicationId()).get(entity.getSchemaId());
+        SchemaImpl schema = new SchemaImpl();
+        schema.setRootElement(lightSchema.getRootElement());
+        schema.setId(lightSchema.getId());
+        schema.setTitle(lightSchema.getTitle());
+        component.setSchema(schema);
+
         // todo ComponentType
         // todo Folder
         component.setCategories(Arrays.stream(meta.getCategories())

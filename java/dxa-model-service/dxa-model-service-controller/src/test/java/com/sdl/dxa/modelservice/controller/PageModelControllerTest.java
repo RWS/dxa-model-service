@@ -1,6 +1,7 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.ModelService;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -27,6 +28,9 @@ public class PageModelControllerTest {
 
     @MockBean
     private ModelService modelService;
+
+    @MockBean
+    private ContentService contentService;
 
     @Autowired
     private MockMvc mvc;
@@ -82,7 +86,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T&raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.modelService, atLeastOnce()).loadPageContent(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.RAW, "/"));
     }
 
     @Test
@@ -104,7 +108,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.modelService, atLeastOnce()).loadPageContent(matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.RAW, "/"));
     }
 
 

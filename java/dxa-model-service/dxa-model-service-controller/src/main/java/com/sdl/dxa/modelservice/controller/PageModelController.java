@@ -3,6 +3,7 @@ package com.sdl.dxa.modelservice.controller;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
+import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.ModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,12 @@ public class PageModelController {
 
     private final ModelService modelService;
 
+    private final ContentService contentService;
+
     @Autowired
-    public PageModelController(ModelService modelService) {
+    public PageModelController(ModelService modelService, ContentService contentService) {
         this.modelService = modelService;
+        this.contentService = contentService;
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -67,7 +71,7 @@ public class PageModelController {
         log.trace("requesting pageSource with {}", pageRequestDto);
         Object result;
         if (isRawContent) {
-            result = modelService.loadPageContent(pageRequestDto);
+            result = contentService.loadPageContent(pageRequestDto);
         } else {
             result = dataModelType == DataModelType.R2 ?
                     modelService.loadPageModel(pageRequestDto) :

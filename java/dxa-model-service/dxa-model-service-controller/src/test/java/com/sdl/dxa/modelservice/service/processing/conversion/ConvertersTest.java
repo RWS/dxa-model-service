@@ -72,7 +72,7 @@ public class ConvertersTest {
 
 
     @Test
-    public void shouldConvertLegacyModelToR2() {
+    public void shouldConvertLegacyModelToR2() throws ContentProviderException {
         //given 
         PageModelData expected = r2PageDataModel;
 
