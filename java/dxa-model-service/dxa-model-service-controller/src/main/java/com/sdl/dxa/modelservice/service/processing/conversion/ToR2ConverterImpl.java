@@ -9,6 +9,7 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
@@ -73,8 +74,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
         page.setTitle(toConvert.getTitle());
         page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest));
+        page.setUrlPath(PathUtils.stripDefaultExtension(metadataService.getPageMeta(pageRequest.getPublicationId(), toConvert.getId()).getURLPath()));
 
-        // todo UrlPath
         // todo Meta
 
         Map<String, RegionModelData> regions = new LinkedHashMap<>();

@@ -18,7 +18,6 @@ import com.tridion.dcp.ComponentPresentationFactory;
 import com.tridion.meta.ComponentMeta;
 import com.tridion.meta.ComponentMetaFactory;
 import com.tridion.meta.PageMeta;
-import com.tridion.meta.PageMetaFactory;
 import com.tridion.meta.PublicationMeta;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.Category;
@@ -109,7 +108,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         page.setTitle(toConvert.getTitle());
 
         // then load page metadata and fill the rest at the top-level
-        PageMeta pageMeta = new PageMetaFactory(publicationId).getMeta(pageTcmUri);
+        PageMeta pageMeta = metadataService.getPageMeta(publicationId, pageTcmUri);
         page.setVersion(pageMeta.getMajorVersion());
         page.setLastPublishedDate(new DateTime(pageMeta.getLastPublicationDate()));
         page.setRevisionDate(new DateTime(pageMeta.getModificationDate()));

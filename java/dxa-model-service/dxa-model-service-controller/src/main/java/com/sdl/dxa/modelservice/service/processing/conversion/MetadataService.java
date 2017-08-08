@@ -2,6 +2,8 @@ package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.tridion.broker.StorageException;
+import com.tridion.meta.PageMeta;
+import com.tridion.meta.PageMetaFactory;
 import com.tridion.meta.PublicationMeta;
 import com.tridion.meta.PublicationMetaFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +19,11 @@ public class MetadataService {
         } catch (StorageException e) {
             throw new ContentProviderException("Cannot load metadata for publication " + publicationId, e);
         }
+    }
+
+    @Cacheable("conversion")
+    public PageMeta getPageMeta(int publicationId, String pageTcmUri) {
+        return new PageMetaFactory(publicationId).getMeta(pageTcmUri);
     }
 
 }
