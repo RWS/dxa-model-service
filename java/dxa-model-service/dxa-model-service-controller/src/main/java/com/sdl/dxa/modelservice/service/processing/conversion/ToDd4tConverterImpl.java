@@ -14,14 +14,12 @@ import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
-import com.tridion.broker.StorageException;
 import com.tridion.dcp.ComponentPresentationFactory;
 import com.tridion.meta.ComponentMeta;
 import com.tridion.meta.ComponentMetaFactory;
 import com.tridion.meta.PageMeta;
 import com.tridion.meta.PageMetaFactory;
 import com.tridion.meta.PublicationMeta;
-import com.tridion.meta.PublicationMetaFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.Category;
 import org.dd4t.contentmodel.Component;
@@ -81,13 +79,17 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     private final ObjectMapper objectMapper;
 
+    private final MetadataService metadataService;
+
     @Autowired
     public ToDd4tConverterImpl(ContentService contentService,
                                ConfigService configService,
-                               @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper) {
+                               @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
+                               MetadataService metadataService) {
         this.contentService = contentService;
         this.configService = configService;
         this.objectMapper = objectMapper;
+        this.metadataService = metadataService;
     }
 
     @Override
@@ -166,7 +168,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         }
     }
 
-    private PageTemplate _buildPageTemplate(PageTemplateData pageTemplateData, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
+    @NotNull
+    private PageTemplate _buildPageTemplate(@NotNull PageTemplateData pageTemplateData, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
         PageTemplate pageTemplate = new PageTemplateImpl();
         pageTemplate.setId(TcmUtils.buildTcmUri(pageTemplateData.getId(), pageRequest.getPublicationId(), PAGE_TEMPLATE_ITEM_TYPE));
         pageTemplate.setTitle(pageTemplateData.getTitle());
@@ -177,13 +180,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
     private Publication _loadPublication(int publicationId) throws ContentProviderException {
-        PublicationMeta publicationMeta;
-        try {
-            publicationMeta = new PublicationMetaFactory().getMeta(publicationId);
-        } catch (StorageException e) {
-            throw new ContentProviderException("Cannot load metadata for publication " + publicationId, e);
-        }
-
+        PublicationMeta publicationMeta = metadataService.getPublicationMeta(publicationId);
         Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
         publication.setTitle(publicationMeta.getTitle());
         return publication;

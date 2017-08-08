@@ -1,5 +1,7 @@
 package com.sdl.dxa.modelservice.service.processing.conversion;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
@@ -8,6 +10,7 @@ import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -25,11 +28,14 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,9 +44,20 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final ConfigService configService;
 
+    private final ContentService contentService;
+
+    private final ObjectMapper objectMapper;
+
+    private final MetadataService metadataService;
+
     @Autowired
-    public ToR2ConverterImpl(ConfigService configService) {
+    public ToR2ConverterImpl(ConfigService configService,
+                             ContentService contentService,
+                             @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper, MetadataService metadataService) {
         this.configService = configService;
+        this.contentService = contentService;
+        this.objectMapper = objectMapper;
+        this.metadataService = metadataService;
     }
 
     @Override
@@ -56,10 +73,11 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
         page.setTitle(toConvert.getTitle());
         page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest));
+
         // todo UrlPath
         // todo Meta
 
-        Map<String, RegionModelData> regions = new TreeMap<>();
+        Map<String, RegionModelData> regions = new LinkedHashMap<>();
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
             ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
             Component component = componentPresentation.getComponent();
@@ -76,6 +94,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
             }
             currentRegion.getEntities().add(_buildEntity(component, componentTemplate, pageRequest));
         }
+        for (RegionModelData regionModelData : _loadIncludes(page.getPageTemplate(), pageRequest)) {
+            regions.put(regionModelData.getName(), regionModelData);
+        }
         page.setRegions(new ArrayList<>(regions.values()));
 
         // todo MvcData
@@ -86,6 +107,29 @@ public class ToR2ConverterImpl implements ToR2Converter {
         // todo SchemaId ???
 
         return page;
+    }
+
+    private List<RegionModelData> _loadIncludes(PageTemplateData pageTemplate, PageRequestDto pageRequest) throws ContentProviderException {
+        String includesKey = "includes";
+        if (!pageTemplate.getMetadata().containsKey(includesKey)) {
+            return Collections.emptyList();
+        }
+
+        List<RegionModelData> list = new ArrayList<>();
+        //type safe because list of includes is only expected to be a list wrapper of strings
+        //noinspection unchecked
+        for (String include : ((ListWrapper<String>) pageTemplate.getMetadata().get(includesKey)).getValues()) {
+            String includeUrl = metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl() + "/" + include;
+            try {
+                JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
+                String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
+                String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
+                list.add(new RegionModelData(name, id, null, null));
+            } catch (IOException e) {
+                throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
+            }
+        }
+        return list;
     }
 
     private PageTemplateData _buildPageTemplate(PageTemplate pageTemplate, PageRequestDto pageRequest) throws ContentProviderException {
@@ -173,7 +217,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequest.getPublicationId())
                 .get(String.valueOf(TcmUtils.getItemId(component.getSchema().getId())));
         entity.setSchemaId(lightSchema.getId());
-        
+
         return entity;
     }
 

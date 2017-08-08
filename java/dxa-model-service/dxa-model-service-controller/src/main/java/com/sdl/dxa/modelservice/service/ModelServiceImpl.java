@@ -87,14 +87,6 @@ public class ModelServiceImpl implements ModelService {
     public Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
-
-        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
-        if (publishedModelType == PageRequestDto.DataModelType.R2) {
-            log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", pageRequest);
-            PageModelData page = _processR2PageModel(pageContent, pageRequest);
-            return toDd4tConverter.convertToDd4t(page, pageRequest);
-        }
-
         return _processDd4tPageModel(pageContent, pageRequest);
     }
 
@@ -104,31 +96,41 @@ public class ModelServiceImpl implements ModelService {
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
-
-        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
-        if (publishedModelType == PageRequestDto.DataModelType.DD4T) {
-            log.info("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", pageRequest);
-            Page page = _processDd4tPageModel(pageContent, pageRequest);
-            return toR2Converter.convertToR2(page, pageRequest);
-        }
-
         return _processR2PageModel(pageContent, pageRequest);
     }
 
     @Contract("!null, _ -> !null")
     private Page _processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        try {
-            Page page = DataBindFactory.buildPage(pageContent, PageImpl.class);
-            log.trace("Parsed page content to page model {}", page);
-            return page;
-        } catch (SerializationException e) {
-            throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
+        Page page;
+        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
+        if (publishedModelType == PageRequestDto.DataModelType.R2) {
+            log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", pageRequest);
+            PageModelData r2page = _processR2PageModel(pageContent, pageRequest);
+            page = toDd4tConverter.convertToDd4t(r2page, pageRequest);
+        } else {
+            try {
+                page = DataBindFactory.buildPage(pageContent, PageImpl.class);
+                log.trace("Parsed page content to page model {}", page);
+                return page;
+            } catch (SerializationException e) {
+                throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
+            }
         }
+        return page;
     }
 
     @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        PageModelData pageModel = _parseR2Content(pageContent, PageModelData.class);
+        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
+        PageModelData pageModel;
+        if (publishedModelType == PageRequestDto.DataModelType.DD4T) {
+            log.info("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", pageRequest);
+            Page page = _processDd4tPageModel(pageContent, pageRequest);
+            pageModel = toR2Converter.convertToR2(page, pageRequest);
+        } else {
+            pageModel = _parseR2Content(pageContent, PageModelData.class);
+        }
+
         log.trace("Parsed page content to page model {}", pageModel);
 
         log.trace("processing page model {} for page request {}", pageModel, pageRequest);
@@ -168,7 +170,7 @@ public class ModelServiceImpl implements ModelService {
                     default:
                         String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
                         // maybe it has inner regions which we need to include?
-                        PageModelData includePage = _expandIncludePages(_parseR2Content(includePageContent, PageModelData.class), pageRequest);
+                        PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
 
                         if (includePage.getRegions() != null) {
                             includePage.getRegions().forEach(region::addRegion);
