@@ -8,6 +8,7 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
@@ -59,8 +60,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.sdl.webapp.common.util.TcmUtils.PAGE_TEMPLATE_ITEM_TYPE;
@@ -69,8 +68,6 @@ import static com.sdl.webapp.common.util.TcmUtils.buildPageTcmUri;
 @Slf4j
 @org.springframework.stereotype.Component
 public class ToDd4tConverterImpl implements ToDd4tConverter {
-
-    private static final Pattern FILE_NAME_PATTERN = Pattern.compile(".*/(?<fileName>[^/.]*)\\.(?<extension>[^/.]*)$");
 
     private final ContentService contentService;
 
@@ -112,11 +109,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         page.setVersion(pageMeta.getMajorVersion());
         page.setLastPublishedDate(new DateTime(pageMeta.getLastPublicationDate()));
         page.setRevisionDate(new DateTime(pageMeta.getModificationDate()));
-        Matcher matcher = FILE_NAME_PATTERN.matcher(pageMeta.getPath());
-        if (matcher.matches()) {
-            page.setFileName(matcher.group("fileName"));
-            page.setFileExtension(matcher.group("extension"));
-        }
+        page.setFileName(PathUtils.getFileName(pageMeta.getPath()));
+        page.setFileExtension(PathUtils.getExtension(pageMeta.getPath()));
 
         // top-level /Publication and /OwningPublication
         page.setPublication(_loadPublication(publicationId));

@@ -4,27 +4,39 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.api.datamodel.model.KeywordModelData;
+import com.sdl.dxa.api.datamodel.model.MvcModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
+import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.common.util.MvcUtils;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
+import com.sdl.webapp.common.util.XpmUtils;
+import com.tridion.meta.PageMeta;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.dd4t.contentmodel.Component;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.ComponentTemplate;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldSet;
+import org.dd4t.contentmodel.Keyword;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
 import org.dd4t.contentmodel.impl.EmbeddedField;
+import org.dd4t.contentmodel.impl.KeywordField;
+import org.dd4t.contentmodel.impl.TextField;
+import org.dd4t.contentmodel.impl.XhtmlField;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +87,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setTitle(toConvert.getTitle());
         page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest));
         page.setUrlPath(PathUtils.stripDefaultExtension(metadataService.getPageMeta(pageRequest.getPublicationId(), toConvert.getId()).getURLPath()));
+        page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
 
         // todo Meta
 
@@ -93,21 +106,68 @@ public class ToR2ConverterImpl implements ToR2Converter {
             if (currentRegion.getEntities() == null) {
                 currentRegion.setEntities(new ArrayList<>());
             }
-            currentRegion.getEntities().add(_buildEntity(component, componentTemplate, pageRequest));
+            currentRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(regionName));
+            currentRegion.getEntities().add(_buildEntity(component, componentPresentation, pageRequest));
         }
         for (RegionModelData regionModelData : _loadIncludes(page.getPageTemplate(), pageRequest)) {
             regions.put(regionModelData.getName(), regionModelData);
         }
         page.setRegions(new ArrayList<>(regions.values()));
 
-        // todo MvcData
-        // todo XpmMetadata
+        page.setMvcData(_getMvcModelData(toConvert.getPageTemplate().getMetadata()));
+
+        page.setXpmMetadata(new XpmUtils.PageXpmBuilder()
+                .setPageID(toConvert.getId())
+                .setPageModified(toConvert.getRevisionDate())
+                .setPageTemplateID(toConvert.getPageTemplate().getId())
+                .setPageTemplateModified(toConvert.getPageTemplate().getRevisionDate())
+                .buildXpm());
 
         page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest));
 
-        // todo SchemaId ???
-
         return page;
+    }
+
+    private MvcModelData _getMvcModelData(Map<String, Field> metadata) {
+        MvcModelData.MvcModelDataBuilder mvcBuilder = MvcModelData.builder();
+
+        Pair<String, String> view = _getMvcValue(metadata, "view");
+        mvcBuilder.viewName(view.getLeft()).areaName(view.getRight());
+
+        Pair<String, String> controller = _getMvcValue(metadata, "controller");
+        mvcBuilder.controllerName(controller.getLeft()).controllerAreaName(controller.getRight());
+
+        Pair<String, String> action = _getMvcValue(metadata, "action");
+        mvcBuilder.actionName(action.getLeft());
+
+        mvcBuilder.parameters(!metadata.containsKey("routeValues") ? null :
+                ((TextField) metadata.get("routeValues")).getTextValues().stream()
+                        .map(this::_splitMvcValue)
+                        .collect(Collectors.toMap(Pair::getRight, Pair::getLeft)));
+
+        return mvcBuilder.build();
+    }
+
+    @NotNull
+    private Pair<String, String> _getMvcValue(@NotNull Map<String, Field> metadata, String name) {
+        if (!metadata.containsKey(name)) {
+            return new ImmutablePair<>(null, null);
+        }
+
+        return _splitMvcValue(String.valueOf(metadata.get(name).getValues().get(0)));
+    }
+
+    @NotNull
+    private Pair<String, String> _splitMvcValue(String value) {
+        String[] split = value.split(":");
+        // left is always something's name, right (if exists) is always area name
+        if (split.length == 2) {
+            return new ImmutablePair<>(split[1], split[0]);
+        } else if (split.length == 1) {
+            return new ImmutablePair<>(split[0], null);
+        } else {
+            throw new IllegalArgumentException("The given mvc value is not supported, should be 'Name' or 'Area:Name', but is: " + value);
+        }
     }
 
     private List<RegionModelData> _loadIncludes(PageTemplateData pageTemplate, PageRequestDto pageRequest) throws ContentProviderException {
@@ -125,7 +185,18 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
                 String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
                 String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
-                list.add(new RegionModelData(name, id, null, null));
+                RegionModelData includeRegion = new RegionModelData(name, id, null, null);
+
+                PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
+                includeRegion.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
+                        .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
+                        .setIncludedFromPageTitle(name)
+                        .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
+                        .buildXpm());
+
+                includeRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
+
+                list.add(includeRegion);
             } catch (IOException e) {
                 throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
             }
@@ -143,16 +214,19 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return templateData;
     }
 
+    @Nullable
     private ContentModelData _convertContent(Map<String, Field> content, PageRequestDto pageRequest) throws ContentProviderException {
-        ContentModelData data = new ContentModelData();
+        if (content == null || content.isEmpty()) {
+            return null;
+        }
 
+        ContentModelData data = new ContentModelData();
         for (Map.Entry<String, Field> entry : content.entrySet()) {
             String key = entry.getKey();
             Field value = entry.getValue();
 
             data.put(key, _convertField(value, pageRequest));
         }
-
         return data;
     }
 
@@ -162,10 +236,61 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 return _convertEmbeddedField((EmbeddedField) field, pageRequest);
             case COMPONENTLINK:
                 return _convertComponentLink((ComponentLinkField) field, pageRequest);
-            // todo support other types
+            case KEYWORD:
+                return _convertKeyword((KeywordField) field);
+            case XHTML:
+                return _convertRichTextData((XhtmlField) field);
             default:
                 return _convertNotSpecificField(field);
         }
+    }
+
+    private Object _convertRichTextData(XhtmlField field) throws ContentProviderException {
+        return _convertField(field, new SingleOrMultipleFork() {
+            @Override
+            public Object onSingleValue() throws ContentProviderException {
+                return new RichTextData(Collections.singletonList(String.valueOf(field.getTextValues().get(0))));
+            }
+
+            @Override
+            public Object onMultipleValues() throws ContentProviderException {
+                List<RichTextData> list = new ArrayList<>();
+                for (String string : field.getTextValues()) {
+                    RichTextData richTextData = new RichTextData(Collections.singletonList(string));
+                    list.add(richTextData);
+                }
+                return new ListWrapper.RichTextDataListWrapper(list);
+            }
+        });
+    }
+
+    private Object _convertKeyword(KeywordField field) throws ContentProviderException {
+        return _convertField(field, new SingleOrMultipleFork() {
+            @Override
+            public Object onSingleValue() throws ContentProviderException {
+                return _convertKeyword(field.getKeywordValues().get(0));
+            }
+
+            @Override
+            public Object onMultipleValues() throws ContentProviderException {
+                List<KeywordModelData> list = new ArrayList<>();
+                for (Keyword keyword : field.getKeywordValues()) {
+                    KeywordModelData keywordModelData = _convertKeyword(keyword);
+                    list.add(keywordModelData);
+                }
+                return new ListWrapper.KeywordModelDataListWrapper(list);
+            }
+        });
+
+    }
+
+    private KeywordModelData _convertKeyword(Keyword keyword) {
+        return new KeywordModelData(
+                String.valueOf(TcmUtils.getItemId(keyword.getId())),
+                keyword.getDescription(),
+                keyword.getKey(),
+                String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyId())),
+                keyword.getTitle());
     }
 
     private Object _convertEmbeddedField(EmbeddedField field, PageRequestDto pageRequest) throws ContentProviderException {
@@ -206,15 +331,28 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 });
     }
 
-    private EntityModelData _buildEntity(Component component, @Nullable ComponentTemplate componentTemplate, PageRequestDto pageRequest) throws ContentProviderException {
+    private EntityModelData _buildEntity(Component component, @Nullable ComponentPresentation componentPresentation, PageRequestDto pageRequest) throws ContentProviderException {
         EntityModelData entity = new EntityModelData();
         entity.setId(String.valueOf(TcmUtils.getItemId(component.getId())));
         entity.setContent(_convertContent(component.getContent(), pageRequest));
-        if (componentTemplate != null) {
-            // if CT is null, then we have a DCP and thus no component template
-            entity.setComponentTemplateId(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+
+        if (componentPresentation != null) {
+            ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
+            if (componentTemplate != null) {
+                // if CT is null, then we have a DCP and thus no component template
+                entity.setMvcData(_getMvcModelData(componentTemplate.getMetadata()));
+
+                entity.setXpmMetadata(new XpmUtils.EntityXpmBuilder()
+                        .setComponentId(component.getId())
+                        .setComponentModified(component.getRevisionDate())
+                        .setComponentTemplateID(componentTemplate.getId())
+                        .setComponentTemplateModified(componentTemplate.getRevisionDate())
+                        .setRepositoryPublished(componentPresentation.isDynamic())
+                        .buildXpm());
+            }
         }
 
+        entity.setMetadata(_convertContent(component.getMetadata(), pageRequest));
         LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequest.getPublicationId())
                 .get(String.valueOf(TcmUtils.getItemId(component.getSchema().getId())));
         entity.setSchemaId(lightSchema.getId());
