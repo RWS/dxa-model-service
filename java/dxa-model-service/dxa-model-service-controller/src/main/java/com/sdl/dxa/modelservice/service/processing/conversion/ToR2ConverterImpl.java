@@ -2,6 +2,7 @@ package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.KeywordModelData;
@@ -33,6 +34,7 @@ import org.dd4t.contentmodel.Keyword;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
+import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
 import org.dd4t.contentmodel.impl.EmbeddedField;
 import org.dd4t.contentmodel.impl.KeywordField;
 import org.dd4t.contentmodel.impl.TextField;
@@ -342,6 +344,16 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 // if CT is null, then we have a DCP and thus no component template
                 entity.setMvcData(_getMvcModelData(componentTemplate.getMetadata()));
 
+                ComponentTemplateData templateData = new ComponentTemplateData();
+                templateData.setId(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                templateData.setTitle(componentTemplate.getTitle());
+                templateData.setRevisionDate(componentTemplate.getRevisionDate());
+                templateData.setMetadata(_convertContent(componentTemplate.getMetadata(), pageRequest));
+                if (componentTemplate instanceof ComponentTemplateImpl) {
+                    templateData.setOutputFormat(((ComponentTemplateImpl) componentTemplate).getOutputFormat());
+                }
+                entity.setComponentTemplate(templateData);
+
                 entity.setXpmMetadata(new XpmUtils.EntityXpmBuilder()
                         .setComponentId(component.getId())
                         .setComponentModified(component.getRevisionDate())
@@ -351,6 +363,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
                         .buildXpm());
             }
         }
+
 
         entity.setMetadata(_convertContent(component.getMetadata(), pageRequest));
         LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequest.getPublicationId())
