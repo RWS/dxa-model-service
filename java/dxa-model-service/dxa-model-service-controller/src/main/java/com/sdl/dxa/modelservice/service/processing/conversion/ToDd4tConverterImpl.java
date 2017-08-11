@@ -247,13 +247,15 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setPublication(_loadPublication(meta.getPublicationId()));
         component.setOwningPublication(_loadPublication(meta.getOwningPublicationId()));
 
-        LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequestDto.getPublicationId()).get(entity.getSchemaId());
-        SchemaImpl schema = new SchemaImpl();
-        schema.setRootElement(lightSchema.getRootElement());
-        schema.setId(lightSchema.getId());
-        schema.setTitle(lightSchema.getTitle());
-        // todo RevisionDate&LastPublishedDate are not available in CIL/CM
-        component.setSchema(schema);
+        if (entity.getSchemaId() != null) {
+            LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequestDto.getPublicationId()).get(entity.getSchemaId());
+            SchemaImpl schema = new SchemaImpl();
+            schema.setRootElement(lightSchema.getRootElement());
+            schema.setId(lightSchema.getId());
+            schema.setTitle(lightSchema.getTitle());
+            // todo RevisionDate&LastPublishedDate are not available in CIL/CM
+            component.setSchema(schema);
+        }
 
         component.setComponentType(meta.isMultimedia() ? Component.ComponentType.MULTIMEDIA : Component.ComponentType.NORMAL);
 
