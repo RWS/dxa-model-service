@@ -14,6 +14,7 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.processing.conversion.models.AdoptedRichTextField;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
 import com.sdl.webapp.common.api.content.ContentProviderException;
@@ -49,7 +50,6 @@ import org.dd4t.contentmodel.impl.PublicationImpl;
 import org.dd4t.contentmodel.impl.SchemaImpl;
 import org.dd4t.contentmodel.impl.StructureGroupImpl;
 import org.dd4t.contentmodel.impl.TextField;
-import org.dd4t.contentmodel.impl.XhtmlField;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -324,7 +324,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         } else if (value instanceof KeywordModelData) {
             field = _convertToKeywordField(Collections.singletonList((KeywordModelData) value), pageRequest);
         } else if (value instanceof RichTextData) {
-            field = _convertToXhtmlField(Collections.singletonList((RichTextData) value), pageRequest);
+            field = _convertToRichTextField(Collections.singletonList((RichTextData) value), pageRequest);
         } else if (value instanceof String) {
             // todo here we need to derive type from schemas.json because not everything is String in DD4T like it is in R2
             field = _convertToTextField(Collections.singletonList((String) value));
@@ -360,7 +360,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             } else if (wrapper instanceof ListWrapper.EntityModelDataListWrapper) {
                 return _convertToCompLinkField(((ListWrapper.EntityModelDataListWrapper) wrapper).getValues(), pageRequest);
             } else if (wrapper instanceof ListWrapper.RichTextDataListWrapper) {
-                return _convertToXhtmlField(((ListWrapper.RichTextDataListWrapper) wrapper).getValues(), pageRequest);
+                return _convertToRichTextField(((ListWrapper.RichTextDataListWrapper) wrapper).getValues(), pageRequest);
             } else {
                 Object o = wrapper.get(0);
                 if (o instanceof String) {
@@ -419,9 +419,20 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return keywordField;
     }
 
-    private Field _convertToXhtmlField(List<RichTextData> richTextData, PageRequestDto pageRequest) {
-        XhtmlField xhtmlField = new XhtmlField();
-        // todo finish
-        return xhtmlField;
+    private Field _convertToRichTextField(List<RichTextData> richTextData, PageRequestDto pageRequest) throws ContentProviderException {
+        // todo make this work TSI-2698
+        List<Object> list = new ArrayList<>();
+        AdoptedRichTextField richTextField = new AdoptedRichTextField();
+        for (RichTextData data : richTextData) {
+            for (Object o : data.getFragments()) {
+                if (o instanceof String) {
+                    list.add(o);
+                } else if (o instanceof EntityModelData) {
+                    list.add(_convertEntity((EntityModelData) o, pageRequest));
+                }
+            }
+        }
+        richTextField.setRichTextValues(list);
+        return richTextField;
     }
 }

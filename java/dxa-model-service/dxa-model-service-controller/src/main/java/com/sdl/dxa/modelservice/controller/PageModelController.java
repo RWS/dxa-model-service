@@ -1,5 +1,6 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
@@ -7,6 +8,7 @@ import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.ModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
+import org.dd4t.databind.builder.json.JsonDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +63,7 @@ public class PageModelController {
                                   @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                   @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                   @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
-                                  HttpServletRequest request) throws ContentProviderException {
+                                  HttpServletRequest request) throws ContentProviderException, JsonProcessingException {
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
 
         if (pageRequestDto == null) {
@@ -73,9 +75,10 @@ public class PageModelController {
         if (isRawContent) {
             result = contentService.loadPageContent(pageRequestDto);
         } else {
+
             result = dataModelType == DataModelType.R2 ?
                     modelService.loadPageModel(pageRequestDto) :
-                    modelService.loadLegacyPageModel(pageRequestDto);
+                    JsonDataBinder.getGenericMapper().writeValueAsString(modelService.loadLegacyPageModel(pageRequestDto));
         }
         return ResponseEntity.ok(result);
     }
