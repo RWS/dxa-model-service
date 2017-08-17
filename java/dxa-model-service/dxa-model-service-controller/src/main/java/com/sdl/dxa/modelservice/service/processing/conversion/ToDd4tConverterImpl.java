@@ -146,8 +146,13 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
 
+        // TODO: move to PATHUtils helper
+        String publicationUrl = metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl();
+        if(publicationUrl != null && !publicationUrl.endsWith("/")) {
+            publicationUrl = publicationUrl.concat("/");
+        }
         PageRequestDto navigationJsonRequest = pageRequest.toBuilder()
-                .path(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl() + "/navigation.json")
+                 .path(publicationUrl.concat("navigation.json"))
                 .build();
         String content = contentService.loadPageContent(navigationJsonRequest);
         Optional<LightSitemapItem> sitemapItem;
