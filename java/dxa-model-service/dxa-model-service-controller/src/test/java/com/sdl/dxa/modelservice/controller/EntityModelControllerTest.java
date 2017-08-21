@@ -1,7 +1,7 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.common.dto.EntityRequestDto;
-import com.sdl.dxa.modelservice.service.ModelService;
+import com.sdl.dxa.modelservice.service.EntityModelService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -22,7 +22,7 @@ import static org.mockito.Matchers.eq;
 public class EntityModelControllerTest {
 
     @MockBean
-    private ModelService modelService;
+    private EntityModelService modelService;
 
     @Autowired
     private MockMvc mvc;

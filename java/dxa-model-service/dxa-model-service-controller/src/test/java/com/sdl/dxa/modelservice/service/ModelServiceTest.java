@@ -23,14 +23,14 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
-import static com.sdl.dxa.modelservice.service.ModelServiceImpl.getModelType;
+import static com.sdl.dxa.modelservice.service.DefaultPageModelService.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ModelServiceImpl.class)
+@PrepareForTest(DefaultEntityModelService.class)
 public class ModelServiceTest {
 
     @Spy
@@ -52,7 +52,7 @@ public class ModelServiceTest {
     private ConfigService.Defaults defaults;
 
     @InjectMocks
-    private ModelServiceImpl modelService;
+    private DefaultEntityModelService modelService;
 
     @Before
     public void init() throws Exception {

@@ -2,7 +2,8 @@ package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ContentService;
-import com.sdl.dxa.modelservice.service.ModelService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
@@ -27,7 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PageModelControllerTest {
 
     @MockBean
-    private ModelService modelService;
+    private PageModelService pageModelService;
+
+    @MockBean
+    private LegacyPageModelService legacyPageModelService;
 
     @MockBean
     private ContentService contentService;
@@ -75,7 +79,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T")).andExpect(status().isOk());
 
         //then
-        verify(this.modelService, atLeastOnce()).loadLegacyPageModel(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.MODEL, "/"));
+        verify(this.legacyPageModelService, atLeastOnce()).loadLegacyPageModel(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.MODEL, "/"));
     }
 
     @Test
@@ -97,7 +101,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//")).andExpect(status().isOk());
 
         //then
-        verify(this.modelService, atLeastOnce()).loadPageModel(matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.MODEL, "/"));
+        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.MODEL, "/"));
     }
 
     @Test
@@ -119,7 +123,7 @@ public class PageModelControllerTest {
         }
         mvc.perform(requestBuilder).andExpect(status().isOk());
 
-        verify(this.modelService, atLeastOnce()).loadPageModel(matcherFor(expected));
+        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(expected));
     }
 
     private void expectForUrl(String expected, String url) throws Exception {

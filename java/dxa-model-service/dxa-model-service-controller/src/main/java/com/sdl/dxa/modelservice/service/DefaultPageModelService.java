@@ -1,11 +1,9 @@
 package com.sdl.dxa.modelservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
-import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
@@ -13,10 +11,6 @@ import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
-import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
-import com.sdl.webapp.common.util.TcmUtils;
-import com.tridion.dcp.ComponentPresentation;
-import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.impl.PageImpl;
@@ -37,7 +31,7 @@ import java.util.Iterator;
  */
 @Slf4j
 @Service
-public class ModelServiceImpl implements ModelService {
+public class DefaultPageModelService implements PageModelService, LegacyPageModelService {
 
     private final ObjectMapper objectMapper;
 
@@ -53,17 +47,21 @@ public class ModelServiceImpl implements ModelService {
 
     private final RichTextLinkResolver richTextLinkResolver;
 
+    private final EntityModelService entityModelService;
+
     @Autowired
-    public ModelServiceImpl(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                            LinkResolver linkResolver,
-                            ConfigService configService,
-                            ContentService contentService,
-                            ToDd4tConverter toDd4tConverter,
-                            ToR2Converter toR2Converter,
-                            RichTextLinkResolver richTextLinkResolver) {
+    public DefaultPageModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
+                                   LinkResolver linkResolver,
+                                   ConfigService configService,
+                                   EntityModelService entityModelService,
+                                   ContentService contentService,
+                                   ToDd4tConverter toDd4tConverter,
+                                   ToR2Converter toR2Converter,
+                                   RichTextLinkResolver richTextLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
         this.configService = configService;
+        this.entityModelService = entityModelService;
         this.contentService = contentService;
         this.toDd4tConverter = toDd4tConverter;
         this.toR2Converter = toR2Converter;
@@ -147,7 +145,7 @@ public class ModelServiceImpl implements ModelService {
 
     @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto) {
-        return new PageModelExpander(pageRequestDto, this, richTextLinkResolver, linkResolver, configService);
+        return new PageModelExpander(pageRequestDto, entityModelService, richTextLinkResolver, linkResolver, configService);
     }
 
     @Contract("!null, _ -> !null")
@@ -179,33 +177,6 @@ public class ModelServiceImpl implements ModelService {
             }
         }
         return pageModel;
-    }
-
-    @Override
-    @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
-    public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
-        int publicationId = entityRequest.getPublicationId();
-        int componentId = entityRequest.getComponentId();
-        int templateId = entityRequest.getTemplateId() <= 0 ?
-                configService.getDefaults().getDynamicTemplateId(publicationId) : entityRequest.getTemplateId();
-
-        String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
-        String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
-
-        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(componentUri);
-        ComponentPresentation componentPresentation = componentPresentationFactory.getComponentPresentation(componentUri, templateUri);
-
-        if (componentPresentation == null) {
-            throw new DxaItemNotFoundException("Cannot find a CP for componentUri" + componentUri + ", templateUri" + templateUri);
-        }
-
-        EntityModelData modelData = _parseR2Content(componentPresentation.getContent(), EntityModelData.class);
-        if (entityRequest.isResolveLink()) {
-            modelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(publicationId)));
-        }
-
-        return modelData;
     }
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {

@@ -5,7 +5,8 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
 import com.sdl.dxa.modelservice.service.ContentService;
-import com.sdl.dxa.modelservice.service.ModelService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.databind.builder.json.JsonDataBinder;
@@ -47,13 +48,18 @@ public class PageModelController {
      */
     private static final Pattern PAGE_URL_REGEX = Pattern.compile("(/[^\\d]+)+?/\\d+/?(?<pageUrl>/.*)", Pattern.CASE_INSENSITIVE);
 
-    private final ModelService modelService;
+    private final PageModelService pageModelService;
+
+    private final LegacyPageModelService legacyPageModelService;
 
     private final ContentService contentService;
 
     @Autowired
-    public PageModelController(ModelService modelService, ContentService contentService) {
-        this.modelService = modelService;
+    public PageModelController(PageModelService pageModelService,
+                               LegacyPageModelService legacyPageModelService,
+                               ContentService contentService) {
+        this.pageModelService = pageModelService;
+        this.legacyPageModelService = legacyPageModelService;
         this.contentService = contentService;
     }
 
@@ -77,8 +83,8 @@ public class PageModelController {
         } else {
 
             result = dataModelType == DataModelType.R2 ?
-                    modelService.loadPageModel(pageRequestDto) :
-                    JsonDataBinder.getGenericMapper().writeValueAsString(modelService.loadLegacyPageModel(pageRequestDto));
+                    pageModelService.loadPageModel(pageRequestDto) :
+                    JsonDataBinder.getGenericMapper().writeValueAsString(legacyPageModelService.loadLegacyPageModel(pageRequestDto));
         }
         return ResponseEntity.ok(result);
     }

@@ -10,10 +10,12 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
+import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.AdoptedRichTextField;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
@@ -76,6 +78,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     private final ContentService contentService;
 
+    private final EntityModelService entityModelService;
+
     private final ConfigService configService;
 
     private final ObjectMapper objectMapper;
@@ -84,10 +88,12 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     @Autowired
     public ToDd4tConverterImpl(ContentService contentService,
+                               EntityModelService entityModelService,
                                ConfigService configService,
                                @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                                MetadataService metadataService) {
         this.contentService = contentService;
+        this.entityModelService = entityModelService;
         this.configService = configService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
@@ -146,13 +152,12 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
 
-        // TODO: move to PATHUtils helper
         String publicationUrl = metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl();
-        if(publicationUrl != null && !publicationUrl.endsWith("/")) {
-            publicationUrl = publicationUrl.concat("/");
+        if (publicationUrl == null) {
+            return null;
         }
         PageRequestDto navigationJsonRequest = pageRequest.toBuilder()
-                 .path(publicationUrl.concat("navigation.json"))
+                .path(publicationUrl + (publicationUrl.endsWith("/") ? "" : "/") + "navigation.json")
                 .build();
         String content = contentService.loadPageContent(navigationJsonRequest);
         Optional<LightSitemapItem> sitemapItem;
@@ -221,10 +226,17 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     public ComponentPresentation _buildEntityModel(EntityModelData entity, @NotNull PageRequestDto pageRequestDto, ComponentPresentationFactory factory) throws ContentProviderException {
         ComponentPresentation presentation = new ComponentPresentationImpl();
-        presentation.setComponent(_convertEntity(entity, pageRequestDto));
-        presentation.setComponentTemplate(_buildComponentTemplate(entity.getComponentTemplate(), pageRequestDto));
+        presentation.setIsDynamic(entity.getId().matches("\\d+-\\d+"));
+
+        EntityModelData entityModelData = presentation.isDynamic() ?
+                entityModelService.loadEntity(EntityRequestDto.builder()
+                        .publicationId(pageRequestDto.getPublicationId())
+                        .entityId(entity.getId())
+                        .build()) : entity;
+
+        presentation.setComponent(_convertEntity(entityModelData, pageRequestDto));
+        presentation.setComponentTemplate(_buildComponentTemplate(entityModelData.getComponentTemplate(), pageRequestDto));
         // todo OrderOnPage ?
-        // todo dynamic = only DCPs?
         return presentation;
     }
 
@@ -240,10 +252,13 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
     private Component _convertEntity(EntityModelData entity, @NotNull PageRequestDto pageRequestDto) throws ContentProviderException {
-        ComponentMeta meta = metadataService.getComponentMeta(pageRequestDto.getPublicationId(), Integer.parseInt(entity.getId()));
-
+        String entityId = entity.getId();
+        if (entityId.matches("\\d+-\\d+")) {
+            entityId = entityId.split("-")[0];
+        }
+        ComponentMeta meta = metadataService.getComponentMeta(pageRequestDto.getPublicationId(), Integer.parseInt(entityId));
         ComponentImpl component = new ComponentImpl();
-        component.setId(TcmUtils.buildTcmUri(String.valueOf(pageRequestDto.getPublicationId()), entity.getId()));
+        component.setId(TcmUtils.buildTcmUri(String.valueOf(pageRequestDto.getPublicationId()), entityId));
         component.setTitle(meta.getTitle());
         component.setContent(_convertContent(entity.getContent(), pageRequestDto));
         component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));

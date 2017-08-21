@@ -10,7 +10,7 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.modelservice.service.ModelService;
+import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -39,7 +39,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private PageRequestDto pageRequest;
 
-    private ModelService modelService;
+    private EntityModelService entityModelService;
 
     private RichTextLinkResolver richTextLinkResolver;
 
@@ -48,12 +48,12 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     private ConfigService configService;
 
     public PageModelExpander(PageRequestDto pageRequest,
-                             ModelService modelService,
+                             EntityModelService entityModelService,
                              RichTextLinkResolver richTextLinkResolver,
                              LinkResolver linkResolver,
                              ConfigService configService) {
         this.pageRequest = pageRequest;
-        this.modelService = modelService;
+        this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
@@ -199,7 +199,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
-            toExpand.copyFrom(modelService.loadEntity(entityRequest));
+            toExpand.copyFrom(entityModelService.loadEntity(entityRequest));
         } catch (ContentProviderException e) {
             _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, configService.getErrors().isMissingEntitySuppress(), e);
         }
