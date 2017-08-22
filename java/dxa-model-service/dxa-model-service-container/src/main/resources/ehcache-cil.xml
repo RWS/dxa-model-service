@@ -18,5 +18,7 @@
 
     <cache alias="config" uses-template="default"/>
 
+    <cache alias="conversion" uses-template="default"/>
+
     <cache alias="defaultCache" uses-template="default"/>
 </config>
