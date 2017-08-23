@@ -75,8 +75,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
      * @return type of the model
      */
     public static PageRequestDto.DataModelType getModelType(String jsonContent) {
-        // todo implement normally
-        return jsonContent.contains("UrlPath") ? PageRequestDto.DataModelType.R2 : PageRequestDto.DataModelType.DD4T;
+        return jsonContent.contains("ComponentPresentations") ? PageRequestDto.DataModelType.DD4T : PageRequestDto.DataModelType.R2;
     }
 
     @Override
