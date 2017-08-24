@@ -211,10 +211,7 @@ public class ConvertersTest {
 
         @Bean
         public PageRequestDto pageRequestDto() {
-            return PageRequestDto.builder()
-                    .publicationId(1081)
-                    .uriType("tcm")
-                    .build();
+            return PageRequestDto.builder(1081, "tcm").build();
         }
     }
 }

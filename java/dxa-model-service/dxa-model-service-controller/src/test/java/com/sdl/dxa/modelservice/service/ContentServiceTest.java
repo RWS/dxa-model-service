@@ -57,10 +57,7 @@ public class ContentServiceTest {
     @Test
     public void shouldRequestTwoPaths_AfterNormalizingInitial_IfPathWithoutExtension() throws Exception {
         //given
-        PageRequestDto pageRequestDto = PageRequestDto.builder()
-                .publicationId(1)
-                .path("/path")
-                .build();
+        PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path").build();
 
         String expected = "page content";
 
@@ -94,10 +91,7 @@ public class ContentServiceTest {
     @Test
     public void shouldRequestSinglePath_AfterNormalizingInitial_IfPathHasExtension() throws Exception {
         //given
-        PageRequestDto pageRequestDto = PageRequestDto.builder()
-                .publicationId(1)
-                .path("/path.html")
-                .build();
+        PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path.html").build();
 
         mockPageURLCriteria("/page.html");
         doReturn(new String[]{"tcm:1-2"}).when(query).executeQuery();
@@ -113,10 +107,7 @@ public class ContentServiceTest {
     @Test(expected = PageNotFoundException.class)
     public void shouldThrow404Exception_WhenNoResultFound_ForRequest() throws StorageException, ContentProviderException {
         //given
-        PageRequestDto pageRequestDto = PageRequestDto.builder()
-                .publicationId(1)
-                .path("/path")
-                .build();
+        PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path").build();
 
         doReturn(new String[0]).when(query).executeQuery();
 

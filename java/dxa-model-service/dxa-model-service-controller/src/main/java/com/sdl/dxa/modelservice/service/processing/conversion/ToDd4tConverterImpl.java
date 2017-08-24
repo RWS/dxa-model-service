@@ -229,9 +229,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         presentation.setIsDynamic(entity.getId().matches("\\d+-\\d+"));
 
         EntityModelData entityModelData = presentation.isDynamic() ?
-                entityModelService.loadEntity(EntityRequestDto.builder()
-                        .publicationId(pageRequestDto.getPublicationId())
-                        .entityId(entity.getId())
+                entityModelService.loadEntity(EntityRequestDto.builder(pageRequestDto.getPublicationId(), entity.getId())
                         .build()) : entity;
 
         presentation.setComponent(_convertEntity(entityModelData, pageRequestDto));

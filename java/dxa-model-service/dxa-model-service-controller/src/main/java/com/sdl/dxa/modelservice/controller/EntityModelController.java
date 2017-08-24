@@ -37,17 +37,13 @@ public class EntityModelController {
                                           @PathVariable int localizationId,
                                           @PathVariable int componentId) throws ContentProviderException {
 
-        return _getEntityModel(uriType, localizationId, componentId, -1);
+        return _getEntityModel(uriType, localizationId, componentId, 0);
     }
 
     private EntityModelData _getEntityModel(String uriType, int localizationId, int componentId, int templateId) throws ContentProviderException {
         log.debug("trying to load an entity with URI type = '{}' and localization id = '{}', and componentId = '{}', templateId (-1 for no template) = '{}'",
                 uriType, localizationId, componentId, templateId);
 
-        return contentService.loadEntity(EntityRequestDto.builder()
-                .publicationId(localizationId)
-                .componentId(componentId)
-                .templateId(templateId)
-                .build());
+        return contentService.loadEntity(EntityRequestDto.builder(localizationId, componentId, templateId).build());
     }
 }

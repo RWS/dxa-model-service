@@ -35,7 +35,7 @@ public class EntityModelControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123-345")).andExpect(MockMvcResultMatchers.status().isOk());
 
         //then
-        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder().publicationId(42).componentId(123).templateId(345).build()));
+        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder(42, 123, 345).build()));
     }
 
     @Test
@@ -46,6 +46,6 @@ public class EntityModelControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123")).andExpect(MockMvcResultMatchers.status().isOk());
 
         //then
-        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder().publicationId(42).componentId(123).templateId(-1).build()));
+        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder(42, 123, 0).build()));
     }
 }

@@ -88,7 +88,7 @@ public class ModelServiceTest {
     @Test
     public void shouldGetDefaultDynamicTemplate_ForDCP_WhenNoTemplateSet() throws ContentProviderException {
         //given 
-        EntityRequestDto entityRequest = EntityRequestDto.builder().publicationId(42).componentId(1).build();
+        EntityRequestDto entityRequest = EntityRequestDto.builder(42, 1).build();
 
         //when
         EntityModelData entity = modelService.loadEntity(entityRequest);

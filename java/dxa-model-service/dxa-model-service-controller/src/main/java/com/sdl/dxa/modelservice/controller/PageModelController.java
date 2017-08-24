@@ -99,10 +99,8 @@ public class PageModelController {
             return null;
         }
 
-        return PageRequestDto.builder()
-                .publicationId(localizationId)
+        return PageRequestDto.builder(localizationId, pageUrl.get())
                 .uriType(uriType)
-                .path(pageUrl.get())
                 .dataModelType(dataModelType)
                 .includePages(pageInclusion)
                 .contentType(isRawContent ? RAW : MODEL)
