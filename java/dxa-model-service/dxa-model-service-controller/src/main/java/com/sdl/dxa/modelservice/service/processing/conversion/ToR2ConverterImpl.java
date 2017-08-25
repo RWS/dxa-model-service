@@ -2,6 +2,7 @@ package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.api.datamodel.model.BinaryContentData;
 import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
@@ -31,6 +32,7 @@ import org.dd4t.contentmodel.ComponentTemplate;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldSet;
 import org.dd4t.contentmodel.Keyword;
+import org.dd4t.contentmodel.Multimedia;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
@@ -232,11 +234,20 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return data;
     }
 
+    @Nullable
+    private BinaryContentData _convertMultimediaContent(Multimedia content, PageRequestDto pageRequest) {
+        if (content == null) {
+            return null;
+        }
+        return new BinaryContentData(content.getFileName(), content.getSize(), content.getMimeType(), content.getUrl());
+    }
+
     private Object _convertField(Field field, PageRequestDto pageRequest) throws ContentProviderException {
         switch (field.getFieldType()) {
             case EMBEDDED:
                 return _convertEmbeddedField((EmbeddedField) field, pageRequest);
             case COMPONENTLINK:
+            case MULTIMEDIALINK:
                 return _convertComponentLink((ComponentLinkField) field, pageRequest);
             case KEYWORD:
                 return _convertKeyword((KeywordField) field);
@@ -337,6 +348,10 @@ public class ToR2ConverterImpl implements ToR2Converter {
         EntityModelData entity = new EntityModelData();
         entity.setId(String.valueOf(TcmUtils.getItemId(component.getId())));
         entity.setContent(_convertContent(component.getContent(), pageRequest));
+
+        if(component != null && component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
+            entity.setBinaryContent(_convertMultimediaContent(component.getMultimedia(), pageRequest));
+        }
 
         if (componentPresentation != null) {
             ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
