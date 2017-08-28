@@ -48,4 +48,16 @@ public class EntityModelControllerTest {
         //then
         Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder(42, 123, 0).build()));
     }
+
+    @Test
+    public void shouldCallModelService_WithoutTemplateId_WithHighestPriority() throws Exception {
+        //given
+
+        //when
+        mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?dcpType=HIGHEST_PRIORITY")).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //then
+        Mockito.verify(modelService).loadEntity(eq(
+                EntityRequestDto.builder(42, 123, 0).dcpType(EntityRequestDto.DcpType.HIGHEST_PRIORITY).build()));
+    }
 }
