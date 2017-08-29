@@ -102,7 +102,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     @Override
     public Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
         if (toConvert == null) {
-            log.warn("Model to convert is null, returning null");
+            log.warn("PageModelData to convert is null, returning null");
             return null;
         }
 
@@ -144,6 +144,16 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         }
 
         return page;
+    }
+
+    @Override
+    public ComponentPresentation convertToDd4t(@Nullable EntityModelData toConvert, @NotNull EntityRequestDto entityRequest) throws ContentProviderException {
+        if (toConvert == null) {
+            log.warn("EntityModelData to convert is null, returning null");
+            return null;
+        }
+
+        return  _buildEntityModel(toConvert, PageRequestDto.builder().publicationId(entityRequest.getPublicationId()).build(), new ComponentPresentationFactory(entityRequest.getPublicationId()));
     }
 
     @Nullable
@@ -224,7 +234,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
 
-    public ComponentPresentation _buildEntityModel(EntityModelData entity, @NotNull PageRequestDto pageRequestDto, ComponentPresentationFactory factory) throws ContentProviderException {
+    private ComponentPresentation _buildEntityModel(EntityModelData entity, @NotNull PageRequestDto pageRequestDto, ComponentPresentationFactory factory) throws ContentProviderException {
         ComponentPresentation presentation = new ComponentPresentationImpl();
         presentation.setIsDynamic(entity.getId().matches("\\d+-\\d+"));
 
