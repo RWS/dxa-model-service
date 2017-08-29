@@ -21,7 +21,7 @@ import java.io.IOException;
 
 @Slf4j
 @Service
-public class DefaultEntityModelService implements EntityModelService {
+public class DefaultEntityModelService implements EntityModelService, ComponentPresentationService {
 
     private final ObjectMapper objectMapper;
 
@@ -43,24 +43,27 @@ public class DefaultEntityModelService implements EntityModelService {
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         int publicationId = entityRequest.getPublicationId();
-        String componentUri = TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId());
 
-        ComponentPresentation componentPresentation = _loadComponentPresentation(entityRequest, componentUri);
+        ComponentPresentation componentPresentation = loadComponentPresentation(entityRequest);
 
         EntityModelData modelData = _parseR2Content(componentPresentation.getContent(), EntityModelData.class);
         if (entityRequest.isResolveLink()) {
-            modelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(publicationId)));
+            modelData.setLinkUrl(linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId()), String.valueOf(publicationId)));
         }
 
         return modelData;
     }
 
+    @Override
     @NotNull
-    private ComponentPresentation _loadComponentPresentation(EntityRequestDto entityRequest, String componentUri) throws DxaItemNotFoundException {
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}")
+    public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
+        int publicationId = entityRequest.getPublicationId();
+
+        String componentUri = TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId());
         ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(componentUri);
 
         ComponentPresentation componentPresentation;
-        int publicationId = entityRequest.getPublicationId();
 
         if (entityRequest.getDcpType() == EntityRequestDto.DcpType.HIGHEST_PRIORITY && entityRequest.getTemplateId() <= 0) {
             log.debug("Load Component Presentation with component id = {} with highest priority", componentUri);

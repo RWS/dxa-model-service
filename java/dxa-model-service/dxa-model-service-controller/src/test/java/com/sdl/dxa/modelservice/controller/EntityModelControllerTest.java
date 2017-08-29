@@ -1,6 +1,7 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.sdl.dxa.common.dto.EntityRequestDto;
+import com.sdl.dxa.modelservice.service.ComponentPresentationService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,9 @@ public class EntityModelControllerTest {
 
     @MockBean
     private EntityModelService modelService;
+
+    @MockBean
+    private ComponentPresentationService componentPresentationService;
 
     @Autowired
     private MockMvc mvc;
@@ -59,5 +63,16 @@ public class EntityModelControllerTest {
         //then
         Mockito.verify(modelService).loadEntity(eq(
                 EntityRequestDto.builder(42, 123, 0).dcpType(EntityRequestDto.DcpType.HIGHEST_PRIORITY).build()));
+    }
+
+    @Test
+    public void shouldCallModelService_WithoutTemplateId_WithRawContent() throws Exception {
+        //given
+
+        //when
+        mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?raw=true")).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //then
+        Mockito.verify(componentPresentationService).loadComponentPresentation(eq(EntityRequestDto.builder(42, 123, 0).build()));
     }
 }
