@@ -1,5 +1,7 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.common.dto.ContentType;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.ComponentPresentationService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
@@ -73,6 +75,19 @@ public class EntityModelControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?raw=true")).andExpect(MockMvcResultMatchers.status().isOk());
 
         //then
-        Mockito.verify(componentPresentationService).loadComponentPresentation(eq(EntityRequestDto.builder(42, 123, 0).build()));
+        Mockito.verify(componentPresentationService).loadComponentPresentation(
+                eq(EntityRequestDto.builder(42, 123, 0).contentType(ContentType.RAW).build()));
+    }
+
+    @Test
+    public void shouldCallModelService_WithoutTemplateId_WithDD4TContent() throws Exception {
+        //given
+
+        //when
+        mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?modelType=DD4T")).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //then
+        Mockito.verify(modelService).loadEntity(
+                eq(EntityRequestDto.builder(42, 123, 0).dataModelType(DataModelType.DD4T).build()));
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
@@ -74,8 +75,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
      * @param jsonContent json content of a page
      * @return type of the model
      */
-    public static PageRequestDto.DataModelType getModelType(String jsonContent) {
-        return jsonContent.contains("ComponentPresentations") ? PageRequestDto.DataModelType.DD4T : PageRequestDto.DataModelType.R2;
+    public static DataModelType getModelType(String jsonContent) {
+        return jsonContent.contains("ComponentPresentations") ? DataModelType.DD4T : DataModelType.R2;
     }
 
     @Override
@@ -99,8 +100,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @Contract("!null, _ -> !null")
     private Page _processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
         Page page;
-        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
-        if (publishedModelType == PageRequestDto.DataModelType.R2) {
+        DataModelType publishedModelType = getModelType(pageContent);
+        if (publishedModelType == DataModelType.R2) {
             log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", pageRequest);
             PageModelData r2page = _processR2PageModel(pageContent, pageRequest);
             page = toDd4tConverter.convertToDd4t(r2page, pageRequest);
@@ -118,9 +119,9 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        PageRequestDto.DataModelType publishedModelType = getModelType(pageContent);
+        DataModelType publishedModelType = getModelType(pageContent);
         PageModelData pageModel;
-        if (publishedModelType == PageRequestDto.DataModelType.DD4T) {
+        if (publishedModelType == DataModelType.DD4T) {
             log.info("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", pageRequest);
             Page page = _processDd4tPageModel(pageContent, pageRequest);
             pageModel = toR2Converter.convertToR2(page, pageRequest);

@@ -2,7 +2,7 @@ package com.sdl.dxa.modelservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdl.dxa.common.dto.PageRequestDto;
-import com.sdl.dxa.common.dto.PageRequestDto.DataModelType;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
@@ -23,8 +23,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.sdl.dxa.common.dto.PageRequestDto.ContentType.MODEL;
-import static com.sdl.dxa.common.dto.PageRequestDto.ContentType.RAW;
+import static com.sdl.dxa.common.dto.ContentType.MODEL;
+import static com.sdl.dxa.common.dto.ContentType.RAW;
 
 @Slf4j
 @RestController

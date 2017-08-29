@@ -3,8 +3,8 @@ package com.sdl.dxa.modelservice.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
-import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.tridion.dcp.ComponentPresentation;
@@ -76,12 +76,12 @@ public class ModelServiceTest {
 
 
         //when
-        PageRequestDto.DataModelType dd4t = getModelType(dd4tSource);
-        PageRequestDto.DataModelType r2 = getModelType(r2Source);
+        DataModelType dd4t = getModelType(dd4tSource);
+        DataModelType r2 = getModelType(r2Source);
 
         //then
-        assertEquals(PageRequestDto.DataModelType.DD4T, dd4t);
-        assertEquals(PageRequestDto.DataModelType.R2, r2);
+        assertEquals(DataModelType.DD4T, dd4t);
+        assertEquals(DataModelType.R2, r2);
     }
 
 
