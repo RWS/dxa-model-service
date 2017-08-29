@@ -1,0 +1,245 @@
+{
+  "RevisionDate": "2016-01-20T11:08:00",
+  "Filename": "footer",
+  "LastPublishedDate": "0001-01-01T00:00:00",
+  "PageTemplate": {
+    "FileExtension": "html",
+    "RevisionDate": "2014-06-25T14:37:52.38",
+    "MetadataFields": {
+      "view": {
+        "Name": "view",
+        "Values": [
+          "IncludePage"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "KeywordValues": []
+      }
+    },
+    "Id": "tcm:1081-244-128",
+    "Title": "Include Page"
+  },
+  "MetadataFields": {},
+  "ComponentPresentations": [
+    {
+      "Component": {
+        "LastPublishedDate": "0001-01-01T00:00:00",
+        "RevisionDate": "2014-11-11T11:49:36",
+        "Schema": {
+          "RootElementName": "SocialLinks",
+          "Id": "tcm:1081-4431-8",
+          "Title": "Social Links"
+        },
+        "Fields": {
+          "link": {
+            "Name": "link",
+            "Values": [],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "EmbeddedValues": [
+              {
+                "tag": {
+                  "Name": "tag",
+                  "Values": [],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 3,
+                  "CategoryName": "Social Networks",
+                  "CategoryId": "tcm:1081-1297-512",
+                  "XPath": "tcm:Content/custom:SocialLinks/custom:link[1]/custom:tag",
+                  "KeywordValues": [
+                    {
+                      "IsRoot": false,
+                      "IsAbstract": false,
+                      "Description": "",
+                      "Key": "twitter",
+                      "TaxonomyId": "tcm:1081-1297-512",
+                      "Path": "\\Social Networks\\Twitter",
+                      "RelatedKeywords": [],
+                      "ParentKeywords": [],
+                      "MetadataFields": {},
+                      "Id": "tcm:1081-4425-1024",
+                      "Title": "Twitter"
+                    }
+                  ]
+                },
+                "externalLink": {
+                  "Name": "externalLink",
+                  "Values": [
+                    "https://twitter.com/YourCompanyHandle"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 0,
+                  "XPath": "tcm:Content/custom:SocialLinks/custom:link[1]/custom:externalLink",
+                  "KeywordValues": []
+                }
+              },
+              {
+                "tag": {
+                  "Name": "tag",
+                  "Values": [],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 3,
+                  "CategoryName": "Social Networks",
+                  "CategoryId": "tcm:1081-1297-512",
+                  "XPath": "tcm:Content/custom:SocialLinks/custom:link[2]/custom:tag",
+                  "KeywordValues": [
+                    {
+                      "IsRoot": false,
+                      "IsAbstract": false,
+                      "Description": "",
+                      "Key": "linkedin",
+                      "TaxonomyId": "tcm:1081-1297-512",
+                      "Path": "\\Social Networks\\LinkedIn",
+                      "RelatedKeywords": [],
+                      "ParentKeywords": [],
+                      "MetadataFields": {},
+                      "Id": "tcm:1081-4427-1024",
+                      "Title": "LinkedIn"
+                    }
+                  ]
+                },
+                "externalLink": {
+                  "Name": "externalLink",
+                  "Values": [
+                    "http://www.linkedin.com/company/YourCompanyPage"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 0,
+                  "XPath": "tcm:Content/custom:SocialLinks/custom:link[2]/custom:externalLink",
+                  "KeywordValues": []
+                }
+              },
+              {
+                "tag": {
+                  "Name": "tag",
+                  "Values": [],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 3,
+                  "CategoryName": "Social Networks",
+                  "CategoryId": "tcm:1081-1297-512",
+                  "XPath": "tcm:Content/custom:SocialLinks/custom:link[3]/custom:tag",
+                  "KeywordValues": [
+                    {
+                      "IsRoot": false,
+                      "IsAbstract": false,
+                      "Description": "",
+                      "Key": "facebook",
+                      "TaxonomyId": "tcm:1081-1297-512",
+                      "Path": "\\Social Networks\\Facebook",
+                      "RelatedKeywords": [],
+                      "ParentKeywords": [],
+                      "MetadataFields": {},
+                      "Id": "tcm:1081-4426-1024",
+                      "Title": "Facebook"
+                    }
+                  ]
+                },
+                "externalLink": {
+                  "Name": "externalLink",
+                  "Values": [
+                    "https://www.facebook.com/YourCompanyPage"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 0,
+                  "XPath": "tcm:Content/custom:SocialLinks/custom:link[3]/custom:externalLink",
+                  "KeywordValues": []
+                }
+              }
+            ],
+            "EmbeddedSchema": {
+              "RootElementName": "SocialLink",
+              "Id": "tcm:1081-4430-8",
+              "Title": "Social Link"
+            },
+            "FieldType": 4,
+            "XPath": "tcm:Content/custom:SocialLinks/custom:link",
+            "KeywordValues": []
+          }
+        },
+        "MetadataFields": {},
+        "ComponentType": 1,
+        "Folder": {
+          "PublicationId": "tcm:0-1081-1",
+          "Id": "tcm:1081-608-2",
+          "Title": "Footer"
+        },
+        "Categories": [],
+        "Version": 3,
+        "Publication": {
+          "Id": "tcm:0-1081-1",
+          "Title": "500 Automated Test Parent (Legacy)"
+        },
+        "OwningPublication": {
+          "Id": "tcm:0-1067-1",
+          "Title": "110 DXA Site Type"
+        },
+        "Id": "tcm:1081-4440",
+        "Title": "Social Network Pages"
+      },
+      "ComponentTemplate": {
+        "OutputFormat": "HTML Fragment",
+        "RevisionDate": "2014-07-31T16:31:03.99",
+        "MetadataFields": {
+          "view": {
+            "Name": "view",
+            "Values": [
+              "SocialLinks"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "regionView": {
+            "Name": "regionView",
+            "Values": [
+              "4-Column"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          }
+        },
+        "Id": "tcm:1081-4435-32",
+        "Title": "Social Links [4-Column]"
+      },
+      "RenderedContent": "",
+      "IsDynamic": false,
+      "OrderOnPage": 0
+    }
+  ],
+  "StructureGroup": {
+    "PublicationId": "tcm:0-1081-1",
+    "Id": "tcm:1081-42-4",
+    "Title": "include"
+  },
+  "Version": 6,
+  "Publication": {
+    "Id": "tcm:0-1081-1",
+    "Title": "500 Automated Test Parent (Legacy)"
+  },
+  "OwningPublication": {
+    "Id": "tcm:0-1067-1",
+    "Title": "110 DXA Site Type"
+  },
+  "Id": "tcm:1081-1489-64",
+  "Title": "Footer"
+}
