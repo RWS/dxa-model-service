@@ -99,7 +99,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
         page.setTitle(toConvert.getTitle());
-        page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest));
+        page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest.getPublicationId()));
         page.setUrlPath(PathUtils.stripDefaultExtension(metadataService.getPageMeta(pageRequest.getPublicationId(), toConvert.getId()).getURLPath()));
         page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
 
@@ -122,7 +122,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 currentRegion.setEntities(new ArrayList<>());
             }
             currentRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(regionName));
-            currentRegion.getEntities().add(_buildEntity(component, componentPresentation, pageRequest));
+            currentRegion.getEntities().add(_buildEntity(component, componentPresentation, pageRequest.getPublicationId()));
         }
         for (RegionModelData regionModelData : _loadIncludes(page.getPageTemplate(), pageRequest)) {
             regions.put(regionModelData.getName(), regionModelData);
@@ -138,14 +138,19 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 .setPageTemplateModified(toConvert.getPageTemplate().getRevisionDate())
                 .buildXpm());
 
-        page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest));
+        page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest.getPublicationId()));
 
         return page;
     }
 
     @Override
     public EntityModelData convertToR2(@Nullable ComponentPresentation toConvert, @NotNull EntityRequestDto entityRequestDto) throws ContentProviderException {
-        return _buildEntity(toConvert.getComponent(), toConvert, PageRequestDto.builder().publicationId(entityRequestDto.getPublicationId()).build());
+        if (toConvert == null) {
+            log.warn("Model to convert is null, return null for request {}", entityRequestDto);
+            return null;
+        }
+
+        return _buildEntity(toConvert.getComponent(), toConvert, entityRequestDto.getPublicationId());
     }
 
     private MvcModelData _getMvcModelData(Map<String, Field> metadata) {
@@ -224,18 +229,18 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return list;
     }
 
-    private PageTemplateData _buildPageTemplate(PageTemplate pageTemplate, PageRequestDto pageRequest) throws ContentProviderException {
+    private PageTemplateData _buildPageTemplate(PageTemplate pageTemplate, int publicationId) throws ContentProviderException {
         PageTemplateData templateData = new PageTemplateData();
         templateData.setId(String.valueOf(TcmUtils.getItemId(pageTemplate.getId())));
         templateData.setTitle(pageTemplate.getTitle());
         templateData.setFileExtension(pageTemplate.getFileExtension());
         templateData.setRevisionDate(pageTemplate.getRevisionDate());
-        templateData.setMetadata(_convertContent(pageTemplate.getMetadata(), pageRequest));
+        templateData.setMetadata(_convertContent(pageTemplate.getMetadata(), publicationId));
         return templateData;
     }
 
     @Nullable
-    private ContentModelData _convertContent(Map<String, Field> content, PageRequestDto pageRequest) throws ContentProviderException {
+    private ContentModelData _convertContent(Map<String, Field> content, int publicationId) throws ContentProviderException {
         if (content == null || content.isEmpty()) {
             return null;
         }
@@ -245,26 +250,26 @@ public class ToR2ConverterImpl implements ToR2Converter {
             String key = entry.getKey();
             Field value = entry.getValue();
 
-            data.put(key, _convertField(value, pageRequest));
+            data.put(key, _convertField(value, publicationId));
         }
         return data;
     }
 
     @Nullable
-    private BinaryContentData _convertMultimediaContent(Multimedia content, PageRequestDto pageRequest) {
+    private BinaryContentData _convertMultimediaContent(Multimedia content) {
         if (content == null) {
             return null;
         }
         return new BinaryContentData(content.getFileName(), content.getSize(), content.getMimeType(), content.getUrl());
     }
 
-    private Object _convertField(Field field, PageRequestDto pageRequest) throws ContentProviderException {
+    private Object _convertField(Field field, int publicationId) throws ContentProviderException {
         switch (field.getFieldType()) {
             case EMBEDDED:
-                return _convertEmbeddedField((EmbeddedField) field, pageRequest);
+                return _convertEmbeddedField((EmbeddedField) field, publicationId);
             case COMPONENTLINK:
             case MULTIMEDIALINK:
-                return _convertComponentLink((ComponentLinkField) field, pageRequest);
+                return _convertComponentLink((ComponentLinkField) field, publicationId);
             case KEYWORD:
                 return _convertKeyword((KeywordField) field);
             case XHTML:
@@ -322,64 +327,64 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 keyword.getTitle());
     }
 
-    private Object _convertEmbeddedField(EmbeddedField field, PageRequestDto pageRequest) throws ContentProviderException {
+    private Object _convertEmbeddedField(EmbeddedField field, int publicationId) throws ContentProviderException {
         return _convertField(field,
                 new SingleOrMultipleFork() {
                     @Override
                     public Object onSingleValue() throws ContentProviderException {
-                        return _convertContent(field.getEmbeddedValues().get(0).getContent(), pageRequest);
+                        return _convertContent(field.getEmbeddedValues().get(0).getContent(), publicationId);
                     }
 
                     @Override
                     public Object onMultipleValues() throws ContentProviderException {
                         List<ContentModelData> list = new ArrayList<>();
                         for (FieldSet fieldSet : field.getEmbeddedValues()) {
-                            list.add(_convertContent(fieldSet.getContent(), pageRequest));
+                            list.add(_convertContent(fieldSet.getContent(), publicationId));
                         }
                         return new ListWrapper.ContentModelDataListWrapper(list);
                     }
                 });
     }
 
-    private Object _convertComponentLink(ComponentLinkField linkField, PageRequestDto pageRequest) throws ContentProviderException {
+    private Object _convertComponentLink(ComponentLinkField linkField, int publicationId) throws ContentProviderException {
         return _convertField(linkField,
                 new SingleOrMultipleFork() {
                     @Override
                     public Object onSingleValue() throws ContentProviderException {
-                        return _buildEntity(linkField.getLinkedComponentValues().get(0), null, pageRequest);
+                        return _buildEntity(linkField.getLinkedComponentValues().get(0), null, publicationId);
                     }
 
                     @Override
                     public Object onMultipleValues() throws ContentProviderException {
                         List<EntityModelData> list = new ArrayList<>();
                         for (Component component : linkField.getLinkedComponentValues()) {
-                            list.add(_buildEntity(component, null, pageRequest));
+                            list.add(_buildEntity(component, null, publicationId));
                         }
                         return new ListWrapper.EntityModelDataListWrapper(list);
                     }
                 });
     }
 
-    private EntityModelData _buildEntity(Component component, @Nullable ComponentPresentation componentPresentation, PageRequestDto pageRequest) throws ContentProviderException {
+    private EntityModelData _buildEntity(@NotNull Component component, @Nullable ComponentPresentation componentPresentation, int publicationId) throws ContentProviderException {
+        Component _component = component;
+        ComponentPresentation _componentPresentation = componentPresentation;
+
         EntityModelData entity = new EntityModelData();
-        int componentId = TcmUtils.getItemId(component.getId());
+        int componentId = TcmUtils.getItemId(_component.getId());
         entity.setId(String.valueOf(componentId));
 
-        if(component != null && component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
-            entity.setBinaryContent(_convertMultimediaContent(component.getMultimedia(), pageRequest));
+        if (_component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
+            entity.setBinaryContent(_convertMultimediaContent(_component.getMultimedia()));
         }
 
-        if (componentPresentation != null) {
-            ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
-            if(componentPresentation.isDynamic()) {
+        if (_componentPresentation != null) {
+            ComponentTemplate componentTemplate = _componentPresentation.getComponentTemplate();
+
+            if (_componentPresentation.isDynamic()) {
                 String dcpId = String.valueOf(componentId).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
-                EntityRequestDto req = EntityRequestDto.builder()
-                        .publicationId(pageRequest.getPublicationId())
-                        .entityId(dcpId)
-                        .build();
-                componentPresentation = this.entityModelService.loadLegacyEntityModel(req);
-                component = componentPresentation.getComponent();
-                componentTemplate = componentPresentation.getComponentTemplate();
+                _componentPresentation = entityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                _component = _componentPresentation.getComponent();
+                componentTemplate = _componentPresentation.getComponentTemplate();
                 entity.setId(dcpId);
             }
 
@@ -391,26 +396,26 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 templateData.setId(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
                 templateData.setTitle(componentTemplate.getTitle());
                 templateData.setRevisionDate(componentTemplate.getRevisionDate());
-                templateData.setMetadata(_convertContent(componentTemplate.getMetadata(), pageRequest));
+                templateData.setMetadata(_convertContent(componentTemplate.getMetadata(), publicationId));
                 if (componentTemplate instanceof ComponentTemplateImpl) {
                     templateData.setOutputFormat(((ComponentTemplateImpl) componentTemplate).getOutputFormat());
                 }
                 entity.setComponentTemplate(templateData);
 
                 entity.setXpmMetadata(new XpmUtils.EntityXpmBuilder()
-                        .setComponentId(component.getId())
-                        .setComponentModified(component.getRevisionDate())
+                        .setComponentId(_component.getId())
+                        .setComponentModified(_component.getRevisionDate())
                         .setComponentTemplateID(componentTemplate.getId())
                         .setComponentTemplateModified(componentTemplate.getRevisionDate())
-                        .setRepositoryPublished(componentPresentation.isDynamic())
+                        .setRepositoryPublished(_componentPresentation.isDynamic())
                         .buildXpm());
             }
         }
 
-        entity.setMetadata(_convertContent(component.getMetadata(), pageRequest));
-        entity.setContent(_convertContent(component.getContent(), pageRequest));
-        LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequest.getPublicationId())
-                .get(String.valueOf(TcmUtils.getItemId(component.getSchema().getId())));
+        entity.setMetadata(_convertContent(_component.getMetadata(), publicationId));
+        entity.setContent(_convertContent(_component.getContent(), publicationId));
+        LightSchema lightSchema = configService.getDefaults().getSchemasJson(publicationId)
+                .get(String.valueOf(TcmUtils.getItemId(_component.getSchema().getId())));
         entity.setSchemaId(lightSchema.getId());
 
         return entity;

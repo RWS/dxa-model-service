@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public interface ToDd4tConverter {
 
     /**
-     * Converts the given R2 data model to DD4T data model.
+     * Converts the given R2 page data model to DD4T Page data model.
      *
      * @param toConvert   R2 page model to convert
      * @param pageRequest current page request
@@ -23,6 +23,13 @@ public interface ToDd4tConverter {
     @Contract("!null, _ -> !null; null, _ -> null")
     Page convertToDd4t(@Nullable PageModelData toConvert, @NotNull PageRequestDto pageRequest) throws ContentProviderException;
 
+    /**
+     * Converts the given R2 entity data model to DD4T CP data model.
+     *
+     * @param toConvert     R2 entity model to convert
+     * @param entityRequest current entity request
+     * @return equal DD4T model, {@code null} in case parameter is {@code null}
+     */
     @Contract("!null, _ -> !null; null, _ -> null")
     ComponentPresentation convertToDd4t(@Nullable EntityModelData toConvert, @NotNull EntityRequestDto entityRequest) throws ContentProviderException;
 }

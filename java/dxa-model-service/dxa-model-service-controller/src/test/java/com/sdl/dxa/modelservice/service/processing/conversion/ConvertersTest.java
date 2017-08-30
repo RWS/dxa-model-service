@@ -8,6 +8,7 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.web.model.PageMetaImpl;
 import com.sdl.web.model.PublicationMetaImpl;
@@ -151,6 +152,11 @@ public class ConvertersTest {
         }
 
         @Bean
+        public LegacyEntityModelService legacyEntityModelService() {
+            return mock(LegacyEntityModelService.class);
+        }
+
+        @Bean
         public ConfigService configService() throws IOException, ContentProviderException {
             ConfigService.Defaults defaults = mock(ConfigService.Defaults.class);
             ConfigService configService = new ConfigService(defaults);
@@ -211,10 +217,7 @@ public class ConvertersTest {
 
         @Bean
         public PageRequestDto pageRequestDto() {
-            return PageRequestDto.builder()
-                    .publicationId(1081)
-                    .uriType("tcm")
-                    .build();
+            return PageRequestDto.builder(1081, "tcm").build();
         }
     }
 }

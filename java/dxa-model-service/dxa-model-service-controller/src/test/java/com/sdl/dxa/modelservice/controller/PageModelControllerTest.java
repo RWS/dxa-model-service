@@ -1,5 +1,7 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.common.dto.ContentType;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
@@ -79,7 +81,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T")).andExpect(status().isOk());
 
         //then
-        verify(this.legacyPageModelService, atLeastOnce()).loadLegacyPageModel(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.MODEL, "/"));
+        verify(this.legacyPageModelService, atLeastOnce()).loadLegacyPageModel(matcherFor(DataModelType.DD4T, ContentType.MODEL, "/"));
     }
 
     @Test
@@ -90,7 +92,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T&raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(PageRequestDto.DataModelType.DD4T, PageRequestDto.ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.DD4T, ContentType.RAW, "/"));
     }
 
     @Test
@@ -101,7 +103,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//")).andExpect(status().isOk());
 
         //then
-        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.MODEL, "/"));
+        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(DataModelType.R2, ContentType.MODEL, "/"));
     }
 
     @Test
@@ -112,7 +114,7 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW, "/"));
     }
 
 
@@ -131,10 +133,10 @@ public class PageModelControllerTest {
     }
 
     private PageRequestDto matcherFor(String expected) {
-        return matcherFor(PageRequestDto.DataModelType.R2, PageRequestDto.ContentType.MODEL, expected);
+        return matcherFor(DataModelType.R2, ContentType.MODEL, expected);
     }
 
-    private PageRequestDto matcherFor(PageRequestDto.DataModelType dataModelType, PageRequestDto.ContentType contentType, String expected) {
+    private PageRequestDto matcherFor(DataModelType dataModelType, ContentType contentType, String expected) {
         return argThat(new BaseMatcher<PageRequestDto>() {
             @Override
             public boolean matches(Object item) {

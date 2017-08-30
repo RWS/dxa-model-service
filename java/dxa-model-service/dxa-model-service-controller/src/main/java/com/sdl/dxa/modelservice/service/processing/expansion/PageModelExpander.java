@@ -192,10 +192,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     }
 
     private void _expandEntity(EntityModelData toExpand, PageRequestDto pageRequest) {
-        EntityRequestDto entityRequest = EntityRequestDto.builder()
-                .entityId(toExpand.getId())
-                .publicationId(pageRequest.getPublicationId())
-                .build();
+        EntityRequestDto entityRequest = EntityRequestDto.builder(pageRequest.getPublicationId(), toExpand.getId()).build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
