@@ -205,7 +205,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
         //type safe because list of includes is only expected to be a list wrapper of strings
         //noinspection unchecked
         for (String include : ((ListWrapper<String>) pageTemplate.getMetadata().get(includesKey)).getValues()) {
-            String includeUrl = metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl() + "/" + include;
+
+            String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
             try {
                 JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
                 String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
