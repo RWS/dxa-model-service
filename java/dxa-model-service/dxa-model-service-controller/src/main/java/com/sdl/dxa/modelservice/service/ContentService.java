@@ -1,5 +1,6 @@
 package com.sdl.dxa.modelservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
@@ -39,9 +40,13 @@ public class ContentService {
 
     private final ConfigService configService;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    public ContentService(ConfigService configService) {
-        this.configService =  configService;
+    public ContentService(ConfigService configService,
+                          ObjectMapper objectMapper) {
+        this.configService = configService;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -51,8 +56,10 @@ public class ContentService {
      * @return type of the model
      */
     public static DataModelType getModelType(String jsonContent) {
-        return jsonContent.contains("MvcData") && (jsonContent.contains("UrlPath") || jsonContent.contains("SchemaId")) ?
-                DataModelType.R2 : DataModelType.DD4T;
+        boolean isR2Page = jsonContent.contains("UrlPath") && !jsonContent.contains("ComponentPresentations");
+        boolean isR2Entity = jsonContent.contains("Content") && jsonContent.contains("SchemaId") && !jsonContent.contains("ComponentType");
+
+        return isR2Page || isR2Entity ? DataModelType.R2 : DataModelType.DD4T;
     }
 
     @NotNull

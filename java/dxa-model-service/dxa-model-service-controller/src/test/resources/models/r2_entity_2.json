@@ -1,0 +1,44 @@
+{
+  "Id": "9712",
+  "ComponentTemplate": {
+    "Id": "10247",
+    "RevisionDate": "0001-01-01T00:00:00"
+  },
+  "Folder": {
+    "Id": "2574",
+    "Title": "Test"
+  },
+  "Content": {
+    "headline": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+    "articleBody": {
+      "$type": "ContentModelData",
+      "subheading": "Subheading 1",
+      "content": {
+        "$type": "RichTextData",
+        "Fragments": [
+          "<p>Test <strong>rich</strong> <em>text</em> content.</p>\n<p>Component link (not published): <a title=\"Test Component\" href=\"tcm:1065-9710\">Test Component</a><!--CompLink tcm:1065-9710--></p>\n<p>Component link (published): <a title=\"TSI-1758 Test Component\" href=\"tcm:1065-9971\">TSI-1758 Test Component</a><!--CompLink tcm:1065-9971--></p>\n<p>MMC link: <a title=\"bulls-eye\" href=\"/autotest-parent/Images/bulls-eye_tcm1065-759.JPG\">bulls-eye</a><!--CompLink tcm:1065-759--></p>\n<p>Embedded Image: ",
+          {
+            "$type": "EntityModelData",
+            "Id": "760",
+            "Folder": {
+              "Id": "337",
+              "Title": "Large"
+            },
+            "BinaryContent": {
+              "Url": "/autotest-parent/Images/calculator_tcm1065-760.jpg",
+              "FileName": "calculator.jpg",
+              "FileSize": 1007535,
+              "MimeType": "image/jpeg"
+            },
+            "Metadata": {
+              "altText": "calculator"
+            },
+            "SchemaId": "79"
+          },
+          "</p>"
+        ]
+      }
+    }
+  },
+  "SchemaId": "80"
+}

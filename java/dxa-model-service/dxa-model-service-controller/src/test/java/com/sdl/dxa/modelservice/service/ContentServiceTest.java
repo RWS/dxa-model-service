@@ -158,6 +158,7 @@ public class ContentServiceTest {
         String dd4tSourceCP = IOUtils.toString(new ClassPathResource("models/dd4t_cp.json").getInputStream(), "UTF-8");
         String r2Source = IOUtils.toString(new ClassPathResource("models/r2.json").getInputStream(), "UTF-8");
         String r2SourceEntity = IOUtils.toString(new ClassPathResource("models/r2_entity.json").getInputStream(), "UTF-8");
+        String r2SourceEntity2 = IOUtils.toString(new ClassPathResource("models/r2_entity_2.json").getInputStream(), "UTF-8");
 
 
         //when
@@ -165,12 +166,14 @@ public class ContentServiceTest {
         DataModelType dd4tCP = getModelType(dd4tSourceCP);
         DataModelType r2 = getModelType(r2Source);
         DataModelType r2Entity = getModelType(r2SourceEntity);
+        DataModelType r2Entity2 = getModelType(r2SourceEntity2);
 
         //then
         assertEquals(DataModelType.DD4T, dd4t);
         assertEquals(DataModelType.DD4T, dd4tCP);
         assertEquals(DataModelType.R2, r2);
         assertEquals(DataModelType.R2, r2Entity);
+        assertEquals(DataModelType.R2, r2Entity2);
     }
 
     @Test
