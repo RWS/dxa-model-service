@@ -4,7 +4,7 @@ import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.EntityRequestDto.DcpType;
-import com.sdl.dxa.modelservice.service.ComponentPresentationService;
+import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/EntityModel/{uriType}/{localizationId}")
 public class EntityModelController {
 
-    private final ComponentPresentationService componentPresentationService;
+    private final ContentService contentService;
 
     private final EntityModelService entityModelService;
 
     @Autowired
     public EntityModelController(EntityModelService entityModelService,
-                                 ComponentPresentationService componentPresentationService) {
+                                 ContentService contentService) {
         this.entityModelService = entityModelService;
-        this.componentPresentationService = componentPresentationService;
+        this.contentService = contentService;
     }
 
     @GetMapping(path = {
@@ -53,7 +53,7 @@ public class EntityModelController {
                 .build();
 
         return ResponseEntity.ok(isRawContent ?
-                componentPresentationService.loadComponentPresentation(entityRequest) :
+                contentService.loadComponentPresentation(entityRequest) :
                 entityModelService.loadEntity(entityRequest));
     }
 

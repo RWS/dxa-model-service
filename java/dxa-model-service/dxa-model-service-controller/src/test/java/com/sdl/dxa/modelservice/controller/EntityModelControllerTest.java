@@ -3,8 +3,12 @@ package com.sdl.dxa.modelservice.controller;
 import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
-import com.sdl.dxa.modelservice.service.ComponentPresentationService;
+import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
+import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
+import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -22,13 +26,14 @@ import static org.mockito.Matchers.eq;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@MockBean(classes = {PageModelService.class, LegacyPageModelService.class, ToDd4tConverter.class, ToR2Converter.class})
 public class EntityModelControllerTest {
 
     @MockBean
     private EntityModelService modelService;
 
     @MockBean
-    private ComponentPresentationService componentPresentationService;
+    private ContentService contentService;
 
     @Autowired
     private MockMvc mvc;
@@ -75,7 +80,7 @@ public class EntityModelControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?raw=true")).andExpect(MockMvcResultMatchers.status().isOk());
 
         //then
-        Mockito.verify(componentPresentationService).loadComponentPresentation(
+        Mockito.verify(contentService).loadComponentPresentation(
                 eq(EntityRequestDto.builder(42, 123, 0).contentType(ContentType.RAW).build()));
     }
 

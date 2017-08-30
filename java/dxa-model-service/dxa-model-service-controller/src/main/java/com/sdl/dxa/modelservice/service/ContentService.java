@@ -1,6 +1,6 @@
 package com.sdl.dxa.modelservice.service;
 
-import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
@@ -17,6 +17,7 @@ import com.tridion.broker.querying.criteria.operators.OrCriteria;
 import com.tridion.broker.querying.filter.LimitFilter;
 import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
+import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -49,37 +50,9 @@ public class ContentService {
      * @param jsonContent json content of a page
      * @return type of the model
      */
-    public static PageRequestDto.DataModelType getModelType(String jsonContent) {
-        // todo implement normally
-        return ((jsonContent.contains("UrlPath")) || (jsonContent.contains("Content") && jsonContent.contains("MvcData"))) ? PageRequestDto.DataModelType.R2 : PageRequestDto.DataModelType.DD4T;
-    }
-
-    /**
-     * Loads entity content without any processing.
-     *
-     * @param entityRequest current entity request
-     * @return raw content of a entity based on a request
-     * @throws ContentProviderException in case there were issues communicating with CIS services
-     */
-    @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
-    public String loadEntityContent(EntityRequestDto entityRequest) throws ContentProviderException {
-        int publicationId = entityRequest.getPublicationId();
-        int componentId = entityRequest.getComponentId();
-        int templateId = entityRequest.getTemplateId() <= 0 ?
-                configService.getDefaults().getDynamicTemplateId(publicationId) : entityRequest.getTemplateId();
-
-        String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
-        String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
-
-        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(componentUri);
-        com.tridion.dcp.ComponentPresentation componentPresentation = componentPresentationFactory.getComponentPresentation(componentUri, templateUri);
-
-        if (componentPresentation == null) {
-            throw new DxaItemNotFoundException("Cannot find a CP for componentUri" + componentUri + ", templateUri" + templateUri);
-        }
-
-        return componentPresentation.getContent();
+    public static DataModelType getModelType(String jsonContent) {
+        return jsonContent.contains("MvcData") && (jsonContent.contains("UrlPath") || jsonContent.contains("SchemaId")) ?
+                DataModelType.R2 : DataModelType.DD4T;
     }
 
     @NotNull
@@ -115,6 +88,44 @@ public class ContentService {
             log.warn("Issues communicating with CD", exception);
             throw exception;
         }
+    }
+
+    /**
+     * Loads component presentation for an entity without any processing.
+     *
+     * @param entityRequest current entity request
+     * @return raw component presentation of a entity based on a request
+     * @throws DxaItemNotFoundException in case there nothing was found for this request
+     */
+    @NotNull
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}")
+    public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
+        int publicationId = entityRequest.getPublicationId();
+
+        String componentUri = TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId());
+        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(componentUri);
+
+        ComponentPresentation componentPresentation;
+
+        if (entityRequest.getDcpType() == EntityRequestDto.DcpType.HIGHEST_PRIORITY && entityRequest.getTemplateId() <= 0) {
+            log.debug("Load Component Presentation with component id = {} with highest priority", componentUri);
+            componentPresentation = componentPresentationFactory.getComponentPresentationWithHighestPriority(componentUri);
+        } else {
+            String templateUri;
+            if (entityRequest.getTemplateId() > 0) {
+                templateUri = TcmUtils.buildTemplateTcmUri(publicationId, entityRequest.getTemplateId());
+            } else {
+                templateUri = TcmUtils.buildTemplateTcmUri(publicationId, configService.getDefaults().getDynamicTemplateId(publicationId));
+            }
+
+            log.debug("Load Component Presentation with component uri = {} and template uri = {}", componentUri, templateUri);
+            componentPresentation = componentPresentationFactory.getComponentPresentation(componentUri, templateUri);
+        }
+
+        if (componentPresentation == null) {
+            throw new DxaItemNotFoundException("Cannot find a CP for componentUri = " + componentUri + ", template id = " + entityRequest.getTemplateId());
+        }
+        return componentPresentation;
     }
 
     String loadPageContent(int publicationId, int pageId) throws ContentProviderException {

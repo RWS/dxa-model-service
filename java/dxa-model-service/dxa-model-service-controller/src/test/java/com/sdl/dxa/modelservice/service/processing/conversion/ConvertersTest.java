@@ -8,6 +8,7 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.web.model.PageMetaImpl;
 import com.sdl.web.model.PublicationMetaImpl;
@@ -148,6 +149,11 @@ public class ConvertersTest {
         @Bean
         public EntityModelService entityModelService() {
             return mock(EntityModelService.class);
+        }
+
+        @Bean
+        public LegacyEntityModelService legacyEntityModelService() {
+            return mock(LegacyEntityModelService.class);
         }
 
         @Bean
