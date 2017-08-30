@@ -1,9 +1,12 @@
 package com.sdl.dxa.modelservice.service;
 
+import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.broker.StorageException;
 import com.tridion.broker.querying.Query;
@@ -14,8 +17,10 @@ import com.tridion.broker.querying.criteria.operators.OrCriteria;
 import com.tridion.broker.querying.filter.LimitFilter;
 import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
+import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -31,13 +36,52 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 @Service
 public class ContentService {
 
+    private final ConfigService configService;
+
+    @Autowired
+    public ContentService(ConfigService configService) {
+        this.configService =  configService;
+    }
+
     /**
-     * Loads page content without any processing.
+     * Detects model type from json content string.
      *
-     * @param pageRequest current page request
-     * @return raw content of a page based on a request
+     * @param jsonContent json content of a page
+     * @return type of the model
+     */
+    public static PageRequestDto.DataModelType getModelType(String jsonContent) {
+        // todo implement normally
+        return ((jsonContent.contains("UrlPath")) || (jsonContent.contains("Content") && jsonContent.contains("MvcData"))) ? PageRequestDto.DataModelType.R2 : PageRequestDto.DataModelType.DD4T;
+    }
+
+    /**
+     * Loads entity content without any processing.
+     *
+     * @param entityRequest current entity request
+     * @return raw content of a entity based on a request
      * @throws ContentProviderException in case there were issues communicating with CIS services
      */
+    @NotNull
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
+    public String loadEntityContent(EntityRequestDto entityRequest) throws ContentProviderException {
+        int publicationId = entityRequest.getPublicationId();
+        int componentId = entityRequest.getComponentId();
+        int templateId = entityRequest.getTemplateId() <= 0 ?
+                configService.getDefaults().getDynamicTemplateId(publicationId) : entityRequest.getTemplateId();
+
+        String componentUri = TcmUtils.buildTcmUri(publicationId, componentId);
+        String templateUri = TcmUtils.buildTemplateTcmUri(publicationId, templateId);
+
+        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(componentUri);
+        com.tridion.dcp.ComponentPresentation componentPresentation = componentPresentationFactory.getComponentPresentation(componentUri, templateUri);
+
+        if (componentPresentation == null) {
+            throw new DxaItemNotFoundException("Cannot find a CP for componentUri" + componentUri + ", templateUri" + templateUri);
+        }
+
+        return componentPresentation.getContent();
+    }
+
     @NotNull
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {

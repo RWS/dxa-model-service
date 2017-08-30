@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
+
 /**
  * Service capable to load content and construct {@code models} out of it.
  */
@@ -67,16 +69,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         this.toDd4tConverter = toDd4tConverter;
         this.toR2Converter = toR2Converter;
         this.richTextLinkResolver = richTextLinkResolver;
-    }
-
-    /**
-     * Detects model type from json content string.
-     *
-     * @param jsonContent json content of a page
-     * @return type of the model
-     */
-    public static DataModelType getModelType(String jsonContent) {
-        return jsonContent.contains("ComponentPresentations") ? DataModelType.DD4T : DataModelType.R2;
     }
 
     @Override
