@@ -2,6 +2,7 @@ package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.api.datamodel.model.BinaryContentData;
 import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
@@ -12,11 +13,13 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
+import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.MvcUtils;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -31,6 +34,7 @@ import org.dd4t.contentmodel.ComponentTemplate;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldSet;
 import org.dd4t.contentmodel.Keyword;
+import org.dd4t.contentmodel.Multimedia;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
@@ -65,14 +69,22 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final MetadataService metadataService;
 
+    private LegacyEntityModelService entityModelService;
+
     @Autowired
     public ToR2ConverterImpl(ConfigService configService,
                              ContentService contentService,
-                             @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper, MetadataService metadataService) {
+                             @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
+                             MetadataService metadataService) {
         this.configService = configService;
         this.contentService = contentService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
+    }
+
+    @Autowired
+    public void setEntityModelService(LegacyEntityModelService entityModelService) {
+        this.entityModelService = entityModelService;
     }
 
     @Override
@@ -95,6 +107,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         Map<String, RegionModelData> regions = new LinkedHashMap<>();
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
+
             ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
             Component component = componentPresentation.getComponent();
 
@@ -128,6 +141,11 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest));
 
         return page;
+    }
+
+    @Override
+    public EntityModelData convertToR2(@Nullable ComponentPresentation toConvert, @NotNull EntityRequestDto entityRequestDto) throws ContentProviderException {
+        return _buildEntity(toConvert.getComponent(), toConvert, PageRequestDto.builder().publicationId(entityRequestDto.getPublicationId()).build());
     }
 
     private MvcModelData _getMvcModelData(Map<String, Field> metadata) {
@@ -233,11 +251,20 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return data;
     }
 
+    @Nullable
+    private BinaryContentData _convertMultimediaContent(Multimedia content, PageRequestDto pageRequest) {
+        if (content == null) {
+            return null;
+        }
+        return new BinaryContentData(content.getFileName(), content.getSize(), content.getMimeType(), content.getUrl());
+    }
+
     private Object _convertField(Field field, PageRequestDto pageRequest) throws ContentProviderException {
         switch (field.getFieldType()) {
             case EMBEDDED:
                 return _convertEmbeddedField((EmbeddedField) field, pageRequest);
             case COMPONENTLINK:
+            case MULTIMEDIALINK:
                 return _convertComponentLink((ComponentLinkField) field, pageRequest);
             case KEYWORD:
                 return _convertKeyword((KeywordField) field);
@@ -336,11 +363,27 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private EntityModelData _buildEntity(Component component, @Nullable ComponentPresentation componentPresentation, PageRequestDto pageRequest) throws ContentProviderException {
         EntityModelData entity = new EntityModelData();
-        entity.setId(String.valueOf(TcmUtils.getItemId(component.getId())));
-        entity.setContent(_convertContent(component.getContent(), pageRequest));
+        int componentId = TcmUtils.getItemId(component.getId());
+        entity.setId(String.valueOf(componentId));
+
+        if(component != null && component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
+            entity.setBinaryContent(_convertMultimediaContent(component.getMultimedia(), pageRequest));
+        }
 
         if (componentPresentation != null) {
             ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
+            if(componentPresentation.isDynamic()) {
+                String dcpId = String.valueOf(componentId).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                EntityRequestDto req = EntityRequestDto.builder()
+                        .publicationId(pageRequest.getPublicationId())
+                        .entityId(dcpId)
+                        .build();
+                componentPresentation = this.entityModelService.loadLegacyEntityModel(req);
+                component = componentPresentation.getComponent();
+                componentTemplate = componentPresentation.getComponentTemplate();
+                entity.setId(dcpId);
+            }
+
             if (componentTemplate != null) {
                 // if CT is null, then we have a DCP and thus no component template
                 entity.setMvcData(_getMvcModelData(componentTemplate.getMetadata()));
@@ -365,8 +408,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
             }
         }
 
-
         entity.setMetadata(_convertContent(component.getMetadata(), pageRequest));
+        entity.setContent(_convertContent(component.getContent(), pageRequest));
         LightSchema lightSchema = configService.getDefaults().getSchemasJson(pageRequest.getPublicationId())
                 .get(String.valueOf(TcmUtils.getItemId(component.getSchema().getId())));
         entity.setSchemaId(lightSchema.getId());
