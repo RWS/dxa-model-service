@@ -23,7 +23,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 
-import static com.sdl.dxa.modelservice.service.DefaultPageModelService.getModelType;
+import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
