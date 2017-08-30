@@ -78,7 +78,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         return modelData;
     }
 
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public org.dd4t.contentmodel.ComponentPresentation loadLegacyEntityModel(EntityRequestDto entityRequest) throws ContentProviderException {
         String content = contentService.loadEntityContent(entityRequest);
         log.trace("Loaded entity content for {}", entityRequest);
@@ -124,9 +124,9 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
             entityModel = toR2Converter.convertToR2(cp, entityRequest);
         } else {
             entityModel = _parseR2Content(entityContent, EntityModelData.class);
+            log.trace("Parsed entity content to entity model {}", entityModel);
         }
 
-        log.trace("Parsed entity content to entity model {}", entityModel);
         log.trace("processing entity model {} for entity request {}", entityModel, entityRequest);
 
         return entityModel;

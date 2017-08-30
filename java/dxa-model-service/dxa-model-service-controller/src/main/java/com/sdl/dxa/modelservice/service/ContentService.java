@@ -55,14 +55,14 @@ public class ContentService {
     }
 
     /**
-     * Loads page content without any processing.
+     * Loads entity content without any processing.
      *
-     * @param entityRequest current page request
-     * @return raw content of a page based on a request
+     * @param entityRequest current entity request
+     * @return raw content of a entity based on a request
      * @throws ContentProviderException in case there were issues communicating with CIS services
      */
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public String loadEntityContent(EntityRequestDto entityRequest) throws ContentProviderException {
         int publicationId = entityRequest.getPublicationId();
         int componentId = entityRequest.getComponentId();

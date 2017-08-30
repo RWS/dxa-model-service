@@ -69,6 +69,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private LegacyEntityModelService entityModelService;
 
+    @Autowired
     public ToR2ConverterImpl(ConfigService configService,
                              ContentService contentService,
                              @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
@@ -350,13 +351,13 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private EntityModelData _buildEntity(Component component, @Nullable ComponentPresentation componentPresentation, PageRequestDto pageRequest) throws ContentProviderException {
         EntityModelData entity = new EntityModelData();
-        entity.setContent(_convertContent(component.getContent(), pageRequest));
-        entity.setId(component.getId());
+        int componentId = TcmUtils.getItemId(component.getId());
+        entity.setId(String.valueOf(componentId));
 
         if (componentPresentation != null) {
             ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
             if(componentPresentation.isDynamic()) {
-                String dcpId = String.valueOf(TcmUtils.getItemId(component.getId())).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                String dcpId = String.valueOf(componentId).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
                 EntityRequestDto req = EntityRequestDto.builder()
                         .publicationId(pageRequest.getPublicationId())
                         .entityId(dcpId)
