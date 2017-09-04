@@ -17,10 +17,8 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.MvcUtils;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
-import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.sdl.webapp.common.util.XpmUtils;
@@ -61,8 +59,6 @@ import java.util.stream.Collectors;
 @org.springframework.stereotype.Component
 public class ToR2ConverterImpl implements ToR2Converter {
 
-    private final ConfigService configService;
-
     private final ContentService contentService;
 
     private final ObjectMapper objectMapper;
@@ -72,11 +68,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
     private LegacyEntityModelService entityModelService;
 
     @Autowired
-    public ToR2ConverterImpl(ConfigService configService,
-                             ContentService contentService,
+    public ToR2ConverterImpl(ContentService contentService,
                              @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                              MetadataService metadataService) {
-        this.configService = configService;
         this.contentService = contentService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
@@ -415,10 +409,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         entity.setMetadata(_convertContent(_component.getMetadata(), publicationId));
         entity.setContent(_convertContent(_component.getContent(), publicationId));
-        LightSchema lightSchema = configService.getDefaults().getSchemasJson(publicationId)
-                .get(String.valueOf(TcmUtils.getItemId(_component.getSchema().getId())));
-        entity.setSchemaId(lightSchema.getId());
-
+        entity.setSchemaId(String.valueOf(TcmUtils.getItemId(_component.getSchema().getId())));
         return entity;
     }
 

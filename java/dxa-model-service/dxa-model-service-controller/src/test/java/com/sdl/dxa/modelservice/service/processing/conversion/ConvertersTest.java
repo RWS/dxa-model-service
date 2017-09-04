@@ -134,7 +134,6 @@ public class ConvertersTest {
         @Bean
         public ToR2Converter toR2Converter() throws ContentProviderException, IOException, SerializationException {
             return new ToR2ConverterImpl(
-                    configService(),
                     contentService(),
                     r2Mapper(),
                     metadataService()
