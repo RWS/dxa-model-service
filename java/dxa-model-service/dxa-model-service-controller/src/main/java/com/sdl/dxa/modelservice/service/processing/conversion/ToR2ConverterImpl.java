@@ -35,6 +35,7 @@ import org.dd4t.contentmodel.Keyword;
 import org.dd4t.contentmodel.Multimedia;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
+import org.dd4t.contentmodel.Schema;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
 import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
 import org.dd4t.contentmodel.impl.EmbeddedField;
@@ -97,8 +98,12 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setUrlPath(PathUtils.stripDefaultExtension(metadataService.getPageMeta(pageRequest.getPublicationId(), toConvert.getId()).getURLPath()));
         page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
 
-        // todo Meta
+        Schema rootSchema = toConvert.getSchema();
+        if(rootSchema != null) {
+            page.setSchemaId(String.valueOf(TcmUtils.getItemId(toConvert.getSchema().getId())));
+        }
 
+        // todo Meta
         Map<String, RegionModelData> regions = new LinkedHashMap<>();
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
 
