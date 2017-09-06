@@ -77,7 +77,9 @@ public class ModelServiceRegisterer {
     }
 
     private Environment loadEnvironment() {
-        return (Environment) dataClient.getEntity(new BasicODataClientQuery.Builder().withEntityType(Environment.class).build());
+        Environment environment = new Environment();
+        environment.setId("DefaultEnvironment");
+        return environment;
     }
 
     private ContentServiceCapability loadStoredCapability() throws ConfigurationException {
