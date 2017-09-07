@@ -204,7 +204,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
     }
 
     private static String _extract(Map<String, Field> metaMap, String key) {
-        return metaMap.get(key).getValues().get(0).toString();
+        return metaMap.containsKey(key) ? metaMap.get(key).getValues().get(0).toString() : null;
     }
 
     @Nullable
