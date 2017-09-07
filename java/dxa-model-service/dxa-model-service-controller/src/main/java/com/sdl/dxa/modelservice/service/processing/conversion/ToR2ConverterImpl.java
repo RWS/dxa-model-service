@@ -17,7 +17,6 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.MvcUtils;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
@@ -80,22 +79,17 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final ContentService contentService;
 
-    private final ConfigService configService;
-
     private final ObjectMapper objectMapper;
 
     private final MetadataService metadataService;
 
     private LegacyEntityModelService legacyEntityModelService;
 
-
     @Autowired
     public ToR2ConverterImpl(ContentService contentService,
-                             ConfigService configService,
                              @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                              MetadataService metadataService) {
         this.contentService = contentService;
-        this.configService = configService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
     }
@@ -130,7 +124,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private String _extractPageTitle(Page page, Map<String, String> meta, int publicationId) {
         String title = meta.get("title");
-        JsonNode resources = configService.getDefaults().getCoreResources(publicationId);
         if (isNullOrEmpty(title)) {
             for (ComponentPresentation cp : page.getComponentPresentations()) {
                 if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp))) {
@@ -173,7 +166,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
             title = page.getTitle();
             if (title.equalsIgnoreCase("index") || title.equalsIgnoreCase("default")) {
                 // Use default page title from configuration if nothing better was found
-                title = resources.get("defaultPageTitle").asText();
+                title = "defaultPageTitle";
             }
         }
 
