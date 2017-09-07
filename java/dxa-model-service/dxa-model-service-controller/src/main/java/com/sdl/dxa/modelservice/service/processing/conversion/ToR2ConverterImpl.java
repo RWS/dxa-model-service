@@ -99,7 +99,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
 
         Schema rootSchema = toConvert.getSchema();
-        if(rootSchema != null) {
+        if (rootSchema != null) {
             page.setSchemaId(String.valueOf(TcmUtils.getItemId(toConvert.getSchema().getId())));
         }
 
@@ -203,30 +203,45 @@ public class ToR2ConverterImpl implements ToR2Converter {
         List<RegionModelData> list = new ArrayList<>();
         //type safe because list of includes is only expected to be a list wrapper of strings
         //noinspection unchecked
-        for (String include : ((ListWrapper<String>) pageTemplate.getMetadata().get(includesKey)).getValues()) {
-
-            String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
-            try {
-                JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
-                String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
-                String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
-                RegionModelData includeRegion = new RegionModelData(name, id, null, null);
-
-                PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
-                includeRegion.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
-                        .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
-                        .setIncludedFromPageTitle(name)
-                        .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
-                        .buildXpm());
-
-                includeRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
-
-                list.add(includeRegion);
-            } catch (IOException e) {
-                throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
-            }
+        Object includes = pageTemplate.getMetadata().get(includesKey);
+        for (String include : _processIncludes(includes).getValues()) {
+            list.add(_loadInclude(include, pageRequest));
         }
         return list;
+    }
+
+    private RegionModelData _loadInclude(String include, PageRequestDto pageRequest) throws ContentProviderException {
+        String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
+        try {
+            JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
+            String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
+            String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
+            RegionModelData includeRegion = new RegionModelData(name, id, null, null);
+
+            PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
+            includeRegion.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
+                    .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
+                    .setIncludedFromPageTitle(name)
+                    .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
+                    .buildXpm());
+
+            includeRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
+
+            return includeRegion;
+        } catch (IOException e) {
+            throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
+        }
+    }
+
+    private ListWrapper<String> _processIncludes(Object includes) throws ContentProviderException {
+        ArrayList<String> list = new ArrayList<>();
+        if (includes instanceof ListWrapper) {
+            return (ListWrapper<String>) includes;
+        } else if (includes instanceof String) {
+            list.add(String.valueOf(includes));
+        }
+
+        return new ListWrapper<>(list);
     }
 
     private PageTemplateData _buildPageTemplate(PageTemplate pageTemplate, int publicationId) throws ContentProviderException {
