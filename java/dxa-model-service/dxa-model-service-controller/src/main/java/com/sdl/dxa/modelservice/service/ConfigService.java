@@ -67,27 +67,6 @@ public class ConfigService {
             this.objectMapper = objectMapper;
         }
 
-        @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result != null")
-        public JsonNode getCoreResources(int publicationId) {
-            String coreFilePath = "/system/resources/core.json";
-            try {
-                StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder("/system/resources/core.json", String.valueOf(publicationId)).build();
-                InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();
-                JsonNode jsonNode = objectMapper.readTree(allJson);
-
-                if (jsonNode == null) {
-                    log.warn("File {} not found for publication {}", coreFilePath, publicationId);
-                    return null;
-                }
-
-                return jsonNode;
-            } catch (ContentProviderException | IOException e) {
-                log.warn("Exception happened while loading {}", coreFilePath, e);
-                return null;
-            }
-        }
-
-
         /**
          * Returns the DCP template ID from CM settings file. Caches for future use.
          *
@@ -111,33 +90,6 @@ public class ConfigService {
             } catch (ContentProviderException | IOException e) {
                 log.warn("Exception happened while loading {}, cannot get dynamicTemplateId", configBootstrapPath, e);
                 return -1;
-            }
-        }
-
-        /**
-         * Returns the DCP template ID from CM settings file. Caches for future use.
-         *
-         * @param publicationId publication id to load core configuration
-         * @return DCP template ID
-         */
-        @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result != null")
-        public String getCulture(int publicationId) {
-            String coreConfigFile = "/system/config/core.json";
-            try {
-                StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(coreConfigFile, String.valueOf(publicationId)).build();
-                InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();
-
-                JsonNode jsonNode = objectMapper.readTree(allJson);
-
-                if (jsonNode == null) {
-                    log.warn("Field {} not found in {} file for publication {}", "culture", coreConfigFile, publicationId);
-                    return null;
-                }
-
-                return jsonNode.get("culture").asText();
-            } catch (ContentProviderException | IOException e) {
-                log.warn("Exception happened while loading {}, cannot get culture", coreConfigFile, e);
-                return null;
             }
         }
 
