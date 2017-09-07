@@ -86,7 +86,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final MetadataService metadataService;
 
-    private LegacyEntityModelService defaultEntityModelService;
+    private LegacyEntityModelService legacyEntityModelService;
 
 
     @Autowired
@@ -120,8 +120,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
     }
 
     @Autowired
-    public void setEntityModelService(LegacyEntityModelService defaultEntityModelService) {
-        this.defaultEntityModelService = defaultEntityModelService;
+    public void setEntityModelService(LegacyEntityModelService legacyEntityModelService) {
+        this.legacyEntityModelService = legacyEntityModelService;
     }
 
     private String _createDcpId(String componentId, String componentTemplateId) {
@@ -140,7 +140,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
                     if (cp.isDynamic()) {
                         String dcpId = _createDcpId(component.getId(), componentTemplate.getId());
                         try {
-                            cp = defaultEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                            cp = legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
                             component = cp.getComponent();
                         } catch (ContentProviderException e) {
                             log.warn("Could not load dynamic component presentation with id {}.", dcpId, e);
@@ -531,7 +531,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
             if (_componentPresentation.isDynamic()) {
                 String dcpId = _createDcpId(_component.getId(), componentTemplate.getId());
-                _componentPresentation = defaultEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                _componentPresentation = legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
                 _component = _componentPresentation.getComponent();
                 componentTemplate = _componentPresentation.getComponentTemplate();
                 entity.setId(dcpId);
