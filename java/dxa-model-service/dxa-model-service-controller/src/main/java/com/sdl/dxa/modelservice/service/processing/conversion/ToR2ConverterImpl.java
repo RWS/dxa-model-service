@@ -66,16 +66,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @org.springframework.stereotype.Component
 public class ToR2ConverterImpl implements ToR2Converter {
 
-    private final ContentService contentService;
-
-    private final ConfigService configService;
-
-    private final ObjectMapper objectMapper;
-
-    private final MetadataService metadataService;
-
-    private LegacyEntityModelService defaultEntityModelService;
-
     private static final String IMAGE_FIELD_NAME = "image";
 
     private static final String REGION_FOR_PAGE_TITLE_COMPONENT = "Main";
@@ -88,6 +78,16 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private static final String COMPONENT_PAGE_TITLE_FIELD_NAME = "headline";
 
+    private final ContentService contentService;
+
+    private final ConfigService configService;
+
+    private final ObjectMapper objectMapper;
+
+    private final MetadataService metadataService;
+
+    private LegacyEntityModelService defaultEntityModelService;
+
 
     @Autowired
     public ToR2ConverterImpl(ContentService contentService,
@@ -98,6 +98,25 @@ public class ToR2ConverterImpl implements ToR2Converter {
         this.configService = configService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
+    }
+
+    private static String _extract(Map<String, Field> metaMap, String key) {
+        return metaMap.containsKey(key) ? metaMap.get(key).getValues().get(0).toString() : null;
+    }
+
+    @Nullable
+    private static String _getRegionName(@NotNull ComponentPresentation componentPresentation) {
+        Map<String, Field> templateMeta = componentPresentation.getComponentTemplate().getMetadata();
+        String regionName = null;
+        if (templateMeta != null) {
+            regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "";
+            if (isNullOrEmpty(regionName)) {
+                //fallback if region name field is empty, use regionView name
+                regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
+            }
+        }
+
+        return regionName;
     }
 
     @Autowired
@@ -212,25 +231,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return meta;
     }
 
-    private static String _extract(Map<String, Field> metaMap, String key) {
-        return metaMap.containsKey(key) ? metaMap.get(key).getValues().get(0).toString() : null;
-    }
-
-    @Nullable
-    private static String _getRegionName(@NotNull ComponentPresentation componentPresentation) {
-        Map<String, Field> templateMeta = componentPresentation.getComponentTemplate().getMetadata();
-        String regionName = null;
-        if (templateMeta != null) {
-            regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "";
-            if (isNullOrEmpty(regionName)) {
-                //fallback if region name field is empty, use regionView name
-                regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
-            }
-        }
-
-        return regionName;
-    }
-
     @Override
     @Contract("!null, _ -> !null; null, _ -> null")
     public PageModelData convertToR2(@Nullable Page toConvert, @NotNull PageRequestDto pageRequest) throws ContentProviderException {
@@ -247,7 +247,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
 
         Schema rootSchema = toConvert.getSchema();
-        if(rootSchema != null) {
+        if (rootSchema != null) {
             page.setSchemaId(String.valueOf(TcmUtils.getItemId(toConvert.getSchema().getId())));
         }
 
