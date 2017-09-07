@@ -61,7 +61,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -223,7 +222,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         String regionName = null;
         if (templateMeta != null) {
             regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "";
-            if (isEmpty(regionName)) {
+            if (isNullOrEmpty(regionName)) {
                 //fallback if region name field is empty, use regionView name
                 regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
             }
