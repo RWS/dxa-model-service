@@ -11,6 +11,11 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Converts DD4T content to R2 content.
+ * <p><strong>Notice that implementors cannot use DXA-specific content</strong> (e.g. {@code schemas.json} to load any data
+ * because pure DD4T applications will not have it.</p>
+ */
 public interface ToR2Converter {
 
     /**
