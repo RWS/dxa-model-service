@@ -106,6 +106,10 @@ public class ToR2ConverterImpl implements ToR2Converter {
         this.defaultEntityModelService = defaultEntityModelService;
     }
 
+    private String _createDcpId(String componentId, String componentTemplateId) {
+        return String.format("%s-%s", String.valueOf(TcmUtils.getItemId(componentId)), String.valueOf(TcmUtils.getItemId(componentTemplateId)));
+    }
+
     private String _extractPageTitle(Page page, Map<String, String> meta, int publicationId) {
         String title = meta.get("title");
         JsonNode resources = configService.getDefaults().getCoreResources(publicationId);
@@ -116,13 +120,14 @@ public class ToR2ConverterImpl implements ToR2Converter {
                     ComponentTemplate componentTemplate = cp.getComponentTemplate();
 
                     if (cp.isDynamic()) {
-                        String dcpId = String.format("%s-%s", String.valueOf(TcmUtils.getItemId(component.getId())), String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                        String dcpId = _createDcpId(component.getId(), componentTemplate.getId());
                         try {
                             cp = defaultEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                            component = cp.getComponent();
                         } catch (ContentProviderException e) {
-                            log.error("Could not load dynamic component presentation with id {}.", dcpId, e);
+                            log.warn("Could not load dynamic component presentation with id {}.", dcpId, e);
+                            continue;
                         }
-                        component = cp.getComponent();
                     }
 
 
@@ -526,7 +531,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
             ComponentTemplate componentTemplate = _componentPresentation.getComponentTemplate();
 
             if (_componentPresentation.isDynamic()) {
-                String dcpId = String.valueOf(componentId).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                String dcpId = _createDcpId(_component.getId(), componentTemplate.getId());
                 _componentPresentation = defaultEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
                 _component = _componentPresentation.getComponent();
                 componentTemplate = _componentPresentation.getComponentTemplate();
