@@ -37,6 +37,7 @@ import org.dd4t.contentmodel.Keyword;
 import org.dd4t.contentmodel.Multimedia;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
+import org.dd4t.contentmodel.impl.BaseField;
 import org.dd4t.contentmodel.Schema;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
 import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
@@ -53,15 +54,30 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 @Slf4j
 @org.springframework.stereotype.Component
 public class ToR2ConverterImpl implements ToR2Converter {
+
+    private static final String IMAGE_FIELD_NAME = "image";
+
+    private static final String REGION_FOR_PAGE_TITLE_COMPONENT = "Main";
+
+    private static final String STANDARD_METADATA_FIELD_NAME = "standardMeta";
+
+    private static final String STANDARD_METADATA_TITLE_FIELD_NAME = "name";
+
+    private static final String STANDARD_METADATA_DESCRIPTION_FIELD_NAME = "description";
+
+    private static final String COMPONENT_PAGE_TITLE_FIELD_NAME = "headline";
 
     private final ContentService contentService;
 
@@ -92,9 +108,134 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return null;
     }
 
+    private static String _extract(Map<String, Field> metaMap, String key) {
+        return metaMap.containsKey(key) ? metaMap.get(key).getValues().get(0).toString() : null;
+    }
+
+    @Nullable
+    private static String _getRegionName(@NotNull ComponentPresentation componentPresentation) {
+        Map<String, Field> templateMeta = componentPresentation.getComponentTemplate().getMetadata();
+        String regionName = null;
+        if (templateMeta != null) {
+            regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "";
+            if (isNullOrEmpty(regionName)) {
+                //fallback if region name field is empty, use regionView name
+                regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
+            }
+        }
+
+        return regionName;
+    }
+
     @Autowired
-    public void setLegacyEntityModelService(LegacyEntityModelService legacyEntityModelService) {
+    public void setEntityModelService(LegacyEntityModelService legacyEntityModelService) {
         this.legacyEntityModelService = legacyEntityModelService;
+    }
+
+    private String _createDcpId(String componentId, String componentTemplateId) {
+        return String.format("%s-%s", String.valueOf(TcmUtils.getItemId(componentId)), String.valueOf(TcmUtils.getItemId(componentTemplateId)));
+    }
+
+    private String _extractPageTitle(Page page, Map<String, String> meta, int publicationId) {
+        String title = meta.get("title");
+        if (isNullOrEmpty(title)) {
+            for (ComponentPresentation cp : page.getComponentPresentations()) {
+                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp))) {
+                    Component component = cp.getComponent();
+                    ComponentTemplate componentTemplate = cp.getComponentTemplate();
+
+                    if (cp.isDynamic()) {
+                        String dcpId = _createDcpId(component.getId(), componentTemplate.getId());
+                        try {
+                            cp = legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                            component = cp.getComponent();
+                        } catch (ContentProviderException e) {
+                            log.warn("Could not load dynamic component presentation with id {}.", dcpId, e);
+                            continue;
+                        }
+                    }
+
+
+                    final Map<String, Field> metadata = component.getMetadata();
+                    BaseField standardMetaField = (BaseField) metadata.get(STANDARD_METADATA_FIELD_NAME);
+                    if (standardMetaField != null && !standardMetaField.getEmbeddedValues().isEmpty()) {
+                        final Map<String, Field> standardMeta = standardMetaField.getEmbeddedValues().get(0).getContent();
+                        if (isNullOrEmpty(title) && standardMeta.containsKey(STANDARD_METADATA_TITLE_FIELD_NAME)) {
+                            title = _extract(standardMeta, STANDARD_METADATA_TITLE_FIELD_NAME);
+                        }
+                    }
+
+                    final Map<String, Field> content = component.getContent();
+                    if (isNullOrEmpty(title) && content.containsKey(COMPONENT_PAGE_TITLE_FIELD_NAME)) {
+                        title = _extract(content, COMPONENT_PAGE_TITLE_FIELD_NAME);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        // Use page title if no title found
+        if (isNullOrEmpty(title)) {
+            title = page.getTitle();
+            if (title.equalsIgnoreCase("index") || title.equalsIgnoreCase("default")) {
+                // Use default page title from configuration if nothing better was found
+                title = "defaultPageTitle";
+            }
+        }
+
+        return title.replaceFirst("^\\d{3}\\s", "");
+    }
+
+    private Map<String, String> _processPageMeta(org.dd4t.contentmodel.Page page, int publicationId) {
+        Map<String, String> meta = new HashMap<>();
+
+        String description = meta.get("description");
+        String image = meta.get(IMAGE_FIELD_NAME);
+
+        if (isNullOrEmpty(image) || isNullOrEmpty(description)) {
+            for (ComponentPresentation cp : page.getComponentPresentations()) {
+                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp))) {
+                    final org.dd4t.contentmodel.Component component = cp.getComponent();
+
+                    final Map<String, Field> metadata = component.getMetadata();
+                    BaseField standardMetaField = (BaseField) metadata.get(STANDARD_METADATA_FIELD_NAME);
+                    if (standardMetaField != null && !standardMetaField.getEmbeddedValues().isEmpty()) {
+                        final Map<String, Field> standardMeta = standardMetaField.getEmbeddedValues().get(0).getContent();
+                        if (isNullOrEmpty(description) && standardMeta.containsKey(STANDARD_METADATA_DESCRIPTION_FIELD_NAME)) {
+                            description = _extract(standardMeta, STANDARD_METADATA_DESCRIPTION_FIELD_NAME);
+                        }
+                    }
+
+                    final Map<String, Field> content = component.getContent();
+                    if (isNullOrEmpty(image) && content.containsKey(IMAGE_FIELD_NAME)) {
+                        image = ((BaseField) content.get(IMAGE_FIELD_NAME))
+                                .getLinkedComponentValues().get(0).getMultimedia().getUrl();
+                    }
+                    break;
+                }
+            }
+        }
+
+
+        String title = _extractPageTitle(page, meta, publicationId);
+        meta.put("twitter:card", "summary");
+        meta.put("og:title", title);
+        meta.put("og:type", "article");
+
+        if (!isNullOrEmpty(description)) {
+            meta.put("og:description", description);
+        }
+
+        if (!isNullOrEmpty(image)) {
+            meta.put("og:image", image);
+        }
+
+        if (!meta.containsKey("description")) {
+            meta.put("description", !isNullOrEmpty(description) ? description : title);
+        }
+
+        return meta;
     }
 
     @Override
@@ -108,7 +249,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
         PageModelData page = new PageModelData();
 
         page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
-        page.setTitle(toConvert.getTitle());
         page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest.getPublicationId()));
         page.setUrlPath(PathUtils.stripDefaultExtension(metadataService.getPageMeta(pageRequest.getPublicationId(), toConvert.getId()).getURLPath()));
         page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
@@ -118,15 +258,16 @@ public class ToR2ConverterImpl implements ToR2Converter {
             page.setSchemaId(String.valueOf(TcmUtils.getItemId(toConvert.getSchema().getId())));
         }
 
-        // todo Meta
+        final Map<String, String> pageMeta = _processPageMeta(toConvert, pageRequest.getPublicationId());
+        page.setMeta(pageMeta);
+        page.setTitle(_extractPageTitle(toConvert, pageMeta, pageRequest.getPublicationId()));
+
+
         Map<String, RegionModelData> regions = new LinkedHashMap<>();
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
-
-            ComponentTemplate componentTemplate = componentPresentation.getComponentTemplate();
             Component component = componentPresentation.getComponent();
 
-            String regionName = componentTemplate.getMetadata().containsKey("regionView") ?
-                    componentTemplate.getMetadata().get("regionView").getValues().get(0).toString() : "Main";
+            String regionName = _getRegionName(componentPresentation);
             if (!regions.containsKey(regionName)) {
                 regions.put(regionName, new RegionModelData(regionName, null, null, null));
             }
@@ -434,7 +575,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
             ComponentTemplate componentTemplate = _componentPresentation.getComponentTemplate();
 
             if (_componentPresentation.isDynamic()) {
-                String dcpId = String.valueOf(componentId).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                String dcpId = _createDcpId(_component.getId(), componentTemplate.getId());
                 _componentPresentation = legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
                 _component = _componentPresentation.getComponent();
                 componentTemplate = _componentPresentation.getComponentTemplate();
