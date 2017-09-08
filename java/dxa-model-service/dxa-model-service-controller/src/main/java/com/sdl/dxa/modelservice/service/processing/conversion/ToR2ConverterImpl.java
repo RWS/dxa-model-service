@@ -6,6 +6,7 @@ import com.sdl.dxa.api.datamodel.model.BinaryContentData;
 import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.api.datamodel.model.ExternalContentData;
 import com.sdl.dxa.api.datamodel.model.KeywordModelData;
 import com.sdl.dxa.api.datamodel.model.MvcModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
@@ -24,6 +25,7 @@ import com.sdl.webapp.common.util.TcmUtils;
 import com.sdl.webapp.common.util.XpmUtils;
 import com.tridion.meta.PageMeta;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dd4t.contentmodel.Component;
@@ -92,6 +94,18 @@ public class ToR2ConverterImpl implements ToR2Converter {
         this.contentService = contentService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
+    }
+
+    @Nullable
+    private static String _getValueFromFieldSet(FieldSet fieldSet, String fieldName) {
+        Map<String, Field> content = fieldSet != null ? fieldSet.getContent() : null;
+        if (content != null) {
+            Field field = content.get(fieldName);
+            if (field != null) {
+                return Objects.toString(field.getValues().get(0));
+            }
+        }
+        return null;
     }
 
     private static String _extract(Map<String, Field> metaMap, String key) {
@@ -345,30 +359,45 @@ public class ToR2ConverterImpl implements ToR2Converter {
         List<RegionModelData> list = new ArrayList<>();
         //type safe because list of includes is only expected to be a list wrapper of strings
         //noinspection unchecked
-        for (String include : ((ListWrapper<String>) pageTemplate.getMetadata().get(includesKey)).getValues()) {
-
-            String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
-            try {
-                JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
-                String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
-                String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
-                RegionModelData includeRegion = new RegionModelData(name, id, null, null);
-
-                PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
-                includeRegion.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
-                        .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
-                        .setIncludedFromPageTitle(name)
-                        .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
-                        .buildXpm());
-
-                includeRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
-
-                list.add(includeRegion);
-            } catch (IOException e) {
-                throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
-            }
+        Object includes = pageTemplate.getMetadata().get(includesKey);
+        for (String include : _processIncludes(includes).getValues()) {
+            list.add(_loadInclude(include, pageRequest));
         }
         return list;
+    }
+
+    private RegionModelData _loadInclude(String include, PageRequestDto pageRequest) throws ContentProviderException {
+        String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
+        try {
+            JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
+            String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
+            String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
+            RegionModelData includeRegion = new RegionModelData(name, id, null, null);
+
+            PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
+            includeRegion.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
+                    .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
+                    .setIncludedFromPageTitle(name)
+                    .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
+                    .buildXpm());
+
+            includeRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
+
+            return includeRegion;
+        } catch (IOException e) {
+            throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
+        }
+    }
+
+    private ListWrapper<String> _processIncludes(Object includes) throws ContentProviderException {
+        ArrayList<String> list = new ArrayList<>();
+        if (includes instanceof ListWrapper) {
+            return (ListWrapper<String>) includes;
+        } else if (includes instanceof String) {
+            list.add(String.valueOf(includes));
+        }
+
+        return new ListWrapper<>(list);
     }
 
     private PageTemplateData _buildPageTemplate(PageTemplate pageTemplate, int publicationId) throws ContentProviderException {
@@ -397,7 +426,27 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return data;
     }
 
-    @Nullable
+    private ExternalContentData _convertExternalContent(Component component, int publicationId) throws ContentProviderException {
+        if (component == null || component.getExtensionData() == null) {
+            return null;
+        }
+
+        Map<String, FieldSet> extensionData = component.getExtensionData();
+
+        FieldSet externalData = extensionData.get("ECL");
+        FieldSet externalMetadata = extensionData.get("ECL-ExternalMetadata");
+        ContentModelData metadata = null;
+        if(externalMetadata != null) {
+            metadata = _convertContent(externalMetadata.getContent(), publicationId);
+        }
+        return new ExternalContentData(
+                _getValueFromFieldSet(externalData, "DisplayTypeId"),
+                component.getEclId(),
+                _getValueFromFieldSet(externalData, "TemplateFragment"),
+                metadata
+        );
+    }
+
     private BinaryContentData _convertMultimediaContent(Multimedia content) {
         if (content == null) {
             return null;
@@ -517,6 +566,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         if (_component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
             entity.setBinaryContent(_convertMultimediaContent(_component.getMultimedia()));
+            if (StringUtils.isNotEmpty(_component.getEclId())) {
+                entity.setExternalContent(_convertExternalContent(_component, publicationId));
+            }
         }
 
         if (_componentPresentation != null) {
