@@ -6,6 +6,7 @@ import com.sdl.dxa.api.datamodel.model.BinaryContentData;
 import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.api.datamodel.model.ExternalContentData;
 import com.sdl.dxa.api.datamodel.model.KeywordModelData;
 import com.sdl.dxa.api.datamodel.model.MvcModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
@@ -24,6 +25,7 @@ import com.sdl.webapp.common.util.TcmUtils;
 import com.sdl.webapp.common.util.XpmUtils;
 import com.tridion.meta.PageMeta;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.dd4t.contentmodel.Component;
@@ -54,6 +56,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -66,7 +69,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final MetadataService metadataService;
 
-    private LegacyEntityModelService entityModelService;
+    private LegacyEntityModelService legacyEntityModelService;
 
     @Autowired
     public ToR2ConverterImpl(ContentService contentService,
@@ -77,9 +80,21 @@ public class ToR2ConverterImpl implements ToR2Converter {
         this.metadataService = metadataService;
     }
 
+    @Nullable
+    private static String _getValueFromFieldSet(FieldSet fieldSet, String fieldName) {
+        Map<String, Field> content = fieldSet != null ? fieldSet.getContent() : null;
+        if (content != null) {
+            Field field = content.get(fieldName);
+            if (field != null) {
+                return Objects.toString(field.getValues().get(0));
+            }
+        }
+        return null;
+    }
+
     @Autowired
-    public void setEntityModelService(LegacyEntityModelService entityModelService) {
-        this.entityModelService = entityModelService;
+    public void setLegacyEntityModelService(LegacyEntityModelService legacyEntityModelService) {
+        this.legacyEntityModelService = legacyEntityModelService;
     }
 
     @Override
@@ -270,7 +285,27 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return data;
     }
 
-    @Nullable
+    private ExternalContentData _convertExternalContent(Component component, int publicationId) throws ContentProviderException {
+        if (component == null || component.getExtensionData() == null) {
+            return null;
+        }
+
+        Map<String, FieldSet> extensionData = component.getExtensionData();
+
+        FieldSet externalData = extensionData.get("ECL");
+        FieldSet externalMetadata = extensionData.get("ECL-ExternalMetadata");
+        ContentModelData metadata = null;
+        if(externalMetadata != null) {
+            metadata = _convertContent(externalMetadata.getContent(), publicationId);
+        }
+        return new ExternalContentData(
+                _getValueFromFieldSet(externalData, "DisplayTypeId"),
+                component.getEclId(),
+                _getValueFromFieldSet(externalData, "TemplateFragment"),
+                metadata
+        );
+    }
+
     private BinaryContentData _convertMultimediaContent(Multimedia content) {
         if (content == null) {
             return null;
@@ -390,6 +425,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         if (_component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
             entity.setBinaryContent(_convertMultimediaContent(_component.getMultimedia()));
+            if (StringUtils.isNotEmpty(_component.getEclId())) {
+                entity.setExternalContent(_convertExternalContent(_component, publicationId));
+            }
         }
 
         if (_componentPresentation != null) {
@@ -397,7 +435,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
             if (_componentPresentation.isDynamic()) {
                 String dcpId = String.valueOf(componentId).concat("-").concat(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
-                _componentPresentation = entityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                _componentPresentation = legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
                 _component = _componentPresentation.getComponent();
                 componentTemplate = _componentPresentation.getComponentTemplate();
                 entity.setId(dcpId);
