@@ -92,6 +92,17 @@ public class RichTextLinkResolverTest {
     }
 
     @Test
+    public void shouldRemoveNamespaces_WhenAttributesHaveNamespacePrefixes() {
+        String fragment = "<p>\nText <a xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>\nText <a xlink=\"X link\" data-id=\"ID\" title=\"link title\" href=\"resolved-link\">\nlink text</a>\n</p>", result);
+    }
+
+    @Test
     public void shouldResolveLinks_WhenLinkHasManyAttrs() {
         //given 
         String fragment = "<p>\nText <a data-first=\"1\" href=\"tcm:1-11\" data-second=\"2\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
