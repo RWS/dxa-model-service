@@ -19,6 +19,13 @@ import java.util.regex.Pattern;
 @Slf4j
 public class RichTextLinkResolver {
 
+    /**
+     * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
+     */
+    private static final Pattern XMLNS_NAMESPACE =
+            Pattern.compile("((xlink:|xmlns:xlink=\".*?\"\\s*))",
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+
     private static final Pattern START_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // beforeWithLink: <p>Text <a data="1" href=
@@ -78,9 +85,28 @@ public class RichTextLinkResolver {
      * @return modified fragment
      */
     public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer) {
-        return processEndLinks(
+        String textWithResolvedLinks = processEndLinks(
                 processStartLinks(fragment, localizationId, notResolvedBuffer),
                 notResolvedBuffer);
+
+
+        return cleanUp(textWithResolvedLinks);
+    }
+
+    /**
+     * Cleans up HTML fragment removing attributes from the {@code xlink:} namespace which may be found e.g. in DD4T representation.
+     *
+     * @param fragment rich text fragment to clean up
+     * @return the same fragment with removed attributes
+     */
+    private String cleanUp(String fragment) {
+        Matcher matcher = XMLNS_NAMESPACE.matcher(fragment);
+
+        if(matcher.find()) {
+            return matcher.replaceAll("");
+        }
+
+        return fragment;
     }
 
     @NotNull
