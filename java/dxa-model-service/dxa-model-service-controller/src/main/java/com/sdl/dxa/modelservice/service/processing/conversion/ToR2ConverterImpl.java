@@ -462,7 +462,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
             case MULTIMEDIALINK:
                 return _convertComponentLink((ComponentLinkField) field, publicationId);
             case KEYWORD:
-                return _convertKeyword((KeywordField) field);
+                return _convertKeyword((KeywordField) field, publicationId);
             case XHTML:
                 return _convertRichTextData((XhtmlField) field);
             default:
@@ -489,18 +489,18 @@ public class ToR2ConverterImpl implements ToR2Converter {
         });
     }
 
-    private Object _convertKeyword(KeywordField field) throws ContentProviderException {
+    private Object _convertKeyword(KeywordField field, int publicationId) throws ContentProviderException {
         return _convertField(field, new SingleOrMultipleFork() {
             @Override
             public Object onSingleValue() throws ContentProviderException {
-                return _convertKeyword(field.getKeywordValues().get(0));
+                return _convertKeyword(field.getKeywordValues().get(0), publicationId);
             }
 
             @Override
             public Object onMultipleValues() throws ContentProviderException {
                 List<KeywordModelData> list = new ArrayList<>();
                 for (Keyword keyword : field.getKeywordValues()) {
-                    KeywordModelData keywordModelData = _convertKeyword(keyword);
+                    KeywordModelData keywordModelData = _convertKeyword(keyword, publicationId);
                     list.add(keywordModelData);
                 }
                 return new ListWrapper.KeywordModelDataListWrapper(list);
@@ -509,13 +509,25 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     }
 
-    private KeywordModelData _convertKeyword(Keyword keyword) {
-        return new KeywordModelData(
+    private KeywordModelData _convertKeyword(Keyword keyword, int publicationId) throws ContentProviderException {
+        KeywordModelData data = new KeywordModelData(
                 String.valueOf(TcmUtils.getItemId(keyword.getId())),
                 keyword.getDescription(),
                 keyword.getKey(),
                 String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyId())),
                 keyword.getTitle());
+
+        Map<String, FieldSet> extensionData = keyword.getExtensionData();
+        if (extensionData != null && extensionData.get("DXA") != null) {
+            String schemaUri = _getValueFromFieldSet(extensionData.get("DXA"), "MetadataSchemaId");
+            data.setSchemaId(String.valueOf(TcmUtils.getItemId(schemaUri)));
+        }
+
+        Map<String, Field> metadata = keyword.getMetadata();
+        if(metadata != null) {
+            data.setMetadata(_convertContent(metadata, publicationId));
+        }
+        return data;
     }
 
     private Object _convertEmbeddedField(EmbeddedField field, int publicationId) throws ContentProviderException {
