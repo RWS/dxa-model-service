@@ -593,6 +593,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 componentTemplate = _componentPresentation.getComponentTemplate();
                 entity.setId(dcpId);
             }
+            if(_componentPresentation.getExtensionData() != null && !_componentPresentation.getExtensionData().isEmpty()) {
+                entity.setExtensionData(_convertExtensionData(_componentPresentation.getExtensionData(), publicationId));
+            }
 
             if (componentTemplate != null) {
                 // if CT is null, then we have a DCP and thus no component template
@@ -623,6 +626,19 @@ public class ToR2ConverterImpl implements ToR2Converter {
         entity.setSchemaId(String.valueOf(TcmUtils.getItemId(_component.getSchema().getId())));
         return entity;
     }
+    private Map<String, Object> _convertExtensionData(Map<String, FieldSet> data, int publicationId) throws ContentProviderException {
+        Map<String, Object> result = new HashMap<>();
+
+        for(Map.Entry<String, FieldSet>entry : data.entrySet()) {
+            String entryKey = entry.getKey();
+            FieldSet entryValue = entry.getValue();
+            Map<String, Field> c = entryValue.getContent();
+            result.put(entryKey, _convertContent(c, publicationId));
+        }
+
+        return result;
+    }
+
 
     private Object _convertNotSpecificField(Field field) throws ContentProviderException {
         return _convertField(field, new SingleOrMultipleFork() {

@@ -54,7 +54,7 @@ public class DxaModelServiceApplication {
 
     @Bean
     public DataBinder dd4tDataBinder() {
-        JsonDataBinder dataBinder = JsonDataBinder.getInstance();
+        JsonDataBinder dataBinder = new JsonDataBinder();
         dataBinder.setRenderDefaultComponentModelsOnly(true);
         dataBinder.setRenderDefaultComponentsIfNoModelFound(true);
         dataBinder.setConcreteComponentImpl(ComponentImpl.class);
@@ -66,8 +66,6 @@ public class DxaModelServiceApplication {
 
     @Bean
     public DataBindFactory dd4tPageFactory() {
-        DataBindFactory bindFactory = DataBindFactory.getInstance();
-        bindFactory.setDataBinder(dd4tDataBinder());
-        return bindFactory;
+        return DataBindFactory.createInstance(dd4tDataBinder());
     }
 }
