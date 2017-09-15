@@ -90,11 +90,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     }
 
     @Contract("!null, _ -> !null")
-    public Page processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        return _processDd4tPageModel(pageContent, pageRequest);
-    }
-
-    @Contract("!null, _ -> !null")
     private Page _processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
         Page page;
         DataModelType publishedModelType = getModelType(pageContent);

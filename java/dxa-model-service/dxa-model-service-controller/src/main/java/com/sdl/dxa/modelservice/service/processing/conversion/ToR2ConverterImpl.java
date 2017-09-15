@@ -1,5 +1,7 @@
 package com.sdl.dxa.modelservice.service.processing.conversion;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.BinaryContentData;
 import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
@@ -19,8 +21,6 @@ import com.sdl.dxa.common.util.MvcUtils;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
-import com.sdl.dxa.modelservice.service.LegacyPageModelService;
-import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.sdl.webapp.common.util.XpmUtils;
@@ -50,7 +50,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,14 +85,16 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final MetadataService metadataService;
 
-    private LegacyPageModelService legacyPageModelService;
+    private final ObjectMapper objectMapper;
 
     private LegacyEntityModelService legacyEntityModelService;
 
     @Autowired
     public ToR2ConverterImpl(ContentService contentService,
+                             @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                              MetadataService metadataService) {
         this.contentService = contentService;
+        this.objectMapper = objectMapper;
         this.metadataService = metadataService;
     }
 
@@ -119,11 +123,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
 
         return regionName;
-    }
-
-    @Autowired
-    public void setLegacyPageModelService(LegacyPageModelService legacyPageModelService) {
-        this.legacyPageModelService = legacyPageModelService;
     }
 
     @Autowired
@@ -365,46 +364,53 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return list;
     }
 
-    private RegionModelData _convertR2PageToRegion(PageModelData model, PageRequestDto pageRequest) {
-        RegionModelData region = new RegionModelData(model.getId(), model.getTitle(), null, null);
-
-        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), model.getId()));
-        region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
-                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), model.getId()))
-                .setIncludedFromPageTitle(model.getTitle())
-                .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
-                .buildXpm());
-
-        return region;
-    }
-
-    private RegionModelData _convertDD4TPageToRegion(Page page, PageRequestDto pageRequest) {
-        String id = String.valueOf(TcmUtils.getItemId(page.getId()));
-        RegionModelData region = new RegionModelData(page.getTitle(), id, null, null);
+    private RegionModelData _createPageRegionData(String id, String name, PageRequestDto pageRequest) {
+        RegionModelData region = new RegionModelData(name, id, null, null);
 
         PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
         region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
                 .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
-                .setIncludedFromPageTitle(page.getTitle())
+                .setIncludedFromPageTitle(name)
                 .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
                 .buildXpm());
 
-        region.setMvcData(MvcModelData.builder().viewName(page.getTitle()).build());
+        return region;
+    }
+    private RegionModelData _convertR2PageToRegion(JsonNode tree, PageRequestDto pageRequest) {
+        String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
+        String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
+
+        RegionModelData region = _createPageRegionData(id, name, pageRequest);
+        region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
 
         return region;
+    }
 
+    private RegionModelData _convertDD4TPageToRegion(JsonNode tree, PageRequestDto pageRequest) {
+        String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
+        String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
+
+        RegionModelData region = _createPageRegionData(id, name, pageRequest);
+        region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
+
+        return region;
     }
 
     private RegionModelData _loadInclude(String include, PageRequestDto pageRequest) throws ContentProviderException {
         String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
-        String content = contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build());
+        try {
+            String content = contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build());
+            DataModelType publishedModelType = getModelType(content);
+            if (publishedModelType == DataModelType.DD4T) {
+                return _convertDD4TPageToRegion(objectMapper.readTree(content), pageRequest);
+            } else if (publishedModelType == DataModelType.R2) {
+                return _convertR2PageToRegion(objectMapper.readTree(content), pageRequest);
+            }
 
-        DataModelType publishedModelType = getModelType(content);
-        if(publishedModelType == DataModelType.DD4T) {
-            return _convertDD4TPageToRegion(legacyPageModelService.processDd4tPageModel(content, pageRequest), pageRequest);
+            return null;
+        } catch (IOException e) {
+            throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
         }
-
-        return null;
     }
 
     private ListWrapper<String> _processIncludes(Object includes) throws ContentProviderException {

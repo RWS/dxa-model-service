@@ -16,6 +16,4 @@ public interface LegacyPageModelService {
      */
     @NotNull
     Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException;
-
-    Page processDd4tPageModel(String content, PageRequestDto pageRequest) throws ContentProviderException;
 }
