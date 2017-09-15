@@ -14,12 +14,15 @@ import com.sdl.dxa.api.datamodel.model.PageTemplateData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.MvcUtils;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.sdl.webapp.common.util.XpmUtils;
@@ -49,9 +52,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -81,18 +83,18 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final ContentService contentService;
 
-    private final ObjectMapper objectMapper;
-
     private final MetadataService metadataService;
+
+    private PageModelService pageModelService;
+
+    private LegacyPageModelService legacyPageModelService;
 
     private LegacyEntityModelService legacyEntityModelService;
 
     @Autowired
     public ToR2ConverterImpl(ContentService contentService,
-                             @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                              MetadataService metadataService) {
         this.contentService = contentService;
-        this.objectMapper = objectMapper;
         this.metadataService = metadataService;
     }
 
@@ -113,18 +115,24 @@ public class ToR2ConverterImpl implements ToR2Converter {
     }
 
     @Nullable
-    private static String _getRegionName(@NotNull ComponentPresentation componentPresentation) {
-        Map<String, Field> templateMeta = componentPresentation.getComponentTemplate().getMetadata();
-        String regionName = null;
-        if (templateMeta != null) {
-            regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "";
-            if (isNullOrEmpty(regionName)) {
-                //fallback if region name field is empty, use regionView name
-                regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
-            }
+    private static String _getRegionName(@NotNull Map<String, Field> templateMeta) {
+        String regionName = templateMeta.containsKey("regionName") ? templateMeta.get("regionName").getValues().get(0).toString() : "";
+        if (isNullOrEmpty(regionName)) {
+            //fallback if region name field is empty, use regionView name
+            regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
         }
 
         return regionName;
+    }
+
+    @Autowired
+    public void setPageModelService(PageModelService pageModelService) {
+        this.pageModelService = pageModelService;
+    }
+
+    @Autowired
+    public void setLegacyPageModelService(LegacyPageModelService legacyPageModelService) {
+        this.legacyPageModelService = legacyPageModelService;
     }
 
     @Autowired
@@ -140,7 +148,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         String title = meta.get("title");
         if (isNullOrEmpty(title)) {
             for (ComponentPresentation cp : page.getComponentPresentations()) {
-                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp))) {
+                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp.getComponentTemplate().getMetadata()))) {
                     Component component = cp.getComponent();
                     ComponentTemplate componentTemplate = cp.getComponentTemplate();
 
@@ -195,7 +203,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         if (isNullOrEmpty(image) || isNullOrEmpty(description)) {
             for (ComponentPresentation cp : page.getComponentPresentations()) {
-                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp))) {
+                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp.getComponentTemplate().getMetadata()))) {
                     final org.dd4t.contentmodel.Component component = cp.getComponent();
 
                     final Map<String, Field> metadata = component.getMetadata();
@@ -267,7 +275,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
             Component component = componentPresentation.getComponent();
 
-            String regionName = _getRegionName(componentPresentation);
+            String regionName = _getRegionName(componentPresentation.getComponentTemplate().getMetadata());
             if (!regions.containsKey(regionName)) {
                 regions.put(regionName, new RegionModelData(regionName, null, null, null));
             }
@@ -366,27 +374,46 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return list;
     }
 
+    private RegionModelData _convertR2PageToRegion(PageModelData model, PageRequestDto pageRequest) {
+        RegionModelData region = new RegionModelData(model.getId(), model.getTitle(), null, null);
+
+        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), model.getId()));
+        region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
+                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), model.getId()))
+                .setIncludedFromPageTitle(model.getTitle())
+                .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
+                .buildXpm());
+
+        return region;
+    }
+
+    private RegionModelData _convertDD4TPageToRegion(Page page, PageRequestDto pageRequest) {
+        String id = String.valueOf(TcmUtils.getItemId(page.getId()));
+        RegionModelData region = new RegionModelData(page.getTitle(), id, null, null);
+
+        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
+        region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
+                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
+                .setIncludedFromPageTitle(page.getTitle())
+                .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
+                .buildXpm());
+
+        region.setMvcData(MvcModelData.builder().viewName(page.getTitle()).build());
+
+        return region;
+
+    }
+
     private RegionModelData _loadInclude(String include, PageRequestDto pageRequest) throws ContentProviderException {
         String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
-        try {
-            JsonNode tree = objectMapper.readTree(contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build()));
-            String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
-            String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
-            RegionModelData includeRegion = new RegionModelData(name, id, null, null);
+        String content = contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build());
 
-            PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
-            includeRegion.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
-                    .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
-                    .setIncludedFromPageTitle(name)
-                    .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
-                    .buildXpm());
-
-            includeRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
-
-            return includeRegion;
-        } catch (IOException e) {
-            throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
+        DataModelType publishedModelType = getModelType(content);
+        if(publishedModelType == DataModelType.DD4T) {
+            return _convertDD4TPageToRegion(legacyPageModelService.processDd4tPageModel(content, pageRequest), pageRequest);
         }
+
+        return null;
     }
 
     private ListWrapper<String> _processIncludes(Object includes) throws ContentProviderException {
@@ -436,7 +463,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         FieldSet externalData = extensionData.get("ECL");
         FieldSet externalMetadata = extensionData.get("ECL-ExternalMetadata");
         ContentModelData metadata = null;
-        if(externalMetadata != null) {
+        if (externalMetadata != null) {
             metadata = _convertContent(externalMetadata.getContent(), publicationId);
         }
         return new ExternalContentData(
@@ -524,7 +551,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
 
         Map<String, Field> metadata = keyword.getMetadata();
-        if(metadata != null) {
+        if (metadata != null) {
             data.setMetadata(_convertContent(metadata, publicationId));
         }
         return data;
@@ -588,7 +615,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
             if (_componentPresentation.isDynamic()) {
                 String dcpId = _createDcpId(_component.getId(), componentTemplate.getId());
-                _componentPresentation = legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
+                _componentPresentation = this.legacyEntityModelService.loadLegacyEntityModel(EntityRequestDto.builder(publicationId, dcpId).build());
                 _component = _componentPresentation.getComponent();
                 componentTemplate = _componentPresentation.getComponentTemplate();
                 entity.setId(dcpId);

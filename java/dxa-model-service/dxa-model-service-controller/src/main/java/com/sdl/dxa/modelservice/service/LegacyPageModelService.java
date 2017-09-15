@@ -5,7 +5,6 @@ import com.sdl.webapp.common.api.content.ContentProviderException;
 import org.dd4t.contentmodel.Page;
 import org.jetbrains.annotations.NotNull;
 
-@FunctionalInterface
 public interface LegacyPageModelService {
 
     /**
@@ -17,4 +16,6 @@ public interface LegacyPageModelService {
      */
     @NotNull
     Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException;
+
+    Page processDd4tPageModel(String content, PageRequestDto pageRequest) throws ContentProviderException;
 }

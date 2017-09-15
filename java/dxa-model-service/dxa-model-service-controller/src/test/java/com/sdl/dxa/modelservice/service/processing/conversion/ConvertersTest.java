@@ -135,7 +135,6 @@ public class ConvertersTest {
         public ToR2Converter toR2Converter() throws ContentProviderException, IOException, SerializationException {
             return new ToR2ConverterImpl(
                     contentService(),
-                    r2Mapper(),
                     metadataService()
             );
         }
