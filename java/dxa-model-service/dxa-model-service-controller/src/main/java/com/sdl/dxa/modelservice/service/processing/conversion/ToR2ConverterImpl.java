@@ -1,7 +1,5 @@
 package com.sdl.dxa.modelservice.service.processing.conversion;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.api.datamodel.model.BinaryContentData;
 import com.sdl.dxa.api.datamodel.model.ComponentTemplateData;
 import com.sdl.dxa.api.datamodel.model.ContentModelData;
@@ -85,8 +83,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final MetadataService metadataService;
 
-    private PageModelService pageModelService;
-
     private LegacyPageModelService legacyPageModelService;
 
     private LegacyEntityModelService legacyEntityModelService;
@@ -123,11 +119,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
 
         return regionName;
-    }
-
-    @Autowired
-    public void setPageModelService(PageModelService pageModelService) {
-        this.pageModelService = pageModelService;
     }
 
     @Autowired

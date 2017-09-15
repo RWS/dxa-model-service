@@ -115,11 +115,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     }
 
     @Contract("!null, _ -> !null")
-    public PageModelData processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        return _processR2PageModel(pageContent, pageRequest);
-    }
-
-    @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
         DataModelType publishedModelType = getModelType(pageContent);
         PageModelData pageModel;
