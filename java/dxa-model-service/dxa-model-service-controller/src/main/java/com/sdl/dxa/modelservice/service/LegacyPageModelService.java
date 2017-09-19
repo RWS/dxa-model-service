@@ -5,6 +5,7 @@ import com.sdl.webapp.common.api.content.ContentProviderException;
 import org.dd4t.contentmodel.Page;
 import org.jetbrains.annotations.NotNull;
 
+@FunctionalInterface
 public interface LegacyPageModelService {
 
     /**
