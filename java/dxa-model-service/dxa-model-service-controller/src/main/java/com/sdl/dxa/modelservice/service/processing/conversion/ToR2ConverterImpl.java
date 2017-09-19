@@ -364,14 +364,13 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return list;
     }
 
-    private RegionModelData _createPageRegionData(String id, String name, PageRequestDto pageRequest) {
+    private RegionModelData _createPageRegionData(String id, String name, String path, PageRequestDto pageRequest) {
         RegionModelData region = new RegionModelData(name, id, null, null);
 
-        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
         region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
                 .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
                 .setIncludedFromPageTitle(name)
-                .setIncludedFromPageFileName(PathUtils.getFileName(pageMeta.getPath()))
+                .setIncludedFromPageFileName(path)
                 .buildXpm());
 
         return region;
@@ -379,8 +378,10 @@ public class ToR2ConverterImpl implements ToR2Converter {
     private RegionModelData _convertR2PageToRegion(JsonNode tree, PageRequestDto pageRequest) {
         String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
         String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
+        String path = tree.has("UrlPath") ? tree.get("UrlPath").asText() : "";
 
-        RegionModelData region = _createPageRegionData(id, name, pageRequest);
+
+        RegionModelData region = _createPageRegionData(id, name, path, pageRequest);
         region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
 
         return region;
@@ -390,7 +391,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
         String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
         String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
 
-        RegionModelData region = _createPageRegionData(id, name, pageRequest);
+        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
+
+        RegionModelData region = _createPageRegionData(id, name, PathUtils.getFileName(pageMeta.getPath()), pageRequest);
         region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
 
         return region;
