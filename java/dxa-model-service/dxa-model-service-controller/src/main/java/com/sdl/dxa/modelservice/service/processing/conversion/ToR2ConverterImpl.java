@@ -38,8 +38,8 @@ import org.dd4t.contentmodel.Keyword;
 import org.dd4t.contentmodel.Multimedia;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.PageTemplate;
-import org.dd4t.contentmodel.impl.BaseField;
 import org.dd4t.contentmodel.Schema;
+import org.dd4t.contentmodel.impl.BaseField;
 import org.dd4t.contentmodel.impl.ComponentLinkField;
 import org.dd4t.contentmodel.impl.ComponentTemplateImpl;
 import org.dd4t.contentmodel.impl.EmbeddedField;
@@ -152,7 +152,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
                             continue;
                         }
                     }
-
 
                     final Map<String, Field> metadata = component.getMetadata();
                     BaseField standardMetaField = (BaseField) metadata.get(STANDARD_METADATA_FIELD_NAME);
@@ -364,41 +363,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return list;
     }
 
-    private RegionModelData _createPageRegionData(String id, String name, String path, PageRequestDto pageRequest) {
-        RegionModelData region = new RegionModelData(name, id, null, null);
-
-        region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
-                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
-                .setIncludedFromPageTitle(name)
-                .setIncludedFromPageFileName(path)
-                .buildXpm());
-
-        return region;
-    }
-    private RegionModelData _convertR2PageToRegion(JsonNode tree, PageRequestDto pageRequest) {
-        String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
-        String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
-        String path = tree.has("UrlPath") ? tree.get("UrlPath").asText() : "";
-
-
-        RegionModelData region = _createPageRegionData(id, name, path, pageRequest);
-        region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
-
-        return region;
-    }
-
-    private RegionModelData _convertDD4TPageToRegion(JsonNode tree, PageRequestDto pageRequest) {
-        String id = tree.has("Id") ? String.valueOf(TcmUtils.getItemId(tree.get("Id").asText())) : tree.get("IncludePageId").asText();
-        String name = (tree.has("Title") ? tree.get("Title") : tree.get("Name")).asText();
-
-        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(), TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id));
-
-        RegionModelData region = _createPageRegionData(id, name, PathUtils.getFileName(pageMeta.getPath()), pageRequest);
-        region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
-
-        return region;
-    }
-
     private RegionModelData _loadInclude(String include, PageRequestDto pageRequest) throws ContentProviderException {
         String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
         try {
@@ -410,10 +374,48 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 return _convertR2PageToRegion(objectMapper.readTree(content), pageRequest);
             }
 
-            return null;
+            throw new ContentProviderException("Content is published of an unexpected content type, " +
+                    "we don't support it, page request = " + pageRequest + ", content = " + content);
         } catch (IOException e) {
             throw new ContentProviderException("Error parsing include page content, request = " + pageRequest, e);
         }
+    }
+
+    private RegionModelData _convertR2PageToRegion(JsonNode tree, PageRequestDto pageRequest) {
+        String title = tree.get("Title").asText();
+
+        return _createPageRegionData(
+                tree.get("Id").asText(),
+                title,
+                tree.get("UrlPath").asText(""),
+                pageRequest);
+    }
+
+    private RegionModelData _convertDD4TPageToRegion(JsonNode tree, PageRequestDto pageRequest) {
+        String id = tree.get("Id").asText();
+        String name = tree.get("Name").asText();
+
+        PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(),
+                TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), String.valueOf(TcmUtils.getItemId(id))));
+
+        return _createPageRegionData(
+                String.valueOf(TcmUtils.getItemId(id)),
+                name,
+                PathUtils.getFileName(pageMeta.getPath()),
+                pageRequest);
+    }
+
+    private RegionModelData _createPageRegionData(String id, String name, String path, PageRequestDto pageRequest) {
+        RegionModelData region = new RegionModelData(name, id, null, null);
+
+        region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
+        region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
+                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
+                .setIncludedFromPageTitle(name)
+                .setIncludedFromPageFileName(path)
+                .buildXpm());
+
+        return region;
     }
 
     private ListWrapper<String> _processIncludes(Object includes) throws ContentProviderException {
@@ -620,7 +622,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 componentTemplate = _componentPresentation.getComponentTemplate();
                 entity.setId(dcpId);
             }
-            if(_componentPresentation.getExtensionData() != null && !_componentPresentation.getExtensionData().isEmpty()) {
+            if (_componentPresentation.getExtensionData() != null && !_componentPresentation.getExtensionData().isEmpty()) {
                 entity.setExtensionData(_convertExtensionData(_componentPresentation.getExtensionData(), publicationId));
             }
 
@@ -653,10 +655,11 @@ public class ToR2ConverterImpl implements ToR2Converter {
         entity.setSchemaId(String.valueOf(TcmUtils.getItemId(_component.getSchema().getId())));
         return entity;
     }
+
     private Map<String, Object> _convertExtensionData(Map<String, FieldSet> data, int publicationId) throws ContentProviderException {
         Map<String, Object> result = new HashMap<>();
 
-        for(Map.Entry<String, FieldSet>entry : data.entrySet()) {
+        for (Map.Entry<String, FieldSet> entry : data.entrySet()) {
             String entryKey = entry.getKey();
             FieldSet entryValue = entry.getValue();
             Map<String, Field> c = entryValue.getContent();
