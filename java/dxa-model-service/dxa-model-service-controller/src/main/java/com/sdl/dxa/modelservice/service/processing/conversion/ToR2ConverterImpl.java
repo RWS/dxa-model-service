@@ -181,7 +181,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
             }
         }
 
-        return title.replaceFirst("^\\d{3}\\s", "");
+        return PathUtils.removeSequenceFromPageTitle(title);
     }
 
     private Map<String, String> _processPageMeta(org.dd4t.contentmodel.Page page, int publicationId) {
