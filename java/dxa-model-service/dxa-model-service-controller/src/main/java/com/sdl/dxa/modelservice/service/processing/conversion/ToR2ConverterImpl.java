@@ -393,7 +393,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private RegionModelData _convertDD4TPageToRegion(JsonNode tree, PageRequestDto pageRequest) {
         String id = tree.get("Id").asText();
-        String name = tree.get("Name").asText();
+        String name = tree.get("Title").asText();
 
         PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(),
                 TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), String.valueOf(TcmUtils.getItemId(id))));
