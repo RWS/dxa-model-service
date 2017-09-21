@@ -3,9 +3,9 @@ package com.sdl.dxa.modelservice.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.common.dto.StaticContentRequestDto;
-import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.dxa.tridion.content.StaticContentResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
 import com.sdl.webapp.common.util.TcmUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -100,12 +100,14 @@ public class ConfigService {
          * @return map of schemas indexed by ID representing schemas for this publication
          */
         @Cacheable(value = "config", key = "{#root.methodName, #publicationId}")
-        public Map<String, LightSchema> getSchemasJson(int publicationId) throws ContentProviderException {
+        public Map<String, JsonSchema> getSchemasJson(int publicationId) throws ContentProviderException {
             try {
                 StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(mappingsSchemas, String.valueOf(publicationId)).build();
                 InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();
-                List<LightSchema> schemas = objectMapper.readValue(allJson, objectMapper.getTypeFactory().constructCollectionType(List.class, LightSchema.class));
-                return schemas.parallelStream().collect(Collectors.toMap(LightSchema::getId, schema -> schema));
+                List<JsonSchema> schemas =
+                        objectMapper.readValue(allJson, objectMapper.getTypeFactory().constructCollectionType(List.class, JsonSchema.class));
+                return schemas.parallelStream()
+                        .collect(Collectors.toMap(schema -> String.valueOf(schema.getId()), schema -> schema));
             } catch (IOException e) {
                 throw new ContentProviderException("Exception happened while loading schemas.json, cannot get schemas config", e);
             }
