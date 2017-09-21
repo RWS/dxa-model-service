@@ -202,6 +202,12 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     private Publication _loadPublication(int publicationId) throws ContentProviderException {
         PublicationMeta publicationMeta = metadataService.getPublicationMeta(publicationId);
+
+        if (publicationMeta == null || publicationMeta.getId() == 0) {
+            log.info("Publication with id {} is not published. Can not load publication data", publicationId);
+            return null;
+        }
+
         Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
         publication.setTitle(publicationMeta.getTitle());
         publication.setId(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
