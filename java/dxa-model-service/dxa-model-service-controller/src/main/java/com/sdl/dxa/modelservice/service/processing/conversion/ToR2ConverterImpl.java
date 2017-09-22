@@ -116,13 +116,17 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     @Nullable
     private static String _getRegionName(@NotNull Map<String, Field> templateMeta) {
-        String regionName = templateMeta.containsKey("regionName") ? templateMeta.get("regionName").getValues().get(0).toString() : "";
-        if (isNullOrEmpty(regionName)) {
-            //fallback if region name field is empty, use regionView name
-            regionName = templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
+        String name = templateMeta.containsKey("regionName") ? templateMeta.get("regionName").getValues().get(0).toString() : "";
+        if(name == null || StringUtils.isEmpty(name)) {
+            name = _getRegionView(templateMeta);
         }
 
-        return regionName;
+        return name;
+    }
+
+    @Nullable
+    private static String _getRegionView(@NotNull Map<String, Field> templateMeta) {
+        return templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
     }
 
     @Autowired
@@ -138,7 +142,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         String title = meta.get("title");
         if (isNullOrEmpty(title)) {
             for (ComponentPresentation cp : page.getComponentPresentations()) {
-                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionName(cp.getComponentTemplate().getMetadata()))) {
+                if (Objects.equals(REGION_FOR_PAGE_TITLE_COMPONENT, _getRegionView(cp.getComponentTemplate().getMetadata()))) {
                     Component component = cp.getComponent();
                     ComponentTemplate componentTemplate = cp.getComponentTemplate();
 
@@ -260,11 +264,13 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setTitle(_extractPageTitle(toConvert, pageMeta, pageRequest.getPublicationId()));
 
 
-        Map<String, RegionModelData> regions = new LinkedHashMap<>();
+        PageTemplate  pageTemplate = toConvert.getPageTemplate();
+        Map<String, RegionModelData> regions = _getOrderedRegions(pageTemplate.getMetadata(), pageRequest.getPublicationId());
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
             Component component = componentPresentation.getComponent();
 
-            String regionName = _getRegionName(componentPresentation.getComponentTemplate().getMetadata());
+            Map<String, Field> metadata = componentPresentation.getComponentTemplate().getMetadata();
+            String regionName = _getRegionName(metadata);
             if (!regions.containsKey(regionName)) {
                 regions.put(regionName, new RegionModelData(regionName, null, null, null));
             }
@@ -273,7 +279,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
             if (currentRegion.getEntities() == null) {
                 currentRegion.setEntities(new ArrayList<>());
             }
-            currentRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(regionName));
+            currentRegion.setMvcData(MvcUtils.parseMvcQualifiedViewName(_getRegionView(metadata)));
             currentRegion.getEntities().add(_buildEntity(component, componentPresentation, pageRequest.getPublicationId()));
         }
         for (RegionModelData regionModelData : _loadIncludes(page.getPageTemplate(), pageRequest)) {
@@ -293,6 +299,31 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest.getPublicationId()));
 
         return page;
+    }
+
+    private Map<String, RegionModelData> _getOrderedRegions(Map<String, Field> metadata, int publicationId) throws ContentProviderException {
+        String key = "regions";
+        Map<String, RegionModelData> list = new LinkedHashMap<>();
+        if (!metadata.containsKey(key)) {
+            return list;
+        }
+
+        ListWrapper<ContentModelData> field = (ListWrapper<ContentModelData>) _convertField(metadata.get(key), publicationId);
+        for(ContentModelData r : field.getValues()) {
+            String name = (String) r.get("name");
+            if(name == null || StringUtils.isEmpty(name)) {
+                name = (String) r.get("view");
+            }
+
+            RegionModelData rmd = new RegionModelData(name, null, null, null);
+
+            rmd.setMetadata(r);
+            rmd.setMvcData(MvcUtils.parseMvcQualifiedViewName(name));
+            rmd.setEntities(new ArrayList<>());
+
+            list.put(name, rmd);
+        }
+        return list;
     }
 
     @Override
