@@ -9,10 +9,10 @@ import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
-import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.web.model.PageMetaImpl;
 import com.sdl.web.model.PublicationMetaImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
 import com.tridion.broker.StorageException;
 import com.tridion.storage.PageMeta;
 import org.apache.commons.io.IOUtils;
@@ -161,9 +161,9 @@ public class ConvertersTest {
             ConfigService configService = new ConfigService(defaults);
             ObjectMapper objectMapper = r2Mapper();
             //noinspection unchecked
-            doReturn(((List<LightSchema>) objectMapper.readValue(IOUtils.toString(new ClassPathResource("models/schemas.json").getInputStream(), "UTF-8"),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, LightSchema.class)))
-                    .parallelStream().collect(Collectors.toMap(LightSchema::getId, schema -> schema)))
+            doReturn(((List<JsonSchema>) objectMapper.readValue(IOUtils.toString(new ClassPathResource("models/schemas.json").getInputStream(), "UTF-8"),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, JsonSchema.class)))
+                    .parallelStream().collect(Collectors.toMap(schema -> String.valueOf(schema.getId()), schema -> schema)))
                     .when(defaults).getSchemasJson(eq(1081));
             return configService;
         }

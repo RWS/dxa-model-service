@@ -17,9 +17,11 @@ import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.AdoptedRichTextField;
-import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSchema;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.mapping.semantic.config.FieldPath;
+import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
+import com.sdl.webapp.common.impl.localization.semantics.JsonSchemaField;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.dcp.ComponentPresentationFactory;
 import com.tridion.meta.ComponentMeta;
@@ -273,7 +275,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         ComponentImpl component = new ComponentImpl();
         component.setId(TcmUtils.buildTcmUri(String.valueOf(publicationId), entityId));
         component.setTitle(meta.getTitle());
-        component.setContent(_convertContent(entity.getContent(), publicationId));
+        component.setContent(_convertContent(entity.getContent(), publicationId,
+                configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId()), null, 0));
         component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));
         component.setRevisionDate(new DateTime(meta.getModificationDate()));
         component.setMetadata(_convertContent(entity.getMetadata(), publicationId));
@@ -281,11 +284,11 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setOwningPublication(_loadPublication(meta.getOwningPublicationId()));
 
         if (entity.getSchemaId() != null) {
-            LightSchema lightSchema = configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId());
+            JsonSchema jsonSchema = configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId());
             SchemaImpl schema = new SchemaImpl();
-            schema.setRootElement(lightSchema.getRootElement());
-            schema.setId(lightSchema.getId());
-            schema.setTitle(lightSchema.getTitle());
+            schema.setRootElement(jsonSchema.getRootElement());
+            schema.setId(entity.getSchemaId());
+            schema.setTitle(jsonSchema.getRootElement());
             // todo RevisionDate&LastPublishedDate are not available in CIL/CM
             component.setSchema(schema);
         }
@@ -328,13 +331,19 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     @Contract("null, _ -> null; !null, _ -> !null")
     private Map<String, Field> _convertContent(ContentModelData contentModelData, int publicationId) throws ContentProviderException {
+        return _convertContent(contentModelData, publicationId, null, null, 0);
+    }
+
+    @Contract("null, _, _, _, _ -> null; !null, _, _, _, _ -> !null")
+    private Map<String, Field> _convertContent(ContentModelData contentModelData, int publicationId,
+                                               @Nullable JsonSchema schema, @Nullable JsonSchemaField schemaField, int multivalueCounter) throws ContentProviderException {
         if (contentModelData == null) {
             return null;
         }
 
         Map<String, Field> content = new HashMap<>();
         for (Map.Entry<String, Object> entry : contentModelData.entrySet()) {
-            Field convertedField = _convertToField(entry, publicationId);
+            Field convertedField = _convertToField(entry, publicationId, schema, schemaField, multivalueCounter);
             if (convertedField != null) {
                 content.put(entry.getKey(), convertedField);
             } else {
@@ -344,16 +353,30 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return content;
     }
 
+    @Contract("null, _ -> null; _, null -> null")
+    private JsonSchemaField _findCurrentField(@Nullable List<JsonSchemaField> jsonSchemaFields, @Nullable String name) {
+        if (jsonSchemaFields == null || name == null) {
+            return null;
+        }
+
+        return jsonSchemaFields.parallelStream().filter(jsonSchemaField -> name.equals(jsonSchemaField.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
     @Nullable
-    private Field _convertToField(@NotNull Map.Entry<String, Object> entry, int publicationId) throws ContentProviderException {
+    private Field _convertToField(@NotNull Map.Entry<String, Object> entry, int publicationId,
+                                  @Nullable JsonSchema contextSchema, @Nullable JsonSchemaField contextSchemaField, int multivalueCounter) throws ContentProviderException {
         Object value = entry.getValue();
         Field field = null;
 
-        if (value instanceof ListWrapper) {
-            field = _convertListWrapperToField((ListWrapper) value, publicationId);
+        List<JsonSchemaField> currentFields = _getNestedSchemaFields(contextSchema, contextSchemaField);
+        JsonSchemaField currentField = _findCurrentField(currentFields, entry.getKey());
 
+        if (value instanceof ListWrapper) {
+            field = _convertListWrapperToField((ListWrapper) value, publicationId, contextSchema);
         } else if (value instanceof ContentModelData) {
-            field = _convertEmbeddedToField(Collections.singletonList((ContentModelData) value), publicationId);
+            field = _convertEmbeddedToField(Collections.singletonList((ContentModelData) value), publicationId, contextSchema, currentField);
         } else if (value instanceof EntityModelData) {
             field = _convertToCompLinkField(Collections.singletonList((EntityModelData) value), publicationId);
         } else if (value instanceof KeywordModelData) {
@@ -369,10 +392,28 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
         if (field != null) {
             field.setName(entry.getKey());
-            field.setXPath("xpath"); // todo
+            if (currentField != null) {
+                field.setXPath(_getXPathFromContext(currentField, contextSchemaField, multivalueCounter));
+            }
         }
 
         return field;
+    }
+
+    @NotNull
+    private String _getXPathFromContext(JsonSchemaField currentField, @Nullable JsonSchemaField contextSchemaField, int multivalueCounter) {
+        String currentFieldPath = currentField.getPath();
+        if (contextSchemaField != null && multivalueCounter != 0) {
+            log.debug("Field {} exists in a context of an embedded field {}, it's {} value (counting)", currentField, contextSchemaField, multivalueCounter);
+            currentFieldPath = currentFieldPath.replaceFirst(contextSchemaField.getPath(),
+                    contextSchemaField.getPath() + String.format("[%s]", multivalueCounter));
+        }
+        return new FieldPath(currentFieldPath).getXPath(null);
+    }
+
+    @Nullable
+    private List<JsonSchemaField> _getNestedSchemaFields(@Nullable JsonSchema schema, @Nullable JsonSchemaField schemaField) {
+        return schemaField != null ? schemaField.getFields() : (schema != null ? schema.getFields() : null);
     }
 
     private Keyword _convertKeyword(KeywordModelData kmd, int publicationId) {
@@ -386,10 +427,10 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return keyword;
     }
 
-    private Field _convertListWrapperToField(ListWrapper<?> wrapper, int publicationId) throws ContentProviderException {
+    private Field _convertListWrapperToField(ListWrapper<?> wrapper, int publicationId, @Nullable JsonSchema schema) throws ContentProviderException {
         if (!wrapper.empty()) {
             if (wrapper instanceof ListWrapper.ContentModelDataListWrapper) {
-                return _convertEmbeddedToField(((ListWrapper.ContentModelDataListWrapper) wrapper).getValues(), publicationId);
+                return _convertEmbeddedToField(((ListWrapper.ContentModelDataListWrapper) wrapper).getValues(), publicationId, schema, null);
             } else if (wrapper instanceof ListWrapper.KeywordModelDataListWrapper) {
                 return _convertToKeywordField(((ListWrapper.KeywordModelDataListWrapper) wrapper).getValues(), publicationId);
             } else if (wrapper instanceof ListWrapper.EntityModelDataListWrapper) {
@@ -410,13 +451,14 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return null;
     }
 
-    private EmbeddedField _convertEmbeddedToField(List<ContentModelData> cmds, int publicationId) throws ContentProviderException {
+    private EmbeddedField _convertEmbeddedToField(List<ContentModelData> cmds, int publicationId, @Nullable JsonSchema schema, JsonSchemaField schemaField) throws ContentProviderException {
         EmbeddedField embeddedField = new EmbeddedField();
 
         List<FieldSet> fieldSets = new ArrayList<>();
-        for (ContentModelData contentModelData : cmds) {
+        for (int i = 0, cmdsSize = cmds.size(); i < cmdsSize; i++) {
+            ContentModelData contentModelData = cmds.get(i);
             FieldSet fieldSet = new FieldSetImpl();
-            fieldSet.setContent(_convertContent(contentModelData, publicationId));
+            fieldSet.setContent(_convertContent(contentModelData, publicationId, schema, schemaField, i + 1));
             fieldSets.add(fieldSet);
         }
 
