@@ -22,6 +22,7 @@ import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.sdl.webapp.common.util.XpmUtils;
 import com.tridion.meta.PageMeta;
@@ -85,6 +86,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private final MetadataService metadataService;
 
+    private final LinkResolver linkResolver;
+
     private final ObjectMapper objectMapper;
 
     private LegacyEntityModelService legacyEntityModelService;
@@ -92,10 +95,12 @@ public class ToR2ConverterImpl implements ToR2Converter {
     @Autowired
     public ToR2ConverterImpl(ContentService contentService,
                              @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                             MetadataService metadataService) {
+                             MetadataService metadataService,
+                             LinkResolver linkResolver) {
         this.contentService = contentService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
+        this.linkResolver = linkResolver;
     }
 
     @Nullable
@@ -110,7 +115,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return null;
     }
 
-    private static String _extract(Map<String, Field> metaMap, String key) {
+    private static String _getField(Map<String, Field> metaMap, String key) {
         return metaMap.containsKey(key) ? metaMap.get(key).getValues().get(0).toString() : null;
     }
 
@@ -127,6 +132,26 @@ public class ToR2ConverterImpl implements ToR2Converter {
     @Nullable
     private static String _getRegionView(@NotNull Map<String, Field> templateMeta) {
         return templateMeta.containsKey("regionView") ? templateMeta.get("regionView").getValues().get(0).toString() : "Main";
+    }
+
+    @NotNull
+    private static Map<Object, Object> _recursiveFlatten(Map<?, ?> mapToFlatten) {
+        if (mapToFlatten == null || mapToFlatten.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<Object, Object> flattened = new HashMap<>();
+
+        for (Map.Entry<?, ?> entry : mapToFlatten.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                flattened.putAll(_recursiveFlatten((Map<?, ?>) value));
+            } else {
+                flattened.put(entry.getKey(), value);
+            }
+        }
+
+        return flattened;
     }
 
     @Autowired
@@ -162,13 +187,13 @@ public class ToR2ConverterImpl implements ToR2Converter {
                     if (standardMetaField != null && !standardMetaField.getEmbeddedValues().isEmpty()) {
                         final Map<String, Field> standardMeta = standardMetaField.getEmbeddedValues().get(0).getContent();
                         if (isNullOrEmpty(title) && standardMeta.containsKey(STANDARD_METADATA_TITLE_FIELD_NAME)) {
-                            title = _extract(standardMeta, STANDARD_METADATA_TITLE_FIELD_NAME);
+                            title = _getField(standardMeta, STANDARD_METADATA_TITLE_FIELD_NAME);
                         }
                     }
 
                     final Map<String, Field> content = component.getContent();
                     if (isNullOrEmpty(title) && content.containsKey(COMPONENT_PAGE_TITLE_FIELD_NAME)) {
-                        title = _extract(content, COMPONENT_PAGE_TITLE_FIELD_NAME);
+                        title = _getField(content, COMPONENT_PAGE_TITLE_FIELD_NAME);
                     }
 
                     break;
@@ -188,11 +213,40 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return PathUtils.removeSequenceFromPageTitle(title);
     }
 
-    private Map<String, String> _processPageMeta(org.dd4t.contentmodel.Page page, int publicationId) {
+    private String _dataModelToString(Object modelData, int publicationId) {
+        if (modelData instanceof ListWrapper) {
+            return ((ListWrapper<?>) modelData).getValues().stream()
+                    .map(elem -> _dataModelToString(elem, publicationId))
+                    .collect(Collectors.joining(", "));
+        } else if (modelData instanceof EntityModelData) {
+            // link
+            // mm
+            EntityModelData entityModelData = (EntityModelData) modelData;
+
+            return entityModelData.getBinaryContent() != null ?
+                    entityModelData.getBinaryContent().getUrl() :
+                    linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityModelData.getId()), String.valueOf(publicationId));
+        } else if (modelData instanceof KeywordModelData) {
+            return ((KeywordModelData) modelData).getTitle();
+        } else {
+            // RichTextData, Numbers, Dates, Strings
+            return String.valueOf(modelData);
+        }
+    }
+
+    private Map<String, String> _processPageMeta(org.dd4t.contentmodel.Page page, int publicationId) throws ContentProviderException {
         Map<String, String> meta = new HashMap<>();
 
-        String description = meta.get("description");
-        String image = meta.get(IMAGE_FIELD_NAME);
+        String description = _getField(page.getMetadata(), "description");
+        String image = _getField(page.getMetadata(), IMAGE_FIELD_NAME);
+
+        // here we recursively flatten a nested metadata map to a single-level map
+        // and make string out of all the values, we don't want models in metadata
+        meta.putAll(_recursiveFlatten(_convertContent(page.getMetadata(), publicationId)).entrySet()
+                .parallelStream()
+                .collect(Collectors.toMap(
+                        entry -> String.valueOf(entry.getKey()),
+                        entry -> _dataModelToString(entry.getValue(), publicationId))));
 
         if (isNullOrEmpty(image) || isNullOrEmpty(description)) {
             for (ComponentPresentation cp : page.getComponentPresentations()) {
@@ -204,7 +258,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
                     if (standardMetaField != null && !standardMetaField.getEmbeddedValues().isEmpty()) {
                         final Map<String, Field> standardMeta = standardMetaField.getEmbeddedValues().get(0).getContent();
                         if (isNullOrEmpty(description) && standardMeta.containsKey(STANDARD_METADATA_DESCRIPTION_FIELD_NAME)) {
-                            description = _extract(standardMeta, STANDARD_METADATA_DESCRIPTION_FIELD_NAME);
+                            description = _getField(standardMeta, STANDARD_METADATA_DESCRIPTION_FIELD_NAME);
                         }
                     }
 
@@ -734,5 +788,4 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         Object onMultipleValues() throws ContentProviderException;
     }
-
 }
