@@ -117,7 +117,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
     @Nullable
     private static String _getRegionName(@NotNull Map<String, Field> templateMeta) {
         String name = templateMeta.containsKey("regionName") ? templateMeta.get("regionName").getValues().get(0).toString() : "";
-        if(name == null || StringUtils.isEmpty(name)) {
+        if (name == null || StringUtils.isEmpty(name)) {
             name = _getRegionView(templateMeta);
         }
 
@@ -264,7 +264,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         page.setTitle(_extractPageTitle(toConvert, pageMeta, pageRequest.getPublicationId()));
 
 
-        PageTemplate  pageTemplate = toConvert.getPageTemplate();
+        PageTemplate pageTemplate = toConvert.getPageTemplate();
         Map<String, RegionModelData> regions = _getOrderedRegions(pageTemplate.getMetadata(), pageRequest.getPublicationId());
         for (ComponentPresentation componentPresentation : toConvert.getComponentPresentations()) {
             Component component = componentPresentation.getComponent();
@@ -301,6 +301,16 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return page;
     }
 
+    @Override
+    public EntityModelData convertToR2(@Nullable ComponentPresentation toConvert, @NotNull EntityRequestDto entityRequestDto) throws ContentProviderException {
+        if (toConvert == null) {
+            log.warn("Model to convert is null, return null for request {}", entityRequestDto);
+            return null;
+        }
+
+        return _buildEntity(toConvert.getComponent(), toConvert, entityRequestDto.getPublicationId());
+    }
+
     private Map<String, RegionModelData> _getOrderedRegions(Map<String, Field> metadata, int publicationId) throws ContentProviderException {
         String key = "regions";
         Map<String, RegionModelData> list = new LinkedHashMap<>();
@@ -309,9 +319,9 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
 
         ListWrapper<ContentModelData> field = (ListWrapper<ContentModelData>) _convertField(metadata.get(key), publicationId);
-        for(ContentModelData r : field.getValues()) {
+        for (ContentModelData r : field.getValues()) {
             String name = (String) r.get("name");
-            if(name == null || StringUtils.isEmpty(name)) {
+            if (name == null || StringUtils.isEmpty(name)) {
                 name = (String) r.get("view");
             }
 
@@ -324,16 +334,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
             list.put(name, rmd);
         }
         return list;
-    }
-
-    @Override
-    public EntityModelData convertToR2(@Nullable ComponentPresentation toConvert, @NotNull EntityRequestDto entityRequestDto) throws ContentProviderException {
-        if (toConvert == null) {
-            log.warn("Model to convert is null, return null for request {}", entityRequestDto);
-            return null;
-        }
-
-        return _buildEntity(toConvert.getComponent(), toConvert, entityRequestDto.getPublicationId());
     }
 
     private MvcModelData _getMvcModelData(Map<String, Field> metadata) {
@@ -718,10 +718,17 @@ public class ToR2ConverterImpl implements ToR2Converter {
     }
 
     private Object _convertField(Field field, @NotNull SingleOrMultipleFork fork) throws ContentProviderException {
+        if (field.getValues() == null || field.getValues().isEmpty()) {
+            return fork.onEmptyValue();
+        }
         return field.getValues().size() == 1 ? fork.onSingleValue() : fork.onMultipleValues();
     }
 
     private interface SingleOrMultipleFork {
+
+        default Object onEmptyValue() {
+            return "";
+        }
 
         Object onSingleValue() throws ContentProviderException;
 
