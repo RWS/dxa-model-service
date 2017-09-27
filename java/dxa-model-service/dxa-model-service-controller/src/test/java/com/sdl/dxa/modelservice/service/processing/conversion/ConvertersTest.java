@@ -12,6 +12,7 @@ import com.sdl.dxa.modelservice.service.LegacyEntityModelService;
 import com.sdl.web.model.PageMetaImpl;
 import com.sdl.web.model.PublicationMetaImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
 import com.tridion.broker.StorageException;
 import com.tridion.storage.PageMeta;
@@ -136,13 +137,18 @@ public class ConvertersTest {
             return new ToR2ConverterImpl(
                     contentService(),
                     r2Mapper(),
-                    metadataService()
-            );
+                    metadataService(),
+                    linkResolver());
         }
 
         @Bean
         public ContentService contentService() {
             return mock(ContentService.class);
+        }
+
+        @Bean
+        public LinkResolver linkResolver() {
+            return mock(LinkResolver.class);
         }
 
         @Bean
