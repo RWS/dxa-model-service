@@ -234,7 +234,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
     }
 
-    private Map<String, String> _processPageMeta(org.dd4t.contentmodel.Page page, int publicationId) throws ContentProviderException {
+    private Map<String, String> _processPageMeta(Page page, PageModelData pageModel, int publicationId) throws ContentProviderException {
         Map<String, String> meta = new HashMap<>();
 
         String description = _getField(page.getMetadata(), "description");
@@ -242,8 +242,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         // here we recursively flatten a nested metadata map to a single-level map
         // and make string out of all the values, we don't want models in metadata
-        meta.putAll(_recursiveFlatten(_convertContent(page.getMetadata(), publicationId)).entrySet()
-                .parallelStream()
+        ContentModelData pageMetadata = pageModel.getMetadata() != null ? pageModel.getMetadata() : _convertContent(page.getMetadata(), publicationId);
+        meta.putAll(_recursiveFlatten(pageMetadata).entrySet().parallelStream()
                 .collect(Collectors.toMap(
                         entry -> String.valueOf(entry.getKey()),
                         entry -> _dataModelToString(entry.getValue(), publicationId))));
@@ -313,7 +313,8 @@ public class ToR2ConverterImpl implements ToR2Converter {
             page.setSchemaId(String.valueOf(TcmUtils.getItemId(toConvert.getSchema().getId())));
         }
 
-        final Map<String, String> pageMeta = _processPageMeta(toConvert, pageRequest.getPublicationId());
+        page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest.getPublicationId()));
+        final Map<String, String> pageMeta = _processPageMeta(toConvert, page, pageRequest.getPublicationId());
         page.setMeta(pageMeta);
         page.setTitle(_extractPageTitle(toConvert, pageMeta, pageRequest.getPublicationId()));
 
@@ -349,8 +350,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
                 .setPageTemplateID(toConvert.getPageTemplate().getId())
                 .setPageTemplateModified(toConvert.getPageTemplate().getRevisionDate())
                 .buildXpm());
-
-        page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest.getPublicationId()));
 
         return page;
     }
