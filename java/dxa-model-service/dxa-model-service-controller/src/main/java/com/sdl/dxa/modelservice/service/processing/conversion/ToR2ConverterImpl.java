@@ -228,8 +228,10 @@ public class ToR2ConverterImpl implements ToR2Converter {
                     linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityModelData.getId()), String.valueOf(publicationId));
         } else if (modelData instanceof KeywordModelData) {
             return ((KeywordModelData) modelData).getTitle();
+        } else if (modelData instanceof RichTextData) {
+            return ((RichTextData) modelData).getFragments().stream().map(String::valueOf).collect(Collectors.joining());
         } else {
-            // RichTextData, Numbers, Dates, Strings
+            // Numbers, Dates, Strings
             return String.valueOf(modelData);
         }
     }
