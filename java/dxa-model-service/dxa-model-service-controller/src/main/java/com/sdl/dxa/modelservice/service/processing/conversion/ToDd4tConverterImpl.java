@@ -271,17 +271,10 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         if (entityId.matches("\\d+-\\d+")) {
             entityId = entityId.split("-")[0];
         }
-        ComponentMeta meta = metadataService.getComponentMeta(publicationId, Integer.parseInt(entityId));
         ComponentImpl component = new ComponentImpl();
         component.setId(TcmUtils.buildTcmUri(String.valueOf(publicationId), entityId));
-        component.setTitle(meta.getTitle());
         component.setContent(_convertContent(entity.getContent(), publicationId,
                 configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId()), null, 0));
-        component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));
-        component.setRevisionDate(new DateTime(meta.getModificationDate()));
-        component.setMetadata(_convertContent(entity.getMetadata(), publicationId));
-        component.setPublication(_loadPublication(meta.getPublicationId()));
-        component.setOwningPublication(_loadPublication(meta.getOwningPublicationId()));
 
         if (entity.getSchemaId() != null) {
             JsonSchema jsonSchema = configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId());
@@ -293,11 +286,22 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             component.setSchema(schema);
         }
 
-        component.setComponentType(meta.isMultimedia() ? Component.ComponentType.MULTIMEDIA : Component.ComponentType.NORMAL);
-
         // todo load /Folder:
         component.setOrganizationalItem(new OrganizationalItemImpl());
 
+        ComponentMeta meta = metadataService.getComponentMeta(publicationId, Integer.parseInt(entityId));
+        if (meta == null) {
+            log.debug("Meta not found for component {} in publication ID {}", entityId, publicationId);
+            return component;
+        }
+
+        component.setTitle(meta.getTitle());
+        component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));
+        component.setRevisionDate(new DateTime(meta.getModificationDate()));
+        component.setMetadata(_convertContent(entity.getMetadata(), publicationId));
+        component.setPublication(_loadPublication(meta.getPublicationId()));
+        component.setOwningPublication(_loadPublication(meta.getOwningPublicationId()));
+        component.setComponentType(meta.isMultimedia() ? Component.ComponentType.MULTIMEDIA : Component.ComponentType.NORMAL);
         component.setCategories(Arrays.stream(meta.getCategories())
                 .map(category -> {
                     Category cat = new CategoryImpl();
@@ -326,6 +330,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setVersion(meta.getMajorVersion());
         component.setPublication(_loadPublication(meta.getPublicationId()));
         component.setPublication(_loadPublication(meta.getOwningPublicationId()));
+
         return component;
     }
 
