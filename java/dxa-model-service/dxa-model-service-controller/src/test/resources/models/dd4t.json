@@ -1,0 +1,54 @@
+{
+  "RevisionDate": "2016-01-19T11:17:59",
+  "Filename": "index",
+  "LastPublishedDate": "0001-01-01T00:00:00",
+  "PageTemplate": {
+    "FileExtension": "html",
+    "RevisionDate": "2015-07-15T15:27:56.093",
+    "MetadataFields": {
+      "includes": {
+        "Name": "includes",
+        "Values": [
+          "system/include/header",
+          "system/include/footer"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "KeywordValues": []
+      },
+      "view": {
+        "Name": "view",
+        "Values": [
+          "GeneralPage"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "KeywordValues": []
+      }
+    },
+    "Id": "tcm:1081-131-128",
+    "Title": "Home Page"
+  },
+  "MetadataFields": {},
+  "ComponentPresentations": [],
+  "StructureGroup": {
+    "PublicationId": "tcm:0-1081-1",
+    "Id": "tcm:1081-3-4",
+    "Title": "Home"
+  },
+  "Version": 12,
+  "Publication": {
+    "Id": "tcm:0-1081-1",
+    "Title": "500 Automated Test Parent (Legacy)"
+  },
+  "OwningPublication": {
+    "Id": "tcm:0-1067-1",
+    "Title": "110 DXA Site Type"
+  },
+  "Id": "tcm:1081-640-64",
+  "Title": "000 Home"
+}

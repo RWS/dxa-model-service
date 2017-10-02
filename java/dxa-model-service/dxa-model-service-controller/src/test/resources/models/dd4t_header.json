@@ -1,0 +1,719 @@
+{
+  "RevisionDate": "2016-10-19T16:12:11",
+  "Filename": "header",
+  "LastPublishedDate": "0001-01-01T00:00:00",
+  "PageTemplate": {
+    "FileExtension": "html",
+    "RevisionDate": "2014-06-25T14:37:52.38",
+    "MetadataFields": {
+      "view": {
+        "Name": "view",
+        "Values": [
+          "IncludePage"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "KeywordValues": []
+      }
+    },
+    "Id": "tcm:1081-244-128",
+    "Title": "Include Page"
+  },
+  "MetadataFields": {},
+  "ComponentPresentations": [
+    {
+      "Component": {
+        "LastPublishedDate": "0001-01-01T00:00:00",
+        "RevisionDate": "2017-01-26T16:21:13",
+        "Schema": {
+          "RootElementName": "LanguageSelectorConfiguration",
+          "Id": "tcm:1081-4887-8",
+          "Title": "Language Selector Configuration"
+        },
+        "Fields": {
+          "defaultContentLink": {
+            "Name": "defaultContentLink",
+            "Values": [],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [
+              {
+                "LastPublishedDate": "0001-01-01T00:00:00",
+                "RevisionDate": "2016-09-22T17:41:36.557",
+                "Schema": {
+                  "RootElementName": "Article",
+                  "Id": "tcm:1081-80-8",
+                  "Title": "Article"
+                },
+                "Fields": {
+                  "headline": {
+                    "Name": "headline",
+                    "Values": [
+                      "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:Article/custom:headline",
+                    "KeywordValues": []
+                  },
+                  "articleBody": {
+                    "Name": "articleBody",
+                    "Values": [],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "EmbeddedValues": [
+                      {
+                        "subheading": {
+                          "Name": "subheading",
+                          "Values": [
+                            "Subheading 1"
+                          ],
+                          "NumericValues": [],
+                          "DateTimeValues": [],
+                          "LinkedComponentValues": [],
+                          "FieldType": 0,
+                          "XPath": "tcm:Content/custom:Article/custom:articleBody[1]/custom:subheading",
+                          "KeywordValues": []
+                        },
+                        "content": {
+                          "Name": "content",
+                          "Values": [
+                            "<p>Test <strong>rich</strong><em>text</em> content.</p><p>Component link (not published): <a title=\"Test Component\" xlink:href=\"tcm:1081-9710\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"Test Component\">Test Component</a></p><p>Component link (published): <a title=\"TSI-1758 Test Component\" xlink:href=\"tcm:1081-9971\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"TSI-1758 Test Component\">TSI-1758 Test Component</a></p><p>MMC link: <a title=\"bulls-eye\" xlink:href=\"tcm:1081-759\" data-schemaUri=\"tcm:1081-79-8\" data-multimediaFileName=\"bulls-eye.JPG\" data-multimediaFileSize=\"1276322\" data-multimediaMimeType=\"image/jpeg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"bulls-eye\" href=\"/autotest-parent-legacy/Images/bulls-eye_tcm1081-759.JPG\">bulls-eye</a></p><p>Embedded Image: <img title=\"calculator\" alt=\"calculator\" xlink:href=\"tcm:1081-760\" data-schemaUri=\"tcm:1081-79-8\" data-multimediaFileName=\"calculator.jpg\" data-multimediaFileSize=\"1007535\" data-multimediaMimeType=\"image/jpeg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"calculator\" src=\"/autotest-parent-legacy/Images/calculator_tcm1081-760.jpg\" /></p>"
+                          ],
+                          "NumericValues": [],
+                          "DateTimeValues": [],
+                          "LinkedComponentValues": [],
+                          "FieldType": 2,
+                          "XPath": "tcm:Content/custom:Article/custom:articleBody[1]/custom:content",
+                          "KeywordValues": []
+                        }
+                      }
+                    ],
+                    "EmbeddedSchema": {
+                      "RootElementName": "Paragraph",
+                      "Id": "tcm:1081-232-8",
+                      "Title": "Paragraph"
+                    },
+                    "FieldType": 4,
+                    "XPath": "tcm:Content/custom:Article/custom:articleBody",
+                    "KeywordValues": []
+                  }
+                },
+                "MetadataFields": {},
+                "ComponentType": 1,
+                "Categories": [],
+                "Version": 3,
+                "Id": "tcm:1081-9712",
+                "Title": "Test Article"
+              }
+            ],
+            "FieldType": 6,
+            "XPath": "tcm:Content/custom:LanguageSelectorConfiguration/custom:defaultContentLink",
+            "KeywordValues": []
+          },
+          "suppressLocalizations": {
+            "Name": "suppressLocalizations",
+            "Values": [
+              "pt,mx"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Content/custom:LanguageSelectorConfiguration/custom:suppressLocalizations",
+            "KeywordValues": []
+          }
+        },
+        "MetadataFields": {},
+        "ComponentType": 1,
+        "Folder": {
+          "PublicationId": "tcm:0-1081-1",
+          "Id": "tcm:1081-1013-2",
+          "Title": "Site Manager"
+        },
+        "Categories": [],
+        "Version": 2,
+        "Publication": {
+          "Id": "tcm:0-1081-1",
+          "Title": "500 Automated Test Parent (Legacy)"
+        },
+        "OwningPublication": {
+          "Id": "tcm:0-1065-1",
+          "Title": "401 Automated Test Parent"
+        },
+        "Id": "tcm:1081-4888",
+        "Title": "Language Selector Configuration"
+      },
+      "ComponentTemplate": {
+        "OutputFormat": "HTML Fragment",
+        "RevisionDate": "2014-08-21T10:19:48.953",
+        "MetadataFields": {
+          "view": {
+            "Name": "view",
+            "Values": [
+              "LanguageSelector"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "regionView": {
+            "Name": "regionView",
+            "Values": [
+              "Nav"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          }
+        },
+        "Id": "tcm:1081-4889-32",
+        "Title": "Language Selector [Nav]"
+      },
+      "RenderedContent": "",
+      "IsDynamic": false,
+      "OrderOnPage": 0
+    },
+    {
+      "Component": {
+        "LastPublishedDate": "0001-01-01T00:00:00",
+        "RevisionDate": "2015-08-06T18:46:14",
+        "Schema": {
+          "RootElementName": "NavigationConfiguration",
+          "Id": "tcm:1081-1698-8",
+          "Title": "Navigation Configuration"
+        },
+        "Fields": {},
+        "MetadataFields": {
+          "navigationType": {
+            "Name": "navigationType",
+            "Values": [],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 3,
+            "CategoryName": "Navigation Type",
+            "CategoryId": "tcm:1081-1080-512",
+            "XPath": "tcm:Metadata/custom:Metadata/custom:navigationType",
+            "KeywordValues": [
+              {
+                "IsRoot": false,
+                "IsAbstract": false,
+                "Description": "",
+                "Key": "localizable",
+                "TaxonomyId": "tcm:1081-1080-512",
+                "Path": "\\Navigation Type\\Localizable - Based on Component content/metadata field values",
+                "RelatedKeywords": [],
+                "ParentKeywords": [],
+                "MetadataFields": {},
+                "Id": "tcm:1081-2742-1024",
+                "Title": "Localizable - Based on Component content/metadata field values"
+              }
+            ]
+          },
+          "externalLinkTemplate": {
+            "Name": "externalLinkTemplate",
+            "Values": [
+              "Redirect Page"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Metadata/custom:Metadata/custom:externalLinkTemplate",
+            "KeywordValues": []
+          },
+          "navigationTextFieldPaths": {
+            "Name": "navigationTextFieldPaths",
+            "Values": [
+              "standardMeta/name, headline"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Metadata/custom:Metadata/custom:navigationTextFieldPaths",
+            "KeywordValues": []
+          }
+        },
+        "ComponentType": 1,
+        "Folder": {
+          "PublicationId": "tcm:0-1081-1",
+          "Id": "tcm:1081-1013-2",
+          "Title": "Site Manager"
+        },
+        "Categories": [],
+        "Version": 11,
+        "Publication": {
+          "Id": "tcm:0-1081-1",
+          "Title": "500 Automated Test Parent (Legacy)"
+        },
+        "OwningPublication": {
+          "Id": "tcm:0-2-1",
+          "Title": "100 Master"
+        },
+        "Id": "tcm:1081-1699",
+        "Title": "Navigation Configuration"
+      },
+      "ComponentTemplate": {
+        "OutputFormat": "HTML Fragment",
+        "RevisionDate": "2014-06-25T14:36:10.41",
+        "MetadataFields": {
+          "controller": {
+            "Name": "controller",
+            "Values": [
+              "Navigation"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "action": {
+            "Name": "action",
+            "Values": [
+              "Navigation"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "routeValues": {
+            "Name": "routeValues",
+            "Values": [
+              "navType:Top"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "view": {
+            "Name": "view",
+            "Values": [
+              "TopNavigation"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "regionView": {
+            "Name": "regionView",
+            "Values": [
+              "Nav"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          }
+        },
+        "Id": "tcm:1081-1696-32",
+        "Title": "Top Navigation [Nav]"
+      },
+      "RenderedContent": "",
+      "IsDynamic": false,
+      "OrderOnPage": 0
+    },
+    {
+      "Component": {
+        "LastPublishedDate": "0001-01-01T00:00:00",
+        "RevisionDate": "2014-08-05T11:28:59",
+        "Schema": {
+          "RootElementName": "NotificationBar",
+          "Id": "tcm:1081-2737-8",
+          "Title": "Notification Bar"
+        },
+        "Fields": {
+          "headline": {
+            "Name": "headline",
+            "Values": [
+              "Old browser"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Content/custom:NotificationBar/custom:headline",
+            "KeywordValues": []
+          },
+          "text": {
+            "Name": "text",
+            "Values": [
+              "Our site works best with browsers newer than the one you’re using. You can continue using this browser, but be aware that some features might not be available. We apologize for this inconvenience."
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 1,
+            "XPath": "tcm:Content/custom:NotificationBar/custom:text",
+            "KeywordValues": []
+          },
+          "continue": {
+            "Name": "continue",
+            "Values": [
+              "Continue"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Content/custom:NotificationBar/custom:continue",
+            "KeywordValues": []
+          },
+          "link": {
+            "Name": "link",
+            "Values": [],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "EmbeddedValues": [
+              {
+                "linkText": {
+                  "Name": "linkText",
+                  "Values": [
+                    "Help me"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 0,
+                  "XPath": "tcm:Content/custom:NotificationBar/custom:link[1]/custom:linkText",
+                  "KeywordValues": []
+                },
+                "externalLink": {
+                  "Name": "externalLink",
+                  "Values": [
+                    "http://updatemybrowser.org/browser"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 0,
+                  "XPath": "tcm:Content/custom:NotificationBar/custom:link[1]/custom:externalLink",
+                  "KeywordValues": []
+                }
+              }
+            ],
+            "EmbeddedSchema": {
+              "RootElementName": "EmbeddedLink",
+              "Id": "tcm:1081-115-8",
+              "Title": "Link"
+            },
+            "FieldType": 4,
+            "XPath": "tcm:Content/custom:NotificationBar/custom:link",
+            "KeywordValues": []
+          }
+        },
+        "MetadataFields": {},
+        "ComponentType": 1,
+        "Folder": {
+          "PublicationId": "tcm:0-1081-1",
+          "Id": "tcm:1081-607-2",
+          "Title": "Header"
+        },
+        "Categories": [],
+        "Version": 1,
+        "Publication": {
+          "Id": "tcm:0-1081-1",
+          "Title": "500 Automated Test Parent (Legacy)"
+        },
+        "OwningPublication": {
+          "Id": "tcm:0-1067-1",
+          "Title": "110 DXA Site Type"
+        },
+        "Id": "tcm:1081-4839",
+        "Title": "Old Browser bar"
+      },
+      "ComponentTemplate": {
+        "OutputFormat": "HTML Fragment",
+        "RevisionDate": "2014-07-31T16:31:24.093",
+        "MetadataFields": {
+          "view": {
+            "Name": "view",
+            "Values": [
+              "OldBrowserNotificationBar"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "regionView": {
+            "Name": "regionView",
+            "Values": [
+              "Info"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          }
+        },
+        "Id": "tcm:1081-2827-32",
+        "Title": "Old Browser Notification Bar [Info]"
+      },
+      "RenderedContent": "",
+      "IsDynamic": false,
+      "OrderOnPage": 0
+    },
+    {
+      "Component": {
+        "LastPublishedDate": "0001-01-01T00:00:00",
+        "RevisionDate": "2016-09-21T14:56:14",
+        "Schema": {
+          "RootElementName": "CurrentUserWidget",
+          "Id": "tcm:1081-10033-8",
+          "Title": "Current User Widget"
+        },
+        "Fields": {
+          "loginLink": {
+            "Name": "loginLink",
+            "Values": [],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [
+              {
+                "LastPublishedDate": "0001-01-01T00:00:00",
+                "RevisionDate": "2016-09-19T09:19:52.683",
+                "Schema": {
+                  "RootElementName": "LoginForm",
+                  "Id": "tcm:1081-10029-8",
+                  "Title": "Login Form"
+                },
+                "Fields": {
+                  "heading": {
+                    "Name": "heading",
+                    "Values": [
+                      "Login to your account"
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:heading",
+                    "KeywordValues": []
+                  },
+                  "userNameLabel": {
+                    "Name": "userNameLabel",
+                    "Values": [
+                      "User name"
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:userNameLabel",
+                    "KeywordValues": []
+                  },
+                  "passwordLabel": {
+                    "Name": "passwordLabel",
+                    "Values": [
+                      "Password"
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:passwordLabel",
+                    "KeywordValues": []
+                  },
+                  "rememberMeLabel": {
+                    "Name": "rememberMeLabel",
+                    "Values": [
+                      "Remember me"
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:rememberMeLabel",
+                    "KeywordValues": []
+                  },
+                  "submitButtonLabel": {
+                    "Name": "submitButtonLabel",
+                    "Values": [
+                      "Login"
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:submitButtonLabel",
+                    "KeywordValues": []
+                  },
+                  "noUserNameMessage": {
+                    "Name": "noUserNameMessage",
+                    "Values": [
+                      "Please specify your user name."
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:noUserNameMessage",
+                    "KeywordValues": []
+                  },
+                  "noPasswordMessage": {
+                    "Name": "noPasswordMessage",
+                    "Values": [
+                      "Please specify your password."
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:noPasswordMessage",
+                    "KeywordValues": []
+                  },
+                  "authenticationErrorMessage": {
+                    "Name": "authenticationErrorMessage",
+                    "Values": [
+                      "Unknown user name or password."
+                    ],
+                    "NumericValues": [],
+                    "DateTimeValues": [],
+                    "LinkedComponentValues": [],
+                    "FieldType": 0,
+                    "XPath": "tcm:Content/custom:LoginForm/custom:authenticationErrorMessage",
+                    "KeywordValues": []
+                  }
+                },
+                "MetadataFields": {},
+                "ComponentType": 1,
+                "Categories": [],
+                "Version": 3,
+                "Id": "tcm:1081-10031",
+                "Title": "Login Form"
+              }
+            ],
+            "FieldType": 6,
+            "XPath": "tcm:Content/custom:CurrentUserWidget/custom:loginLink",
+            "KeywordValues": []
+          },
+          "logoutLabel": {
+            "Name": "logoutLabel",
+            "Values": [
+              "Logout"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Content/custom:CurrentUserWidget/custom:logoutLabel",
+            "KeywordValues": []
+          },
+          "loginLabel": {
+            "Name": "loginLabel",
+            "Values": [
+              "Login"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Content/custom:CurrentUserWidget/custom:loginLabel",
+            "KeywordValues": []
+          }
+        },
+        "MetadataFields": {},
+        "ComponentType": 1,
+        "Folder": {
+          "PublicationId": "tcm:0-1081-1",
+          "Id": "tcm:1081-2691-2",
+          "Title": "AudienceManager"
+        },
+        "Categories": [],
+        "Version": 4,
+        "Publication": {
+          "Id": "tcm:0-1081-1",
+          "Title": "500 Automated Test Parent (Legacy)"
+        },
+        "OwningPublication": {
+          "Id": "tcm:0-1068-1",
+          "Title": "200 Example Content"
+        },
+        "Id": "tcm:1081-10035",
+        "Title": "Current User Widget"
+      },
+      "ComponentTemplate": {
+        "OutputFormat": "HTML Fragment",
+        "RevisionDate": "2016-10-12T22:25:53.18",
+        "MetadataFields": {
+          "controller": {
+            "Name": "controller",
+            "Values": [
+              "AudienceManager:Profile"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "view": {
+            "Name": "view",
+            "Values": [
+              "AudienceManager:CurrentUserWidget"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          },
+          "regionView": {
+            "Name": "regionView",
+            "Values": [
+              "Nav"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          }
+        },
+        "Id": "tcm:1081-10034-32",
+        "Title": "Current User Widget [Nav]"
+      },
+      "RenderedContent": "",
+      "IsDynamic": false,
+      "OrderOnPage": 0
+    }
+  ],
+  "StructureGroup": {
+    "PublicationId": "tcm:0-1081-1",
+    "Id": "tcm:1081-42-4",
+    "Title": "include"
+  },
+  "Version": 4,
+  "Publication": {
+    "Id": "tcm:0-1081-1",
+    "Title": "500 Automated Test Parent (Legacy)"
+  },
+  "OwningPublication": {
+    "Id": "tcm:0-1065-1",
+    "Title": "401 Automated Test Parent"
+  },
+  "Id": "tcm:1081-1480-64",
+  "Title": "Header"
+}

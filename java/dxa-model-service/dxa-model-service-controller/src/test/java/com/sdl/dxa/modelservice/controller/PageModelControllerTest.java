@@ -1,7 +1,11 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.common.dto.ContentType;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
-import com.sdl.dxa.modelservice.service.ModelService;
+import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
@@ -26,7 +30,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PageModelControllerTest {
 
     @MockBean
-    private ModelService modelService;
+    private PageModelService pageModelService;
+
+    @MockBean
+    private LegacyPageModelService legacyPageModelService;
+
+    @MockBean
+    private ContentService contentService;
 
     @Autowired
     private MockMvc mvc;
@@ -63,6 +73,50 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42/")).andExpect(status().isOk());
     }
 
+    @Test
+    public void shouldAcceptModelType_AndPassItTpRequestBuilder() throws Exception {
+        //given 
+
+        //when
+        mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T")).andExpect(status().isOk());
+
+        //then
+        verify(this.legacyPageModelService, atLeastOnce()).loadLegacyPageModel(matcherFor(DataModelType.DD4T, ContentType.MODEL, "/"));
+    }
+
+    @Test
+    public void shouldAcceptModelType_AndPassItTpRequestBuilder_Raw() throws Exception {
+        //given
+
+        //when
+        mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T&raw=true")).andExpect(status().isOk());
+
+        //then
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.DD4T, ContentType.RAW, "/"));
+    }
+
+    @Test
+    public void shouldUseDefaultModelType_AndPassItTpRequestBuilder() throws Exception {
+        //given
+
+        //when
+        mvc.perform(get("/PageModel/tcm/42//")).andExpect(status().isOk());
+
+        //then
+        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(DataModelType.R2, ContentType.MODEL, "/"));
+    }
+
+    @Test
+    public void shouldUseDefaultModelType_AndPassItTpRequestBuilder_Raw() throws Exception {
+        //given
+
+        //when
+        mvc.perform(get("/PageModel/tcm/42//?raw=true")).andExpect(status().isOk());
+
+        //then
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW, "/"));
+    }
+
 
     private void expectForUrl(String expected, String url, String contextPath) throws Exception {
         MockHttpServletRequestBuilder requestBuilder = get(url);
@@ -71,7 +125,7 @@ public class PageModelControllerTest {
         }
         mvc.perform(requestBuilder).andExpect(status().isOk());
 
-        verify(this.modelService, atLeastOnce()).loadPageModel(matcherFor(expected));
+        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(expected));
     }
 
     private void expectForUrl(String expected, String url) throws Exception {
@@ -79,16 +133,24 @@ public class PageModelControllerTest {
     }
 
     private PageRequestDto matcherFor(String expected) {
+        return matcherFor(DataModelType.R2, ContentType.MODEL, expected);
+    }
+
+    private PageRequestDto matcherFor(DataModelType dataModelType, ContentType contentType, String expected) {
         return argThat(new BaseMatcher<PageRequestDto>() {
             @Override
             public boolean matches(Object item) {
                 PageRequestDto requestDto = (PageRequestDto) item;
-                return requestDto.getPath().equals(expected);
+                return requestDto.getDataModelType() == dataModelType
+                        && requestDto.getContentType() == contentType
+                        && requestDto.getPath().equals(expected);
             }
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("Path is expected to be equals to " + expected);
+                description.appendText("Page request is built with url = " + expected)
+                        .appendText("\nPage request is built with content type = " + contentType)
+                        .appendText("\nPage request is built with model type = " + dataModelType);
             }
         });
     }

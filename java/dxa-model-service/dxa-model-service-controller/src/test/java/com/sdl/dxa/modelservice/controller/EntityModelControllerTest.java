@@ -1,7 +1,14 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.common.dto.ContentType;
+import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
-import com.sdl.dxa.modelservice.service.ModelService;
+import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
+import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
+import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -19,10 +26,14 @@ import static org.mockito.Matchers.eq;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@MockBean(classes = {PageModelService.class, LegacyPageModelService.class, ToDd4tConverter.class, ToR2Converter.class})
 public class EntityModelControllerTest {
 
     @MockBean
-    private ModelService modelService;
+    private EntityModelService modelService;
+
+    @MockBean
+    private ContentService contentService;
 
     @Autowired
     private MockMvc mvc;
@@ -35,7 +46,7 @@ public class EntityModelControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123-345")).andExpect(MockMvcResultMatchers.status().isOk());
 
         //then
-        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder().publicationId(42).componentId(123).templateId(345).build()));
+        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder(42, 123, 345).build()));
     }
 
     @Test
@@ -46,6 +57,42 @@ public class EntityModelControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123")).andExpect(MockMvcResultMatchers.status().isOk());
 
         //then
-        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder().publicationId(42).componentId(123).templateId(-1).build()));
+        Mockito.verify(modelService).loadEntity(eq(EntityRequestDto.builder(42, 123, 0).build()));
+    }
+
+    @Test
+    public void shouldCallModelService_WithoutTemplateId_WithHighestPriority() throws Exception {
+        //given
+
+        //when
+        mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?dcpType=HIGHEST_PRIORITY")).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //then
+        Mockito.verify(modelService).loadEntity(eq(
+                EntityRequestDto.builder(42, 123, 0).dcpType(EntityRequestDto.DcpType.HIGHEST_PRIORITY).build()));
+    }
+
+    @Test
+    public void shouldCallModelService_WithoutTemplateId_WithRawContent() throws Exception {
+        //given
+
+        //when
+        mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?raw=true")).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //then
+        Mockito.verify(contentService).loadComponentPresentation(
+                eq(EntityRequestDto.builder(42, 123, 0).contentType(ContentType.RAW).build()));
+    }
+
+    @Test
+    public void shouldCallModelService_WithoutTemplateId_WithDD4TContent() throws Exception {
+        //given
+
+        //when
+        mvc.perform(MockMvcRequestBuilders.get("/EntityModel/tcm/42/123?modelType=DD4T")).andExpect(MockMvcResultMatchers.status().isOk());
+
+        //then
+        Mockito.verify(modelService).loadEntity(
+                eq(EntityRequestDto.builder(42, 123, 0).dataModelType(DataModelType.DD4T).build()));
     }
 }

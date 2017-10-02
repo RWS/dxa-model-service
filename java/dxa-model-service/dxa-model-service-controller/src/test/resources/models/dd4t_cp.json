@@ -1,0 +1,160 @@
+{
+  "Component": {
+    "LastPublishedDate": "0001-01-01T00:00:00",
+    "RevisionDate": "2017-01-26T16:21:13",
+    "Schema": {
+      "RootElementName": "LanguageSelectorConfiguration",
+      "Id": "tcm:1081-4887-8",
+      "Title": "Language Selector Configuration"
+    },
+    "Fields": {
+      "defaultContentLink": {
+        "Name": "defaultContentLink",
+        "Values": [],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [
+          {
+            "LastPublishedDate": "0001-01-01T00:00:00",
+            "RevisionDate": "2016-09-22T17:41:36.557",
+            "Schema": {
+              "RootElementName": "Article",
+              "Id": "tcm:1081-80-8",
+              "Title": "Article"
+            },
+            "Fields": {
+              "headline": {
+                "Name": "headline",
+                "Values": [
+                  "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
+                ],
+                "NumericValues": [],
+                "DateTimeValues": [],
+                "LinkedComponentValues": [],
+                "FieldType": 0,
+                "XPath": "tcm:Content/custom:Article/custom:headline",
+                "KeywordValues": []
+              },
+              "articleBody": {
+                "Name": "articleBody",
+                "Values": [],
+                "NumericValues": [],
+                "DateTimeValues": [],
+                "LinkedComponentValues": [],
+                "EmbeddedValues": [
+                  {
+                    "subheading": {
+                      "Name": "subheading",
+                      "Values": [
+                        "Subheading 1"
+                      ],
+                      "NumericValues": [],
+                      "DateTimeValues": [],
+                      "LinkedComponentValues": [],
+                      "FieldType": 0,
+                      "XPath": "tcm:Content/custom:Article/custom:articleBody[1]/custom:subheading",
+                      "KeywordValues": []
+                    },
+                    "content": {
+                      "Name": "content",
+                      "Values": [
+                        "<p>Test <strong>rich</strong><em>text</em> content.</p><p>Component link (not published): <a title=\"Test Component\" xlink:href=\"tcm:1081-9710\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"Test Component\">Test Component</a></p><p>Component link (published): <a title=\"TSI-1758 Test Component\" xlink:href=\"tcm:1081-9971\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"TSI-1758 Test Component\">TSI-1758 Test Component</a></p><p>MMC link: <a title=\"bulls-eye\" xlink:href=\"tcm:1081-759\" data-schemaUri=\"tcm:1081-79-8\" data-multimediaFileName=\"bulls-eye.JPG\" data-multimediaFileSize=\"1276322\" data-multimediaMimeType=\"image/jpeg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"bulls-eye\" href=\"/autotest-parent-legacy/Images/bulls-eye_tcm1081-759.JPG\">bulls-eye</a></p><p>Embedded Image: <img title=\"calculator\" alt=\"calculator\" xlink:href=\"tcm:1081-760\" data-schemaUri=\"tcm:1081-79-8\" data-multimediaFileName=\"calculator.jpg\" data-multimediaFileSize=\"1007535\" data-multimediaMimeType=\"image/jpeg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"calculator\" src=\"/autotest-parent-legacy/Images/calculator_tcm1081-760.jpg\" /></p>"
+                      ],
+                      "NumericValues": [],
+                      "DateTimeValues": [],
+                      "LinkedComponentValues": [],
+                      "FieldType": 2,
+                      "XPath": "tcm:Content/custom:Article/custom:articleBody[1]/custom:content",
+                      "KeywordValues": []
+                    }
+                  }
+                ],
+                "EmbeddedSchema": {
+                  "RootElementName": "Paragraph",
+                  "Id": "tcm:1081-232-8",
+                  "Title": "Paragraph"
+                },
+                "FieldType": 4,
+                "XPath": "tcm:Content/custom:Article/custom:articleBody",
+                "KeywordValues": []
+              }
+            },
+            "MetadataFields": {},
+            "ComponentType": 1,
+            "Categories": [],
+            "Version": 3,
+            "Id": "tcm:1081-9712",
+            "Title": "Test Article"
+          }
+        ],
+        "FieldType": 6,
+        "XPath": "tcm:Content/custom:LanguageSelectorConfiguration/custom:defaultContentLink",
+        "KeywordValues": []
+      },
+      "suppressLocalizations": {
+        "Name": "suppressLocalizations",
+        "Values": [
+          "pt,mx"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "XPath": "tcm:Content/custom:LanguageSelectorConfiguration/custom:suppressLocalizations",
+        "KeywordValues": []
+      }
+    },
+    "MetadataFields": {},
+    "ComponentType": 1,
+    "Folder": {
+      "PublicationId": "tcm:0-1081-1",
+      "Id": "tcm:1081-1013-2",
+      "Title": "Site Manager"
+    },
+    "Categories": [],
+    "Version": 2,
+    "Publication": {
+      "Id": "tcm:0-1081-1",
+      "Title": "500 Automated Test Parent (Legacy)"
+    },
+    "OwningPublication": {
+      "Id": "tcm:0-1065-1",
+      "Title": "401 Automated Test Parent"
+    },
+    "Id": "tcm:1081-4888",
+    "Title": "Language Selector Configuration"
+  },
+  "ComponentTemplate": {
+    "OutputFormat": "HTML Fragment",
+    "RevisionDate": "2014-08-21T10:19:48.953",
+    "MetadataFields": {
+      "view": {
+        "Name": "view",
+        "Values": [
+          "LanguageSelector"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "KeywordValues": []
+      },
+      "regionView": {
+        "Name": "regionView",
+        "Values": [
+          "Nav"
+        ],
+        "NumericValues": [],
+        "DateTimeValues": [],
+        "LinkedComponentValues": [],
+        "FieldType": 0,
+        "KeywordValues": []
+      }
+    },
+    "Id": "tcm:1081-4889-32",
+    "Title": "Language Selector [Nav]"
+  },
+  "RenderedContent": "",
+  "IsDynamic": false,
+  "OrderOnPage": 0
+}

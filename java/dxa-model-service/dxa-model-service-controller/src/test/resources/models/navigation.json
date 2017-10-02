@@ -1,0 +1,648 @@
+{
+  "Title": "Home",
+  "Url": "/autotest-parent/",
+  "Id": "tcm:1082-3-4",
+  "Type": "StructureGroup",
+  "Items": [
+    {
+      "Title": "Home",
+      "Url": "/autotest-parent/index",
+      "Id": "tcm:1082-640-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-22T14:09:57.623",
+      "Visible": true
+    },
+    {
+      "Title": "Acceptance",
+      "Url": "/autotest-parent/acceptance",
+      "Id": "tcm:1082-2593-4",
+      "Type": "StructureGroup",
+      "Items": [
+        {
+          "Title": "test-include-for-mobile-short-title",
+          "Url": "/autotest-parent/acceptance/ce-test",
+          "Id": "tcm:1082-9935-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.383",
+          "Visible": false
+        },
+        {
+          "Title": "test-fallback-item-short-title",
+          "Url": "/autotest-parent/acceptance/experiment-chrome",
+          "Id": "tcm:1082-9830-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.38",
+          "Visible": false
+        },
+        {
+          "Title": "test-fallback-item-short-title",
+          "Url": "/autotest-parent/acceptance/fallback-test",
+          "Id": "tcm:1082-9832-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.383",
+          "Visible": false
+        },
+        {
+          "Title": "RegionsTest",
+          "Url": "/autotest-parent/acceptance/regions",
+          "Id": "tcm:1082-2595-4",
+          "Type": "StructureGroup",
+          "Items": [
+            {
+              "Title": "Company News",
+              "Url": "/autotest-parent/acceptance/regions/component-template-conflict",
+              "Id": "tcm:1082-9844-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T10:03:17.893",
+              "Visible": false
+            },
+            {
+              "Title": "Company News",
+              "Url": "/autotest-parent/acceptance/regions/predefined-with-components",
+              "Id": "tcm:1082-9845-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T10:03:17.897",
+              "Visible": false
+            },
+            {
+              "Title": "Predefined Regions - Empty",
+              "Url": "/autotest-parent/acceptance/regions/predefined-empty",
+              "Id": "tcm:1082-9842-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T10:03:17.89",
+              "Visible": false
+            },
+            {
+              "Title": "Predefined Regions - Empty - With Conflict",
+              "Url": "/autotest-parent/acceptance/regions/predefined-empty-conflict",
+              "Id": "tcm:1082-9843-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T10:03:17.893",
+              "Visible": false
+            },
+            {
+              "Title": "Company News",
+              "Url": "/autotest-parent/acceptance/regions/predefined-custom-region-name-view",
+              "Id": "tcm:1082-9848-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T10:03:17.897",
+              "Visible": false
+            },
+            {
+              "Title": "Company News",
+              "Url": "/autotest-parent/acceptance/regions/predefined-custom-region-without-view",
+              "Id": "tcm:1082-9849-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T10:03:17.897",
+              "Visible": false
+            }
+          ],
+          "Visible": false
+        }
+      ],
+      "Visible": false
+    },
+    {
+      "Title": "BartK",
+      "Url": "/autotest-parent/BartK",
+      "Id": "tcm:1082-2678-4",
+      "Type": "StructureGroup",
+      "Items": [
+        {
+          "Title": "Article Short Title",
+          "Url": "/autotest-parent/BartK/article",
+          "Id": "tcm:1082-10010-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.403",
+          "Visible": false
+        },
+        {
+          "Title": "Cras vel justo semp",
+          "Url": "/autotest-parent/BartK/index",
+          "Id": "tcm:1082-10009-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.4",
+          "Visible": false
+        },
+        {
+          "Title": "Article Short Title",
+          "Url": "/autotest-parent/BartK/test02",
+          "Id": "tcm:1082-10012-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.403",
+          "Visible": false
+        }
+      ],
+      "Visible": false
+    },
+    {
+      "Title": "Component Link Test Page",
+      "Url": "/autotest-parent/comp_link_test_page",
+      "Id": "tcm:1082-10250-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.43",
+      "Visible": false
+    },
+    {
+      "Title": "Login",
+      "Url": "/autotest-parent/login",
+      "Id": "tcm:1082-10043-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.407",
+      "Visible": false
+    },
+    {
+      "Title": "MM Test",
+      "Url": "/autotest-parent/mm_test",
+      "Id": "tcm:1082-9801-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.373",
+      "Visible": false
+    },
+    {
+      "Title": "Page with a published MM Component",
+      "Url": "/autotest-parent/page_with_mm_component",
+      "Id": "tcm:1082-10269-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.48",
+      "Visible": false
+    },
+    {
+      "Title": "Regression",
+      "Url": "/autotest-parent/regression",
+      "Id": "tcm:1082-2674-4",
+      "Type": "StructureGroup",
+      "Items": [
+        {
+          "Title": "Data Converter Test",
+          "Url": "/autotest-parent/regression/data-converter-test",
+          "Id": "tcm:1082-10352-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.497",
+          "Visible": false
+        },
+        {
+          "Title": "Flickr Test",
+          "Url": "/autotest-parent/regression/flickr-test",
+          "Id": "tcm:1082-10238-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.423",
+          "Visible": false
+        },
+        {
+          "Title": "MediaManager",
+          "Url": "/autotest-parent/regression/mediamanager",
+          "Id": "tcm:1082-10059-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.413",
+          "Visible": false
+        },
+        {
+          "Title": "Page With Spaces",
+          "Url": "/autotest-parent/regression/page%20with%20spaces",
+          "Id": "tcm:1082-10344-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.49",
+          "Visible": false
+        },
+        {
+          "Title": "R2 Page Includes",
+          "Url": "/autotest-parent/regression/r2-page-includes",
+          "Id": "tcm:1082-10274-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.483",
+          "Visible": false
+        },
+        {
+          "Title": "Redirects",
+          "Url": "/autotest-parent/regression/redirects",
+          "Id": "tcm:1082-2727-4",
+          "Type": "StructureGroup",
+          "Items": [
+            {
+              "Title": "External Redirect",
+              "Url": "https://github.com/sdl/dxa-modules",
+              "Id": "tcm:1082-10346-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T09:37:16.493",
+              "Visible": false
+            },
+            {
+              "Title": "Internal Redirect",
+              "Url": "tcm:1082-9712",
+              "Id": "tcm:1082-10345-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T09:37:16.493",
+              "Visible": false
+            }
+          ],
+          "Visible": false
+        },
+        {
+          "Title": "Taxonomy",
+          "Url": "/autotest-parent/regression/taxonomy",
+          "Id": "tcm:1082-2677-4",
+          "Type": "StructureGroup",
+          "Items": [
+            {
+              "Title": "Navigation Taxonomy Index Page",
+              "Url": "/autotest-parent/regression/taxonomy/index",
+              "Id": "tcm:1082-10003-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T09:37:16.4",
+              "Visible": true
+            },
+            {
+              "Title": "Navigation Taxonomy Test Page 2",
+              "Url": "/autotest-parent/regression/taxonomy/nav-taxonomy-test-2",
+              "Id": "tcm:1082-10002-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T09:37:16.4",
+              "Visible": true
+            },
+            {
+              "Title": "Navigation Taxonomy Test Page 1",
+              "Url": "/autotest-parent/regression/taxonomy/nav-taxonomy-test-1",
+              "Id": "tcm:1082-10001-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T09:37:16.397",
+              "Visible": true
+            },
+            {
+              "Title": "Navigation Taxonomy Test Page 3",
+              "Url": "/autotest-parent/regression/taxonomy/nav-taxonomy-test-3",
+              "Id": "tcm:1082-10023-64",
+              "Type": "Page",
+              "Items": [],
+              "PublishedDate": "2017-08-17T09:37:16.407",
+              "Visible": false
+            }
+          ],
+          "Visible": false
+        },
+        {
+          "Title": "TSI-1308 Test Page",
+          "Url": "/autotest-parent/regression/tsi-1308",
+          "Id": "tcm:1082-10186-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.417",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-1758 Test Page",
+          "Url": "/autotest-parent/regression/tsi-1758",
+          "Id": "tcm:1082-9973-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.39",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-1852 Test Article",
+          "Url": "/autotest-parent/regression/tsi-1852-article",
+          "Id": "tcm:1082-9990-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.397",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-1852 Content Query Test",
+          "Url": "/autotest-parent/regression/tsi-1852",
+          "Id": "tcm:1082-9987-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.393",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-1856 Test Page",
+          "Url": "/autotest-parent/regression/tsi-1856",
+          "Id": "tcm:1082-10224-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.42",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-1946 Test",
+          "Url": "/autotest-parent/regression/tsi-1946",
+          "Id": "tcm:1082-10048-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.41",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-2225 Test Page",
+          "Url": "/autotest-parent/regression/tsi-2225",
+          "Id": "tcm:1082-10234-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.423",
+          "Visible": false
+        },
+        {
+          "Title": "Article headline",
+          "Url": "/autotest-parent/regression/tsi-2277-1",
+          "Id": "tcm:1082-10242-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.427",
+          "Visible": false
+        },
+        {
+          "Title": "Article standardMeta name",
+          "Url": "/autotest-parent/regression/tsi-2277-2",
+          "Id": "tcm:1082-10244-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.427",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-2285 Test Page",
+          "Url": "/autotest-parent/regression/tsi-2285",
+          "Id": "tcm:1082-10246-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.427",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-2316 Test Page",
+          "Url": "/autotest-parent/regression/tsi-2316",
+          "Id": "tcm:1082-10257-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.48",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-2525 NoCache Entity Duplicated Component Test",
+          "Url": "/autotest-parent/regression/tsi-2525-nocache-entity-duplicate",
+          "Id": "tcm:1082-10336-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.49",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-2525 NoCache Entity Test",
+          "Url": "/autotest-parent/regression/tsi-2525-nocache-entity",
+          "Id": "tcm:1082-10319-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.487",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-2525 NoCache Page Test",
+          "Url": "/autotest-parent/regression/tsi-2525-nocache-page",
+          "Id": "tcm:1082-10320-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.49",
+          "Visible": false
+        },
+        {
+          "Title": "TSI-811 Test Page",
+          "Url": "/autotest-parent/regression/tsi-811",
+          "Id": "tcm:1082-10125-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.417",
+          "Visible": false
+        }
+      ],
+      "Visible": false
+    },
+    {
+      "Title": "Search Results",
+      "Url": "/autotest-parent/search",
+      "Id": "tcm:1082-9950-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.387",
+      "Visible": false
+    },
+    {
+      "Title": "Sitemap",
+      "Url": "/autotest-parent/sitemap",
+      "Id": "tcm:1082-10055-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.413",
+      "Visible": false
+    },
+    {
+      "Title": "Smoke",
+      "Url": "/autotest-parent/smoke",
+      "Id": "tcm:1082-2589-4",
+      "Type": "StructureGroup",
+      "Items": [
+        {
+          "Title": "Image Library",
+          "Url": "/autotest-parent/smoke/cid-test",
+          "Id": "tcm:1082-9960-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.39",
+          "Visible": false
+        },
+        {
+          "Title": "Context Expression Smoke Test",
+          "Url": "/autotest-parent/smoke/context-expression-smoke-test",
+          "Id": "tcm:1082-9929-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.383",
+          "Visible": false
+        },
+        {
+          "Title": "Contextual View Switch Smoke Test",
+          "Url": "/autotest-parent/smoke/context-view-switch-smoke-test",
+          "Id": "tcm:1082-9985-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.393",
+          "Visible": false
+        },
+        {
+          "Title": "Google Analytics Smoke Test",
+          "Url": "/autotest-parent/smoke/google-analytics",
+          "Id": "tcm:1082-9810-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.373",
+          "Visible": false
+        },
+        {
+          "Title": "Media Manager Custom Players",
+          "Url": "/autotest-parent/smoke/media-manager-custom-smoke-test",
+          "Id": "tcm:1082-10219-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.42",
+          "Visible": false
+        },
+        {
+          "Title": "Media Manager Smoke Test",
+          "Url": "/autotest-parent/smoke/media-manager-smoke-test",
+          "Id": "tcm:1082-9807-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.373",
+          "Visible": false
+        },
+        {
+          "Title": "Multi-language Site Smoke Test",
+          "Url": "/autotest-parent/smoke/multi-lang-smoke-test",
+          "Id": "tcm:1082-10225-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.42",
+          "Visible": false
+        },
+        {
+          "Title": " search-test-item1-short-title",
+          "Url": "/autotest-parent/smoke/search-smoke-test",
+          "Id": "tcm:1082-9951-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.39",
+          "Visible": false
+        },
+        {
+          "Title": "search-test-item-suppressed-short-title",
+          "Url": "/autotest-parent/smoke/search-smoke-test-suppressed",
+          "Id": "tcm:1082-9980-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.393",
+          "Visible": false
+        },
+        {
+          "Title": "test-fallback-item-short-title",
+          "Url": "/autotest-parent/smoke/smart-target-experiments-test",
+          "Id": "tcm:1082-9824-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.38",
+          "Visible": false
+        },
+        {
+          "Title": "SmartTarget (eXperience Optimization) Smoke Test",
+          "Url": "/autotest-parent/smoke/st-pt-metadata-override",
+          "Id": "tcm:1082-10272-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.483",
+          "Visible": false
+        },
+        {
+          "Title": "SmartTarget (eXperience Optimization) Smoke Test",
+          "Url": "/autotest-parent/smoke/smart-target-smoke-test",
+          "Id": "tcm:1082-9822-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.377",
+          "Visible": false
+        },
+        {
+          "Title": "test-fallback-item-short-title",
+          "Url": "/autotest-parent/smoke/smart-target-smoke-test-fallback",
+          "Id": "tcm:1082-10347-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.493",
+          "Visible": false
+        },
+        {
+          "Title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+          "Url": "/autotest-parent/smoke/tsi-1947",
+          "Id": "tcm:1082-10113-64",
+          "Type": "Page",
+          "Items": [],
+          "PublishedDate": "2017-08-17T09:37:16.413",
+          "Visible": false
+        }
+      ],
+      "Visible": false
+    },
+    {
+      "Title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+      "Url": "/autotest-parent/test_article_dynamic",
+      "Id": "tcm:1082-10053-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.41",
+      "Visible": false
+    },
+    {
+      "Title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+      "Url": "/autotest-parent/test_article_page",
+      "Id": "tcm:1082-9786-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.37",
+      "Visible": false
+    },
+    {
+      "Title": "TSI-1278 Internationalized URLs",
+      "Url": "/autotest-parent/tsi-1278_tr%C3%A5dl%C3%B8st",
+      "Id": "tcm:1082-9790-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.37",
+      "Visible": false
+    },
+    {
+      "Title": "TSI-1614 Rich Text embedded Image With HTML class",
+      "Url": "/autotest-parent/tsi-1614",
+      "Id": "tcm:1082-9938-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.387",
+      "Visible": false
+    },
+    {
+      "Title": "test-fallback-item-short-title",
+      "Url": "/autotest-parent/xo-test",
+      "Id": "tcm:1082-10285-64",
+      "Type": "Page",
+      "Items": [],
+      "PublishedDate": "2017-08-17T09:37:16.487",
+      "Visible": false
+    }
+  ],
+  "Visible": false
+}
