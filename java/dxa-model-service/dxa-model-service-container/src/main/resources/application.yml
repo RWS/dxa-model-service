@@ -11,6 +11,10 @@ logging:
 
 ---
 
+management:
+  health:
+    jms:
+      enabled: false
 server:
   tomcat:
     additional-tld-skip-patterns: xercesImpl.jar, xml-apis.jar, serializer.jar
