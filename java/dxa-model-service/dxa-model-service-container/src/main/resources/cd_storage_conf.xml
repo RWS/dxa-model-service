@@ -7,8 +7,8 @@
                       ClientSecret="encrypted:HzfQh9wYwAKShDxCm4DnnBnysAz9PtbDMFXMbPszSVY="
                       ConnectionTimeout="10000"
                       ServiceMonitorPollDuration="10"
-                      ServiceUri="${discoveryurl:-http://localhost:8082/discovery.svc}"
-                      TokenServiceUrl="${tokenurl:-http://localhost:8082/token.svc}">
+                      ServiceUri="${DISCOVERY_URL:-http://localhost:8082/discovery.svc}"
+                      TokenServiceUrl="${TOKEN_URL:-http://localhost:8082/token.svc}">
         <Roles>
             <Role Name="ContentServiceCapability">
                 <!--
@@ -22,7 +22,7 @@
                 Existing properties with same name will be updated.
                 -->
                 <!-- Extension property to identify location of dxa model builder service (staging is on port 8998 and live is on 8999) -->
-                <Property Name="dxa-model-service" Value="${modelserviceurl:-http://localhost:8998}"/>
+                <Property Name="dxa-model-service" Value="${MS_URL:-http://localhost:8998}"/>
             </Role>
         </Roles>
     </ConfigRepository>

@@ -8,7 +8,7 @@ WORKDIR /dxa-model-service
 
 RUN chmod +x bin/start.sh
 
-CMD /bin/bash -C 'bin/start.sh' "--server.port=8998 --logging.config=config/logback.xml $startparameters"
+CMD /bin/bash -C 'bin/start.sh' "$startparameters"
 
 EXPOSE 8998
 EXPOSE 8082

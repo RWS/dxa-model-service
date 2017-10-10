@@ -3,7 +3,7 @@
                Version="8.5"
                xsi:noNamespaceSchemaLocation="../schemas/cd_ambient_conf.xsd">
 
-    <Security OAuthEnabled="true">
+    <Security OAuthEnabled="${MS_SECURITY_ENABLED:-true}">
         <RequestValidator>com.sdl.web.oauth.validator.OAuth2RequestValidator</RequestValidator>
         <!--
         Built-in authentication server's configuration.

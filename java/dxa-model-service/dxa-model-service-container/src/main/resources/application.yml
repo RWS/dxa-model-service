@@ -18,3 +18,4 @@ management:
 server:
   tomcat:
     additional-tld-skip-patterns: xercesImpl.jar, xml-apis.jar, serializer.jar
+  port: 8998
