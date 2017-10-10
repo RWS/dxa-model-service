@@ -7,6 +7,7 @@ COPY target/dxa-model-service/standalone /dxa-model-service
 WORKDIR /dxa-model-service
 
 RUN chmod +x bin/start.sh
+RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
 
 CMD /bin/bash -C 'bin/start.sh' "$startparameters"
 
