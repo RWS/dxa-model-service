@@ -1,4 +1,5 @@
-﻿<configuration scan="true" scanPeriod="1 minute">
+<?xml version="1.0" encoding="utf-8"?>
+<configuration scan="true" scanPeriod="1 minute">
     <!-- Properties and variables -->
     <property name="log.pattern" value="%date %-5level %logger{15} - %message %n"/>
     <property name="log.color.pattern" value="%date %highlight(%-5level) %cyan(%logger{15}) - %message %n"/>
