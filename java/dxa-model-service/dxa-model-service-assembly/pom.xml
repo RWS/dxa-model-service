@@ -16,6 +16,7 @@
 
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
+        <installer.dir>${project.basedir}/src/main/configurer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
     </properties>
 
