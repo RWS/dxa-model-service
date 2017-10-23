@@ -1,7 +1,5 @@
-import com.sdl.dxa.builder.configuration.parameters.Parameter
-import com.sdl.dxa.builder.configuration.parameters.PropertiesFileProperty
-import com.sdl.dxa.builder.configuration.parameters.Property
-import com.sdl.dxa.builder.configuration.parameters.XmlProperty
+import com.sdl.dxa.builder.configuration.parameters.*
+import org.jdom2.Namespace
 
 import static com.sdl.dxa.builder.configuration.parameters.Validator.*
 
@@ -23,7 +21,7 @@ task wrapper(type: Wrapper) {
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
-defaultTasks 'configure'
+defaultTasks 'run'
 
 def isWindows = org.gradle.internal.os.OperatingSystem.current().windows
 def configFolder = "../config"
@@ -33,34 +31,84 @@ boolean isVerbose = project.hasProperty('verbose')
 def configuration = [
         parameters: [
                 port        : new Parameter()
-                        .withDescription("On which port you want to run the Model Service")
+                        .withDescription("What port do you want to use for the Model Service")
                         .withDefaultValue(project, 'port', '8998')
                         .withValidator(intNumber())
                         .withProperties(
                         new PropertiesFileProperty()
                                 .withName("server.port")
-                                .inFile("$configFolder/application.properties")
+                                .inFile("$configFolder/application.properties"),
+                        new ReplaceRegExpProperty()
+                                .thatReplaces('SERVER_PORT=--server.port=', '\\d+', '')
+                                .inFile("../bin/start.sh"),
+                        new ReplaceRegExpProperty()
+                                .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
+                                .inFile("../bin/start.ps1"),
+                        new ReplaceRegExpProperty()
+                                .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
+                                .inFile("../bin/installService.ps1")
                 ),
                 discoveryUrl: new Parameter()
-                        .withDescription('Discovery URL')
+                        .withDescription('Discovery Service URL')
                         .withDefaultValue(project, 'discoveryUrl', null)
                         .withValidator(or(url(), ip()))
                         .withProperties(
                         new XmlProperty()
                                 .thatModifiesXml("/ServiceConfig/DiscoveryService/@ServiceUri")
                                 .inFile("$configFolder/cd_client_conf.xml")
+                                .wrappedWith('${DISCOVERY_URL:-', '}'),
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/ConfigRepository/@ServiceUri")
+                                .inFile("$configFolder/cd_storage_conf.xml")
                                 .wrappedWith('${DISCOVERY_URL:-', '}')
                 ),
+                tokenUrl    : new Parameter()
+                        .withDescription('Token Service URL')
+                        .withValidator(or(url(), ip()))
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/ConfigRepository/@TokenServiceUrl")
+                                .inFile("$configFolder/cd_storage_conf.xml")
+                                .wrappedWith('${TOKEN_URL:-', '}'))
+                        .withDynamicDefault(
+                        { configuration ->
+                            (project.hasProperty('tokenUrl') ? project['tokenUrl'] :
+                                    configuration.parameters.discoveryUrl.get().replace("discovery.svc", "token.svc")) as String
+                        }),
+                register    : new Parameter()
+                        .withDescription("Do you want to register Model Service now in Discovery Service?")
+                        .withDefaultValue(project, 'register', 'no')
+                        .withValidator(valueInList('yes', 'no')),
                 secured     : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
                         .withDefaultValue(project, 'secured', 'yes')
-                        .withValidator(valueInList('true', 'yes', 'false', 'no'))
+                        .withValidator(valueInList('yes', 'no'))
                         .withProperties(
                         new XmlProperty()
                                 .thatModifiesXml("/Configuration/Security/@OAuthEnabled")
                                 .inFile("$configFolder/cd_ambient_conf.xml")
-                                .withMapping("yes -> true; no -> false; true -> true; false -> false")
+                                .withMapping("yes -> true; no -> false")
                                 .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
+                ),
+                cacheEnabled: new Parameter()
+                        .withDescription("Is Cache Enabled for Model Service and CIL?")
+                        .withDefaultValue(project, 'cacheEnabled', 'yes')
+                        .withValidator(valueInList('yes', 'no'))
+                        .withProperties(
+                        new PropertiesFileProperty()
+                                .withName("spring.cache.type")
+                                .withMapping("yes -> jcache; no -> none")
+                                .inFile("$configFolder/application.properties"),
+                        new XmlProperty()
+                                .thatModifiesXml("/ServiceConfig/@CacheEnabled")
+                                .inFile("$configFolder/cd_client_conf.xml")
+                                .withMapping("yes -> true; no -> false")
+                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}'),
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
+                                .inFile("$configFolder/cd_storage_conf.xml")
+                                .withMapping("yes -> true; no -> false")
+                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}')
                 ),
                 logLevel    : new Parameter()
                         .withDescription("Log level")
@@ -70,8 +118,20 @@ def configuration = [
                         new XmlProperty()
                                 .thatModifiesXml("/configuration/property[@name='log.level']/@value")
                                 .wrappedWith('${MS_LOG_LEVEL:-', '}')
+                                .inFile("$configFolder/logback.xml")),
+                cilLogLevel : new Parameter()
+                        .versionAdded("1.7.0")
+                        .withDescription('CIL log level')
+                        .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/configuration/property[@name='cil.log.level']/@value")
+                                .wrappedWith('${MS_LOG_LEVEL:-', '}')
                                 .inFile("$configFolder/logback.xml"))
-                ,
+                        .withDynamicDefault(
+                        { configuration ->
+                            (project.hasProperty('cilLogLevel') ? project['cilLogLevel'] : configuration.parameters.logLevel.get()) as String
+                        }),
                 logFolder   : new Parameter()
                         .withDescription("Location of a log folder")
                         .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '~/SDLWeb/log')
@@ -81,8 +141,38 @@ def configuration = [
                                 .thatModifiesXml("/configuration/property[@name='log.folder']/@value")
                                 .wrappedWith('${MS_LOG_FOLDER:-', '}')
                                 .inFile("$configFolder/logback.xml"))
-                // caching
-                // register?
+        ],
+        extras    : [
+                'cacheEnabled.yes': [
+                        cacheDuration: new Parameter()
+                                .withDescription('Cache Expiration Duration (seconds)')
+                                .withDefaultValue(project, 'cacheDuration', '3600')
+                                .withValidator(intNumber())
+                                .withProperties(
+                                new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
+                                        "/v3:config/v3:cache-template/v3:expiry/v3:ttl/text()")
+                                        .inFile("$configFolder/ehcache-cil.xml"),
+                                new XmlProperty().thatModifiesXml("/ServiceConfig/@CacheExpirationDuration")
+                                        .inFile("$configFolder/cd_client_conf.xml"),
+                                new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
+                                        .inFile("$configFolder/cd_storage_conf.xml"))
+                ],
+                'register.yes'    : [
+                        modelServiceUrl: new Parameter()
+                                .withDescription('Model Service URL to register it in Discovery?')
+                                .withValidator(or(url(), ip()))
+                                .withDynamicDefault(
+                                { configuration ->
+                                    (project.hasProperty('modelServiceUrl') ? project['modelServiceUrl'] :
+                                            ("${configuration.parameters.discoveryUrl.get().replaceAll(":\\d+\\/discovery\\.svc\$", '')}" +
+                                                    ":${configuration.parameters.port.get()}")) as String
+                                })
+                                .withProperties(
+                                new XmlProperty()
+                                        .thatModifiesXml("/Configuration/ConfigRepository/Roles/Role/Property[@Name='dxa-model-service']/@Value")
+                                        .inFile("$configFolder/cd_storage_conf.xml")
+                                        .wrappedWith('${MS_URL:-', '}')),
+                ]
         ]
 ]
 
@@ -166,6 +256,19 @@ requestParameters.doFirst introduce('I am requesting all the needed parameters a
 task configure(dependsOn: requestParameters)
 configure.doFirst introduce("I am configuring all the needed parameters in $configFolder folder. Type 'halt' to stop")
 
+task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configure]) {
+    main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
+    classpath = files { file('../services/model-service').listFiles() + file('../lib').listFiles() + file('../config') }
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+registerDiscovery.doFirst introduce("I am registering Model Service in Discover Service")
+
+task run(dependsOn: [configure, registerDiscovery])
+run.doFirst introduce("I am master build task, I forced everything to work in right order")
+
 requestParameters << {
     Map<Property, String> properties = [:]
 
@@ -174,7 +277,7 @@ requestParameters << {
             return
         }
 
-        println(":: ${param.description}: ${param.process(isBatch, configuration)}")
+        println("::: ${param.description}: ${param.process(isBatch, configuration)}")
         println ''
 
         if (param.properties) {
@@ -186,7 +289,15 @@ requestParameters << {
         param.get()
     }
 
-    configuration.parameters.each { request(it.value as Parameter) }
+    configuration.parameters.each {
+        def parameter = request(it.value as Parameter)
+        if (parameter) {
+            def extra = configuration.extras["${it.key}.${parameter.toString().replaceAll(/[^a-zA-Z0-9.-]/, '')}"]
+            (extra as Map)?.each {
+                request it.value as Parameter
+            }
+        }
+    }
 
     properties.each {
         def property = it.key as Property
@@ -198,4 +309,6 @@ requestParameters << {
             }
         }
     }
+
+    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() == 'yes'
 }
