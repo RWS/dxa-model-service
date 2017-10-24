@@ -267,7 +267,7 @@ task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configure]
 registerDiscovery.doFirst introduce("I am registering Model Service in Discover Service")
 
 task run(dependsOn: [configure, registerDiscovery])
-run.doFirst introduce("I am master build task, I forced everything to work in right order")
+run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
 
 requestParameters << {
     Map<Property, String> properties = [:]
