@@ -7,9 +7,16 @@ About
 This repository contains the source code of the DXA Model Service: a separate microservice which is to be deployed on an SDL Web 8 CIS backend.
 This DXA Model Service is introduced in DXA 2.0 in order to get better performance (fewer CIS roundtrips) and a more lightweight DXA Framework in the Web Application.
 
-The full DXA Model Service distribution is downloadable from the [SDL Community site](https://community.sdl.com/developers/tridion-developer/m/mediagallery/) (latest version)
-or the Releases in GitHub: https://github.com/sdl/dxa-model-service/releases or https://github.com/sdl/dxa-web-application-java/releases (all versions)
 
+The full DXA Model Service distribution is downloadable from the SDL AppStore as part of DXA 2.0 .NET or Java (https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608/ or  https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737/)
+
+Build
+-----
+
+To build DXA Model Service run:
+````
+mvn clean install -U
+````
 
 Support
 ---------------
