@@ -264,7 +264,7 @@ task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configure]
         return standardOutput.toString()
     }
 }
-registerDiscovery.doFirst introduce("I am registering Model Service in Discover Service")
+registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
 
 task run(dependsOn: [configure, registerDiscovery])
 run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
