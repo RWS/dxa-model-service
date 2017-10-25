@@ -266,8 +266,35 @@ task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configure]
 }
 registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
 
-task run(dependsOn: [configure, registerDiscovery])
-run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
+task run
+if (project.hasProperty('runService')) {
+    if (isWindows) {
+        Process proc
+        task runServiceAfter(dependsOn: [configure, registerDiscovery]) {
+            addShutdownHook {
+                proc.destroy()
+            }
+        }
+
+        runServiceAfter << {
+            ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"'])
+            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            proc = pb.start()
+
+            proc.waitFor()
+            println "It is coming up now ... " + proc.exitValue()
+        }
+    } else {
+        task runServiceAfter(type: Exec, dependsOn: [configure, registerDiscovery]) {
+            commandLine '/bin/sh', '../bin/start.sh"'
+        }
+    }
+    run.dependsOn([configure, registerDiscovery, runServiceAfter])
+    run.doFirst introduce("I am running callback  after installer finishes its work")
+} else {
+    run.dependsOn([configure, registerDiscovery])
+    run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
+}
 
 requestParameters << {
     Map<Property, String> properties = [:]
