@@ -21,6 +21,10 @@ task wrapper(type: Wrapper) {
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
+task loadDependencies(dependsOn: wrapper) << {
+	println "Dependencies loaded"
+}
+
 defaultTasks 'run'
 
 def isWindows = org.gradle.internal.os.OperatingSystem.current().windows
