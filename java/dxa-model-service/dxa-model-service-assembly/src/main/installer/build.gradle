@@ -22,7 +22,7 @@ task wrapper(type: Wrapper) {
 }
 
 task loadDependencies(dependsOn: wrapper) << {
-	println "Dependencies loaded"
+    println "Dependencies loaded"
 }
 
 defaultTasks 'run'
@@ -99,9 +99,13 @@ def configuration = [
                                 .withMapping("yes -> true; no -> false")
                                 .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
                 ),
+                deployType  : new Parameter()
+                        .withDescription("What is you deployment type: staging or live?")
+                        .withDefaultValue(project, 'deployType', 'live')
+                        .withSystemEnv('MS_DEPLOY_TYPE')
+                        .withValidator(valueInList('staging', 'live')),
                 cacheEnabled: new Parameter()
                         .withDescription("Is Cache Enabled for Model Service and CIL?")
-                        .withDefaultValue(project, 'cacheEnabled', 'yes')
                         .withSystemEnv('CIL_CACHE_ENABLED')
                         .withValidator(valueInList('yes', 'no'))
                         .withProperties(
@@ -118,8 +122,11 @@ def configuration = [
                                 .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
                                 .inFile("$configFolder/cd_storage_conf.xml")
                                 .withMapping("yes -> true; no -> false")
-                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}')
-                ),
+                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
+                        .withDynamicDefault(
+                        { configuration ->
+                            (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? 'no' : 'yes')
+                        }),
                 logLevel    : new Parameter()
                         .withDescription("Log level")
                         .withDefaultValue(project, 'logLevel', 'INFO')
