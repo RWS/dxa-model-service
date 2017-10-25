@@ -268,25 +268,36 @@ registerDiscovery.doFirst introduce("I am registering Model Service in Discovery
 
 task run
 if (project.hasProperty('runService')) {
-    if (isWindows) {
+   if (isWindows) {
         Process proc
         task runServiceAfter(dependsOn: [configure, registerDiscovery]) {
             addShutdownHook {
-                proc.destroy()
+               proc?.destroy()
             }
         }
-
+        
         runServiceAfter << {
-            ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"'])
+			ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"'])
+            
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
+            pb.redirectErrorStream(true)
+            
             proc = pb.start()
-
             proc.waitFor()
-            println "It is coming up now ... " + proc.exitValue()
+           
         }
     } else {
         task runServiceAfter(type: Exec, dependsOn: [configure, registerDiscovery]) {
-            commandLine '/bin/sh', '../bin/start.sh"'
+            executable 'bash'
+            args '../bin/start.sh'
+            addShutdownHook { 
+				ProcessBuilder pb = new ProcessBuilder(["bash", "-c", "../bin/stop.sh"])
+				pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+				pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
+				pb.redirectErrorStream(true)
+				pb.start().waitFor()
+            }
         }
     }
     run.dependsOn([configure, registerDiscovery, runServiceAfter])
