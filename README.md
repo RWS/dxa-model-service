@@ -8,7 +8,7 @@ The SDL Digital Experience Accelerator (DXA) is a reference implementation of SD
 
 It is available for .NET and Java Web Applications and has a modular architecture consisting of a Framework and example web application providing core functionality and separate Modules for additional, optional functionality. 
 
-This repository contains the source code of the DXA Model Service: a separate microservice which is to be deployed on an SDL Web 8 CIS backend.
+This repository contains the source code of the DXA Model Service: a separate microservice which is to be deployed on an SDL Web 8+ CIS backend.
 
 This DXA Model Service is introduced in DXA 2.0 in order to get better performance (fewer CIS roundtrips) and a more lightweight DXA Framework in the Web Application.
 
@@ -17,13 +17,6 @@ The full DXA Model Service distribution is downloadable from the SDL AppStore as
 
 (*) SDL Tridion 2013 SP1 is only supported up to DXA version 1.6.
 
-Build
------
-
-To build DXA Model Service run:
-````
-mvn clean install -U
-````
 
 Support
 ---------------
