@@ -33,6 +33,7 @@ def configuration = [
                 port        : new Parameter()
                         .withDescription("What port do you want to use for the Model Service")
                         .withDefaultValue(project, 'port', '8998')
+                        .withSystemEnv('MS_PORT')
                         .withValidator(intNumber())
                         .withProperties(
                         new PropertiesFileProperty()
@@ -50,7 +51,8 @@ def configuration = [
                 ),
                 discoveryUrl: new Parameter()
                         .withDescription('Discovery Service URL')
-                        .withDefaultValue(project, 'discoveryUrl', null)
+                        .withDefaultValue(project, 'discoveryUrl', "http://localhost:8082/discovery.svc")
+                        .withSystemEnv('DISCOVERY_URL')
                         .withValidator(or(url(), ip()))
                         .withProperties(
                         new XmlProperty()
@@ -64,6 +66,7 @@ def configuration = [
                 ),
                 tokenUrl    : new Parameter()
                         .withDescription('Token Service URL')
+                        .withSystemEnv('TOKEN_URL')
                         .withValidator(or(url(), ip()))
                         .withProperties(
                         new XmlProperty()
@@ -78,10 +81,12 @@ def configuration = [
                 register    : new Parameter()
                         .withDescription("Do you want to register Model Service now in Discovery Service?")
                         .withDefaultValue(project, 'register', 'no')
+                        .withSystemEnv('MS_AUTO_REGISTER')
                         .withValidator(valueInList('yes', 'no')),
                 secured     : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
                         .withDefaultValue(project, 'secured', 'yes')
+                        .withSystemEnv('MS_SECURITY_ENABLED')
                         .withValidator(valueInList('yes', 'no'))
                         .withProperties(
                         new XmlProperty()
@@ -93,6 +98,7 @@ def configuration = [
                 cacheEnabled: new Parameter()
                         .withDescription("Is Cache Enabled for Model Service and CIL?")
                         .withDefaultValue(project, 'cacheEnabled', 'yes')
+                        .withSystemEnv('CIL_CACHE_ENABLED')
                         .withValidator(valueInList('yes', 'no'))
                         .withProperties(
                         new PropertiesFileProperty()
@@ -113,6 +119,7 @@ def configuration = [
                 logLevel    : new Parameter()
                         .withDescription("Log level")
                         .withDefaultValue(project, 'logLevel', 'INFO')
+                        .withSystemEnv('MS_LOG_LEVEL')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
                         .withProperties(
                         new XmlProperty()
@@ -120,13 +127,13 @@ def configuration = [
                                 .wrappedWith('${MS_LOG_LEVEL:-', '}')
                                 .inFile("$configFolder/logback.xml")),
                 cilLogLevel : new Parameter()
-                        .versionAdded("1.7.0")
                         .withDescription('CIL log level')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
+                        .withSystemEnv('CIL_LOG_LEVEL')
                         .withProperties(
                         new XmlProperty()
                                 .thatModifiesXml("/configuration/property[@name='cil.log.level']/@value")
-                                .wrappedWith('${MS_LOG_LEVEL:-', '}')
+                                .wrappedWith('${CIL_LOG_LEVEL:-', '}')
                                 .inFile("$configFolder/logback.xml"))
                         .withDynamicDefault(
                         { configuration ->
@@ -135,6 +142,7 @@ def configuration = [
                 logFolder   : new Parameter()
                         .withDescription("Location of a log folder")
                         .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '~/SDLWeb/log')
+                        .withSystemEnv('MS_LOG_FOLDER')
                         .withValidator(notEmpty())
                         .withProperties(
                         new XmlProperty()
@@ -147,6 +155,7 @@ def configuration = [
                         cacheDuration: new Parameter()
                                 .withDescription('Cache Expiration Duration (seconds)')
                                 .withDefaultValue(project, 'cacheDuration', '3600')
+                                .withSystemEnv('MS_CACHE_DURATION')
                                 .withValidator(intNumber())
                                 .withProperties(
                                 new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
@@ -160,6 +169,7 @@ def configuration = [
                 'register.yes'    : [
                         modelServiceUrl: new Parameter()
                                 .withDescription('Model Service URL to register it in Discovery?')
+                                .withSystemEnv('MS_URL')
                                 .withValidator(or(url(), ip()))
                                 .withDynamicDefault(
                                 { configuration ->
@@ -268,35 +278,35 @@ registerDiscovery.doFirst introduce("I am registering Model Service in Discovery
 
 task run
 if (project.hasProperty('runService')) {
-   if (isWindows) {
+    if (isWindows) {
         Process proc
         task runServiceAfter(dependsOn: [configure, registerDiscovery]) {
             addShutdownHook {
-               proc?.destroy()
+                proc?.destroy()
             }
         }
-        
+
         runServiceAfter << {
-			ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"'])
-            
+            ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"'])
+
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
             pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
             pb.redirectErrorStream(true)
-            
+
             proc = pb.start()
             proc.waitFor()
-           
+
         }
     } else {
         task runServiceAfter(type: Exec, dependsOn: [configure, registerDiscovery]) {
             executable 'bash'
             args '../bin/start.sh'
-            addShutdownHook { 
-				ProcessBuilder pb = new ProcessBuilder(["bash", "-c", "../bin/stop.sh"])
-				pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
-				pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
-				pb.redirectErrorStream(true)
-				pb.start().waitFor()
+            addShutdownHook {
+                ProcessBuilder pb = new ProcessBuilder(["bash", "-c", "../bin/stop.sh"])
+                pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+                pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
+                pb.redirectErrorStream(true)
+                pb.start().waitFor()
             }
         }
     }
