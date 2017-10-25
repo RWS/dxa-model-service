@@ -287,7 +287,7 @@ if (project.hasProperty('runService')) {
         }
 
         runServiceAfter << {
-            ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"'])
+            ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
 
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
             pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
@@ -300,7 +300,7 @@ if (project.hasProperty('runService')) {
     } else {
         task runServiceAfter(type: Exec, dependsOn: [configure, registerDiscovery]) {
             executable 'bash'
-            args '../bin/start.sh'
+            args '../bin/start.sh', System.getenv("startparameters") ?: ''
             addShutdownHook {
                 ProcessBuilder pb = new ProcessBuilder(["bash", "-c", "../bin/stop.sh"])
                 pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)

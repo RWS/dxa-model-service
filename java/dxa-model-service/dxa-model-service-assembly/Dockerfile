@@ -4,12 +4,14 @@ RUN apt-get update && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /dxa-model-service && chmod 755 /dxa-model-service
 COPY target/dxa-model-service/standalone /dxa-model-service
-WORKDIR /dxa-model-service
+WORKDIR /dxa-model-service/installer
 
-RUN chmod +x bin/start.sh
+RUN chmod +x ../bin/start.sh
 RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
 
-CMD /bin/bash -C 'bin/start.sh' "$startparameters"
+RUN chmod +x prepare.sh
+
+CMD ["/bin/bash", "-C", "prepare.sh", "-Pbatch", "-PrunService"]
 
 EXPOSE 8998
 EXPOSE 8082
