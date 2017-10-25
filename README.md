@@ -10,7 +10,7 @@ It is available for .NET and Java Web Applications and has a modular architectur
 
 This repository contains the source code of the DXA Model Service: a separate microservice which that can be deployed on an SDL Web CIS backend, version 8 or higher.
 
-This DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
+The DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
 
 
 The full DXA Model Service distribution is downloadable from the SDL AppStore:
