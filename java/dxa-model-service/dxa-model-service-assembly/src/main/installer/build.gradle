@@ -35,7 +35,7 @@ boolean isVerbose = project.hasProperty('verbose')
 def configuration = [
         parameters: [
                 port        : new Parameter()
-                        .withDescription("What port do you want to use for the Model Service")
+                        .withDescription("What port do you want to use for the Model Service?")
                         .withDefaultValue(project, 'port', '8998')
                         .withSystemEnv('MS_PORT')
                         .withValidator(intNumber())
@@ -54,7 +54,7 @@ def configuration = [
                                 .inFile("../bin/installService.ps1")
                 ),
                 discoveryUrl: new Parameter()
-                        .withDescription('Discovery Service URL')
+                        .withDescription('What is the Discovery Service URL?')
                         .withDefaultValue(project, 'discoveryUrl', "http://localhost:8082/discovery.svc")
                         .withSystemEnv('DISCOVERY_URL')
                         .withValidator(or(url(), ip()))
@@ -69,7 +69,7 @@ def configuration = [
                                 .wrappedWith('${DISCOVERY_URL:-', '}')
                 ),
                 tokenUrl    : new Parameter()
-                        .withDescription('Token Service URL')
+                        .withDescription('What is the Token Service URL?')
                         .withSystemEnv('TOKEN_URL')
                         .withValidator(or(url(), ip()))
                         .withProperties(
@@ -128,7 +128,7 @@ def configuration = [
                             (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? 'no' : 'yes')
                         }),
                 logLevel    : new Parameter()
-                        .withDescription("Log level")
+                        .withDescription("What log level do you want?")
                         .withDefaultValue(project, 'logLevel', 'INFO')
                         .withSystemEnv('MS_LOG_LEVEL')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
@@ -138,7 +138,7 @@ def configuration = [
                                 .wrappedWith('${MS_LOG_LEVEL:-', '}')
                                 .inFile("$configFolder/logback.xml")),
                 cilLogLevel : new Parameter()
-                        .withDescription('CIL log level')
+                        .withDescription('What log level do you want for CIL?')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
                         .withSystemEnv('CIL_LOG_LEVEL')
                         .withProperties(
@@ -151,7 +151,7 @@ def configuration = [
                             (project.hasProperty('cilLogLevel') ? project['cilLogLevel'] : configuration.parameters.logLevel.get()) as String
                         }),
                 logFolder   : new Parameter()
-                        .withDescription("Location of a log folder")
+                        .withDescription("What would be the location of the log folder?")
                         .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '${user.home}/SDLWeb/log')
                         .withSystemEnv('MS_LOG_FOLDER')
                         .withValidator(notEmpty())
@@ -164,7 +164,7 @@ def configuration = [
         extras    : [
                 'cacheEnabled.yes': [
                         cacheDuration: new Parameter()
-                                .withDescription('Cache Expiration Duration (seconds)')
+                                .withDescription('What is Cache Expiration Duration in seconds?')
                                 .withDefaultValue(project, 'cacheDuration', '3600')
                                 .withSystemEnv('MS_CACHE_DURATION')
                                 .withValidator(intNumber())
@@ -179,7 +179,7 @@ def configuration = [
                 ],
                 'register.yes'    : [
                         modelServiceUrl: new Parameter()
-                                .withDescription('Model Service URL to register it in Discovery?')
+                                .withDescription('What is Model Service URL to register it in Discovery?')
                                 .withSystemEnv('MS_URL')
                                 .withValidator(or(url(), ip()))
                                 .withDynamicDefault(
@@ -331,29 +331,12 @@ if (project.hasProperty('runService')) {
 requestParameters << {
     Map<Property, String> properties = [:]
 
-    def request = { Parameter param ->
-        if (!param.isSupportedInCurrentVersion(version)) {
-            return
-        }
-
-        println("::: ${param.description}: ${param.process(isBatch, configuration)}")
-        println ''
-
-        if (param.properties) {
-            param.properties.each {
-                properties[it] = param.get()
-            }
-        }
-
-        param.get()
-    }
-
     configuration.parameters.each {
-        def parameter = request(it.value as Parameter)
+        def parameter = (it.value as Parameter).request(properties, version, isBatch, configuration)
         if (parameter) {
             def extra = configuration.extras["${it.key}.${parameter.toString().replaceAll(/[^a-zA-Z0-9.-]/, '')}"]
             (extra as Map)?.each {
-                request it.value as Parameter
+                (it.value as Parameter).request(properties, version, isBatch, configuration)
             }
         }
     }
