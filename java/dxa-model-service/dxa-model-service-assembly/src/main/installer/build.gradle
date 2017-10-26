@@ -152,7 +152,7 @@ def configuration = [
                         }),
                 logFolder   : new Parameter()
                         .withDescription("Location of a log folder")
-                        .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '~/SDLWeb/log')
+                        .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '${user.home}/SDLWeb/log')
                         .withSystemEnv('MS_LOG_FOLDER')
                         .withValidator(notEmpty())
                         .withProperties(
