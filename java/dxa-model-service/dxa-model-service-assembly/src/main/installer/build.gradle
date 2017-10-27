@@ -167,7 +167,7 @@ def configuration = [
                                 .withDescription('What is Cache Expiration Duration in seconds?')
                                 .withDynamicDefault(
                                 { configuration ->
-                                    (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? '5' : '3600')
+                                    (project.hasProperty('cacheDuration') ? project['cacheDuration'] : (configuration.parameters.deployType.get()) as String == 'staging' ? '5' : '3600')
                                 })
                                 .withSystemEnv('MS_CACHE_DURATION')
                                 .withValidator(intNumber())
