@@ -315,6 +315,7 @@ if (project.hasProperty('runService')) {
         task runServiceAfter(type: Exec, dependsOn: [configure, registerDiscovery]) {
             executable 'bash'
             args '../bin/start.sh', System.getenv("startparameters") ?: ''
+            ignoreExitValue true
             addShutdownHook {
                 ProcessBuilder pb = new ProcessBuilder(["bash", "-c", "../bin/stop.sh"])
                 pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
