@@ -317,27 +317,28 @@ if (project.hasProperty('runService')) {
 			registerDiscovery.enabled = false
 		}
     
-        Process proc
+        def procs = []
         task runServiceAfter(dependsOn: [configureService, registerDiscovery]) {
             addShutdownHook {
-                proc?.destroy()
+                procs?.each { it?.destroy() }
             }
         }
 
-        runServiceAfter << {
-            def projectDefinition
-            if (project['runService'] == 'installService') {
+        if (project['runService'] == 'installService' || project['runService'] == 'uninstallService') {
+            runServiceAfter << {
                 checkWindowsAsAdmin()
-
-                projectDefinition = ["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: '']
-            } else if (project['runService'] == 'uninstallService') {
-                checkWindowsAsAdmin()
-
-                projectDefinition = ["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: '']
-            } else {
-                projectDefinition = ["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: '']
+                procs << runScript(["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: ''])
             }
-            proc = runScript(projectDefinition)
+
+            if (project['runService'] == 'installService') {
+                runServiceAfter << {
+                    procs << runScript(["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: ''])
+                }
+            }
+        } else {
+            runServiceAfter << {
+                procs << runScript(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
+            }
         }
     } else {
         task runServiceAfter(type: Exec, dependsOn: [configureService, registerDiscovery]) {
@@ -350,7 +351,7 @@ if (project.hasProperty('runService')) {
         }
     }
     run.dependsOn([configureService, registerDiscovery, runServiceAfter])
-    run.doFirst introduce("I am running the service script after installer finishes its work")
+    run.doFirst introduce("I have run the scripts from /bin folder")
 } else {
     run.dependsOn([configureService, registerDiscovery])
     run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
