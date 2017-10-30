@@ -308,15 +308,15 @@ def checkWindowsAsAdmin = {
     }
 }
 
-if (project['runService'] == 'uninstallService') {
-    requestParameters.enabled = false
-    configureService.enabled = false
-    registerDiscovery.enabled = false
-}
-
 task run
 if (project.hasProperty('runService')) {
     if (isWindows) {
+		if (project['runService'] == 'uninstallService') {
+			requestParameters.enabled = false
+			configureService.enabled = false
+			registerDiscovery.enabled = false
+		}
+    
         Process proc
         task runServiceAfter(dependsOn: [configureService, registerDiscovery]) {
             addShutdownHook {
