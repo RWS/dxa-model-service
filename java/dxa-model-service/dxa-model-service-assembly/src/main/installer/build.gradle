@@ -277,10 +277,10 @@ def introduce = { String text ->
 task requestParameters
 requestParameters.doFirst introduce('I am requesting all the needed parameters and configuring further tasks. Type \'halt\' to stop')
 
-task configure(dependsOn: requestParameters)
-configure.doFirst introduce("I am configuring all the needed parameters in $configFolder folder. Type 'halt' to stop")
+task configureService(dependsOn: requestParameters)
+configureService.doFirst introduce("I am configuring all the needed parameters in $configFolder folder. Type 'halt' to stop")
 
-task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configure]) {
+task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configureService]) {
     main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
     classpath = files { file('../services/model-service').listFiles() + file('../lib').listFiles() + file('../config') }
     standardOutput = new ByteArrayOutputStream()
@@ -290,45 +290,69 @@ task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configure]
 }
 registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
 
+def runScript = { processDefinition ->
+    ProcessBuilder pb = new ProcessBuilder(processDefinition)
+
+    pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+    pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
+    pb.redirectErrorStream(true)
+
+    Process proc = pb.start()
+    proc.waitFor()
+    proc
+}
+
+def checkWindowsAsAdmin = {
+    if ("net session".execute().waitFor() != 0) {
+        throw new RuntimeException("You have to run the script as Administrator if you want to install the service")
+    }
+}
+
+if (project['runService'] == 'uninstallService') {
+    requestParameters.enabled = false
+    configureService.enabled = false
+    registerDiscovery.enabled = false
+}
+
 task run
 if (project.hasProperty('runService')) {
     if (isWindows) {
         Process proc
-        task runServiceAfter(dependsOn: [configure, registerDiscovery]) {
+        task runServiceAfter(dependsOn: [configureService, registerDiscovery]) {
             addShutdownHook {
                 proc?.destroy()
             }
         }
 
         runServiceAfter << {
-            ProcessBuilder pb = new ProcessBuilder(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
+            def projectDefinition
+            if (project['runService'] == 'installService') {
+                checkWindowsAsAdmin()
 
-            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
-            pb.redirectErrorStream(true)
+                projectDefinition = ["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: '']
+            } else if (project['runService'] == 'uninstallService') {
+                checkWindowsAsAdmin()
 
-            proc = pb.start()
-            proc.waitFor()
-
+                projectDefinition = ["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: '']
+            } else {
+                projectDefinition = ["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: '']
+            }
+            proc = runScript(projectDefinition)
         }
     } else {
-        task runServiceAfter(type: Exec, dependsOn: [configure, registerDiscovery]) {
+        task runServiceAfter(type: Exec, dependsOn: [configureService, registerDiscovery]) {
             executable 'bash'
             args '../bin/start.sh', System.getenv("startparameters") ?: ''
             ignoreExitValue true
             addShutdownHook {
-                ProcessBuilder pb = new ProcessBuilder(["bash", "-c", "../bin/stop.sh"])
-                pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
-                pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
-                pb.redirectErrorStream(true)
-                pb.start().waitFor()
+                runScript(["bash", "-c", "../bin/stop.sh"])
             }
         }
     }
-    run.dependsOn([configure, registerDiscovery, runServiceAfter])
-    run.doFirst introduce("I am running callback  after installer finishes its work")
+    run.dependsOn([configureService, registerDiscovery, runServiceAfter])
+    run.doFirst introduce("I am running the service script after installer finishes its work")
 } else {
-    run.dependsOn([configure, registerDiscovery])
+    run.dependsOn([configureService, registerDiscovery])
     run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
 }
 
@@ -349,7 +373,7 @@ requestParameters << {
         def property = it.key as Property
         def value = property.deriveValue(it.value)
 
-        configure << {
+        configureService << {
             property.files.each { String filename ->
                 property.processProperty(filename, value)
             }
