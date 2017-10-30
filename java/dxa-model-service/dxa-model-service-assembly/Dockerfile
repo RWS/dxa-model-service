@@ -9,6 +9,7 @@ WORKDIR /dxa-model-service
 RUN chmod +x bin/start.sh
 RUN chmod +x bin/stop.sh
 RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
+RUN sed -i 's/The service is not started\./Container stopped./g' bin/stop.sh
 
 RUN chmod +x installer/prepare.sh
 
