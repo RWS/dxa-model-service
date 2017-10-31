@@ -16,7 +16,7 @@ RUN chmod +x installer/prepare.sh
 WORKDIR /dxa-model-service/installer
 RUN ./prepare.sh loadDependencies
 
-CMD ["/bin/bash", "-C", "prepare.sh", "--console=plain", "-Pbatch", "-PrunService"]
+CMD ["/bin/bash", "-C", "prepare.sh", "--console=plain", "-PrunScript=run", "-Pbatch"]
 
 EXPOSE 8998
 EXPOSE 8082
