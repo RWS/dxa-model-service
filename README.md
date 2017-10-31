@@ -13,7 +13,7 @@ This repository contains the source code of the DXA Model Service: a separate mi
 The DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
 
 
-The full DXA Model Service distribution is downloadable from the SDL AppStore:
+The full DXA Model Service distribution is downloadable from the SDL AppStore as part of a  DXA .NET or Java installation package:
 - DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608/
 - DXA Java: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737
 
