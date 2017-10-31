@@ -368,6 +368,8 @@ requestParameters << {
                     processes << runScript(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
                 }
             } else {
+                runScript(["chmod", "u+x", "../bin/start.sh"])
+                runScript(["chmod", "u+x", "../bin/stop.sh"])
                 runScriptCallbackLinux.addShutdownHook {
                     runScript(["bash", "-c", "../bin/stop.sh"])
                 }
