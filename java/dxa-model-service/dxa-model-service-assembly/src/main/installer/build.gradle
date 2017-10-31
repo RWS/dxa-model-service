@@ -36,7 +36,7 @@ def configuration = [
         runScript : new Parameter()
                 .withDescription("Do you want to run the Model Service${isWindows ? ' or install it as a Windows Service' : ''} right after?")
                 .withDefaultValue(project, 'runScript', 'no')
-                .withValidator(valueInList('no', 'run', 'install', 'uninstall')),
+                .withValidator(isWindows ? valueInList('no', 'run', 'install', 'uninstall') : valueInList('no', 'run')),
         parameters: [
                 port        : new Parameter()
                         .withDescription("What port do you want to use for the Model Service?")
