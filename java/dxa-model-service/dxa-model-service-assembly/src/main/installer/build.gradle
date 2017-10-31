@@ -350,6 +350,8 @@ requestParameters << {
     def runScriptMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
     if (runScriptMode == 'no') {
         runScriptCallback.enabled = false
+        runScriptCallbackWindows.enabled = false
+        runScriptCallbackLinux.enabled = false
         run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
     } else {
         run.doFirst introduce("I have run the scripts from /bin folder")
