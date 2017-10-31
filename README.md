@@ -19,6 +19,13 @@ The full DXA Model Service distribution is downloadable from the SDL AppStore:
 
 (*) SDL Tridion 2013 SP1 is only supported up to DXA version 1.6.
 
+Build
+-----
+
+To build DXA Model Service run:
+````
+mvn clean install -U
+````
 
 Support
 ---------------
