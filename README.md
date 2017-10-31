@@ -2,6 +2,7 @@ dxa-model-service
 ===
 SDL Digital Experience Accelerator Model Service
 
+
 About
 -----
 The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Web 8+  that is intended to help you quickly create, design, and publish an SDL Web-based website.
@@ -17,6 +18,7 @@ The full DXA Model Service distribution is downloadable from the SDL AppStore as
 - DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608/
 - DXA Java: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737
 
+
 Build
 -----
 
@@ -24,6 +26,7 @@ To build DXA Model Service run:
 ````
 mvn clean install -U
 ````
+
 
 Support
 ---------------
@@ -71,10 +74,6 @@ Furthermore, Pull Requests on release branches are expected to be extensively te
 
 Of course, it's also possible (and appreciated) to report an Issue without associated Pull Requests.
 
-
-Snapshots
----------
-DXA Model service publishes SNAPSHOT versions to Sonatype. If you want to use them, you have to configure `https://oss.sonatype.org/content/repositories/snapshots` as a repository in your Maven settings. Read [this](https://maven.apache.org/settings.html#Repositories) for instructions.
 
 License
 -------
