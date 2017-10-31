@@ -33,6 +33,10 @@ boolean isBatch = project.hasProperty('batch')
 boolean isVerbose = project.hasProperty('verbose')
 
 def configuration = [
+        runScript : new Parameter()
+                .withDescription("Do you want to run the Model Service${isWindows ? ' or install it as a Windows Service' : ''} right after?")
+                .withDefaultValue(project, 'runScript', 'no')
+                .withValidator(valueInList('no', 'run', 'install', 'uninstall')),
         parameters: [
                 port        : new Parameter()
                         .withDescription("What port do you want to use for the Model Service?")
@@ -162,7 +166,28 @@ def configuration = [
                                 .inFile("$configFolder/logback.xml"))
         ],
         extras    : [
-                'cacheEnabled.yes': [
+                'runScript.install': [
+                        'serviceName'       : new Parameter()
+                                .withDescription("What is the name of the Windows Service?")
+                                .withDefaultValue(project, 'serviceName', 'SDLDXAModelService')
+                                .withValidator(notEmpty())
+                                .withProperties(
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$name\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/installService.ps1")),
+                        'serviceDisplayName': new Parameter()
+                                .withDescription("What is the display name of the Windows Service?")
+                                .withDefaultValue(project, 'serviceDisplayName', 'SDL DXA Model Service')
+                                .withValidator(notEmpty())
+                                .withProperties(
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$displayName\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/installService.ps1"),
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$description\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/installService.ps1")),
+                ],
+                'cacheEnabled.yes' : [
                         cacheDuration: new Parameter()
                                 .withDescription('What is Cache Expiration Duration in seconds?')
                                 .withDynamicDefault(
@@ -180,7 +205,7 @@ def configuration = [
                                 new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
                                         .inFile("$configFolder/cd_storage_conf.xml"))
                 ],
-                'register.yes'    : [
+                'register.yes'     : [
                         modelServiceUrl: new Parameter()
                                 .withDescription('What is Model Service URL to register it in Discovery?')
                                 .withSystemEnv('MS_URL')
@@ -308,56 +333,58 @@ def checkWindowsAsAdmin = {
     }
 }
 
-task run
-if (project.hasProperty('runService')) {
-    if (isWindows) {
-		if (project['runService'] == 'uninstallService') {
-			requestParameters.enabled = false
-			configureService.enabled = false
-			registerDiscovery.enabled = false
-		}
-    
-        def procs = []
-        task runServiceAfter(dependsOn: [configureService, registerDiscovery]) {
-            addShutdownHook {
-                procs?.each { it?.destroy() }
+def processes = []
+task runScriptCallback(dependsOn: [configureService, registerDiscovery])
+task run(dependsOn: [configureService, registerDiscovery, runScriptCallback])
+
+requestParameters << {
+    def runScriptMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
+    if (runScriptMode == 'no') {
+        runScriptCallback.enabled = false
+        run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
+    } else {
+        run.doFirst introduce("I have run the scripts from /bin folder")
+
+        if (isWindows) {
+            runScriptCallback.addShutdownHook {
+                processes?.each { it?.destroy() }
             }
         }
 
-        if (project['runService'] == 'installService' || project['runService'] == 'uninstallService') {
-            runServiceAfter << {
-                checkWindowsAsAdmin()
-                procs << runScript(["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: ''])
-            }
-
-            if (project['runService'] == 'installService') {
-                runServiceAfter << {
-                    procs << runScript(["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: ''])
+        if (runScriptMode == 'run') {
+            runScriptCallback << {
+                if (isWindows) {
+                    processes << runScript(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
+                } else {
+                    processes << runScript(["bash", '../bin/start.sh', System.getenv("startparameters") ?: ''])
+                    runScriptCallback.addShutdownHook {
+                        runScript(["bash", "-c", "../bin/stop.sh"])
+                    }
                 }
             }
-        } else {
-            runServiceAfter << {
-                procs << runScript(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
+        } else if (isWindows && (runScriptMode == 'install' || runScriptMode == 'uninstall')) {
+
+            runScriptCallback << {
+                checkWindowsAsAdmin()
+                println "Uninstalling Windows Service..."
+                processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: ''])
             }
-        }
-    } else {
-        task runServiceAfter(type: Exec, dependsOn: [configureService, registerDiscovery]) {
-            executable 'bash'
-            args '../bin/start.sh', System.getenv("startparameters") ?: ''
-            ignoreExitValue true
-            addShutdownHook {
-                runScript(["bash", "-c", "../bin/stop.sh"])
+
+            if (runScriptMode == 'uninstall') {
+                configureService.enabled = false
+                registerDiscovery.enabled = false
+                return
+            } else {
+                runScriptCallback << {
+                    checkWindowsAsAdmin()
+                    println "Installing Windows Service..."
+                    processes << runScript(["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: ''])
+                }
+                configuration.parameters += configuration.extras['runScript.install']
             }
         }
     }
-    run.dependsOn([configureService, registerDiscovery, runServiceAfter])
-    run.doFirst introduce("I have run the scripts from /bin folder")
-} else {
-    run.dependsOn([configureService, registerDiscovery])
-    run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
-}
 
-requestParameters << {
     Map<Property, String> properties = [:]
 
     configuration.parameters.each {
