@@ -17,8 +17,6 @@ The full DXA Model Service distribution is downloadable from the SDL AppStore as
 - DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608/
 - DXA Java: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737
 
-(*) SDL Tridion 2013 SP1 is only supported up to DXA version 1.6.
-
 Build
 -----
 
