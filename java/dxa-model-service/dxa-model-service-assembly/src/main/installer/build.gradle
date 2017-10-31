@@ -334,7 +334,16 @@ def checkWindowsAsAdmin = {
 }
 
 def processes = []
-task runScriptCallback(dependsOn: [configureService, registerDiscovery])
+task runScriptCallbackWindows(dependsOn: [configureService, registerDiscovery])
+runScriptCallbackWindows.enabled = isWindows
+task runScriptCallbackLinux(type: Exec, dependsOn: [configureService, registerDiscovery]) {
+    executable 'bash'
+    args '../bin/start.sh', System.getenv("startparameters") ?: ''
+    ignoreExitValue true
+}
+runScriptCallbackLinux.enabled = !isWindows
+
+task runScriptCallback(dependsOn: [configureService, registerDiscovery, runScriptCallbackWindows, runScriptCallbackLinux])
 task run(dependsOn: [configureService, registerDiscovery, runScriptCallback])
 
 requestParameters << {
@@ -346,25 +355,24 @@ requestParameters << {
         run.doFirst introduce("I have run the scripts from /bin folder")
 
         if (isWindows) {
-            runScriptCallback.addShutdownHook {
+            runScriptCallbackWindows.addShutdownHook {
                 processes?.each { it?.destroy() }
             }
         }
 
         if (runScriptMode == 'run') {
-            runScriptCallback << {
-                if (isWindows) {
+            if (isWindows) {
+                runScriptCallbackWindows << {
                     processes << runScript(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
-                } else {
-                    processes << runScript(["bash", '../bin/start.sh', System.getenv("startparameters") ?: ''])
-                    runScriptCallback.addShutdownHook {
-                        runScript(["bash", "-c", "../bin/stop.sh"])
-                    }
+                }
+            } else {
+                runScriptCallbackLinux.addShutdownHook {
+                    runScript(["bash", "-c", "../bin/stop.sh"])
                 }
             }
-        } else if (isWindows && (runScriptMode == 'install' || runScriptMode == 'uninstall')) {
+        } else if (runScriptMode == 'install' || runScriptMode == 'uninstall') {
 
-            runScriptCallback << {
+            runScriptCallbackWindows << {
                 checkWindowsAsAdmin()
                 println "Uninstalling Windows Service..."
                 processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: ''])
@@ -375,7 +383,7 @@ requestParameters << {
                 registerDiscovery.enabled = false
                 return
             } else {
-                runScriptCallback << {
+                runScriptCallbackWindows << {
                     checkWindowsAsAdmin()
                     println "Installing Windows Service..."
                     processes << runScript(["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: ''])
