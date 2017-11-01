@@ -5,7 +5,7 @@ SDL Digital Experience Accelerator Model Service
 
 About
 -----
-The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Web 8+  that is intended to help you quickly create, design, and publish an SDL Web-based website.
+The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Web 8+ that is intended to help you quickly create, design, and publish an SDL Web-based website.
 
 It is available for .NET and Java Web Applications and has a modular architecture consisting of a Framework and example Web Application providing core functionality and separate Modules for additional, optional functionality. 
 
@@ -14,19 +14,21 @@ This repository contains the source code of the DXA Model Service: a separate mi
 The DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
 
 
-The full DXA Model Service distribution is downloadable from the SDL AppStore as part of a  DXA .NET or Java installation package:
-- DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608/
+The full DXA Model Service distribution is downloadable from the SDL AppStore as part of a DXA .NET or Java installation package:
+- DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608
 - DXA Java: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737
 
 
 Build
 -----
 
-To build DXA Model Service run:
-````
-mvn clean install -U
-````
+You need Maven 3.2+ to build Model Service from sources. Maven should be available in system `PATH`. 
 
+You don't need to build it in case you are not intended to make changes, but rather just to use it.  
+    
+To build DXA Model Service run the following command for the parent `dxa-model-service` project:
+
+    mvn install 
 
 Support
 ---------------
@@ -50,7 +52,7 @@ Repositories
 ------------
 The following repositories with source code are available:
 
- - https://github.com/sdl/dxa-model-service - Model Service (Java)
+ - https://github.com/sdl/dxa-model-service - DXA Model Service (Java)
 
 
 Branches and Contributions
