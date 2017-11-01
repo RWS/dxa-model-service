@@ -9,7 +9,7 @@ The SDL Digital Experience Accelerator (DXA) is a reference implementation of SD
 
 It is available for .NET and Java Web Applications and has a modular architecture consisting of a Framework and example Web Application providing core functionality and separate Modules for additional, optional functionality. 
 
-This repository contains the source code of the DXA Model Service: a separate microservice which that can be deployed on an SDL Web CIS backend, version 8 or higher.
+This repository contains the source code of the DXA Model Service: a separate microservice that can be deployed on an SDL Web CIS backend, version 8 or higher.
 
 The DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
 
