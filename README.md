@@ -2,14 +2,33 @@ dxa-model-service
 ===
 SDL Digital Experience Accelerator Model Service
 
+
 About
 -----
-This repository contains the source code of the DXA Model Service: a separate microservice which is to be deployed on an SDL Web 8 CIS backend.
-This DXA Model Service is introduced in DXA 2.0 in order to get better performance (fewer CIS roundtrips) and a more lightweight DXA Framework in the Web Application.
+The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Web 8+ that is intended to help you quickly create, design, and publish an SDL Web-based website.
 
-The full DXA Model Service distribution is downloadable from the [SDL Community site](https://community.sdl.com/developers/tridion-developer/m/mediagallery/) (latest version)
-or the Releases in GitHub: https://github.com/sdl/dxa-model-service/releases or https://github.com/sdl/dxa-web-application-java/releases (all versions)
+It is available for .NET and Java Web Applications and has a modular architecture consisting of a Framework and example Web Application providing core functionality and separate Modules for additional, optional functionality. 
 
+This repository contains the source code of the DXA Model Service: a separate microservice which that can be deployed on an SDL Web CIS backend, version 8 or higher.
+
+The DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
+
+
+The full DXA Model Service distribution is downloadable from the SDL AppStore as part of a DXA .NET or Java installation package:
+- DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608
+- DXA Java: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737
+
+
+Build
+-----
+
+You need Maven 3.2+ to build Model Service from sources. Maven should be available in system `PATH`. 
+
+You don't need to build it in case you are not intended to make changes, but rather just to use it.  
+    
+To build DXA Model Service run the following command for the parent `dxa-model-service` project:
+
+    mvn install 
 
 Support
 ---------------
@@ -33,7 +52,7 @@ Repositories
 ------------
 The following repositories with source code are available:
 
- - https://github.com/sdl/dxa-model-service - Model Service (Java)
+ - https://github.com/sdl/dxa-model-service - DXA Model Service (Java)
 
 
 Branches and Contributions
@@ -57,10 +76,6 @@ Furthermore, Pull Requests on release branches are expected to be extensively te
 
 Of course, it's also possible (and appreciated) to report an Issue without associated Pull Requests.
 
-
-Snapshots
----------
-DXA Model service publishes SNAPSHOT versions to Sonatype. If you want to use them, you have to configure `https://oss.sonatype.org/content/repositories/snapshots` as a repository in your Maven settings. Read [this](https://maven.apache.org/settings.html#Repositories) for instructions.
 
 License
 -------
