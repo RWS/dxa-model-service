@@ -1,10 +1,7 @@
 {
-  "RevisionDate": "2016-01-20T11:08:00",
   "Filename": "footer",
-  "LastPublishedDate": "0001-01-01T00:00:00",
   "PageTemplate": {
     "FileExtension": "html",
-    "RevisionDate": "2014-06-25T14:37:52.38",
     "MetadataFields": {
       "view": {
         "Name": "view",
@@ -25,8 +22,6 @@
   "ComponentPresentations": [
     {
       "Component": {
-        "LastPublishedDate": "0001-01-01T00:00:00",
-        "RevisionDate": "2014-11-11T11:49:36",
         "Schema": {
           "RootElementName": "SocialLinks",
           "Id": "tcm:1081-4431-8",
@@ -193,7 +188,6 @@
       },
       "ComponentTemplate": {
         "OutputFormat": "HTML Fragment",
-        "RevisionDate": "2014-07-31T16:31:03.99",
         "MetadataFields": {
           "view": {
             "Name": "view",

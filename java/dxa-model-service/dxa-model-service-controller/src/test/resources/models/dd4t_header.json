@@ -1,10 +1,7 @@
 {
-  "RevisionDate": "2016-10-19T16:12:11",
   "Filename": "header",
-  "LastPublishedDate": "0001-01-01T00:00:00",
   "PageTemplate": {
     "FileExtension": "html",
-    "RevisionDate": "2014-06-25T14:37:52.38",
     "MetadataFields": {
       "view": {
         "Name": "view",
@@ -25,8 +22,6 @@
   "ComponentPresentations": [
     {
       "Component": {
-        "LastPublishedDate": "0001-01-01T00:00:00",
-        "RevisionDate": "2017-01-26T16:21:13",
         "Schema": {
           "RootElementName": "LanguageSelectorConfiguration",
           "Id": "tcm:1081-4887-8",
@@ -40,8 +35,6 @@
             "DateTimeValues": [],
             "LinkedComponentValues": [
               {
-                "LastPublishedDate": "0001-01-01T00:00:00",
-                "RevisionDate": "2016-09-22T17:41:36.557",
                 "Schema": {
                   "RootElementName": "Article",
                   "Id": "tcm:1081-80-8",
@@ -83,7 +76,7 @@
                         "content": {
                           "Name": "content",
                           "Values": [
-                            "<p>Test <strong>rich</strong><em>text</em> content.</p><p>Component link (not published): <a title=\"Test Component\" xlink:href=\"tcm:1081-9710\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"Test Component\">Test Component</a></p><p>Component link (published): <a title=\"TSI-1758 Test Component\" xlink:href=\"tcm:1081-9971\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"TSI-1758 Test Component\">TSI-1758 Test Component</a></p><p>MMC link: <a title=\"bulls-eye\" xlink:href=\"tcm:1081-759\" data-schemaUri=\"tcm:1081-79-8\" data-multimediaFileName=\"bulls-eye.JPG\" data-multimediaFileSize=\"1276322\" data-multimediaMimeType=\"image/jpeg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"bulls-eye\" href=\"/autotest-parent-legacy/Images/bulls-eye_tcm1081-759.JPG\">bulls-eye</a></p><p>Embedded Image: <img title=\"calculator\" alt=\"calculator\" xlink:href=\"tcm:1081-760\" data-schemaUri=\"tcm:1081-79-8\" data-multimediaFileName=\"calculator.jpg\" data-multimediaFileSize=\"1007535\" data-multimediaMimeType=\"image/jpeg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:title=\"calculator\" src=\"/autotest-parent-legacy/Images/calculator_tcm1081-760.jpg\" /></p>"
+                            "RichTextData"
                           ],
                           "NumericValues": [],
                           "DateTimeValues": [],
@@ -151,7 +144,6 @@
       },
       "ComponentTemplate": {
         "OutputFormat": "HTML Fragment",
-        "RevisionDate": "2014-08-21T10:19:48.953",
         "MetadataFields": {
           "view": {
             "Name": "view",
@@ -185,8 +177,6 @@
     },
     {
       "Component": {
-        "LastPublishedDate": "0001-01-01T00:00:00",
-        "RevisionDate": "2015-08-06T18:46:14",
         "Schema": {
           "RootElementName": "NavigationConfiguration",
           "Id": "tcm:1081-1698-8",
@@ -266,7 +256,6 @@
       },
       "ComponentTemplate": {
         "OutputFormat": "HTML Fragment",
-        "RevisionDate": "2014-06-25T14:36:10.41",
         "MetadataFields": {
           "controller": {
             "Name": "controller",
@@ -333,8 +322,6 @@
     },
     {
       "Component": {
-        "LastPublishedDate": "0001-01-01T00:00:00",
-        "RevisionDate": "2014-08-05T11:28:59",
         "Schema": {
           "RootElementName": "NotificationBar",
           "Id": "tcm:1081-2737-8",
@@ -443,7 +430,6 @@
       },
       "ComponentTemplate": {
         "OutputFormat": "HTML Fragment",
-        "RevisionDate": "2014-07-31T16:31:24.093",
         "MetadataFields": {
           "view": {
             "Name": "view",
@@ -477,8 +463,6 @@
     },
     {
       "Component": {
-        "LastPublishedDate": "0001-01-01T00:00:00",
-        "RevisionDate": "2016-09-21T14:56:14",
         "Schema": {
           "RootElementName": "CurrentUserWidget",
           "Id": "tcm:1081-10033-8",
@@ -492,8 +476,6 @@
             "DateTimeValues": [],
             "LinkedComponentValues": [
               {
-                "LastPublishedDate": "0001-01-01T00:00:00",
-                "RevisionDate": "2016-09-19T09:19:52.683",
                 "Schema": {
                   "RootElementName": "LoginForm",
                   "Id": "tcm:1081-10029-8",
@@ -656,7 +638,6 @@
       },
       "ComponentTemplate": {
         "OutputFormat": "HTML Fragment",
-        "RevisionDate": "2016-10-12T22:25:53.18",
         "MetadataFields": {
           "controller": {
             "Name": "controller",

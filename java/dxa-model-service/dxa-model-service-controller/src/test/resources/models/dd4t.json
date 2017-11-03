@@ -1,10 +1,7 @@
 {
-  "RevisionDate": "2016-01-19T11:17:59",
-  "Filename": "index",
-  "LastPublishedDate": "0001-01-01T00:00:00",
+  "Filename": "test_article_page",
   "PageTemplate": {
     "FileExtension": "html",
-    "RevisionDate": "2015-07-15T15:27:56.093",
     "MetadataFields": {
       "includes": {
         "Name": "includes",
@@ -30,25 +27,132 @@
         "KeywordValues": []
       }
     },
-    "Id": "tcm:1081-131-128",
-    "Title": "Home Page"
+    "Id": "tcm:1065-108-128",
+    "Title": "Content Page Without Navigation"
   },
   "MetadataFields": {},
-  "ComponentPresentations": [],
+  "ComponentPresentations": [
+    {
+      "Component": {
+        "Schema": {
+          "RootElementName": "Article",
+          "Id": "tcm:1065-80-8",
+          "Title": "Article"
+        },
+        "Fields": {
+          "headline": {
+            "Name": "headline",
+            "Values": [
+              "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "XPath": "tcm:Content/custom:Article/custom:headline",
+            "KeywordValues": []
+          },
+          "articleBody": {
+            "Name": "articleBody",
+            "Values": [],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "EmbeddedValues": [
+              {
+                "subheading": {
+                  "Name": "subheading",
+                  "Values": [
+                    "Subheading 1"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 0,
+                  "XPath": "tcm:Content/custom:Article/custom:articleBody[1]/custom:subheading",
+                  "KeywordValues": []
+                },
+                "content": {
+                  "Name": "content",
+                  "Values": [
+                    "RichTextData"
+                  ],
+                  "NumericValues": [],
+                  "DateTimeValues": [],
+                  "LinkedComponentValues": [],
+                  "FieldType": 2,
+                  "XPath": "tcm:Content/custom:Article/custom:articleBody[1]/custom:content",
+                  "KeywordValues": []
+                }
+              }
+            ],
+            "EmbeddedSchema": {
+              "RootElementName": "Paragraph",
+              "Id": "tcm:1065-232-8",
+              "Title": "Paragraph"
+            },
+            "FieldType": 4,
+            "XPath": "tcm:Content/custom:Article/custom:articleBody",
+            "KeywordValues": []
+          }
+        },
+        "MetadataFields": {},
+        "ComponentType": 1,
+        "Folder": {
+          "PublicationId": "tcm:0-1081-1",
+          "Id": "tcm:1065-2574-2",
+          "Title": "Test"
+        },
+        "Categories": [],
+        "Version": 3,
+        "Publication": {
+          "Id": "tcm:0-1081-1",
+          "Title": "500 Automated Test Parent (Legacy)"
+        },
+        "OwningPublication": {
+          "Id": "tcm:0-1065-1",
+          "Title": "401 Automated Test Parent"
+        },
+        "Id": "tcm:1065-9712",
+        "Title": "Test Article"
+      },
+      "ComponentTemplate": {
+        "OutputFormat": "HTML Fragment",
+        "MetadataFields": {
+          "view": {
+            "Name": "view",
+            "Values": [
+              "Article"
+            ],
+            "NumericValues": [],
+            "DateTimeValues": [],
+            "LinkedComponentValues": [],
+            "FieldType": 0,
+            "KeywordValues": []
+          }
+        },
+        "Id": "tcm:1065-83-32",
+        "Title": "Article"
+      },
+      "RenderedContent": "",
+      "IsDynamic": false,
+      "OrderOnPage": 0
+    }
+  ],
   "StructureGroup": {
     "PublicationId": "tcm:0-1081-1",
-    "Id": "tcm:1081-3-4",
+    "Id": "tcm:1065-3-4",
     "Title": "Home"
   },
-  "Version": 12,
+  "Version": 1,
   "Publication": {
     "Id": "tcm:0-1081-1",
     "Title": "500 Automated Test Parent (Legacy)"
   },
   "OwningPublication": {
-    "Id": "tcm:0-1067-1",
-    "Title": "110 DXA Site Type"
+    "Id": "tcm:0-1065-1",
+    "Title": "401 Automated Test Parent"
   },
-  "Id": "tcm:1081-640-64",
-  "Title": "000 Home"
+  "Id": "tcm:1065-9786-64",
+  "Title": "Test Article Page"
 }

@@ -1,18 +1,16 @@
 {
-  "Id": "640",
+  "Id": "9786",
   "StructureGroupId": "3",
   "Meta": {
-    "og:type": "article",
     "twitter:card": "summary",
-    "og:title": "Home",
-    "og:locale": "en-US",
-    "description": "Home"
+    "og:type": "article",
+    "og:title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+    "description": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
   },
   "PageTemplate": {
-    "Id": "131",
-    "Title": "Home Page",
+    "Id": "108",
+    "Title": "Content Page Without Navigation",
     "FileExtension": "html",
-    "RevisionDate": "2015-07-15T15:27:56.093Z",
     "Metadata": {
       "view": "GeneralPage",
       "includes": {
@@ -24,11 +22,52 @@
       }
     }
   },
-  "Title": "Home",
+  "Title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
   "Regions": [
     {
+      "MvcData": {
+        "ViewName": "Main"
+      },
+      "Name": "Main",
+      "Entities": [
+        {
+          "SchemaId": "80",
+          "XpmMetadata": {
+            "ComponentID": "tcm:1065-9712",
+            "ComponentTemplateID": "tcm:1065-83-32",
+            "IsRepositoryPublished": false
+          },
+          "MvcData": {
+            "ViewName": "Article"
+          },
+          "Id": "9712",
+          "ComponentTemplate": {
+            "Id": "83",
+            "Title": "Article",
+            "OutputFormat": "HTML Fragment",
+            "Metadata": {
+              "view": "Article"
+            }
+          },
+          "Content": {
+            "articleBody": {
+              "$type": "ContentModelData",
+              "subheading": "Subheading 1",
+              "content": {
+                "$type": "RichTextData",
+                "Fragments": [
+                  "RichTextData"
+                ]
+              }
+            },
+            "headline": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
+          }
+        }
+      ]
+    },
+    {
       "XpmMetadata": {
-        "IncludedFromPageID": "tcm:1081-1480-64",
+        "IncludedFromPageID": "tcm:1065-1480-64",
         "IncludedFromPageTitle": "Header",
         "IncludedFromPageFileName": "header"
       },
@@ -36,223 +75,11 @@
         "ViewName": "Header"
       },
       "Name": "Header",
-      "IncludePageId": "1480",
-      "Regions": [
-        {
-          "MvcData": {
-            "ViewName": "Nav"
-          },
-          "Name": "Nav",
-          "Entities": [
-            {
-              "SchemaId": "4887",
-              "XpmMetadata": {
-                "ComponentID": "tcm:1081-4888",
-                "ComponentModified": "2017-01-26T16:21:13.247",
-                "ComponentTemplateID": "tcm:1081-4889-32",
-                "ComponentTemplateModified": "2014-08-21T10:19:48.953",
-                "IsRepositoryPublished": false
-              },
-              "MvcData": {
-                "ViewName": "LanguageSelector"
-              },
-              "Id": "4888",
-              "ComponentTemplate": {
-                "Id": "4889",
-                "Title": "Language Selector [Nav]",
-                "RevisionDate": "2014-08-21T10:19:48.953Z",
-                "OutputFormat": "HTML Fragment",
-                "Metadata": {
-                  "view": "LanguageSelector",
-                  "regionView": "Nav"
-                }
-              },
-              "LinkUrl": "",
-              "Content": {
-                "suppressLocalizations": "pt,mx",
-                "defaultContentLink": {
-                  "$type": "EntityModelData",
-                  "SchemaId": "80",
-                  "Id": "9712",
-                  "LinkUrl": "/autotest-parent/test_article_dynamic",
-                  "Content": {
-                    "articleBody": {
-                      "$type": "ContentModelData",
-                      "subheading": "Subheading 1",
-                      "content": {
-                        "$type": "RichTextData",
-                        "Fragments": [
-                          "<p>Test <strong>rich</strong> <em>text</em> content.</p>\n<p>Component link (not published): Test Component</p>\n<p>Component link (published): <a title=\"TSI-1758 Test Component\" href=\"/autotest-parent/regression/tsi-1758\">TSI-1758 Test Component</a></p>\n<p>MMC link: <a title=\"bulls-eye\" href=\"/autotest-parent/Images/bulls-eye_tcm1081-759.JPG\">bulls-eye</a></p>\n<p>Embedded Image: ",
-                          {
-                            "$type": "EntityModelData",
-                            "SchemaId": "79",
-                            "Metadata": {
-                              "altText": "calculator"
-                            },
-                            "Id": "760",
-                            "BinaryContent": {
-                              "FileName": "calculator.jpg",
-                              "FileSize": 1007535,
-                              "MimeType": "image/jpeg",
-                              "Url": "/autotest-parent/Images/calculator_tcm1081-760.jpg"
-                            }
-                          },
-                          "</p>"
-                        ]
-                      }
-                    },
-                    "headline": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
-                  }
-                }
-              }
-            },
-            {
-              "SchemaId": "1698",
-              "XpmMetadata": {
-                "ComponentID": "tcm:1081-1699",
-                "ComponentModified": "2015-08-06T18:46:14.067",
-                "ComponentTemplateID": "tcm:1081-1696-32",
-                "ComponentTemplateModified": "2014-06-25T14:36:10.41",
-                "IsRepositoryPublished": false
-              },
-              "Metadata": {
-                "navigationTextFieldPaths": "standardMeta/name, headline",
-                "externalLinkTemplate": "Redirect Page",
-                "navigationType": {
-                  "$type": "KeywordModelData",
-                  "Id": "2742",
-                  "Key": "localizable",
-                  "TaxonomyId": "1080",
-                  "Title": "Localizable - Based on Component content/metadata field values"
-                }
-              },
-              "MvcData": {
-                "ActionName": "Navigation",
-                "ControllerName": "Navigation",
-                "ViewName": "TopNavigation",
-                "Parameters": {
-                  "navType": "Top"
-                }
-              },
-              "Id": "1699",
-              "ComponentTemplate": {
-                "Id": "1696",
-                "Title": "Top Navigation [Nav]",
-                "RevisionDate": "2014-06-25T14:36:10.410Z",
-                "OutputFormat": "HTML Fragment",
-                "Metadata": {
-                  "controller": "Navigation",
-                  "view": "TopNavigation",
-                  "routeValues": "navType:Top",
-                  "regionView": "Nav",
-                  "action": "Navigation"
-                }
-              },
-              "LinkUrl": "/autotest-parent/sitemap"
-            },
-            {
-              "SchemaId": "10033",
-              "XpmMetadata": {
-                "ComponentID": "tcm:1081-10035",
-                "ComponentModified": "2016-09-21T14:56:14.223",
-                "ComponentTemplateID": "tcm:1081-10034-32",
-                "ComponentTemplateModified": "2016-10-12T22:25:53.18",
-                "IsRepositoryPublished": false
-              },
-              "MvcData": {
-                "AreaName": "AudienceManager",
-                "ControllerAreaName": "AudienceManager",
-                "ControllerName": "Profile",
-                "ViewName": "CurrentUserWidget"
-              },
-              "Id": "10035",
-              "ComponentTemplate": {
-                "Id": "10034",
-                "Title": "Current User Widget [Nav]",
-                "RevisionDate": "2016-10-12T22:25:53.180Z",
-                "OutputFormat": "HTML Fragment",
-                "Metadata": {
-                  "controller": "AudienceManager:Profile",
-                  "view": "AudienceManager:CurrentUserWidget",
-                  "regionView": "Nav"
-                }
-              },
-              "LinkUrl": "/autotest-parent/system/include/header",
-              "Content": {
-                "loginLink": {
-                  "$type": "EntityModelData",
-                  "SchemaId": "10029",
-                  "Id": "10031",
-                  "ComponentTemplate": {
-                    "Id": "10247",
-                    "RevisionDate": "0001-01-01T00:00:00.000Z"
-                  },
-                  "LinkUrl": "/autotest-parent/login",
-                  "Content": {
-                    "rememberMeLabel": "Remember me",
-                    "noPasswordMessage": "Please specify your password.",
-                    "submitButtonLabel": "Login",
-                    "authenticationErrorMessage": "Unknown user name or password.",
-                    "heading": "Login to your account",
-                    "noUserNameMessage": "Please specify your user name.",
-                    "userNameLabel": "User name",
-                    "passwordLabel": "Password"
-                  }
-                },
-                "loginLabel": "Login",
-                "logoutLabel": "Logout"
-              }
-            }
-          ]
-        },
-        {
-          "MvcData": {
-            "ViewName": "Info"
-          },
-          "Name": "Info",
-          "Entities": [
-            {
-              "SchemaId": "2737",
-              "XpmMetadata": {
-                "ComponentID": "tcm:1081-4839",
-                "ComponentModified": "2014-08-05T11:28:59.293",
-                "ComponentTemplateID": "tcm:1081-2827-32",
-                "ComponentTemplateModified": "2014-07-31T16:31:24.093",
-                "IsRepositoryPublished": false
-              },
-              "MvcData": {
-                "ViewName": "OldBrowserNotificationBar"
-              },
-              "Id": "4839",
-              "ComponentTemplate": {
-                "Id": "2827",
-                "Title": "Old Browser Notification Bar [Info]",
-                "RevisionDate": "2014-07-31T16:31:24.093Z",
-                "OutputFormat": "HTML Fragment",
-                "Metadata": {
-                  "view": "OldBrowserNotificationBar",
-                  "regionView": "Info"
-                }
-              },
-              "LinkUrl": "",
-              "Content": {
-                "continue": "Continue",
-                "link": {
-                  "$type": "ContentModelData",
-                  "externalLink": "http://updatemybrowser.org/browser",
-                  "linkText": "Help me"
-                },
-                "text": "Our site works best with browsers newer than the one you’re using. You can continue using this browser, but be aware that some features might not be available. We apologize for this inconvenience.",
-                "headline": "Old browser"
-              }
-            }
-          ]
-        }
-      ]
+      "IncludePageId": "1480"
     },
     {
       "XpmMetadata": {
-        "IncludedFromPageID": "tcm:1081-1489-64",
+        "IncludedFromPageID": "tcm:1065-1489-64",
         "IncludedFromPageTitle": "Footer",
         "IncludedFromPageFileName": "footer"
       },
@@ -260,87 +87,13 @@
         "ViewName": "Footer"
       },
       "Name": "Footer",
-      "IncludePageId": "1489",
-      "Regions": [
-        {
-          "MvcData": {
-            "ViewName": "4-Column"
-          },
-          "Name": "4-Column",
-          "Entities": [
-            {
-              "SchemaId": "4431",
-              "XpmMetadata": {
-                "ComponentID": "tcm:1081-4440",
-                "ComponentModified": "2014-11-11T11:49:36.58",
-                "ComponentTemplateID": "tcm:1081-4435-32",
-                "ComponentTemplateModified": "2014-07-31T16:31:03.99",
-                "IsRepositoryPublished": false
-              },
-              "MvcData": {
-                "ViewName": "SocialLinks"
-              },
-              "Id": "4440",
-              "ComponentTemplate": {
-                "Id": "4435",
-                "Title": "Social Links [4-Column]",
-                "RevisionDate": "2014-07-31T16:31:03.990Z",
-                "OutputFormat": "HTML Fragment",
-                "Metadata": {
-                  "view": "SocialLinks",
-                  "regionView": "4-Column"
-                }
-              },
-              "LinkUrl": "",
-              "Content": {
-                "link": {
-                  "$type": "ContentModelData[]",
-                  "$values": [
-                    {
-                      "externalLink": "https://twitter.com/YourCompanyHandle",
-                      "tag": {
-                        "$type": "KeywordModelData",
-                        "Id": "4425",
-                        "Key": "twitter",
-                        "TaxonomyId": "1297",
-                        "Title": "Twitter"
-                      }
-                    },
-                    {
-                      "externalLink": "http://www.linkedin.com/company/YourCompanyPage",
-                      "tag": {
-                        "$type": "KeywordModelData",
-                        "Id": "4427",
-                        "Key": "linkedin",
-                        "TaxonomyId": "1297",
-                        "Title": "LinkedIn"
-                      }
-                    },
-                    {
-                      "externalLink": "https://www.facebook.com/YourCompanyPage",
-                      "tag": {
-                        "$type": "KeywordModelData",
-                        "Id": "4426",
-                        "Key": "facebook",
-                        "TaxonomyId": "1297",
-                        "Title": "Facebook"
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          ]
-        }
-      ]
+      "IncludePageId": "1489"
     }
   ],
-  "UrlPath": "/autotest-parent/index",
+  "UrlPath": "/autotest-parent/test_article_page",
   "XpmMetadata": {
-    "PageID": "tcm:1081-640-64",
-    "PageModified": "2016-01-19T11:17:59.413",
-    "PageTemplateID": "tcm:1081-131-128",
-    "PageTemplateModified": "2015-07-15T15:27:56.093"
+    "PageID": "tcm:1065-9786-64",
+    "PageTemplateID": "tcm:1065-108-128"
   },
   "MvcData": {
     "ViewName": "GeneralPage"

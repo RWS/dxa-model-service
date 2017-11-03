@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ConvertersTest.SpringConfigurationContext.class)
+@ActiveProfiles("test")
 public class ConvertersTest {
 
     @Autowired
@@ -82,6 +84,7 @@ public class ConvertersTest {
         doReturn(IOUtils.toString(new ClassPathResource("models/dd4t_footer.json").getInputStream(), "UTF-8"))
                 .when(contentService).loadPageContent(pageRequestDto.toBuilder().path("/example/system/include/footer").build());
 
+
         doReturn(IOUtils.toString(new ClassPathResource("models/navigation.json").getInputStream(), "UTF-8"))
                 .when(contentService).loadPageContent(pageRequestDto.toBuilder().path("/example/navigation.json").build());
     }
@@ -94,7 +97,6 @@ public class ConvertersTest {
     }
 
     @Test
-    @Ignore("Ignored until fully implemented, need to align JSONs too")
     public void shouldConvertLegacyModelToR2() throws ContentProviderException {
         //given 
         PageModelData expected = r2PageDataModel;
@@ -103,7 +105,7 @@ public class ConvertersTest {
         PageModelData actual = toR2Converter.convertToR2(dd4tPageDataModel, pageRequestDto);
 
         //then
-        assertEquals(expected, actual);
+        assertEquals(removeUnwantedFields(expected), removeUnwantedFields(actual));
     }
 
     @Test
@@ -117,6 +119,22 @@ public class ConvertersTest {
 
         //then
         assertEquals(expected, actual);
+    }
+
+    private PageModelData removeUnwantedFields(PageModelData pageModelData) {
+        // todo if possible find better solution
+        pageModelData.setXpmMetadata(null);
+        pageModelData.getPageTemplate().setRevisionDate(null);
+        pageModelData.getRegions().forEach(regionModelData -> {
+            regionModelData.setXpmMetadata(null);
+            if (regionModelData.getEntities() != null) {
+                regionModelData.getEntities().forEach(entityModelData -> {
+                    entityModelData.setXpmMetadata(null);
+                    entityModelData.getComponentTemplate().setRevisionDate(null);
+                });
+            }
+        });
+        return pageModelData;
     }
 
     @Configuration
@@ -170,7 +188,7 @@ public class ConvertersTest {
             doReturn(((List<JsonSchema>) objectMapper.readValue(IOUtils.toString(new ClassPathResource("models/schemas.json").getInputStream(), "UTF-8"),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, JsonSchema.class)))
                     .parallelStream().collect(Collectors.toMap(schema -> String.valueOf(schema.getId()), schema -> schema)))
-                    .when(defaults).getSchemasJson(eq(1081));
+                    .when(defaults).getSchemasJson(eq(1065));
             return configService;
         }
 
@@ -179,18 +197,19 @@ public class ConvertersTest {
             MetadataService metadataService = mock(MetadataService.class);
 
             PublicationMetaImpl publicationMeta = new PublicationMetaImpl();
-            publicationMeta.setId(1081);
+            publicationMeta.setId(1065);
             publicationMeta.setPublicationUrl("/example");
-            doReturn(publicationMeta).when(metadataService).getPublicationMeta(eq(1081));
+            doReturn(publicationMeta).when(metadataService).getPublicationMeta(eq(1065));
 
             PublicationMetaImpl owningPublicationMeta = new PublicationMetaImpl();
             owningPublicationMeta.setId(1068);
             owningPublicationMeta.setPublicationUrl("/owning");
             doReturn(owningPublicationMeta).when(metadataService).getPublicationMeta(eq(1068));
 
-            doReturn(getPageMeta("/index.html", "index")).when(metadataService).getPageMeta(eq(1081), eq("tcm:1081-640-64"));
-            doReturn(getPageMeta(null, "system/include/header.html")).when(metadataService).getPageMeta(eq(1081), eq("tcm:1081-1480-64"));
-            doReturn(getPageMeta(null, "footer.html")).when(metadataService).getPageMeta(eq(1081), eq("tcm:1081-1489-64"));
+            doReturn(getPageMeta("/autotest-parent/test_article_page.html", "test_article_page"))
+                    .when(metadataService).getPageMeta(eq(1065), eq("tcm:1065-9786-64"));
+            doReturn(getPageMeta(null, "system/include/header.html")).when(metadataService).getPageMeta(eq(1065), eq("tcm:1065-1480-64"));
+            doReturn(getPageMeta(null, "footer.html")).when(metadataService).getPageMeta(eq(1065), eq("tcm:1065-1489-64"));
 
             return metadataService;
         }
@@ -222,7 +241,7 @@ public class ConvertersTest {
 
         @Bean
         public PageRequestDto pageRequestDto() {
-            return PageRequestDto.builder(1081, "tcm").build();
+            return PageRequestDto.builder(1065, "tcm").build();
         }
     }
 }
