@@ -333,12 +333,16 @@ def checkWindowsAsAdmin = {
     }
 }
 
+def getEnvVar = { String name ->
+    System.getProperty(name) ?: (System.getenv(name) ?: '')
+}
+
 def processes = []
 task runScriptCallbackWindows(dependsOn: [configureService, registerDiscovery])
 runScriptCallbackWindows.enabled = isWindows
 task runScriptCallbackLinux(type: Exec, dependsOn: [configureService, registerDiscovery]) {
     executable 'bash'
-    args '../bin/start.sh', System.getenv("startparameters") ?: ''
+    args '../bin/start.sh', getEnvVar("startparameters")
     ignoreExitValue true
 }
 runScriptCallbackLinux.enabled = !isWindows
@@ -365,7 +369,7 @@ requestParameters << {
         if (runScriptMode == 'run') {
             if (isWindows) {
                 runScriptCallbackWindows << {
-                    processes << runScript(["powershell", '& "../bin/start.ps1"', System.getenv("startparameters") ?: ''])
+                    processes << runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")])
                 }
             } else {
                 runScript(["chmod", "u+x", "../bin/start.sh"])
@@ -379,7 +383,7 @@ requestParameters << {
             runScriptCallbackWindows << {
                 checkWindowsAsAdmin()
                 println "Uninstalling Windows Service..."
-                processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', System.getenv("startparameters") ?: ''])
+                processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")])
             }
 
             if (runScriptMode == 'uninstall') {
@@ -390,7 +394,7 @@ requestParameters << {
                 runScriptCallbackWindows << {
                     checkWindowsAsAdmin()
                     println "Installing Windows Service..."
-                    processes << runScript(["powershell", '& "../bin/installService.ps1"', System.getenv("startparameters") ?: ''])
+                    processes << runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")])
                 }
                 configuration.parameters += configuration.extras['runScript.install']
             }
