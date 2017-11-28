@@ -45,6 +45,10 @@ public class ModelServiceRegisterer {
         dataClient = new ODataClientProvider(configuration).provideClient();
     }
 
+    public static void main(String[] args) throws ConfigurationException {
+        new ModelServiceRegisterer().register();
+    }
+
     private Configuration readConfiguration() throws ConfigurationException {
         return new XMLConfigurationReaderImpl().readConfiguration(CONFIG_FILE_NAME).getConfiguration("ConfigRepository");
     }
@@ -74,6 +78,8 @@ public class ModelServiceRegisterer {
         storedCapability.setExtensionProperties(mergedProperties);
         storedCapability.setEnvironment(environment);
         dataClient.updateEntity(storedCapability);
+
+        log.info("Registered Model Service {} on behalf of user {}", newCapability, registeredFrom);
     }
 
     private Environment loadEnvironment() {

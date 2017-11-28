@@ -2,23 +2,33 @@ dxa-model-service
 ===
 SDL Digital Experience Accelerator Model Service
 
+
 About
 -----
-The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Web 8 and SDL Tridion 2013 SP1(*) intended to help you create, design and publish an SDL Web/Tridion-based website quickly.
+The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Web 8+ that is intended to help you quickly create, design, and publish an SDL Web-based website.
 
-It is available for .NET and Java Web Applications and has a modular architecture consisting of a Framework and example web application providing core functionality and separate Modules for additional, optional functionality.
+It is available for .NET and Java Web Applications and has a modular architecture consisting of a Framework and example Web Application providing core functionality and separate Modules for additional, optional functionality. 
 
-This repository contains the source code of the DXA Model Service: a separate microservice which is to be deployed on an SDL Web 8 CIS backend.
-This DXA Model Service is introduced in DXA 2.0 in order to get better performance (fewer CIS roundtrips) and a more lightweight DXA Framework in the Web Application.
+This repository contains the source code of the DXA Model Service: a separate microservice that can be deployed on an SDL Web CIS backend, version 8 or higher.
 
-The full DXA distribution (including CM-side items, Web Application Framework and installation support) is downloadable from the [SDL Community site](https://community.sdl.com/developers/tridion_developer/m/mediagallery/) (latest version)
-or the Releases in GitHub: https://github.com/sdl/dxa-web-application-dotnet/releases or https://github.com/sdl/dxa-web-application-java/releases (all versions)
+The DXA Model Service is introduced in DXA 2.0 to improve overall performance and to provide a more lightweight DXA framework in the Web Application.
 
-Furthermore, the compiled DXA artifacts are available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cdxa). 
-To facilitate upgrades, it is highly recommended to use official, compiled DXA artifacts from Maven Central instead of a custom build.
-If you really have to modify the DXA Framework, we kindly request you to submit your changes as a Contribution; see below. 
 
-(*) SDL Tridion 2013 SP1 is only supported up to DXA version 1.6.
+The full DXA Model Service distribution is downloadable from the SDL AppStore as part of a DXA .NET or Java installation package:
+- DXA .NET: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-net/608
+- DXA Java: https://appstore.sdl.com/web-content-management/app/sdl-digital-experience-accelerator-java/737
+
+
+Build
+-----
+
+You need Maven 3.2+ to build Model Service from sources. Maven should be available in system `PATH`. 
+
+You don't need to build it in case you are not intended to make changes, but rather just to use it.  
+    
+To build DXA Model Service run the following command for the parent `dxa-model-service` project:
+
+    mvn install 
 
 Support
 ---------------
@@ -32,19 +42,17 @@ If you encounter any issues with the Digital Experience Accelerator, please reac
 
 Documentation
 -------------
-Documentation can be found online in the SDL documentation portal: http://docs.sdl.com/sdldxa2-ctp
+Documentation can be found online in the SDL documentation portal:
+
+ - DXA Model Service [Installation](http://docs.sdl.com/LiveContent/content/en-US/SDL%20DXA-v9/GUID-2CF89E5B-D84C-498F-A65A-920EFC26A5A4)
+ - DXA Model Service [Configuration](http://docs.sdl.com/LiveContent/content/en-US/SDL%20DXA-v9/GUID-53CC0D55-BD37-4874-A2F9-52F5DA831E13)
 
 
 Repositories
 ------------
 The following repositories with source code are available:
 
- - https://github.com/sdl/dxa-content-management - CM-side framework (.NET Template Building Blocks)
- - https://github.com/sdl/dxa-html-design - Whitelabel HTML Design
- - https://github.com/sdl/dxa-model-service - Model Service (Java)
- - https://github.com/sdl/dxa-modules - Modules (.NET and Java)
- - https://github.com/sdl/dxa-web-application-dotnet - ASP.NET MVC web application (incl. framework)
- - https://github.com/sdl/dxa-web-application-java - Java Spring MVC web application (incl. framework)
+ - https://github.com/sdl/dxa-model-service - DXA Model Service (Java)
 
 
 Branches and Contributions
@@ -68,18 +76,6 @@ Furthermore, Pull Requests on release branches are expected to be extensively te
 
 Of course, it's also possible (and appreciated) to report an Issue without associated Pull Requests.
 
-
-DXA Builder
------------
-Current DXA Builder is available in Maven Central, latest DXA Builder is also available as a public snapshot.
-
-You may need DXA Builder to be installed locally to run the SNAPSHOT build if you haven't configured snapshot repository and you don't want to.
-To install it run the wrapper script of `dxa-builder` project: `gradlew(.bat) publishLocal` 
-On Windows you can also just run `get-started.cmd` script at first run.
-
-Snapshots
----------
-DXA publishes SNAPSHOT versions to Sonatype. If you want to use them, you have to configure `https://oss.sonatype.org/content/repositories/snapshots` as a repository in your Maven settings. Read [this](https://maven.apache.org/settings.html#Repositories) for instructions.
 
 License
 -------

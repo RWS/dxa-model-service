@@ -1,12 +1,13 @@
-﻿<configuration scan="true" scanPeriod="1 minute">
+<?xml version="1.0" encoding="utf-8"?>
+<configuration scan="true" scanPeriod="1 minute">
     <!-- Properties and variables -->
     <property name="log.pattern" value="%date %-5level %logger{15} - %message %n"/>
     <property name="log.color.pattern" value="%date %highlight(%-5level) %cyan(%logger{15}) - %message %n"/>
     <property name="log.history" value="7"/>
-    <property name="log.level" value="${log.level:-INFO}"/>
-    <property name="cil.log.level" value="${cil.log.level:-WARN}"/>
+    <property name="log.level" value="${MS_LOG_LEVEL:-INFO}"/>
+    <property name="cil.log.level" value="${CIL_LOG_LEVEL:-WARN}"/>
     <property name="log.encoding" value="UTF-8"/>
-    <property name="log.folder" value="${log.folder:-C:/SDLWeb/log}"/>
+    <property name="log.folder" value="${MS_LOG_FOLDER:-C:/SDLWeb/log}"/>
 
     <!-- Appenders -->
     <appender name="appender.cil" class="ch.qos.logback.core.rolling.RollingFileAppender">

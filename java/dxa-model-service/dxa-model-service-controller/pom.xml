@@ -24,7 +24,7 @@
         <java.version>1.8</java.version>
 
         <dxa.version>${project.version}</dxa.version>
-        <cil.version>8.5.0-1008</cil.version>
+        <cil.version>8.5.0-1011</cil.version>
         <dd4t.version>2.1.0-beta5</dd4t.version>
         <discovery-registration-api.version>8.5.0-1016</discovery-registration-api.version>
         <cd-ambient.version>8.5.0-1013</cd-ambient.version>

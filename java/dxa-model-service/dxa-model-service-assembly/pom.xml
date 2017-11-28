@@ -16,6 +16,7 @@
 
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
+        <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
     </properties>
 
@@ -155,6 +156,27 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--<plugin>-->
+            <!--<groupId>com.spotify</groupId>-->
+            <!--<artifactId>dockerfile-maven-plugin</artifactId>-->
+            <!--<version>1.3.6</version>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>default</id>-->
+            <!--<goals>-->
+            <!--<goal>build</goal>-->
+            <!--<goal>push</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--<configuration>-->
+            <!--<repository>176207018055.dkr.ecr.eu-west-1.amazonaws.com/dxa/model-service</repository>-->
+            <!--<tag>${project.version}</tag>-->
+            <!--<buildArgs>-->
+            <!--<SERVICE_FOLDER>${standalone.build.dir}</SERVICE_FOLDER>-->
+            <!--</buildArgs>-->
+            <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>

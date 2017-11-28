@@ -1,0 +1,428 @@
+import com.sdl.dxa.builder.configuration.parameters.*
+import org.jdom2.Namespace
+
+import static com.sdl.dxa.builder.configuration.parameters.Validator.*
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+    }
+    dependencies {
+        classpath group: 'com.sdl.dxa', name: 'dxa-builder', version: '2.0.0-SNAPSHOT', changing: true
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.9'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+task loadDependencies(dependsOn: wrapper) << {
+    println "Dependencies loaded"
+}
+
+defaultTasks 'run'
+
+def isWindows = org.gradle.internal.os.OperatingSystem.current().windows
+def configFolder = "../config"
+boolean isBatch = project.hasProperty('batch')
+boolean isVerbose = project.hasProperty('verbose')
+
+def configuration = [
+        runScript : new Parameter()
+                .withDescription("Do you want to run the Model Service${isWindows ? ' or install it as a Windows Service' : ''} right after?")
+                .withDefaultValue(project, 'runScript', 'no')
+                .withValidator(isWindows ? valueInList('no', 'run', 'install', 'uninstall') : valueInList('no', 'run')),
+        parameters: [
+                port        : new Parameter()
+                        .withDescription("What port do you want to use for the Model Service?")
+                        .withDefaultValue(project, 'port', '8998')
+                        .withSystemEnv('MS_PORT')
+                        .withValidator(intNumber())
+                        .withProperties(
+                        new PropertiesFileProperty()
+                                .withName("server.port")
+                                .inFile("$configFolder/application.properties"),
+                        new ReplaceRegExpProperty()
+                                .thatReplaces('SERVER_PORT=--server.port=', '\\d+', '')
+                                .inFile("../bin/start.sh"),
+                        new ReplaceRegExpProperty()
+                                .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
+                                .inFile("../bin/start.ps1"),
+                        new ReplaceRegExpProperty()
+                                .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
+                                .inFile("../bin/installService.ps1")
+                ),
+                discoveryUrl: new Parameter()
+                        .withDescription('What is the Discovery Service URL?')
+                        .withDefaultValue(project, 'discoveryUrl', "http://localhost:8082/discovery.svc")
+                        .withSystemEnv('DISCOVERY_URL')
+                        .withValidator(or(url(), ip()))
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/ServiceConfig/DiscoveryService/@ServiceUri")
+                                .inFile("$configFolder/cd_client_conf.xml")
+                                .wrappedWith('${DISCOVERY_URL:-', '}'),
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/ConfigRepository/@ServiceUri")
+                                .inFile("$configFolder/cd_storage_conf.xml")
+                                .wrappedWith('${DISCOVERY_URL:-', '}')
+                ),
+                tokenUrl    : new Parameter()
+                        .withDescription('What is the Token Service URL?')
+                        .withSystemEnv('TOKEN_URL')
+                        .withValidator(or(url(), ip()))
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/ConfigRepository/@TokenServiceUrl")
+                                .inFile("$configFolder/cd_storage_conf.xml")
+                                .wrappedWith('${TOKEN_URL:-', '}'))
+                        .withDynamicDefault(
+                        { configuration ->
+                            (project.hasProperty('tokenUrl') ? project['tokenUrl'] :
+                                    configuration.parameters.discoveryUrl.get().replace("discovery.svc", "token.svc")) as String
+                        }),
+                register    : new Parameter()
+                        .withDescription("Do you want to register Model Service now in Discovery Service?")
+                        .withDefaultValue(project, 'register', 'no')
+                        .withSystemEnv('MS_AUTO_REGISTER')
+                        .withValidator(valueInList('yes', 'no')),
+                secured     : new Parameter()
+                        .withDescription("Is Model Service OAuth-secured?")
+                        .withDefaultValue(project, 'secured', 'yes')
+                        .withSystemEnv('MS_SECURITY_ENABLED')
+                        .withValidator(valueInList('yes', 'no'))
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/Security/@OAuthEnabled")
+                                .inFile("$configFolder/cd_ambient_conf.xml")
+                                .withMapping("yes -> true; no -> false")
+                                .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
+                ),
+                deployType  : new Parameter()
+                        .withDescription("What is you deployment type: staging or live?")
+                        .withDefaultValue(project, 'deployType', 'live')
+                        .withSystemEnv('MS_DEPLOY_TYPE')
+                        .withValidator(valueInList('staging', 'live')),
+                cacheEnabled: new Parameter()
+                        .withDescription("Is Cache Enabled for Model Service and CIL?")
+                        .withSystemEnv('CIL_CACHE_ENABLED')
+                        .withValidator(valueInList('yes', 'no'))
+                        .withProperties(
+                        new PropertiesFileProperty()
+                                .withName("spring.cache.type")
+                                .withMapping("yes -> jcache; no -> none")
+                                .inFile("$configFolder/application.properties"),
+                        new XmlProperty()
+                                .thatModifiesXml("/ServiceConfig/@CacheEnabled")
+                                .inFile("$configFolder/cd_client_conf.xml")
+                                .withMapping("yes -> true; no -> false")
+                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}'),
+                        new XmlProperty()
+                                .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
+                                .inFile("$configFolder/cd_storage_conf.xml")
+                                .withMapping("yes -> true; no -> false")
+                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
+                        .withDynamicDefault(
+                        { configuration ->
+                            (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? 'no' : 'yes')
+                        }),
+                logLevel    : new Parameter()
+                        .withDescription("What log level do you want?")
+                        .withDefaultValue(project, 'logLevel', 'INFO')
+                        .withSystemEnv('MS_LOG_LEVEL')
+                        .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/configuration/property[@name='log.level']/@value")
+                                .wrappedWith('${MS_LOG_LEVEL:-', '}')
+                                .inFile("$configFolder/logback.xml")),
+                cilLogLevel : new Parameter()
+                        .withDescription('What log level do you want for CIL?')
+                        .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
+                        .withSystemEnv('CIL_LOG_LEVEL')
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/configuration/property[@name='cil.log.level']/@value")
+                                .wrappedWith('${CIL_LOG_LEVEL:-', '}')
+                                .inFile("$configFolder/logback.xml"))
+                        .withDynamicDefault(
+                        { configuration ->
+                            (project.hasProperty('cilLogLevel') ? project['cilLogLevel'] : configuration.parameters.logLevel.get()) as String
+                        }),
+                logFolder   : new Parameter()
+                        .withDescription("What would be the location of the log folder?")
+                        .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '${user.home}/SDLWeb/log')
+                        .withSystemEnv('MS_LOG_FOLDER')
+                        .withValidator(notEmpty())
+                        .withProperties(
+                        new XmlProperty()
+                                .thatModifiesXml("/configuration/property[@name='log.folder']/@value")
+                                .wrappedWith('${MS_LOG_FOLDER:-', '}')
+                                .inFile("$configFolder/logback.xml"))
+        ],
+        extras    : [
+                'runScript.install': [
+                        'serviceName'       : new Parameter()
+                                .withDescription("What is the name of the Windows Service?")
+                                .withDefaultValue(project, 'serviceName', 'SDLDXAModelService')
+                                .withValidator(notEmpty())
+                                .withProperties(
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$name\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/installService.ps1")),
+                        'serviceDisplayName': new Parameter()
+                                .withDescription("What is the display name of the Windows Service?")
+                                .withDefaultValue(project, 'serviceDisplayName', 'SDL DXA Model Service')
+                                .withValidator(notEmpty())
+                                .withProperties(
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$displayName\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/installService.ps1"),
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$description\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/installService.ps1")),
+                ],
+                'cacheEnabled.yes' : [
+                        cacheDuration: new Parameter()
+                                .withDescription('What is Cache Expiration Duration in seconds?')
+                                .withDynamicDefault(
+                                { configuration ->
+                                    (project.hasProperty('cacheDuration') ? project['cacheDuration'] : (configuration.parameters.deployType.get()) as String == 'staging' ? '5' : '3600')
+                                })
+                                .withSystemEnv('MS_CACHE_DURATION')
+                                .withValidator(intNumber())
+                                .withProperties(
+                                new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
+                                        "/v3:config/v3:cache-template/v3:expiry/v3:ttl/text()")
+                                        .inFile("$configFolder/ehcache-cil.xml"),
+                                new XmlProperty().thatModifiesXml("/ServiceConfig/@CacheExpirationDuration")
+                                        .inFile("$configFolder/cd_client_conf.xml"),
+                                new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
+                                        .inFile("$configFolder/cd_storage_conf.xml"))
+                ],
+                'register.yes'     : [
+                        modelServiceUrl: new Parameter()
+                                .withDescription('What is Model Service URL to register it in Discovery?')
+                                .withSystemEnv('MS_URL')
+                                .withValidator(or(url(), ip()))
+                                .withDynamicDefault(
+                                { configuration ->
+                                    (project.hasProperty('modelServiceUrl') ? project['modelServiceUrl'] :
+                                            ("${configuration.parameters.discoveryUrl.get().replaceAll(":\\d+\\/discovery\\.svc\$", '')}" +
+                                                    ":${configuration.parameters.port.get()}")) as String
+                                })
+                                .withProperties(
+                                new XmlProperty()
+                                        .thatModifiesXml("/Configuration/ConfigRepository/Roles/Role/Property[@Name='dxa-model-service']/@Value")
+                                        .inFile("$configFolder/cd_storage_conf.xml")
+                                        .wrappedWith('${MS_URL:-', '}')),
+                ]
+        ]
+]
+
+task help << {
+    def execFile = "prepare${isWindows ? '.bat' : '.sh'}"
+    println """
+Model Service configuration tool
+==========================
+This tool is an interactive script to configure Model Service CD container for the SDL Digital Experience Accelerator (DXA).
+==========================
+
+Use the tool as following:
+
+    $execFile <application parameters> <script parameters>
+
+    <application parameters> is a space-separated list of parameters specified using syntax '-PparamName=paramValue'. E.g. -Ptype=web8
+        To get a list of parameters run this script as '$execFile params'. In interactive mode you will be requested to provide values for them.
+        Note that space characters in paramValue require it to be double-quotes.
+
+    <script parameters> is a space-separated list of parameters specified using syntax '-PparamName'. E.g. -Pbatch
+        These parameters define how the tool works and are not related to DXA application itself.
+        Possible values are:
+            batch       Specified as '-Pbatch'. Enables non-interactive mode. The tool will not interact with you.
+
+            verbose     Specified as '-Pverbose'. Enables verbose debug mode. The tool will pring everything during execution.
+
+Run $execFile params to see the whole list of parameters supported.
+
+==========================
+Q: Can I stop the script when it's requesting a parameter value?
+A: Yes. To stop the script execution set any parameter value to 'halt'. In this case no changes will occur.
+
+Q: Can I specify the version of the Model Service?
+A: No, the script works with the current version.
+
+Q: How can I specify parameters in CLI?
+A: You can specify them as a list when you run the tool. The parameters specified in CLI will get a new default value from it. Examples:
+    $execFile -Pport=8998 -PdiscoveryUrl=localhost
+    $execFile -Pport=web8 -PdiscoveryUrl=localhost -Pbatch
+
+Q: What do I need to install for this tool?
+A: Just this tool and Java 8+. Since you are viewing this help, you have everything.
+
+Q: What do I get as a result?
+A: All the configuration values that you enter here are modified in appropriate folders in /config folder."""
+}
+
+task params << {
+    println """
+List of possible properties in the following format:
+
+    Name of the properties: Way it may be configured from CLI
+    Validation rules
+    """
+    def printProperty
+    printProperty = { k, v ->
+        if (v instanceof Parameter) {
+            println ''
+            println "${v.description}: -P${k}=VALUE"
+            v.validator?.describe()
+        } else {
+            //noinspection GroovyAssignabilityCheck
+            v.each printProperty
+        }
+    }
+    configuration.each printProperty
+
+}
+
+def introduce = { String text ->
+    return {
+        println '==============='
+        println "${text}"
+        println ''
+    }
+}
+
+task requestParameters
+requestParameters.doFirst introduce('I am requesting all the needed parameters and configuring further tasks. Type \'halt\' to stop')
+
+task configureService(dependsOn: requestParameters)
+configureService.doFirst introduce("I am configuring all the needed parameters in $configFolder folder. Type 'halt' to stop")
+
+task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configureService]) {
+    main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
+    classpath = files { file('../services/model-service').listFiles() + file('../lib').listFiles() + file('../config') }
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
+
+def runScript = { processDefinition ->
+    ProcessBuilder pb = new ProcessBuilder(processDefinition)
+
+    pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+    pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
+    pb.redirectErrorStream(true)
+
+    Process proc = pb.start()
+    proc.waitFor()
+    proc
+}
+
+def checkWindowsAsAdmin = {
+    if ("net session".execute().waitFor() != 0) {
+        throw new RuntimeException("You have to run the script as Administrator if you want to install the service")
+    }
+}
+
+def getEnvVar = { String name ->
+    System.getProperty(name) ?: (System.getenv(name) ?: '')
+}
+
+def processes = []
+task runScriptCallbackWindows(dependsOn: [configureService, registerDiscovery])
+runScriptCallbackWindows.enabled = isWindows
+task runScriptCallbackLinux(type: Exec, dependsOn: [configureService, registerDiscovery]) {
+    executable 'bash'
+    args '../bin/start.sh', getEnvVar("startparameters")
+    ignoreExitValue true
+}
+runScriptCallbackLinux.enabled = !isWindows
+
+task runScriptCallback(dependsOn: [configureService, registerDiscovery, runScriptCallbackWindows, runScriptCallbackLinux])
+task run(dependsOn: [configureService, registerDiscovery, runScriptCallback])
+
+requestParameters << {
+    def runScriptMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
+    if (runScriptMode == 'no') {
+        runScriptCallback.enabled = false
+        runScriptCallbackWindows.enabled = false
+        runScriptCallbackLinux.enabled = false
+        run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
+    } else {
+        run.doFirst introduce("I have run the scripts from /bin folder")
+
+        if (isWindows) {
+            runScriptCallbackWindows.addShutdownHook {
+                processes?.each { it?.destroy() }
+            }
+        }
+
+        if (runScriptMode == 'run') {
+            if (isWindows) {
+                runScriptCallbackWindows << {
+                    processes << runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")])
+                }
+            } else {
+                runScript(["chmod", "u+x", "../bin/start.sh"])
+                runScript(["chmod", "u+x", "../bin/stop.sh"])
+                runScriptCallbackLinux.addShutdownHook {
+                    runScript(["bash", "-c", "../bin/stop.sh"])
+                }
+            }
+        } else if (runScriptMode == 'install' || runScriptMode == 'uninstall') {
+
+            runScriptCallbackWindows << {
+                checkWindowsAsAdmin()
+                println "Uninstalling Windows Service..."
+                processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")])
+            }
+
+            if (runScriptMode == 'uninstall') {
+                configureService.enabled = false
+                registerDiscovery.enabled = false
+                return
+            } else {
+                runScriptCallbackWindows << {
+                    checkWindowsAsAdmin()
+                    println "Installing Windows Service..."
+                    processes << runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")])
+                }
+                configuration.parameters += configuration.extras['runScript.install']
+            }
+        }
+    }
+
+    Map<Property, String> properties = [:]
+
+    configuration.parameters.each {
+        def parameter = (it.value as Parameter).request(properties, version, isBatch, configuration)
+        if (parameter) {
+            def extra = configuration.extras["${it.key}.${parameter.toString().replaceAll(/[^a-zA-Z0-9.-]/, '')}"]
+            (extra as Map)?.each {
+                (it.value as Parameter).request(properties, version, isBatch, configuration)
+            }
+        }
+    }
+
+    properties.each {
+        def property = it.key as Property
+        def value = property.deriveValue(it.value)
+
+        configureService << {
+            property.files.each { String filename ->
+                property.processProperty(filename, value)
+            }
+        }
+    }
+
+    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() == 'yes'
+}

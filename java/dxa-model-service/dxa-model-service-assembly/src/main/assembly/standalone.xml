@@ -17,6 +17,10 @@
             </excludes>
         </fileSet>
         <fileSet>
+            <directory>${installer.dir}</directory>
+            <outputDirectory>${standalone.path}/installer</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${resources.dir}</directory>
             <outputDirectory>${standalone.path}</outputDirectory>
             <includes>
