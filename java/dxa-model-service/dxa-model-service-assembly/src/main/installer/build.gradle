@@ -381,7 +381,7 @@ finishAssembly << {
     println location
     [
             [
-                    path     : "Content Delivery/roles/content/standalone/services/odata-v4-framework",
+                    path     : "Tridion/Content Delivery/roles/content/standalone/services/odata-v4-framework",
                     groupId  : "com.sdl.web",
                     id       : "discovery-registration-api",
                     version  : "8.5.0-1014",
@@ -389,7 +389,7 @@ finishAssembly << {
                     install  : true
             ],
             [
-                    path     : "Content Delivery/roles/content/standalone/services/content-service",
+                    path     : "Tridion/Content Delivery/roles/content/standalone/services/content-service",
                     groupId  : "com.sdl.web",
                     id       : "web-ambient-engine",
                     version  : "8.5.0-1010",
@@ -397,7 +397,7 @@ finishAssembly << {
                     install  : true
             ],
             [
-                    path     : "Content Delivery/roles/content/standalone/services/content-service",
+                    path     : "Tridion/Content Delivery/roles/content/standalone/services/content-service",
                     groupId  : "com.sdl.web",
                     id       : "web-oauth",
                     version  : "8.5.0-1010",
@@ -405,7 +405,7 @@ finishAssembly << {
                     install  : true
             ],
             [
-                    path     : "Content Delivery/roles/service-container",
+                    path     : "Tridion/Content Delivery/roles/service-container",
                     id       : "service-container-assembly",
                     version  : "8.5.0-1016",
                     packaging: 'zip',
