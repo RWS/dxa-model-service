@@ -55,6 +55,9 @@
                 <exclude>com.tridion:cd_common_util</exclude>
                 <exclude>com.sdl.delivery:service-container-assembly</exclude>
                 <exclude>com.sdl.delivery:service-container-core</exclude>
+                <exclude>com.sdl.web:web-oauth</exclude>
+                <exclude>com.sdl.web:web-ambient-engine</exclude>
+                <exclude>com.sdl.web:discovery-registration-api</exclude>
                 <exclude>org.apache.deamon:apache-procrun:exe:procrun:1.0</exclude>
                 <exclude>org.aspectj:aspectjweaver</exclude>
                 <exclude>com.fasterxml:classmate</exclude>
