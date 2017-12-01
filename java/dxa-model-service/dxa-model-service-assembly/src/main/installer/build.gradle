@@ -2,8 +2,6 @@ import com.sdl.dxa.builder.configuration.parameters.*
 import com.sdl.dxa.builder.maven.MavenBuildTask
 import org.jdom2.Namespace
 
-import java.util.zip.ZipFile
-
 import static com.sdl.dxa.builder.configuration.parameters.Validator.*
 
 buildscript {
@@ -311,7 +309,7 @@ def introduce = { String text ->
 
 task finishAssembly
 finishAssembly.doFirst introduce('I am finishing assembling Model Service if needed (first run)')
-finishAssembly.enabled = true || isFirstRun
+finishAssembly.enabled = isFirstRun
 
 task mavenInstall(type: MavenBuildTask, dependsOn: finishAssembly) {
     batch = project.hasProperty('batch')
@@ -381,63 +379,66 @@ finishAssembly << {
     println location
     [
             [
-                    path     : "Tridion/Content Delivery/roles/content/standalone/services/odata-v4-framework",
+                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
                     groupId  : "com.sdl.web",
                     id       : "discovery-registration-api",
-                    version  : "8.5.0-1014",
+                    version  : "8.5.0-20171201.001658-5"/*"8.5.0-1014"*/,
                     packaging: 'jar',
+                    copyTo   : "../services/model-service",
                     install  : true
             ],
             [
-                    path     : "Tridion/Content Delivery/roles/content/standalone/services/content-service",
+                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
                     groupId  : "com.sdl.web",
                     id       : "web-ambient-engine",
-                    version  : "8.5.0-1010",
+                    version  : "8.5.0-20171130.001938-7"/*"8.5.0-1010"*/,
                     packaging: 'jar',
+                    copyTo   : "../services/model-service",
                     install  : true
             ],
             [
-                    path     : "Tridion/Content Delivery/roles/content/standalone/services/content-service",
+                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
                     groupId  : "com.sdl.web",
                     id       : "web-oauth",
-                    version  : "8.5.0-1010",
+                    version  : "8.5.0-20171130.001947-7"/*"8.5.0-1010"*/,
                     packaging: 'jar',
+                    copyTo   : "../services/model-service",
                     install  : true
             ],
             [
-                    path     : "Tridion/Content Delivery/roles/service-container",
-                    id       : "service-container-assembly",
-                    version  : "8.5.0-1016",
-                    packaging: 'zip',
-                    unzip    : true
+                    path    : "Tridion/Content Delivery/roles/service/standalone",
+                    filename: "bin",
+                    copyTo   : ".."
+            ],
+            [
+                    path    : "Tridion/Content Delivery/roles/service/standalone",
+                    filename: "lib",
+                    copyTo   : ".."
             ]
     ].each { artifact ->
-        def filename = "${artifact.id}-${artifact.version}.${artifact.packaging}"
-        def from = "$location/${artifact.path}/$filename"
+        def copyFile
+        copyFile = { filename ->
+            def fileFrom = new File("$location/${artifact.path}/$filename")
+            def fileTo = new File("${artifact.copyTo}/$filename")
 
-        if (artifact.install) {
-            def to = "../services/model-service/$filename"
-            new File(to) << new File(from).bytes
-            println "Copied $from to $to"
-
-            mavenInstallConfiguration << ">>" +
-                    " org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file " +
-                    "-Dfile=../services/model-service/$filename -DgroupId=${artifact.groupId} -DartifactId=${artifact.id} " +
-                    "-Dversion=${artifact.version} -Dpackaging=${artifact.packaging}"
-        }
-
-        if (artifact.unzip) {
-            def zipFile = new ZipFile(new File(from))
-            zipFile.entries().each {
-                def to = new File("../${it.name}")
-                if (it.directory) {
-                    to.mkdir()
-                    println "Created $to directory"
-                } else {
-                    to << zipFile.getInputStream(it).bytes
-                    println "Unzipped ${from}/${it.name} as $to"
-                }
+            if (fileFrom.directory) {
+                fileTo.mkdir()
+                println "Created $fileTo directory"
+                fileFrom.listFiles().each { copyFile("${fileFrom.name}/${it.name}") }
+            } else {
+                fileTo << fileFrom.bytes
+                println "Copied $fileFrom to $fileTo"
             }
+            fileTo.absolutePath
+        }
+        if (artifact.install) {
+            def path = copyFile("${artifact.id}-${artifact.version}.${artifact.packaging}")
+
+            mavenInstallConfiguration << ">> org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file " +
+                    "-Dfile=$path -DgroupId=${artifact.groupId} -DartifactId=${artifact.id} " +
+                    "-Dversion=${artifact.version} -Dpackaging=${artifact.packaging}"
+        } else {
+            copyFile("${artifact.filename}")
         }
     }
 
