@@ -1,4 +1,5 @@
 import com.sdl.dxa.builder.configuration.parameters.*
+import com.sdl.dxa.builder.maven.MavenBuildTask
 import org.jdom2.Namespace
 
 import static com.sdl.dxa.builder.configuration.parameters.Validator.*
@@ -29,15 +30,22 @@ defaultTasks 'run'
 
 def isWindows = org.gradle.internal.os.OperatingSystem.current().windows
 def configFolder = "../config"
+boolean isFirstRun = !new File('../bin').exists()
 boolean isBatch = project.hasProperty('batch')
 boolean isVerbose = project.hasProperty('verbose')
 
 def configuration = [
-        runScript : new Parameter()
+        cdLayoutLocation: new Parameter()
+                .withDescription("What is the location of SDL Web layout (point at root, unzipped)?")
+                .withDefaultValue(project, 'cdLayoutLocation', null)
+                .withSystemEnv('CD_LAYOUT_LOCATION')
+                .withCaseSensitiveValue()
+                .withValidator(notEmpty()),
+        runScript       : new Parameter()
                 .withDescription("Do you want to run the Model Service${isWindows ? ' or install it as a Windows Service' : ''} right after?")
                 .withDefaultValue(project, 'runScript', 'no')
                 .withValidator(isWindows ? valueInList('no', 'run', 'install', 'uninstall') : valueInList('no', 'run')),
-        parameters: [
+        parameters      : [
                 port        : new Parameter()
                         .withDescription("What port do you want to use for the Model Service?")
                         .withDefaultValue(project, 'port', '8998')
@@ -165,7 +173,7 @@ def configuration = [
                                 .wrappedWith('${MS_LOG_FOLDER:-', '}')
                                 .inFile("$configFolder/logback.xml"))
         ],
-        extras    : [
+        extras          : [
                 'runScript.install': [
                         'serviceName'       : new Parameter()
                                 .withDescription("What is the name of the Windows Service?")
@@ -299,11 +307,25 @@ def introduce = { String text ->
     }
 }
 
-task requestParameters
+task finishAssembly
+finishAssembly.doFirst introduce('I am finishing assembling Model Service if needed (first run)')
+finishAssembly.enabled = isFirstRun
+
+task mavenInstall(type: MavenBuildTask, dependsOn: finishAssembly) {
+    batch = project.hasProperty('batch')
+
+    if (project.hasProperty('mavenProperties')) {
+        mavenProperties = project.mavenProperties
+    }
+}
+mavenInstall.doFirst introduce('I am installing artifacts to a local Maven repository')
+mavenInstall.enabled = MavenBuildTask.mvnVersion().contains("Maven")
+
+task requestParameters(dependsOn: [finishAssembly, mavenInstall])
 requestParameters.doFirst introduce('I am requesting all the needed parameters and configuring further tasks. Type \'halt\' to stop')
 
 task configureService(dependsOn: requestParameters)
-configureService.doFirst introduce("I am configuring all the needed parameters in $configFolder folder. Type 'halt' to stop")
+configureService.doFirst introduce("I am configuring all the needed parameters in $configFolder folder")
 
 task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configureService]) {
     main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
@@ -349,6 +371,81 @@ runScriptCallbackLinux.enabled = !isWindows
 
 task runScriptCallback(dependsOn: [configureService, registerDiscovery, runScriptCallbackWindows, runScriptCallbackLinux])
 task run(dependsOn: [configureService, registerDiscovery, runScriptCallback])
+
+finishAssembly << {
+    def location = (configuration.cdLayoutLocation as Parameter).request(properties, version, isBatch, configuration)
+    def mavenInstallConfiguration = []
+
+    println location
+    [
+            [
+                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
+                    groupId  : "com.sdl.web",
+                    id       : "discovery-registration-api",
+                    version  : "8.5.0-20171201.001658-5"/*"8.5.0-1014"*/,
+                    packaging: 'jar',
+                    copyTo   : "../services/model-service",
+                    install  : true
+            ],
+            [
+                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
+                    groupId  : "com.sdl.web",
+                    id       : "web-ambient-engine",
+                    version  : "8.5.0-20171130.001938-7"/*"8.5.0-1010"*/,
+                    packaging: 'jar',
+                    copyTo   : "../services/model-service",
+                    install  : true
+            ],
+            [
+                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
+                    groupId  : "com.sdl.web",
+                    id       : "web-oauth",
+                    version  : "8.5.0-20171130.001947-7"/*"8.5.0-1010"*/,
+                    packaging: 'jar',
+                    copyTo   : "../services/model-service",
+                    install  : true
+            ],
+            [
+                    path    : "Tridion/Content Delivery/roles/service/standalone",
+                    filename: "bin",
+                    copyTo   : ".."
+            ],
+            [
+                    path    : "Tridion/Content Delivery/roles/service/standalone",
+                    filename: "lib",
+                    copyTo   : ".."
+            ]
+    ].each { artifact ->
+        def copyFile
+        copyFile = { filename ->
+            def fileFrom = new File("$location/${artifact.path}/$filename")
+            def fileTo = new File("${artifact.copyTo}/$filename")
+
+            if (fileFrom.directory) {
+                fileTo.mkdir()
+                println "Created $fileTo directory"
+                fileFrom.listFiles().each { copyFile("${fileFrom.name}/${it.name}") }
+            } else {
+                fileTo << fileFrom.bytes
+                println "Copied $fileFrom to $fileTo"
+            }
+            fileTo.absolutePath
+        }
+        if (artifact.install) {
+            def path = copyFile("${artifact.id}-${artifact.version}.${artifact.packaging}")
+
+            mavenInstallConfiguration << ">> org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file " +
+                    "-Dfile=$path -DgroupId=${artifact.groupId} -DartifactId=${artifact.id} " +
+                    "-Dversion=${artifact.version} -Dpackaging=${artifact.packaging}"
+        } else {
+            copyFile("${artifact.filename}")
+        }
+    }
+
+    mavenInstall {
+        configurations = [mavenInstallConfiguration]
+    }
+}
 
 requestParameters << {
     def runScriptMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)

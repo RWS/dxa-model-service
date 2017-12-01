@@ -12,8 +12,6 @@
     <description>DXA Model Service Assembly</description>
 
     <properties>
-        <service-container.version>8.5.0-1016</service-container.version>
-
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
@@ -26,92 +24,11 @@
             <artifactId>dxa-model-service-controller</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>service-container-assembly</artifactId>
-            <type>zip</type>
-            <version>${service-container.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
     <build>
         <finalName>dxa-model-service</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-assembly</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>service-container-assembly</artifactId>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                            <outputDirectory>${standalone.build.dir}</outputDirectory>
-                            <silent>true</silent>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>replacer</artifactId>
-                <version>1.5.3</version>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <basedir>${standalone.build.dir}/bin</basedir>
-                    <includes>
-                        <include>*.ps1</include>
-                        <include>start.sh</include>
-                    </includes>
-                    <replacements>
-                        <!-- @formatter:off -->
-                        <replacement>
-                            <token>--server.port=8080</token>
-                            <value>--server.port=8998</value>
-                        </replacement>
-                        <replacement>
-                            <token>SDLDeliveryServices</token>
-                            <value>SDLDXAModelService</value>
-                        </replacement>
-                        <replacement>
-                            <token>SDL Delivery Services</token>
-                            <value>SDL DXA Model Service</value>
-                        </replacement>
-                        <replacement>
-                            <token>SDL Delivery Platform Micro Services</token>
-                            <value>SDL DXA Model Service</value>
-                        </replacement>
-                        <!-- @formatter:on -->
-                    </replacements>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
