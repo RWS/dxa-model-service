@@ -6,6 +6,11 @@ import static com.sdl.dxa.builder.configuration.parameters.Validator.*
 
 buildscript {
     repositories {
+        if (System.properties['snapshots.maven.repo']) {
+            maven {
+                url System.properties['snapshots.maven.repo'].replace("\\", "\\\\")
+            }
+        }
         mavenLocal()
         mavenCentral()
         maven {
