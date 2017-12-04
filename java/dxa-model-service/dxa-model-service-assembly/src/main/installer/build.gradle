@@ -187,7 +187,10 @@ def configuration = [
                                 .withProperties(
                                 new ReplaceRegExpProperty()
                                         .thatReplaces('\\$name\\s?=\\s?\"', '[^\"]+', '"')
-                                        .inFile("../bin/installService.ps1")),
+                                        .inFile("../bin/installService.ps1"),
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$defaultServiceName\\s?=\\s?\"', '[^\"]+', '"')
+                                        .inFile("../bin/uninstallService.ps1")),
                         'serviceDisplayName': new Parameter()
                                 .withDescription("What is the display name of the Windows Service?")
                                 .withDefaultValue(project, 'serviceDisplayName', 'SDL DXA Model Service')
@@ -450,6 +453,16 @@ finishAssembly << {
     mavenInstall {
         configurations = [mavenInstallConfiguration]
     }
+
+    def setDisplayName = { Parameter parameter, String value ->
+        parameter.properties.each { property ->
+            property.files.each {
+                property.processProperty(it, value)
+            }
+        }
+    }
+    setDisplayName((configuration.extras['runScript.install'].serviceName as Parameter), 'SDLDXAModelService')
+    setDisplayName((configuration.extras['runScript.install'].serviceDisplayName as Parameter), 'SDL DXA Model Service')
 }
 
 requestParameters << {
