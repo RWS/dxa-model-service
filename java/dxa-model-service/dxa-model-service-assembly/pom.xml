@@ -12,10 +12,12 @@
     <description>DXA Model Service Assembly</description>
 
     <properties>
+        <service-container.version>8.5.0-1048</service-container.version>
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
+        <template.build.dir>${project.build.directory}/template</template.build.dir>
     </properties>
 
     <dependencies>
@@ -29,6 +31,32 @@
     <build>
         <finalName>dxa-model-service</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-assembly</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.sdl.delivery</groupId>
+                                    <artifactId>service-container-assembly</artifactId>
+                                    <type>zip</type>
+                                    <version>${service-container.version}</version>
+                                    <excludes>**/xercesImpl*.jar,**/xml-apis*.jar</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${template.build.dir}</outputDirectory>
+                            <silent>true</silent>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>

@@ -416,12 +416,13 @@ finishAssembly << {
             [
                     path    : "Tridion/Content Delivery/roles/service/standalone",
                     filename: "bin",
-                    copyTo   : ".."
+                    copyTo  : ".."
             ],
             [
                     path    : "Tridion/Content Delivery/roles/service/standalone",
                     filename: "lib",
-                    copyTo   : ".."
+                    copyTo  : "..",
+                    exclude : ['xercesImpl-2.10.0.jar', 'xml-apis-1.4.01.jar']
             ]
     ].each { artifact ->
         def copyFile
@@ -432,7 +433,9 @@ finishAssembly << {
             if (fileFrom.directory) {
                 fileTo.mkdir()
                 println "Created $fileTo directory"
-                fileFrom.listFiles().each { copyFile("${fileFrom.name}/${it.name}") }
+                fileFrom.listFiles()
+                        .findAll { !artifact.exclude?.contains(it.name) }
+                        .each { copyFile("${fileFrom.name}/${it.name}") }
             } else {
                 fileTo << fileFrom.bytes
                 println "Copied $fileFrom to $fileTo"
