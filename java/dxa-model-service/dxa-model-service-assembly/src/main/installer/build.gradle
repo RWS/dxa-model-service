@@ -147,6 +147,7 @@ def configuration = [
                 logLevel    : new Parameter()
                         .withDescription("What log level do you want?")
                         .withDefaultValue(project, 'logLevel', 'INFO')
+                        .withCaseSensitiveValue()
                         .withSystemEnv('MS_LOG_LEVEL')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
                         .withProperties(
@@ -157,6 +158,7 @@ def configuration = [
                 cilLogLevel : new Parameter()
                         .withDescription('What log level do you want for CIL?')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
+                        .withCaseSensitiveValue()
                         .withSystemEnv('CIL_LOG_LEVEL')
                         .withProperties(
                         new XmlProperty()
@@ -170,6 +172,7 @@ def configuration = [
                 logFolder   : new Parameter()
                         .withDescription("What would be the location of the log folder?")
                         .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '${user.home}/SDLWeb/log')
+                        .withCaseSensitiveValue()
                         .withSystemEnv('MS_LOG_FOLDER')
                         .withValidator(notEmpty())
                         .withProperties(
@@ -183,6 +186,7 @@ def configuration = [
                         'serviceName'       : new Parameter()
                                 .withDescription("What is the name of the Windows Service?")
                                 .withDefaultValue(project, 'serviceName', 'SDLDXAModelService')
+                                .withCaseSensitiveValue()
                                 .withValidator(notEmpty())
                                 .withProperties(
                                 new ReplaceRegExpProperty()
@@ -194,6 +198,7 @@ def configuration = [
                         'serviceDisplayName': new Parameter()
                                 .withDescription("What is the display name of the Windows Service?")
                                 .withDefaultValue(project, 'serviceDisplayName', 'SDL DXA Model Service')
+                                .withCaseSensitiveValue()
                                 .withValidator(notEmpty())
                                 .withProperties(
                                 new ReplaceRegExpProperty()
