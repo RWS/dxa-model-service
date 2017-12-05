@@ -327,7 +327,7 @@ task mavenInstall(type: MavenBuildTask, dependsOn: finishAssembly) {
     }
 }
 mavenInstall.doFirst introduce('I am installing artifacts to a local Maven repository')
-mavenInstall.enabled = MavenBuildTask.mvnVersion().contains("Maven")
+mavenInstall.enabled = MavenBuildTask.isMvnInstalled()
 
 task requestParameters(dependsOn: [finishAssembly, mavenInstall])
 requestParameters.doFirst introduce('I am requesting all the needed parameters and configuring further tasks. Type \'halt\' to stop')
