@@ -18,6 +18,7 @@
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
         <template.build.dir>${project.build.directory}/template</template.build.dir>
+        <dependencies.build.dir>${template.build.dir}/services/model-service</dependencies.build.dir>
     </properties>
 
     <dependencies>
@@ -35,6 +36,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>copy-deps</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>web-oauth, web-ambient-engine, discovery-registration-api
+                            </includeArtifactIds>
+                            <outputDirectory>${dependencies.build.dir}</outputDirectory>
+                            <silent>true</silent>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>unpack-assembly</id>
                         <phase>prepare-package</phase>
