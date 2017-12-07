@@ -41,7 +41,10 @@ boolean isVerbose = project.hasProperty('verbose')
 
 def configuration = [
         cdLayoutLocation: new Parameter()
-                .withDescription("What is the location of SDL Web layout (point at root, unzipped)?")
+                .withDescription("Where is Content Delivery roles/ folder of the SDL Web layout?\n" +
+                "For reference: the tool will need template/ role in that folder" +
+                "Typically for releases: ...\\SDL Web\\Tridion\\Content Delivery\\roles\n" +
+                "For hotfixes may be: ...\\CD_HotFix\\release")
                 .withDefaultValue(project, 'cdLayoutLocation', null)
                 .withSystemEnv('CD_LAYOUT_LOCATION')
                 .withCaseSensitiveValue()
@@ -392,39 +395,39 @@ finishAssembly << {
     println location
     [
             [
-                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
+                    path     : "template/standalone/services/discovery-client",
                     groupId  : "com.sdl.web",
                     id       : "discovery-registration-api",
-                    version  : "8.5.0-20171201.001658-5"/*"8.5.0-1014"*/,
+                    version  : "8.5.0-1057",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
             ],
             [
-                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
+                    path     : "template/standalone/services/discovery-client",
                     groupId  : "com.sdl.web",
                     id       : "web-ambient-engine",
-                    version  : "8.5.0-20171130.001938-7"/*"8.5.0-1010"*/,
+                    version  : "8.5.0-1027",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
             ],
             [
-                    path     : "Tridion/Content Delivery/roles/service/standalone/services/discovery-client",
+                    path     : "template/standalone/services/discovery-client",
                     groupId  : "com.sdl.web",
                     id       : "web-oauth",
-                    version  : "8.5.0-20171130.001947-7"/*"8.5.0-1010"*/,
+                    version  : "8.5.0-1027",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
             ],
             [
-                    path    : "Tridion/Content Delivery/roles/service/standalone",
+                    path    : "template/standalone",
                     filename: "bin",
                     copyTo  : ".."
             ],
             [
-                    path    : "Tridion/Content Delivery/roles/service/standalone",
+                    path    : "template/standalone",
                     filename: "lib",
                     copyTo  : "..",
                     exclude : ['xercesImpl-2.10.0.jar', 'xml-apis-1.4.01.jar']
