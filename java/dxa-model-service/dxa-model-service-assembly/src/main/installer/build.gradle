@@ -223,7 +223,7 @@ def configuration = [
                                 .withProperties(
                                 new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
                                         "/v3:config/v3:cache-template/v3:expiry/v3:ttl/text()")
-                                        .inFile("$configFolder/ehcache-cil.xml"),
+                                        .inFile("$configFolder/ehcache.xml"),
                                 new XmlProperty().thatModifiesXml("/ServiceConfig/@CacheExpirationDuration")
                                         .inFile("$configFolder/cd_client_conf.xml"),
                                 new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")

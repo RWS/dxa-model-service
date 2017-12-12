@@ -1,5 +1,6 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.caching.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
@@ -24,13 +25,17 @@ public class EntityModelController {
 
     private final ContentService contentService;
 
+    private ModelServiceLocalizationIdProvider localizationIdProvider;
+
     private final EntityModelService entityModelService;
 
     @Autowired
     public EntityModelController(EntityModelService entityModelService,
-                                 ContentService contentService) {
+                                 ContentService contentService,
+                                 ModelServiceLocalizationIdProvider localizationIdProvider) {
         this.entityModelService = entityModelService;
         this.contentService = contentService;
+        this.localizationIdProvider = localizationIdProvider;
     }
 
     @GetMapping(path = {
@@ -43,6 +48,8 @@ public class EntityModelController {
                                          @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
                                          @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                          @RequestParam(required = false, name = "dcpType") DcpType dcpType) throws ContentProviderException {
+        localizationIdProvider.setCurrentId(localizationId);
+
         log.debug("trying to load an entity with URI type = '{}' and localization id = '{}', and componentId = '{}', " +
                 "templateId (<= 0 for no template) = '{}', and DCP type = '{}', and raw = '{}'", uriType, localizationId, componentId, templateId, dcpType, isRawContent);
 

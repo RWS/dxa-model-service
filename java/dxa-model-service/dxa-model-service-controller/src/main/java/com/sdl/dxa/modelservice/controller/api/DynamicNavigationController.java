@@ -2,6 +2,7 @@ package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
+import com.sdl.dxa.caching.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
 import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
@@ -26,11 +27,15 @@ public class DynamicNavigationController {
 
     private final OnDemandNavigationModelProvider onDemandNavigationModelProvider;
 
+    private final ModelServiceLocalizationIdProvider localizationIdProvider;
+
     @Autowired
     public DynamicNavigationController(NavigationModelProvider navigationModelProvider,
-                                       OnDemandNavigationModelProvider onDemandNavigationModelProvider) {
+                                       OnDemandNavigationModelProvider onDemandNavigationModelProvider,
+                                       ModelServiceLocalizationIdProvider localizationIdProvider) {
         this.navigationModelProvider = navigationModelProvider;
         this.onDemandNavigationModelProvider = onDemandNavigationModelProvider;
+        this.localizationIdProvider = localizationIdProvider;
     }
 
     @RequestMapping
@@ -47,6 +52,8 @@ public class DynamicNavigationController {
             @PathVariable(value = "sitemapItemId", required = false) String sitemapItemId,
             @RequestParam(value = "includeAncestors", required = false, defaultValue = "false") Boolean includeAncestors,
             @RequestParam(value = "descendantLevels", required = false, defaultValue = "1") Integer descendantLevels) {
+        localizationIdProvider.setCurrentId(localizationId);
+
         NavigationFilter navigationFilter = new NavigationFilter();
         navigationFilter.setDescendantLevels(descendantLevels);
         navigationFilter.setWithAncestors(includeAncestors);

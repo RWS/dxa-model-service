@@ -10,15 +10,5 @@
         <heap unit="entries">10000</heap>
     </cache-template>
 
-    <cache alias="sitemaps" uses-template="default"/>
-
-    <cache alias="pageModels" uses-template="default"/>
-
-    <cache alias="entityModels" uses-template="default"/>
-
-    <cache alias="config" uses-template="default"/>
-
-    <cache alias="conversion" uses-template="default"/>
-
     <cache alias="defaultCache" uses-template="default"/>
 </config>
