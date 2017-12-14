@@ -395,7 +395,10 @@ finishAssembly << {
     println location
     [
             [
-                    path     : "template/standalone/services/discovery-client",
+                    path     : [
+                            "template/standalone/services/model-service",
+                            "template/standalone/services/discovery-client"
+                    ],
                     groupId  : "com.sdl.web",
                     id       : "discovery-registration-api",
                     version  : "8.5.0-1057",
@@ -404,7 +407,10 @@ finishAssembly << {
                     install  : true
             ],
             [
-                    path     : "template/standalone/services/discovery-client",
+                    path     : [
+                            "template/standalone/services/model-service",
+                            "template/standalone/services/discovery-client"
+                    ],
                     groupId  : "com.sdl.web",
                     id       : "web-ambient-engine",
                     version  : "8.5.0-1027",
@@ -413,7 +419,10 @@ finishAssembly << {
                     install  : true
             ],
             [
-                    path     : "template/standalone/services/discovery-client",
+                    path     : [
+                            "template/standalone/services/model-service",
+                            "template/standalone/services/discovery-client"
+                    ],
                     groupId  : "com.sdl.web",
                     id       : "web-oauth",
                     version  : "8.5.0-1027",
@@ -422,12 +431,12 @@ finishAssembly << {
                     install  : true
             ],
             [
-                    path    : "template/standalone",
+                    path    : ["template/standalone"],
                     filename: "bin",
                     copyTo  : ".."
             ],
             [
-                    path    : "template/standalone",
+                    path    : ["template/standalone"],
                     filename: "lib",
                     copyTo  : "..",
                     exclude : ['xercesImpl-2.10.0.jar', 'xml-apis-1.4.01.jar']
@@ -435,7 +444,7 @@ finishAssembly << {
     ].each { artifact ->
         def copyFile
         copyFile = { filename ->
-            def fileFrom = new File("$location/${artifact.path}/$filename")
+            def fileFrom = new File("$location/${artifact.path.find { new File("$location/$it/$filename").exists() }}/$filename")
             def fileTo = new File("${artifact.copyTo}/$filename")
 
             if (fileFrom.directory) {
