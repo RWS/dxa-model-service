@@ -17,7 +17,7 @@
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone-build</standalone.build.dir>
-        <template.build.dir>${project.build.directory}/template</template.build.dir>
+        <template.build.dir>${project.build.directory}/template/standalone</template.build.dir>
         <dependencies.build.dir>${template.build.dir}/services/model-service</dependencies.build.dir>
     </properties>
 

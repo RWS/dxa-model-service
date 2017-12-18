@@ -4,7 +4,7 @@ RUN apt-get update && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /dxa-model-service && chmod 755 /dxa-model-service
 COPY target/dxa-model-service/standalone /dxa-model-service
-COPY target/template /dxa-model-service
+COPY target/template/standalone /dxa-model-service
 WORKDIR /dxa-model-service
 
 RUN chmod +x bin/start.sh
