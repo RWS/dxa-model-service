@@ -24,7 +24,7 @@
         <java.version>1.8</java.version>
 
         <dxa.version>${project.version}</dxa.version>
-        <cil.version>10.1.0-1012</cil.version>
+        <cil.version>8.5.0-1011</cil.version>
         <dd4t.version>2.1.0-beta5</dd4t.version>
 
         <web-oauth-common.version>8.5.0-1021</web-oauth-common.version>
