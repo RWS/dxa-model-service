@@ -54,7 +54,7 @@ def configuration = [
                 .withDefaultValue(project, 'runScript', 'no')
                 .withValidator(isWindows ? valueInList('no', 'run', 'install', 'uninstall') : valueInList('no', 'run')),
         parameters      : [
-                port        : new Parameter()
+                port              : new Parameter()
                         .withDescription("What port do you want to use for the Model Service?")
                         .withDefaultValue(project, 'port', '8998')
                         .withSystemEnv('MS_PORT')
@@ -73,7 +73,7 @@ def configuration = [
                                 .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
                                 .inFile("../bin/installService.ps1")
                 ),
-                discoveryUrl: new Parameter()
+                discoveryUrl      : new Parameter()
                         .withDescription('What is the Discovery Service URL?')
                         .withDefaultValue(project, 'discoveryUrl', "http://localhost:8082/discovery.svc")
                         .withSystemEnv('DISCOVERY_URL')
@@ -88,7 +88,7 @@ def configuration = [
                                 .inFile("$configFolder/cd_storage_conf.xml")
                                 .wrappedWith('${DISCOVERY_URL:-', '}')
                 ),
-                tokenUrl    : new Parameter()
+                tokenUrl          : new Parameter()
                         .withDescription('What is the Token Service URL?')
                         .withSystemEnv('TOKEN_URL')
                         .withValidator(or(url(), ip()))
@@ -102,12 +102,12 @@ def configuration = [
                             (project.hasProperty('tokenUrl') ? project['tokenUrl'] :
                                     configuration.parameters.discoveryUrl.get().replace("discovery.svc", "token.svc")) as String
                         }),
-                register    : new Parameter()
+                register          : new Parameter()
                         .withDescription("Do you want to register Model Service now in Discovery Service?")
                         .withDefaultValue(project, 'register', 'no')
                         .withSystemEnv('MS_AUTO_REGISTER')
                         .withValidator(valueInList('yes', 'no')),
-                secured     : new Parameter()
+                secured           : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
                         .withDefaultValue(project, 'secured', 'yes')
                         .withSystemEnv('MS_SECURITY_ENABLED')
@@ -119,12 +119,18 @@ def configuration = [
                                 .withMapping("yes -> true; no -> false")
                                 .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
                 ),
-                deployType  : new Parameter()
+                'credentialsCheck': new Parameter()
+                        .withDescription("Please go to $configFolder/cd_storage.conf.xml and check that credentials in " +
+                        "/ServiceConfig/TokenService are set correctly. Don't forget to save the file, it will be modified by the tool." +
+                        "Type 'done' when ready")
+                        .withValidator(valueInList('done'))
+                        .withDefaultValue(project, 'credentialsCheck', 'done'),
+                deployType        : new Parameter()
                         .withDescription("What is you deployment type: staging or live?")
                         .withDefaultValue(project, 'deployType', 'live')
                         .withSystemEnv('MS_DEPLOY_TYPE')
                         .withValidator(valueInList('staging', 'live')),
-                cacheEnabled: new Parameter()
+                cacheEnabled      : new Parameter()
                         .withDescription("Is Cache Enabled for Model Service and CIL?")
                         .withSystemEnv('CIL_CACHE_ENABLED')
                         .withValidator(valueInList('yes', 'no'))
@@ -147,7 +153,7 @@ def configuration = [
                         { configuration ->
                             (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? 'no' : 'yes')
                         }),
-                logLevel    : new Parameter()
+                logLevel          : new Parameter()
                         .withDescription("What log level do you want?")
                         .withDefaultValue(project, 'logLevel', 'INFO')
                         .withCaseSensitiveValue()
@@ -158,7 +164,7 @@ def configuration = [
                                 .thatModifiesXml("/configuration/property[@name='log.level']/@value")
                                 .wrappedWith('${MS_LOG_LEVEL:-', '}')
                                 .inFile("$configFolder/logback.xml")),
-                cilLogLevel : new Parameter()
+                cilLogLevel       : new Parameter()
                         .withDescription('What log level do you want for CIL?')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
                         .withCaseSensitiveValue()
@@ -172,7 +178,7 @@ def configuration = [
                         { configuration ->
                             (project.hasProperty('cilLogLevel') ? project['cilLogLevel'] : configuration.parameters.logLevel.get()) as String
                         }),
-                logFolder   : new Parameter()
+                logFolder         : new Parameter()
                         .withDescription("What would be the location of the log folder?")
                         .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '${user.home}/SDLWeb/log')
                         .withCaseSensitiveValue()
@@ -223,14 +229,14 @@ def configuration = [
                                 .withProperties(
                                 new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
                                         "/v3:config/v3:cache-template/v3:expiry/v3:ttl/text()")
-                                        .inFile("$configFolder/ehcache-cil.xml"),
+                                        .inFile("$configFolder/ehcache.xml"),
                                 new XmlProperty().thatModifiesXml("/ServiceConfig/@CacheExpirationDuration")
                                         .inFile("$configFolder/cd_client_conf.xml"),
                                 new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
                                         .inFile("$configFolder/cd_storage_conf.xml"))
                 ],
                 'register.yes'     : [
-                        modelServiceUrl: new Parameter()
+                        modelServiceUrl   : new Parameter()
                                 .withDescription('What is Model Service URL to register it in Discovery?')
                                 .withSystemEnv('MS_URL')
                                 .withValidator(or(url(), ip()))
@@ -245,6 +251,12 @@ def configuration = [
                                         .thatModifiesXml("/Configuration/ConfigRepository/Roles/Role/Property[@Name='dxa-model-service']/@Value")
                                         .inFile("$configFolder/cd_storage_conf.xml")
                                         .wrappedWith('${MS_URL:-', '}')),
+                        'credentialsCheck': new Parameter()
+                                .withDescription("Please go to $configFolder/cd_storage.conf.xml and check that /Configuration/ConfigRepository/@ClientId " +
+                                "and /Configuration/ConfigRepository/@ClientSecret are set correctly. Don't forget to save the file, it will be modified by the tool." +
+                                "Type 'done' when ready")
+                                .withValidator(valueInList('done'))
+                                .withDefaultValue(project, 'credentialsCheck', 'done')
                 ]
         ]
 ]

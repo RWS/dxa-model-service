@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ServiceConfig CacheEnabled="${CIL_CACHE_ENABLED:-true}" ConnectionTimeout="10000"
-               CacheUri="ehcache-cil.xml"
+               CacheUri="ehcache.xml"
                CacheExpirationDuration="600" ServiceAvailabilityCheck="true"
                CacheProviderClass="com.sdl.web.client.cache.GeneralCacheProvider" CacheConnectionTimeout="10000">
     <DiscoveryService ServiceUri="${DISCOVERY_URL:-http://localhost:8082/discovery.svc}"/>
