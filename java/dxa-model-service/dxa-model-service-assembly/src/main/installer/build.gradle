@@ -413,7 +413,7 @@ finishAssembly << {
                     ],
                     groupId  : "com.sdl.web",
                     id       : "discovery-registration-api",
-                    version  : "8.5.0-1057",
+                    version  : "10.1.0-1016",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
@@ -423,9 +423,9 @@ finishAssembly << {
                             "template/standalone/services/model-service",
                             "template/standalone/services/discovery-client"
                     ],
-                    groupId  : "com.sdl.web",
-                    id       : "web-ambient-engine",
-                    version  : "8.5.0-1027",
+                    groupId  : "com.sdl.delivery",
+                    id       : "adf-engine",
+                    version  : "10.1.0-1009",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
@@ -435,9 +435,9 @@ finishAssembly << {
                             "template/standalone/services/model-service",
                             "template/standalone/services/discovery-client"
                     ],
-                    groupId  : "com.sdl.web",
-                    id       : "web-oauth",
-                    version  : "8.5.0-1027",
+                    groupId  : "com.sdl.delivery",
+                    id       : "oauth",
+                    version  : "10.1.0-1009",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
@@ -451,7 +451,7 @@ finishAssembly << {
                     path    : ["template/standalone"],
                     filename: "lib",
                     copyTo  : "..",
-                    exclude : ['xercesImpl-2.10.0.jar', 'xml-apis-1.4.01.jar']
+                    exclude : ['xercesImpl', 'xml-apis']
             ]
     ].each { artifact ->
         def copyFile
@@ -463,7 +463,7 @@ finishAssembly << {
                 fileTo.mkdir()
                 println "Created $fileTo directory"
                 fileFrom.listFiles()
-                        .findAll { !artifact.exclude?.contains(it.name) }
+                        .findAll { file -> !artifact.exclude?.any { file.name.contains(it) } }
                         .each { copyFile("${fileFrom.name}/${it.name}") }
             } else {
                 fileTo << fileFrom.bytes
@@ -471,6 +471,7 @@ finishAssembly << {
             }
             fileTo.absolutePath
         }
+
         if (artifact.install) {
             def path = copyFile("${artifact.id}-${artifact.version}.${artifact.packaging}")
 

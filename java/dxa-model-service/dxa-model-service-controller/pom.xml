@@ -24,15 +24,14 @@
         <java.version>1.8</java.version>
 
         <dxa.version>${project.version}</dxa.version>
-        <cil.version>8.5.0-1011</cil.version>
-        <dd4t.version>2.1.0-beta5</dd4t.version>
+        <cil.version>10.1.0-1012</cil.version>
 
-        <web-oauth-common.version>8.5.0-1021</web-oauth-common.version>
-        <web-ambient-api.version>8.5.0-1021</web-ambient-api.version>
+        <oauth-common.version>10.1.0-1009</oauth-common.version>
+        <adf-api.version>10.1.0-1009</adf-api.version>
 
-        <discovery-registration-api.version>8.5.0-1054</discovery-registration-api.version>
-        <web-oauth.version>8.5.0-1026</web-oauth.version>
-        <web-ambient-engine.version>8.5.0-1026</web-ambient-engine.version>
+        <discovery-registration-api.version>10.1.0-1016</discovery-registration-api.version>
+        <oauth.version>10.1.0-1009</oauth.version>
+        <adf-engine.version>10.1.0-1009</adf-engine.version>
 
         <powermock.version>1.6.6</powermock.version>
     </properties>
@@ -84,24 +83,24 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-oauth</artifactId>
-            <version>${web-oauth.version}</version>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>oauth</artifactId>
+            <version>${oauth.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-oauth-common</artifactId>
-            <version>${web-oauth-common.version}</version>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>oauth-common</artifactId>
+            <version>${oauth-common.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-ambient-api</artifactId>
-            <version>${web-ambient-api.version}</version>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>adf-api</artifactId>
+            <version>${adf-api.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-ambient-engine</artifactId>
-            <version>${web-ambient-engine.version}</version>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>adf-engine</artifactId>
+            <version>${adf-engine.version}</version>
         </dependency>
 
         <dependency>
