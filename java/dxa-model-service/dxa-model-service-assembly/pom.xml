@@ -43,8 +43,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>web-oauth, web-ambient-engine, discovery-registration-api
-                            </includeArtifactIds>
+                            <includeArtifactIds>oauth,adf-engine, discovery-registration-api</includeArtifactIds>
                             <outputDirectory>${dependencies.build.dir}</outputDirectory>
                             <silent>true</silent>
                         </configuration>
