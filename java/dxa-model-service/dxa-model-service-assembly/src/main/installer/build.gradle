@@ -456,7 +456,11 @@ finishAssembly << {
     ].each { artifact ->
         def copyFile
         copyFile = { filename ->
-            def fileFrom = new File("$location/${artifact.path.find { new File("$location/$it/$filename").exists() }}/$filename")
+            def filepath = "${artifact.path.find { new File("$location/$it/$filename").exists() }}"
+            if (filepath == null) {
+                throw new IllegalArgumentException("File $filename cannot be found. Check that you use a correct version of UDP layout")
+            }
+            def fileFrom = new File("$location/$filepath/$filename")
             def fileTo = new File("${artifact.copyTo}/$filename")
 
             if (fileFrom.directory) {
