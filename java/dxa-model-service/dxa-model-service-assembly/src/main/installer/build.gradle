@@ -413,7 +413,7 @@ finishAssembly << {
                     ],
                     groupId  : "com.sdl.web",
                     id       : "discovery-registration-api",
-                    version  : "10.1.0-1016",
+                    version  : "10.1.0-1017",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
@@ -425,7 +425,7 @@ finishAssembly << {
                     ],
                     groupId  : "com.sdl.delivery",
                     id       : "adf-engine",
-                    version  : "10.1.0-1009",
+                    version  : "10.1.0-1011",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true
@@ -437,7 +437,7 @@ finishAssembly << {
                     ],
                     groupId  : "com.sdl.delivery",
                     id       : "oauth",
-                    version  : "10.1.0-1009",
+                    version  : "10.1.0-1011",
                     packaging: 'jar',
                     copyTo   : "../services/model-service",
                     install  : true

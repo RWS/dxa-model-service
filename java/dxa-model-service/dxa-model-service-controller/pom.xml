@@ -26,12 +26,12 @@
         <dxa.version>${project.version}</dxa.version>
         <cil.version>10.1.0-1012</cil.version>
 
-        <oauth-common.version>10.1.0-1009</oauth-common.version>
-        <adf-api.version>10.1.0-1009</adf-api.version>
+        <oauth-common.version>10.1.0-1011</oauth-common.version>
+        <adf-api.version>10.1.0-1011</adf-api.version>
 
-        <discovery-registration-api.version>10.1.0-1016</discovery-registration-api.version>
-        <oauth.version>10.1.0-1009</oauth.version>
-        <adf-engine.version>10.1.0-1009</adf-engine.version>
+        <discovery-registration-api.version>10.1.0-1017</discovery-registration-api.version>
+        <oauth.version>10.1.0-1011</oauth.version>
+        <adf-engine.version>10.1.0-1011</adf-engine.version>
 
         <powermock.version>1.6.6</powermock.version>
     </properties>
