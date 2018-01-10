@@ -1,8 +1,9 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.caching.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.common.dto.DataModelType;
+import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
@@ -54,13 +55,17 @@ public class PageModelController {
 
     private final ContentService contentService;
 
+    private ModelServiceLocalizationIdProvider localizationIdProvider;
+
     @Autowired
     public PageModelController(PageModelService pageModelService,
                                LegacyPageModelService legacyPageModelService,
-                               ContentService contentService) {
+                               ContentService contentService,
+                               ModelServiceLocalizationIdProvider localizationIdProvider) {
         this.pageModelService = pageModelService;
         this.legacyPageModelService = legacyPageModelService;
         this.contentService = contentService;
+        this.localizationIdProvider = localizationIdProvider;
     }
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -70,6 +75,8 @@ public class PageModelController {
                                   @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                   @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
                                   HttpServletRequest request) throws ContentProviderException, JsonProcessingException {
+        localizationIdProvider.setCurrentId(localizationId);
+
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
 
         if (pageRequestDto == null) {

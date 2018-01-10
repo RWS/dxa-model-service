@@ -1,5 +1,6 @@
 package com.sdl.dxa;
 
+import com.sdl.dxa.caching.TridionCacheConfiguration;
 import com.sdl.web.ambient.client.AmbientClientFilter;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
@@ -15,13 +16,13 @@ import org.dd4t.databind.builder.json.JsonDataBinder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
-@EnableCaching
 @SpringBootApplication
 @PropertySource("classpath:dxa.properties")
+@Import(TridionCacheConfiguration.class)
 public class DxaModelServiceApplication {
 
     /**

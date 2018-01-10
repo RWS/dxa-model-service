@@ -15,11 +15,9 @@
 
     <ForwardedClaims CookieName="TAFContext">
         <Claim Uri="taf:session:preview:preview_session"/>
-        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:browser"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:acceptlanguage"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:recurringvisitor"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:searchquery"/>
-        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:os"/>
         <Claim Uri="taf:claim:ambientdata:definedtriggertypes"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:refererdomain"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:isbot"/>
@@ -27,9 +25,9 @@
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:session:lifetime"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:browser"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:authorization:isauthenticated"/>
+        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:os"/>
         <Claim Uri="taf:claim:audiencemanager:contact:keywords"/>
         <Claim Uri="taf:claim:audiencemanager:contact:segments"/>
-        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:os"/>
         <Claim Uri="taf:claim:audiencemanager:contact:extendeddetail:city"/>
         <Claim Uri="taf:claim:audiencemanager:contact:extendeddetail:company"/>
         <Claim Uri="taf:claim:audiencemanager:contact:extendeddetail:age"/>
@@ -43,11 +41,9 @@
 
     <GloballyAcceptedClaims>
         <Claim Uri="taf:session:preview:preview_session"/>
-        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:browser"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:acceptlanguage"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:recurringvisitor"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:searchquery"/>
-        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:os"/>
         <Claim Uri="taf:claim:ambientdata:definedtriggertypes"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:refererdomain"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:isbot"/>
@@ -55,9 +51,9 @@
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:session:lifetime"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:browser"/>
         <Claim Uri="taf:claim:ambientdata:sessioncartridge:authorization:isauthenticated"/>
+        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:os"/>
         <Claim Uri="taf:claim:audiencemanager:contact:keywords"/>
         <Claim Uri="taf:claim:audiencemanager:contact:segments"/>
-        <Claim Uri="taf:claim:ambientdata:sessioncartridge:useragent:os"/>
         <Claim Uri="taf:claim:audiencemanager:contact:extendeddetail:city"/>
         <Claim Uri="taf:claim:audiencemanager:contact:extendeddetail:company"/>
         <Claim Uri="taf:claim:audiencemanager:contact:extendeddetail:age"/>
