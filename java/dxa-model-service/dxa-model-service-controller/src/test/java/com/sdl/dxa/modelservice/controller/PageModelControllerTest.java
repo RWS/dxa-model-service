@@ -61,6 +61,7 @@ public class PageModelControllerTest {
     public void shouldReturnExpectedPathForAllCases_Regardless_ContextPath() throws Exception {
         expectForUrl("/example/to/site", "/test/PageModel/tcm/42/example/to/site", "/test");
         expectForUrl("/example/to/site", "/test/PageModel/tcm/42//example/to/site", "/test");
+        expectForUrl("/example/to/site", "/model.svc/PageModel/tcm/42//example/to/site", "/model.svc");
     }
 
     @Test
