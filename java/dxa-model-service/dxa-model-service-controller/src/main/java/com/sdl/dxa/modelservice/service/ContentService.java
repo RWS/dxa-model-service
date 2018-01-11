@@ -18,6 +18,7 @@ import com.tridion.broker.querying.criteria.operators.OrCriteria;
 import com.tridion.broker.querying.filter.LimitFilter;
 import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
+import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -138,7 +139,11 @@ public class ContentService {
     String loadPageContent(int publicationId, int pageId) throws ContentProviderException {
         try {
             log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
-            return new PageContentFactory().getPageContent(publicationId, pageId).getString();
+            CharacterData data = new PageContentFactory().getPageContent(publicationId, pageId);
+            if (data == null) {
+                throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
+            }
+            return data.getString();
         } catch (IOException e) {
             ContentProviderException exception = new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);
             log.warn("Failed to load page content", exception);
