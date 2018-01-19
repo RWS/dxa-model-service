@@ -19,6 +19,7 @@ import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.AdoptedRichTextField;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.api.mapping.semantic.config.FieldPath;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchemaField;
@@ -171,13 +172,16 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         PageRequestDto navigationJsonRequest = pageRequest.toBuilder()
                 .path(PathUtils.combinePath(publicationUrl, "navigation.json"))
                 .build();
-        String content = contentService.loadPageContent(navigationJsonRequest);
         Optional<LightSitemapItem> sitemapItem;
         try {
+            String content = contentService.loadPageContent(navigationJsonRequest);
             sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
                     pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
         } catch (IOException e) {
             throw new ContentProviderException("Error parsing navigation.json", e);
+        } catch (PageNotFoundException e) {
+            log.warn("navigation.json was not found, while is required for R2->DD4T conversion to populate StructureGroup", e);
+            sitemapItem = Optional.empty();
         }
 
         if (sitemapItem.isPresent()) {
