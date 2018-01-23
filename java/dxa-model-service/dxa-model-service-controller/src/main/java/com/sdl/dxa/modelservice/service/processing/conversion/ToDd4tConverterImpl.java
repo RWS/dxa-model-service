@@ -280,14 +280,14 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setContent(_convertContent(entity.getContent(), publicationId,
                 configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId()), null, 0));
 
+        SchemaImpl schema = new SchemaImpl();
+        component.setSchema(schema);
         if (entity.getSchemaId() != null) {
             JsonSchema jsonSchema = configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId());
-            SchemaImpl schema = new SchemaImpl();
             schema.setRootElement(jsonSchema.getRootElement());
             schema.setId(entity.getSchemaId());
             schema.setTitle(jsonSchema.getRootElement());
             // todo RevisionDate&LastPublishedDate are not available in CIL/CM
-            component.setSchema(schema);
         }
 
         // todo load /Folder:
