@@ -134,7 +134,10 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
         page.setMetadata(_convertContent(toConvert.getMetadata(), publicationId));
 
-        page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), publicationId));
+        PageTemplateData pageTemplate = toConvert.getPageTemplate();
+        if (pageTemplate != null) {
+            page.setPageTemplate(_buildPageTemplate(pageTemplate, publicationId));
+        }
 
         // component presentations, one CP per one top-level (not embedded, not from include page) EMD
         if (toConvert.getRegions() != null) {
@@ -254,13 +257,17 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                 entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build()) : entity;
 
         presentation.setComponent(_convertEntity(entityModelData, publicationId));
-        presentation.setComponentTemplate(_buildComponentTemplate(entityModelData.getComponentTemplate(), publicationId));
+        ComponentTemplateData templateData = entityModelData.getComponentTemplate();
+        if (templateData != null) {
+            ComponentTemplate componentTemplate = _buildComponentTemplate(templateData, publicationId);
+            presentation.setComponentTemplate(componentTemplate);
+        }
         // todo OrderOnPage ?
         return presentation;
     }
 
     @NotNull
-    private ComponentTemplate _buildComponentTemplate(ComponentTemplateData componentTemplateData, int publicationId) throws ContentProviderException {
+    private ComponentTemplate _buildComponentTemplate(@NotNull ComponentTemplateData componentTemplateData, int publicationId) throws ContentProviderException {
         ComponentTemplateImpl componentTemplate = new ComponentTemplateImpl();
         componentTemplate.setId(TcmUtils.buildTcmUri(publicationId, componentTemplateData.getId(), TcmUtils.COMPONENT_TEMPLATE_ITEM_TYPE));
         componentTemplate.setTitle(componentTemplateData.getTitle());
