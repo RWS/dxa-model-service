@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.google.common.collect.Lists;
+import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,9 @@ public class RichTextLinkResolverTest {
     @Mock
     private LinkResolver linkResolver;
 
+    @Mock
+    private ConfigService configService;
+
     @InjectMocks
     private RichTextLinkResolver richTextLinkResolver;
 
@@ -32,6 +36,10 @@ public class RichTextLinkResolverTest {
         when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"), eq(true))).thenReturn("");
         when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"), eq(true))).thenReturn("");
         when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"), eq(true))).thenReturn("resolved-link");
+
+        ConfigService.Defaults defaults = new ConfigService.Defaults(null, null);
+        defaults.setConverterXmlnsRemove(true);
+        when(configService.getDefaults()).thenReturn(defaults);
     }
 
     @Test
@@ -100,6 +108,21 @@ public class RichTextLinkResolverTest {
 
         //then
         assertEquals("<p>\nText <a xlink=\"X link\" data-id=\"ID\" title=\"link title\" href=\"resolved-link\">\nlink text</a>\n</p>", result);
+    }
+
+    @Test
+    public void shouldNotRemoveNamespaces_IfDisabled() {
+        String fragment = "<p>\nText <a xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
+        configService.getDefaults().setConverterXmlnsRemove(false);
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>\n" +
+                "Text <a xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"resolved-link\">\n" +
+                "link text</a>\n" +
+                "</p>", result);
     }
 
     @Test

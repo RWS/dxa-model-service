@@ -62,6 +62,8 @@ public class ConfigService {
 
         private String mappingsSchemas;
 
+        private boolean converterXmlnsRemove;
+
         @Autowired
         public Defaults(StaticContentResolver staticContentResolver, ObjectMapper objectMapper) {
             this.staticContentResolver = staticContentResolver;

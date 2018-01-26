@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.google.common.base.Strings;
+import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +24,7 @@ public class RichTextLinkResolver {
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
      */
     private static final Pattern XMLNS_NAMESPACE =
-            Pattern.compile("((xlink:|xmlns:xlink=\".*?\"\\s*))",
+            Pattern.compile("(xlink:|xmlns:xlink=\".*?\"\\s*)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
@@ -47,9 +48,12 @@ public class RichTextLinkResolver {
 
     private final LinkResolver linkResolver;
 
+    private final ConfigService configService;
+
     @Autowired
-    public RichTextLinkResolver(LinkResolver linkResolver) {
+    public RichTextLinkResolver(LinkResolver linkResolver, ConfigService configService) {
         this.linkResolver = linkResolver;
+        this.configService = configService;
     }
 
     /**
@@ -89,8 +93,7 @@ public class RichTextLinkResolver {
                 processStartLinks(fragment, localizationId, notResolvedBuffer),
                 notResolvedBuffer);
 
-
-        return cleanUp(textWithResolvedLinks);
+        return configService.getDefaults().isConverterXmlnsRemove() ? cleanUp(textWithResolvedLinks) : textWithResolvedLinks;
     }
 
     /**
@@ -102,7 +105,7 @@ public class RichTextLinkResolver {
     private String cleanUp(String fragment) {
         Matcher matcher = XMLNS_NAMESPACE.matcher(fragment);
 
-        if(matcher.find()) {
+        if (matcher.find()) {
             return matcher.replaceAll("");
         }
 
