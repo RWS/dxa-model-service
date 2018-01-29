@@ -120,7 +120,7 @@ def configuration = [
                                 .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
                 ),
                 'credentialsCheck': new Parameter()
-                        .withDescription("Please go to $configFolder/cd_storage.conf.xml and check that credentials in " +
+                        .withDescription("Please go to $configFolder/cd_client.conf.xml and check that credentials in " +
                         "/ServiceConfig/TokenService are set correctly. Don't forget to save the file, it will be modified by the tool." +
                         "Type 'done' when ready")
                         .withValidator(valueInList('done'))
