@@ -34,6 +34,8 @@
         <adf-engine.version>10.1.0-1011</adf-engine.version>
 
         <powermock.version>1.6.6</powermock.version>
+
+        <jackson.version>2.9.4</jackson.version>
     </properties>
 
     <dependencies>
