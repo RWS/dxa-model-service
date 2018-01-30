@@ -451,7 +451,7 @@ finishAssembly << {
                     path    : ["template/standalone"],
                     filename: "lib",
                     copyTo  : "..",
-                    exclude : ['xercesImpl', 'xml-apis']
+                    exclude : ['xercesImpl', 'xml-apis', 'jackson', 'spring-']
             ]
     ].each { artifact ->
         def copyFile

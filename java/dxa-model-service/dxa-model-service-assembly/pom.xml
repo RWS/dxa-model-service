@@ -12,7 +12,7 @@
     <description>DXA Model Service Assembly</description>
 
     <properties>
-        <service-container.version>10.1.0-1016</service-container.version>
+        <service-container.version>10.1.0-1019</service-container.version>
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
@@ -43,7 +43,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeArtifactIds>oauth,adf-engine, discovery-registration-api</includeArtifactIds>
+                            <includeArtifactIds>oauth, adf-engine, discovery-registration-api</includeArtifactIds>
                             <outputDirectory>${dependencies.build.dir}</outputDirectory>
                             <silent>true</silent>
                         </configuration>
@@ -61,7 +61,8 @@
                                     <artifactId>service-container-assembly</artifactId>
                                     <type>zip</type>
                                     <version>${service-container.version}</version>
-                                    <excludes>**/xercesImpl*.jar,**/xml-apis*.jar</excludes>
+                                    <excludes>**/xercesImpl*.jar,**/xml-apis*.jar, **/jackson*.jar, **/spring-*.jar
+                                    </excludes>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${template.build.dir}</outputDirectory>
