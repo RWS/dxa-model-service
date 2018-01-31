@@ -435,7 +435,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
     private List<RegionModelData> _loadIncludes(PageTemplateData pageTemplate, PageRequestDto pageRequest) throws ContentProviderException {
         String includesKey = "includes";
-        if (!pageTemplate.getMetadata().containsKey(includesKey)) {
+        if (pageTemplate.getMetadata() == null || !pageTemplate.getMetadata().containsKey(includesKey)) {
             return Collections.emptyList();
         }
 
@@ -504,7 +504,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return region;
     }
 
-    private ListWrapper<String> _processIncludes(Object includes) throws ContentProviderException {
+    private ListWrapper<String> _processIncludes(Object includes) {
         ArrayList<String> list = new ArrayList<>();
         if (includes instanceof ListWrapper) {
             return (ListWrapper<String>) includes;
@@ -588,12 +588,12 @@ public class ToR2ConverterImpl implements ToR2Converter {
     private Object _convertRichTextData(XhtmlField field) throws ContentProviderException {
         return _convertField(field, new SingleOrMultipleFork() {
             @Override
-            public Object onSingleValue() throws ContentProviderException {
+            public Object onSingleValue() {
                 return new RichTextData(Collections.singletonList(String.valueOf(field.getTextValues().get(0))));
             }
 
             @Override
-            public Object onMultipleValues() throws ContentProviderException {
+            public Object onMultipleValues() {
                 List<RichTextData> list = new ArrayList<>();
                 for (String string : field.getTextValues()) {
                     RichTextData richTextData = new RichTextData(Collections.singletonList(string));
