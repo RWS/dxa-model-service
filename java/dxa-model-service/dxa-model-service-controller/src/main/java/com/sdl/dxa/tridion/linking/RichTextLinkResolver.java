@@ -23,8 +23,12 @@ public class RichTextLinkResolver {
     /**
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
      */
-    private static final Pattern XMLNS_NAMESPACE =
-            Pattern.compile("(xlink:|xmlns:xlink=\".*?\"\\s*)",
+    private static final Pattern XMLNS_FOR_REMOVAL =
+            Pattern.compile("(xlink:|xmlns:[^=]+=\".*?\"\\s*)",
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+
+    private static final Pattern XLINK_XLMNS_FOR_GENERATING_HREF =
+            Pattern.compile("(?<before>.*(xlink|xmlns):(?<tag>href=)(?<value>\"[^\"]*?\"))(?<after>.*)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
@@ -34,7 +38,7 @@ public class RichTextLinkResolver {
             // tcmUri: tcm:1-2
             // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]+href=\")(?<tcmUri>tcm:\\d+-\\d+)(?<afterWithLink>\"[^>]*>(?<after>.*))",
+            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*\\shref=\")(?<tcmUri>tcm:\\d+-\\d+)(?<afterWithLink>\"[^>]*>(?<after>.*))",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern END_LINK =
@@ -89,11 +93,17 @@ public class RichTextLinkResolver {
      * @return modified fragment
      */
     public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer) {
-        String textWithResolvedLinks = processEndLinks(
-                processStartLinks(fragment, localizationId, notResolvedBuffer),
-                notResolvedBuffer);
 
-        return configService.getDefaults().isConverterXmlnsRemove() ? cleanUp(textWithResolvedLinks) : textWithResolvedLinks;
+        if (!configService.getDefaults().isRichTextResolve()) {
+            log.debug("RichText link resolving is turned off, don't do anything");
+            return fragment;
+        }
+
+        final String _fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(fragment) : generateHref(fragment);
+
+        return processEndLinks(
+                processStartLinks(_fragment, localizationId, notResolvedBuffer),
+                notResolvedBuffer);
     }
 
     /**
@@ -102,14 +112,34 @@ public class RichTextLinkResolver {
      * @param fragment rich text fragment to clean up
      * @return the same fragment with removed attributes
      */
-    private String cleanUp(String fragment) {
-        Matcher matcher = XMLNS_NAMESPACE.matcher(fragment);
+    private String dropXlmns(String fragment) {
+        Matcher matcher = XMLNS_FOR_REMOVAL.matcher(fragment);
 
         if (matcher.find()) {
             return matcher.replaceAll("");
         }
 
         return fragment;
+    }
+
+    /**
+     * Generates HREF based on xlmns:href.
+     *
+     * @param fragment rich text fragment to process
+     * @return the same fragment with href added
+     */
+    private String generateHref(String fragment) {
+        String _fragment = fragment;
+        Matcher matcher = XLINK_XLMNS_FOR_GENERATING_HREF.matcher(_fragment);
+
+        if (matcher.matches()) {
+            Matcher hrefAlreadyThere = START_LINK.matcher(_fragment);
+            if (!hrefAlreadyThere.matches()) {
+                _fragment = matcher.group("before") + " " + matcher.group("tag") + matcher.group("value") + matcher.group("after");
+            }
+        }
+
+        return _fragment;
     }
 
     @NotNull

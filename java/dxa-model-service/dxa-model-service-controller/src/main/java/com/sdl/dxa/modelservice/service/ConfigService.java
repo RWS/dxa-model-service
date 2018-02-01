@@ -62,7 +62,9 @@ public class ConfigService {
 
         private String mappingsSchemas;
 
-        private boolean converterXmlnsRemove;
+        private boolean richTextXmlnsRemove;
+
+        private boolean richTextResolve;
 
         @Autowired
         public Defaults(StaticContentResolver staticContentResolver, ObjectMapper objectMapper) {
