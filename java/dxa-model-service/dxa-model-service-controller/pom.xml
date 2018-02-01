@@ -36,6 +36,7 @@
         <powermock.version>1.6.6</powermock.version>
 
         <jackson.version>2.9.4</jackson.version>
+        <dd4t.version>2.1.0</dd4t.version>
     </properties>
 
     <dependencies>
@@ -73,11 +74,20 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sdl.dxa</groupId>
-            <artifactId>dxa-compatible</artifactId>
-            <version>${dxa.version}</version>
+            <groupId>org.dd4t</groupId>
+            <artifactId>dd4t-core</artifactId>
+            <version>${dd4t.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.dd4t</groupId>
+            <artifactId>dd4t-api</artifactId>
+            <version>${dd4t.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.dd4t</groupId>
+            <artifactId>dd4t-providers</artifactId>
+            <version>${dd4t.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>discovery-registration-api</artifactId>
