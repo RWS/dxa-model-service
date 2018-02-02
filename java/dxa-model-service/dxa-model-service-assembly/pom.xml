@@ -12,7 +12,7 @@
     <description>DXA Model Service Assembly</description>
 
     <properties>
-        <service-container.version>10.1.0-1019</service-container.version>
+        <service-container.version>10.1.0-1017</service-container.version>
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
