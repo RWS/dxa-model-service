@@ -192,6 +192,17 @@ public class RichTextLinkResolverTest {
     }
 
     @Test
+    public void shouldAlsoRemove_Xmlns_WithoutSpecificField() {
+        //given 
+        String fragment = "<p xmlns=\"http://www.w3.org/1999/xhtml\">And some content with a <a href=\"tcm:1-11\" title=\"Copy of My article\">link</a> in it!</p>";
+
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>And some content with a <a href=\"resolved-link\" title=\"Copy of My article\">link</a> in it!</p>", result);
+    }
+
+    @Test
     public void shouldResolveLinks_WhenLinkHasManyAttrs() {
         //given 
         String fragment = "<p>\nText <a data-first=\"1\" href=\"tcm:1-11\" data-second=\"2\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";

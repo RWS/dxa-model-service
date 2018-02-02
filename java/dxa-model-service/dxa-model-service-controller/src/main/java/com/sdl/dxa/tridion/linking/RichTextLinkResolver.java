@@ -24,7 +24,11 @@ public class RichTextLinkResolver {
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
      */
     private static final Pattern XMLNS_FOR_REMOVAL =
-            Pattern.compile("(xlink:|xmlns:[^=]+=\".*?\"\\s*)",
+            Pattern.compile("(xlink:|xmlns:?[^\"]*\"[^\"]*\".*?)",
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+
+    private static final Pattern SPACES_FOR_REMOVAL =
+            Pattern.compile("\\s+(\\s)|\\s(>)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern XLINK_XLMNS_FOR_GENERATING_HREF =
@@ -119,7 +123,9 @@ public class RichTextLinkResolver {
         Matcher matcher = XMLNS_FOR_REMOVAL.matcher(fragment);
 
         if (matcher.find()) {
-            return matcher.replaceAll("");
+            return matcher
+                    .replaceAll("")
+                    .replaceAll(SPACES_FOR_REMOVAL.pattern(), "$1$2");
         }
 
         return fragment;
