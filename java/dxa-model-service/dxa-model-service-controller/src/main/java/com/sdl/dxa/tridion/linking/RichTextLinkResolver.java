@@ -94,6 +94,9 @@ public class RichTextLinkResolver {
      */
     public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer) {
 
+        log.trace("RichTextResolver, resolve = {}, remove = {}, input fragment: '{}'",
+                configService.getDefaults().isRichTextResolve(), configService.getDefaults().isRichTextXmlnsRemove(), fragment);
+
         if (!configService.getDefaults().isRichTextResolve()) {
             log.debug("RichText link resolving is turned off, don't do anything");
             return fragment;
