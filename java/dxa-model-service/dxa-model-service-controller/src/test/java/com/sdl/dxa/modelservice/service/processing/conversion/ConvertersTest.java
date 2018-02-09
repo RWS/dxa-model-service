@@ -1,7 +1,7 @@
 package com.sdl.dxa.modelservice.service.processing.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sdl.dxa.DxaModelServiceApplication;
+import com.sdl.dxa.Dd4tSpringConfiguration;
 import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.common.dto.PageRequestDto;
@@ -14,15 +14,12 @@ import com.sdl.web.model.PublicationMetaImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
-import com.tridion.broker.StorageException;
 import com.tridion.storage.PageMeta;
 import org.apache.commons.io.IOUtils;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.impl.PageImpl;
 import org.dd4t.core.databind.DataBinder;
 import org.dd4t.core.exceptions.FactoryException;
-import org.dd4t.core.exceptions.SerializationException;
-import org.dd4t.databind.DataBindFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -66,16 +63,19 @@ public class ConvertersTest {
     @Autowired
     private PageRequestDto pageRequestDto;
 
+    @Autowired
+    private DataBinder dataBinder;
+
     private PageModelData r2PageDataModel;
 
     private Page dd4tPageDataModel;
 
     @Before
-    public void init() throws ContentProviderException, IOException, FactoryException, StorageException {
+    public void init() throws ContentProviderException, IOException, FactoryException {
         String dd4tSource = IOUtils.toString(new ClassPathResource("models/dd4t.json").getInputStream(), "UTF-8");
         String r2Source = IOUtils.toString(new ClassPathResource("models/r2.json").getInputStream(), "UTF-8");
 
-        dd4tPageDataModel = DataBindFactory.buildPage(dd4tSource, PageImpl.class);
+        dd4tPageDataModel = dataBinder.buildPage(dd4tSource, PageImpl.class);
         r2PageDataModel = r2ObjectMapper.readValue(r2Source, PageModelData.class);
 
         doReturn(IOUtils.toString(new ClassPathResource("models/dd4t_header.json").getInputStream(), "UTF-8"))
@@ -141,7 +141,7 @@ public class ConvertersTest {
     public static class SpringConfigurationContext {
 
         @Bean
-        public ToDd4tConverter toDd4tConverter() throws ContentProviderException, IOException, SerializationException {
+        public ToDd4tConverter toDd4tConverter() throws ContentProviderException, IOException {
             return new ToDd4tConverterImpl(
                     contentService(),
                     entityModelService(),
@@ -151,7 +151,7 @@ public class ConvertersTest {
         }
 
         @Bean
-        public ToR2Converter toR2Converter() throws ContentProviderException, IOException, SerializationException {
+        public ToR2Converter toR2Converter() throws ContentProviderException {
             return new ToR2ConverterImpl(
                     contentService(),
                     r2Mapper(),
@@ -231,12 +231,7 @@ public class ConvertersTest {
 
         @Bean
         public DataBinder dataBinder() {
-            return new DxaModelServiceApplication().dd4tDataBinder();
-        }
-
-        @Bean
-        public DataBindFactory dd4tPageFactory() {
-            return new DxaModelServiceApplication().dd4tPageFactory();
+            return new Dd4tSpringConfiguration().dd4tDataBinder();
         }
 
         @Bean
