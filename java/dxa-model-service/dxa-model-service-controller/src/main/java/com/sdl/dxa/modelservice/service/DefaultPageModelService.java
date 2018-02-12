@@ -111,7 +111,12 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         } else {
             try {
                 page = dd4tDataBinder.buildPage(pageContent, PageImpl.class);
-                dd4tRichTextResolver.execute(page, new HttpRequestContext());
+
+                // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
+                if (pageRequest.getDataModelType() == DataModelType.DD4T) {
+                    dd4tRichTextResolver.execute(page, new HttpRequestContext());
+                }
+
                 log.trace("Parsed page content to page model {}", page);
                 return page;
             } catch (SerializationException e) {

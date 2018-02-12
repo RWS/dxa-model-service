@@ -99,7 +99,12 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
             try {
                 log.trace("parsing entity content {}", content);
                 ComponentPresentation componentPresentation = dd4tDataBinder.buildComponentPresentation(content, ComponentPresentationImpl.class);
-                dd4tRichTextResolver.execute(componentPresentation.getComponent(), new HttpRequestContext());
+
+                // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
+                if (entityRequest.getDataModelType() == DataModelType.DD4T) {
+                    dd4tRichTextResolver.execute(componentPresentation.getComponent(), new HttpRequestContext());
+                }
+
                 return componentPresentation;
             } catch (SerializationException e) {
                 throw new ContentProviderException("Couldn't deserialize DD4T content for request " + entityRequest, e);
