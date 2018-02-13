@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.common.dto.StaticContentRequestDto;
 import com.sdl.dxa.tridion.content.StaticContentResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
 import com.sdl.webapp.common.util.TcmUtils;
 import lombok.Data;
@@ -61,6 +62,10 @@ public class ConfigService {
 
         private String mappingsSchemas;
 
+        private boolean richTextXmlnsRemove;
+
+        private boolean richTextResolve;
+
         @Autowired
         public Defaults(StaticContentResolver staticContentResolver, ObjectMapper objectMapper) {
             this.staticContentResolver = staticContentResolver;
@@ -108,7 +113,8 @@ public class ConfigService {
                         objectMapper.readValue(allJson, objectMapper.getTypeFactory().constructCollectionType(List.class, JsonSchema.class));
                 return schemas.parallelStream()
                         .collect(Collectors.toMap(schema -> String.valueOf(schema.getId()), schema -> schema));
-            } catch (IOException e) {
+            } catch (IOException | DxaItemNotFoundException e) {
+                log.error("Exception happened while loading schemas.json, cannot get schemas config, pub ID = {}", publicationId, e);
                 throw new ContentProviderException("Exception happened while loading schemas.json, cannot get schemas config", e);
             }
         }

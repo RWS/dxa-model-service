@@ -15,8 +15,11 @@ import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.impl.PageImpl;
+import org.dd4t.core.databind.DataBinder;
+import org.dd4t.core.exceptions.ProcessorException;
 import org.dd4t.core.exceptions.SerializationException;
-import org.dd4t.databind.DataBindFactory;
+import org.dd4t.core.processors.impl.RichTextResolver;
+import org.dd4t.core.util.HttpRequestContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,10 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     private final RichTextLinkResolver richTextLinkResolver;
 
+    private final DataBinder dd4tDataBinder;
+
+    private final RichTextResolver dd4tRichTextResolver;
+
     private final EntityModelService entityModelService;
 
     @Autowired
@@ -60,7 +67,9 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                    ContentService contentService,
                                    ToDd4tConverter toDd4tConverter,
                                    ToR2Converter toR2Converter,
-                                   RichTextLinkResolver richTextLinkResolver) {
+                                   RichTextLinkResolver richTextLinkResolver,
+                                   DataBinder dd4tDataBinder,
+                                   RichTextResolver dd4tRichTextResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
         this.configService = configService;
@@ -69,6 +78,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         this.toDd4tConverter = toDd4tConverter;
         this.toR2Converter = toR2Converter;
         this.richTextLinkResolver = richTextLinkResolver;
+        this.dd4tDataBinder = dd4tDataBinder;
+        this.dd4tRichTextResolver = dd4tRichTextResolver;
     }
 
     @Override
@@ -99,11 +110,19 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
             page = toDd4tConverter.convertToDd4t(r2page, pageRequest);
         } else {
             try {
-                page = DataBindFactory.buildPage(pageContent, PageImpl.class);
+                page = dd4tDataBinder.buildPage(pageContent, PageImpl.class);
+
+                // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
+                if (pageRequest.getDataModelType() == DataModelType.DD4T) {
+                    dd4tRichTextResolver.execute(page, new HttpRequestContext());
+                }
+
                 log.trace("Parsed page content to page model {}", page);
                 return page;
             } catch (SerializationException e) {
                 throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
+            } catch (ProcessorException e) {
+                throw new ContentProviderException("Couldn't process DD4T content for request " + pageRequest, e);
             }
         }
         return page;

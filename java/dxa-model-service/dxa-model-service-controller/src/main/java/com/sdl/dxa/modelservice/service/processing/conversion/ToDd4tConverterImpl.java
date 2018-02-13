@@ -19,6 +19,7 @@ import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.AdoptedRichTextField;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.api.mapping.semantic.config.FieldPath;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchema;
 import com.sdl.webapp.common.impl.localization.semantics.JsonSchemaField;
@@ -133,7 +134,10 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
         page.setMetadata(_convertContent(toConvert.getMetadata(), publicationId));
 
-        page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), publicationId));
+        PageTemplateData pageTemplate = toConvert.getPageTemplate();
+        if (pageTemplate != null) {
+            page.setPageTemplate(_buildPageTemplate(pageTemplate, publicationId));
+        }
 
         // component presentations, one CP per one top-level (not embedded, not from include page) EMD
         if (toConvert.getRegions() != null) {
@@ -171,13 +175,16 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         PageRequestDto navigationJsonRequest = pageRequest.toBuilder()
                 .path(PathUtils.combinePath(publicationUrl, "navigation.json"))
                 .build();
-        String content = contentService.loadPageContent(navigationJsonRequest);
         Optional<LightSitemapItem> sitemapItem;
         try {
+            String content = contentService.loadPageContent(navigationJsonRequest);
             sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
                     pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
         } catch (IOException e) {
             throw new ContentProviderException("Error parsing navigation.json", e);
+        } catch (PageNotFoundException e) {
+            log.warn("navigation.json was not found, while is required for R2->DD4T conversion to populate StructureGroup", e);
+            sitemapItem = Optional.empty();
         }
 
         if (sitemapItem.isPresent()) {
@@ -250,13 +257,17 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                 entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build()) : entity;
 
         presentation.setComponent(_convertEntity(entityModelData, publicationId));
-        presentation.setComponentTemplate(_buildComponentTemplate(entityModelData.getComponentTemplate(), publicationId));
+        ComponentTemplateData templateData = entityModelData.getComponentTemplate();
+        if (templateData != null) {
+            ComponentTemplate componentTemplate = _buildComponentTemplate(templateData, publicationId);
+            presentation.setComponentTemplate(componentTemplate);
+        }
         // todo OrderOnPage ?
         return presentation;
     }
 
     @NotNull
-    private ComponentTemplate _buildComponentTemplate(ComponentTemplateData componentTemplateData, int publicationId) throws ContentProviderException {
+    private ComponentTemplate _buildComponentTemplate(@NotNull ComponentTemplateData componentTemplateData, int publicationId) throws ContentProviderException {
         ComponentTemplateImpl componentTemplate = new ComponentTemplateImpl();
         componentTemplate.setId(TcmUtils.buildTcmUri(publicationId, componentTemplateData.getId(), TcmUtils.COMPONENT_TEMPLATE_ITEM_TYPE));
         componentTemplate.setTitle(componentTemplateData.getTitle());
@@ -276,14 +287,14 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setContent(_convertContent(entity.getContent(), publicationId,
                 configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId()), null, 0));
 
+        SchemaImpl schema = new SchemaImpl();
+        component.setSchema(schema);
         if (entity.getSchemaId() != null) {
             JsonSchema jsonSchema = configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId());
-            SchemaImpl schema = new SchemaImpl();
             schema.setRootElement(jsonSchema.getRootElement());
             schema.setId(entity.getSchemaId());
             schema.setTitle(jsonSchema.getRootElement());
             // todo RevisionDate&LastPublishedDate are not available in CIL/CM
-            component.setSchema(schema);
         }
 
         // todo load /Folder:

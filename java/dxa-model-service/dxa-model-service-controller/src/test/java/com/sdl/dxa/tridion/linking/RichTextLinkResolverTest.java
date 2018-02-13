@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.google.common.collect.Lists;
+import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,9 @@ public class RichTextLinkResolverTest {
     @Mock
     private LinkResolver linkResolver;
 
+    @Mock
+    private ConfigService configService;
+
     @InjectMocks
     private RichTextLinkResolver richTextLinkResolver;
 
@@ -32,6 +36,12 @@ public class RichTextLinkResolverTest {
         when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"), eq(true))).thenReturn("");
         when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"), eq(true))).thenReturn("");
         when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"), eq(true))).thenReturn("resolved-link");
+        when(linkResolver.resolveLink(eq("tcm:1-12"), eq("1"), eq(true))).thenReturn("resolved-link.html");
+
+        ConfigService.Defaults defaults = new ConfigService.Defaults(null, null);
+        defaults.setRichTextXmlnsRemove(true);
+        defaults.setRichTextResolve(true);
+        when(configService.getDefaults()).thenReturn(defaults);
     }
 
     @Test
@@ -80,6 +90,18 @@ public class RichTextLinkResolverTest {
     }
 
     @Test
+    public void shouldResolveLinks_AndLeaveExtension() {
+        //given
+        String fragment = "<p>Text <a href=\"tcm:1-12\">link text</a><!--CompLink tcm:1-12--></p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>Text <a href=\"resolved-link.html\">link text</a></p>", result);
+    }
+
+    @Test
     public void shouldResolveLinks_InFragmentWithLineBreaks() {
         //given 
         String fragment = "<p>\nText <a href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
@@ -93,13 +115,91 @@ public class RichTextLinkResolverTest {
 
     @Test
     public void shouldRemoveNamespaces_WhenAttributesHaveNamespacePrefixes() {
-        String fragment = "<p>\nText <a xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
+        String fragment = "<p>\nText <a xmlns:xhtml=\"test\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
 
         //when
         String result = richTextLinkResolver.processFragment(fragment, 1);
 
         //then
         assertEquals("<p>\nText <a xlink=\"X link\" data-id=\"ID\" title=\"link title\" href=\"resolved-link\">\nlink text</a>\n</p>", result);
+    }
+
+    @Test
+    public void shouldNotRemoveNamespaces_IfDisabled() {
+        String fragment = "<p>\nText <a xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
+        configService.getDefaults().setRichTextXmlnsRemove(false);
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>\n" +
+                "Text <a xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink=\"X link\" data-id=\"ID\" xlink:title=\"link title\" xlink:href=\"tcm:1-11\" href=\"resolved-link\">\n" +
+                "link text</a>\n" +
+                "</p>", result);
+    }
+
+    @Test
+    public void shouldNotTouchFragment_IfDisabled() {
+        configService.getDefaults().setRichTextResolve(false);
+        configService.getDefaults().setRichTextXmlnsRemove(true);
+        String fragment = "<p>Text <a xlink:href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals(fragment, result);
+    }
+
+    @Test
+    public void shouldNotTouchFragment_IfDisabled_AndRemoveDisabled() { // not valid config case
+        configService.getDefaults().setRichTextResolve(false);
+        configService.getDefaults().setRichTextXmlnsRemove(false);
+        String fragment = "<p>Text <a xlink:href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals(fragment, result);
+    }
+
+    @Test
+    public void shouldNotRemoveNamespaces_IfDisabled_AndResolve() {
+        configService.getDefaults().setRichTextXmlnsRemove(false);
+        configService.getDefaults().setRichTextResolve(true);
+        String fragment = "<p>Text <a xlink:href=\"tcm:1-11\" xmlns:title=\"title\">link text</a><!--CompLink tcm:1-11--></p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>Text <a xlink:href=\"tcm:1-11\" href=\"resolved-link\" xmlns:title=\"title\">link text</a></p>", result);
+    }
+
+    @Test
+    public void shouldRemoveNamespaces_IfDisabled_AndResolveOnlyHref() {
+        configService.getDefaults().setRichTextXmlnsRemove(false);
+        configService.getDefaults().setRichTextResolve(true);
+        String fragment = "<p>Text <a xlink:href=\"tcm:1-11\" href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>Text <a xlink:href=\"tcm:1-11\" href=\"resolved-link\">link text</a></p>", result);
+    }
+
+    @Test
+    public void shouldAlsoRemove_Xmlns_WithoutSpecificField() {
+        //given 
+        String fragment = "<p xmlns=\"http://www.w3.org/1999/xhtml\">And some content with a <a href=\"tcm:1-11\" title=\"Copy of My article\">link</a> in it!</p>";
+
+        String result = richTextLinkResolver.processFragment(fragment, 1);
+
+        //then
+        assertEquals("<p>And some content with a <a href=\"resolved-link\" title=\"Copy of My article\">link</a> in it!</p>", result);
     }
 
     @Test
