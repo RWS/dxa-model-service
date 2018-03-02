@@ -9,6 +9,11 @@ WORKDIR /dxa-model-service
 
 RUN chmod +x bin/start.sh
 RUN chmod +x bin/stop.sh
+
+CMD echo "Waiting for discovery-service to be up and running" && \
+   while [ "$(curl --write-out %{http_code} --silent --output /dev/null ${TOKEN_URL})" -ne "200" ]; do sleep 1; done && \
+   echo "discovery-service is up and running"
+
 RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
 RUN sed -i 's/The service is not started\./Container stopped./g' bin/stop.sh
 
