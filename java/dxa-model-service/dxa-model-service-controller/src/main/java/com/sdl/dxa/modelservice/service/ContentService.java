@@ -67,10 +67,13 @@ public class ContentService {
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
         int publicationId = pageRequest.getPublicationId();
+        if (pageRequest.getPageId() != 0) {
+            log.info("Page ID is known, no need to search it, requesting pubId = {}, pageId = {}", publicationId, pageRequest.getPageId());
+            return loadPageContent(publicationId, pageRequest.getPageId());
+        }
+
         String path = pageRequest.getPath();
-
         log.debug("Trying to request a page with localization id = '{}' and path = '{}'", publicationId, path);
-
         // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
         OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :

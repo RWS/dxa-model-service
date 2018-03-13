@@ -2,6 +2,7 @@ package com.sdl.dxa.modelservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdl.dxa.caching.ModelServiceLocalizationIdProvider;
+import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
@@ -29,7 +30,7 @@ import static com.sdl.dxa.common.dto.ContentType.RAW;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/PageModel/{uriType}/{localizationId}/**")
+@RequestMapping(value = "/PageModel/{uriType}")
 public class PageModelController {
 
     /**
@@ -68,46 +69,56 @@ public class PageModelController {
         this.localizationIdProvider = localizationIdProvider;
     }
 
-    @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = {"/{localizationId}-{pageId}", "/{localizationId}/**"},
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity getPage(@PathVariable String uriType,
                                   @PathVariable int localizationId,
+                                  @PathVariable(required = false) Optional<Integer> pageId,
                                   @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                   @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                   @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
                                   HttpServletRequest request) throws ContentProviderException, JsonProcessingException {
-        localizationIdProvider.setCurrentId(localizationId);
 
-        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
+        PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageId, pageInclusion, dataModelType, isRawContent, request);
 
         if (pageRequestDto == null) {
             return ResponseEntity.badRequest().build();
         }
 
+        localizationIdProvider.setCurrentId(pageRequestDto.getPublicationId());
+
         log.trace("requesting pageSource with {}", pageRequestDto);
         Object result;
-        if (isRawContent) {
+        if (pageRequestDto.getContentType() == ContentType.RAW) {
             result = contentService.loadPageContent(pageRequestDto);
         } else {
 
-            result = dataModelType == DataModelType.R2 ?
+            result = pageRequestDto.getDataModelType() == DataModelType.R2 ?
                     pageModelService.loadPageModel(pageRequestDto) :
                     JsonDataBinder.getGenericMapper().writeValueAsString(legacyPageModelService.loadLegacyPageModel(pageRequestDto));
         }
         return ResponseEntity.ok(result);
     }
 
-    private PageRequestDto buildPageRequest(String uriType, int localizationId, PageInclusion pageInclusion,
-                                            DataModelType dataModelType, boolean isRawContent,
+    private PageRequestDto buildPageRequest(String uriType, int localizationId, Optional<Integer> pageId,
+                                            PageInclusion pageInclusion, DataModelType dataModelType, boolean isRawContent,
                                             HttpServletRequest request) {
-        Optional<String> pageUrl = getPageUrl(request);
-        if (!pageUrl.isPresent()) {
-            log.warn("Page URL is not found in request URI {}", request.getRequestURI());
 
-            return null;
+        PageRequestDto.PageRequestDtoBuilder builder;
+        if (pageId.isPresent()) {
+            builder = PageRequestDto.builder(localizationId, pageId.get());
+        } else {
+            Optional<String> pageUrl = getPageUrl(request);
+            if (!pageUrl.isPresent()) {
+                log.warn("Page URL is not found in request URI {}", request.getRequestURI());
+
+                return null;
+            }
+
+            builder = PageRequestDto.builder(localizationId, pageUrl.get());
         }
 
-        return PageRequestDto.builder(localizationId, pageUrl.get())
-                .uriType(uriType)
+        return builder.uriType(uriType)
                 .dataModelType(dataModelType)
                 .includePages(pageInclusion)
                 .contentType(isRawContent ? RAW : MODEL)
