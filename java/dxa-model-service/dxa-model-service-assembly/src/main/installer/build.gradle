@@ -106,17 +106,17 @@ def configuration = [
                         .withDescription("Do you want to register Model Service now in Discovery Service?")
                         .withDefaultValue(project, 'register', 'no')
                         .withSystemEnv('MS_AUTO_REGISTER')
-                        .withValidator(valueInList('yes', 'no')),
+                        .withValidator(valueInList('yes', 'no', 'true', 'false')),
                 secured           : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
                         .withDefaultValue(project, 'secured', 'yes')
                         .withSystemEnv('MS_SECURITY_ENABLED')
-                        .withValidator(valueInList('yes', 'no'))
+                        .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
                         new XmlProperty()
                                 .thatModifiesXml("/Configuration/Security/@OAuthEnabled")
                                 .inFile("$configFolder/cd_ambient_conf.xml")
-                                .withMapping("yes -> true; no -> false")
+                                .withMapping('yes -> true; no -> false; $self$')
                                 .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
                 ),
                 'credentialsCheck': new Parameter()
@@ -133,21 +133,21 @@ def configuration = [
                 cacheEnabled      : new Parameter()
                         .withDescription("Is Cache Enabled for Model Service and CIL?")
                         .withSystemEnv('CIL_CACHE_ENABLED')
-                        .withValidator(valueInList('yes', 'no'))
+                        .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
                         new PropertiesFileProperty()
                                 .withName("spring.cache.type")
-                                .withMapping("yes -> jcache; no -> none")
+                                .withMapping('yes -> jcache; no -> none; $self$')
                                 .inFile("$configFolder/application.properties"),
                         new XmlProperty()
                                 .thatModifiesXml("/ServiceConfig/@CacheEnabled")
                                 .inFile("$configFolder/cd_client_conf.xml")
-                                .withMapping("yes -> true; no -> false")
+                                .withMapping('yes -> true; no -> false; $self$')
                                 .wrappedWith('${CIL_CACHE_ENABLED:-', '}'),
                         new XmlProperty()
                                 .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
                                 .inFile("$configFolder/cd_storage_conf.xml")
-                                .withMapping("yes -> true; no -> false")
+                                .withMapping('yes -> true; no -> false $self$')
                                 .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
                         .withDynamicDefault(
                         { configuration ->
