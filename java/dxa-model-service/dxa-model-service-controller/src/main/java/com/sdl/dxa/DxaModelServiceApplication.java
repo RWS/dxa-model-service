@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -62,8 +64,7 @@ public class DxaModelServiceApplication {
         return new TaxonomyRelationManager();
     }
 
-    @Bean
-    public RemoteIpValve remoteIpFilter() {
+    private RemoteIpValve remoteIpFilter() {
         RemoteIpValve remoteIpFilter = new RemoteIpValve();
         remoteIpFilter.setPortHeader(ipFilterPortHeader);
         remoteIpFilter.setProtocolHeader(ipFilterProtocolHeader);
@@ -72,4 +73,10 @@ public class DxaModelServiceApplication {
         return remoteIpFilter;
     }
 
+    @Bean
+    public EmbeddedServletContainerFactory servletContainer() {
+        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
+        tomcat.addContextValves(remoteIpFilter());
+        return tomcat;
+    }
 }
