@@ -147,7 +147,7 @@ def configuration = [
                         new XmlProperty()
                                 .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
                                 .inFile("$configFolder/cd_storage_conf.xml")
-                                .withMapping('yes -> true; no -> false $self$')
+                                .withMapping('yes -> true; no -> false; $self$')
                                 .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
                         .withDynamicDefault(
                         { configuration ->
