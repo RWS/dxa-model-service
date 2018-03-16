@@ -6,13 +6,11 @@ import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
 import com.tridion.ambientdata.web.AmbientDataServletFilter;
 import com.tridion.taxonomies.TaxonomyRelationManager;
-import org.apache.catalina.valves.RemoteIpValve;
+import org.apache.catalina.filters.RemoteIpFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -64,19 +62,13 @@ public class DxaModelServiceApplication {
         return new TaxonomyRelationManager();
     }
 
-    private RemoteIpValve remoteIpFilter() {
-        RemoteIpValve remoteIpFilter = new RemoteIpValve();
+    @Bean
+    public RemoteIpFilter remoteIpFilter() {
+        RemoteIpFilter remoteIpFilter = new RemoteIpFilter();
         remoteIpFilter.setPortHeader(ipFilterPortHeader);
         remoteIpFilter.setProtocolHeader(ipFilterProtocolHeader);
         remoteIpFilter.setRemoteIpHeader(ipFilterRemoteIpHeader);
         remoteIpFilter.setInternalProxies(ipFilterInternalProxies);
         return remoteIpFilter;
-    }
-
-    @Bean
-    public EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory();
-        tomcat.addContextValves(remoteIpFilter());
-        return tomcat;
     }
 }
