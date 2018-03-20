@@ -31,7 +31,7 @@ public class DxaModelServiceApplication {
     @Value("${server.tomcat.remote-ip-header}")
     private String ipFilterRemoteIpHeader;
 
-    @Value("${server.tomcat.internal-proxies}")
+    @Value("#{${server.tomcat.internal-proxies:null}}")
     private String ipFilterInternalProxies;
 
     /**
@@ -68,7 +68,9 @@ public class DxaModelServiceApplication {
         remoteIpFilter.setPortHeader(ipFilterPortHeader);
         remoteIpFilter.setProtocolHeader(ipFilterProtocolHeader);
         remoteIpFilter.setRemoteIpHeader(ipFilterRemoteIpHeader);
-        remoteIpFilter.setInternalProxies(ipFilterInternalProxies);
+        if (ipFilterInternalProxies != null) {
+            remoteIpFilter.setInternalProxies(ipFilterInternalProxies);
+        }
         return remoteIpFilter;
     }
 }
