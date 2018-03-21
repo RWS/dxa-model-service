@@ -12,7 +12,10 @@ RUN chmod +x bin/stop.sh
 
 RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
 RUN sed -i 's/${AWS_SSM_PREFIX}.${PARAM}/${AWS_SSM_PREFIX}${PARAM}/g' bin/start.sh
-RUN sed -i 's/eval export $PARAM=\$value/if [ "$value" == "None" ]; then \n echo "Skipping not set SSM param ${AWS_SSM_PREFIX}${PARAM}" \n else \n echo "Exporting SSM param ${PARAM}" \n eval export $PARAM=\$value \n fi/g' bin/start.sh
+RUN sed -i 's/eval export $PARAM=\\\$value/\
+            if [ "$value" == "None" ]; then \n echo "Skipping not set SSM param ${AWS_SSM_PREFIX}${PARAM}" \n \
+            else \n echo "Exporting SSM param ${PARAM}" \n eval export $PARAM=\\\$value \n fi/g' \
+            bin/start.sh
 RUN sed -i 's/The service is not started\./Container stopped./g' bin/stop.sh
 
 RUN chmod +x installer/prepare.sh
