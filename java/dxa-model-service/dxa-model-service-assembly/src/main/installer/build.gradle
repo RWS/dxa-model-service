@@ -217,7 +217,7 @@ def configuration = [
                                         .thatReplaces('\\$description\\s?=\\s?\"', '[^\"]+', '"')
                                         .inFile("../bin/installService.ps1")),
                 ],
-                'cacheEnabled.yes' : [
+                'cacheEnabled.true' : [
                         cacheDuration: new Parameter()
                                 .withDescription('What is Cache Expiration Duration in seconds?')
                                 .withDynamicDefault(
@@ -235,7 +235,7 @@ def configuration = [
                                 new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
                                         .inFile("$configFolder/cd_storage_conf.xml"))
                 ],
-                'register.yes'     : [
+                'register.true'     : [
                         modelServiceUrl   : new Parameter()
                                 .withDescription('What is Model Service URL to register it in Discovery?')
                                 .withSystemEnv('MS_URL')
@@ -558,7 +558,12 @@ requestParameters << {
     configuration.parameters.each {
         def parameter = (it.value as Parameter).request(properties, version, isBatch, configuration)
         if (parameter) {
-            def extra = configuration.extras["${it.key}.${parameter.toString().replaceAll(/[^a-zA-Z0-9.-]/, '')}"]
+            def normalizedAnswer = parameter.toString()
+                    .replaceAll(/[^a-zA-Z0-9.-]/, '')
+                    .replaceAll(/^yes$/, 'true')
+                    .replaceAll(/^no$/, 'false')
+
+            def extra = configuration.extras["${it.key}.${normalizedAnswer}"]
             (extra as Map)?.each {
                 (it.value as Parameter).request(properties, version, isBatch, configuration)
             }
