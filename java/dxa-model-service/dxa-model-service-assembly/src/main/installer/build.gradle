@@ -364,6 +364,8 @@ task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configureS
     }
 }
 registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
+// happens after all parameters requested, here for reference:
+// registerDiscovery.enabled = ...
 
 def runScript = { processDefinition ->
     ProcessBuilder pb = new ProcessBuilder(processDefinition)
@@ -581,5 +583,5 @@ requestParameters << {
         }
     }
 
-    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() == 'yes'
+    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() in ['yes', 'true']
 }
