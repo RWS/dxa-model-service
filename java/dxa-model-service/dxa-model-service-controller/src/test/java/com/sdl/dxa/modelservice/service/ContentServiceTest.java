@@ -33,6 +33,7 @@ import java.io.IOException;
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -72,12 +73,13 @@ public class ContentServiceTest {
 
     @Before
     public void init() throws Exception {
-        when(pageContentFactory.getPageContent(1, 2)).thenReturn(pageContentMock);
         PowerMockito.whenNew(PageContentFactory.class).withAnyArguments().thenReturn(pageContentFactory);
+        when(pageContentFactory.getPageContent(1, 2)).thenReturn(pageContentMock);
 
         PowerMockito.whenNew(ComponentPresentationFactory.class).withAnyArguments().thenReturn(componentPresentationFactory);
-        when(componentPresentationFactory.getComponentPresentationWithHighestPriority(anyString())).thenReturn(componentPresentation);
+        when(componentPresentationFactory.getComponentPresentationWithHighestPriority(anyInt())).thenReturn(componentPresentation);
         when(componentPresentationFactory.getComponentPresentation(anyString(), anyString())).thenReturn(componentPresentation);
+        when(componentPresentationFactory.getComponentPresentation(anyInt(), anyInt(), anyInt())).thenReturn(componentPresentation);
 
         PowerMockito.whenNew(Query.class).withAnyArguments().thenReturn(query);
 
@@ -125,6 +127,9 @@ public class ContentServiceTest {
     public void shouldRequestSinglePath_AfterNormalizingInitial_IfPathHasExtension() throws Exception {
         //given
         PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path.html").build();
+
+        String expected = "page content";
+        doReturn(expected).when(pageContentMock).getString();
 
         mockPageURLCriteria("/page.html");
         doReturn(new String[]{"tcm:1-2"}).when(query).executeQuery();
@@ -187,7 +192,7 @@ public class ContentServiceTest {
         ComponentPresentation presentation = contentService.loadComponentPresentation(entityRequest);
 
         //then
-        verify(componentPresentationFactory).getComponentPresentationWithHighestPriority(eq("tcm:42-1"));
+        verify(componentPresentationFactory).getComponentPresentationWithHighestPriority(eq(1));
         assertSame(componentPresentation, presentation);
     }
 
@@ -202,7 +207,7 @@ public class ContentServiceTest {
         ComponentPresentation presentation = contentService.loadComponentPresentation(entityRequest);
 
         //then
-        verify(componentPresentationFactory).getComponentPresentation(eq("tcm:42-1"), eq("tcm:42-2-32"));
+        verify(componentPresentationFactory).getComponentPresentation(eq(42), eq(1), eq(2));
         assertSame(componentPresentation, presentation);
     }
 
@@ -216,7 +221,7 @@ public class ContentServiceTest {
         ComponentPresentation presentation = contentService.loadComponentPresentation(entityRequest);
 
         //then
-        verify(componentPresentationFactory).getComponentPresentation(eq("tcm:42-1"), eq("tcm:42-2-32"));
+        verify(componentPresentationFactory).getComponentPresentation(eq(42), eq(1), eq(2));
         assertSame(componentPresentation, presentation);
     }
 
@@ -230,14 +235,14 @@ public class ContentServiceTest {
         ComponentPresentation presentation = contentService.loadComponentPresentation(entityRequest);
 
         //then
-        verify(componentPresentationFactory).getComponentPresentation(eq("tcm:42-1"), eq("tcm:42-10247-32"));
+        verify(componentPresentationFactory).getComponentPresentation(eq(42), eq(1), eq(10247));
         assertSame(componentPresentation, presentation);
     }
 
     @Test(expected = DxaItemNotFoundException.class)
     public void shouldThrow404Exception_IfCPIsNotFound() throws DxaItemNotFoundException {
         //given
-        when(componentPresentationFactory.getComponentPresentation(anyString(), anyString())).thenReturn(null);
+        when(componentPresentationFactory.getComponentPresentation(anyInt(), anyInt(), anyInt())).thenReturn(null);
 
         //when
         contentService.loadComponentPresentation(EntityRequestDto.builder(42, 1).build());
