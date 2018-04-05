@@ -114,6 +114,11 @@ public class ContentService {
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
     public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) {
         ComponentPresentationAssemblerImpl assembler = new ComponentPresentationAssemblerImpl(publicationId);
+
+        if (templateId <= 0) {
+            templateId = configService.getDefaults().getDynamicTemplateId(publicationId);
+        }
+
         return assembler.getContent(componentId, templateId);
     }
 
