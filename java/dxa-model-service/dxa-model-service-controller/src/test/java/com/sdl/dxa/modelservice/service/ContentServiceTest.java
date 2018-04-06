@@ -5,6 +5,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.web.api.broker.querying.filter.BrokerResultFilter;
 import com.sdl.web.api.broker.querying.filter.LimitFilter;
+import com.sdl.web.api.dynamic.ComponentPresentationAssemblerImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
@@ -71,6 +72,8 @@ public class ContentServiceTest {
     @InjectMocks
     private ContentService contentService;
 
+    private final int DYNAMIC_TEMPLATE_ID = 10247;
+
     @Before
     public void init() throws Exception {
         PowerMockito.whenNew(PageContentFactory.class).withAnyArguments().thenReturn(pageContentFactory);
@@ -85,7 +88,7 @@ public class ContentServiceTest {
 
         when(configService.getDefaults()).thenReturn(defaults);
 
-        when(defaults.getDynamicTemplateId(eq(42))).thenReturn(10247);
+        when(defaults.getDynamicTemplateId(eq(42))).thenReturn(DYNAMIC_TEMPLATE_ID);
     }
 
 
@@ -182,6 +185,56 @@ public class ContentServiceTest {
     }
 
     @Test
+    public void shouldLoadRenderedComponentPresentation() throws Exception {
+        //given
+        EntityRequestDto entityRequest = EntityRequestDto.builder(42, 1, 2).build();
+
+        String expected = "component presentation content";
+
+        ComponentPresentationAssemblerImpl assembler = mockCPAssembler(entityRequest.getPublicationId());
+        when(assembler.getContent(anyInt(), anyInt())).thenReturn(expected);
+
+        //when
+        String actual = contentService.loadRenderedComponentPresentation(entityRequest.getPublicationId(), entityRequest.getComponentId(), entityRequest.getTemplateId());
+
+        //then
+        assertSame(expected, actual);
+    }
+
+    @Test
+    public void shouldLoadRenderedComponentPresentation_WhenTemplateIdIs() throws Exception {
+        //given
+        EntityRequestDto entityRequest = EntityRequestDto.builder(42, 1).build();
+
+        String expected = "component presentation content";
+
+        ComponentPresentationAssemblerImpl assembler = mockCPAssembler(entityRequest.getPublicationId());
+        when(assembler.getContent(anyInt(), eq(DYNAMIC_TEMPLATE_ID))).thenReturn(expected);
+
+        //when
+        String actual = contentService.loadRenderedComponentPresentation(entityRequest.getPublicationId(), entityRequest.getComponentId(), entityRequest.getTemplateId());
+
+        //then
+        assertSame(expected, actual);
+    }
+
+    @Test(expected = DxaItemNotFoundException.class)
+    public void shouldThrow404Exception_IfRenderedComponentPresentationNotFound() throws DxaItemNotFoundException, Exception {
+        //given
+        EntityRequestDto entityRequest = EntityRequestDto.builder(42, 1, 2).build();
+        ComponentPresentationAssemblerImpl assembler = mockCPAssembler(entityRequest.getPublicationId());
+        when(assembler.getContent(anyInt(), anyInt())).thenReturn(null);
+
+
+        //when
+        contentService.loadRenderedComponentPresentation(entityRequest.getPublicationId(), entityRequest.getComponentId(), entityRequest.getTemplateId());
+
+        //then
+        //exception
+    }
+
+
+    @Test
     public void shouldLoadHighestPriority_WhenRequestedHighestPriority() throws DxaItemNotFoundException {
         //given
         EntityRequestDto entityRequest = EntityRequestDto.builder(42, 1)
@@ -225,7 +278,6 @@ public class ContentServiceTest {
         assertSame(componentPresentation, presentation);
     }
 
-
     @Test
     public void shouldGetDefaultDynamicTemplate_ForDCP_WhenNoTemplateSet() throws ContentProviderException {
         //given
@@ -255,6 +307,13 @@ public class ContentServiceTest {
         PageURLCriteria pathHtmlCriteria = mock(PageURLCriteria.class);
         when(pathHtmlCriteria.getURL()).thenReturn(path);
         PowerMockito.whenNew(PageURLCriteria.class).withArguments(path).thenReturn(pathHtmlCriteria);
+    }
+
+    private ComponentPresentationAssemblerImpl mockCPAssembler(int publicationId) throws Exception {
+        ComponentPresentationAssemblerImpl assembler = mock(ComponentPresentationAssemblerImpl.class);
+        PowerMockito.whenNew(ComponentPresentationAssemblerImpl.class).withArguments(publicationId).thenReturn(assembler);
+
+        return assembler;
     }
 
 }

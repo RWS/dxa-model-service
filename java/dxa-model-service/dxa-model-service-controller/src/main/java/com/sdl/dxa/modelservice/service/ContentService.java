@@ -5,7 +5,6 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.web.api.dynamic.ComponentPresentationAssemblerImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
@@ -112,14 +111,18 @@ public class ContentService {
      */
     @NotNull
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
-    public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) {
+    public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) throws DxaItemNotFoundException {
         ComponentPresentationAssemblerImpl assembler = new ComponentPresentationAssemblerImpl(publicationId);
 
         if (templateId <= 0) {
             templateId = configService.getDefaults().getDynamicTemplateId(publicationId);
         }
 
-        return assembler.getContent(componentId, templateId);
+        String content = assembler.getContent(componentId, templateId);
+        if(content == null) {
+            throw new DxaItemNotFoundException("Cannot find a CP for componentId = " + componentId + ", template id = " + templateId);
+        }
+        return content;
     }
 
     /**
