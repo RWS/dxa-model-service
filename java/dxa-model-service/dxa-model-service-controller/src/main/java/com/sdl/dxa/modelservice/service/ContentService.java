@@ -5,6 +5,7 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.web.api.dynamic.ComponentPresentationAssemblerImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
@@ -99,6 +100,26 @@ public class ContentService {
             log.warn("Issues communicating with CD", exception);
             throw exception;
         }
+    }
+
+    /**
+     * Loads component presentation content for an entity and renders all tcdl links.
+     *
+     * @param publicationId Publication ID
+     * @param componentId Component ID
+     * @param templateId Template ID
+     * @return rendered component presentation content of an entity based on a request
+     */
+    @NotNull
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
+    public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) {
+        ComponentPresentationAssemblerImpl assembler = new ComponentPresentationAssemblerImpl(publicationId);
+
+        if (templateId <= 0) {
+            templateId = configService.getDefaults().getDynamicTemplateId(publicationId);
+        }
+
+        return assembler.getContent(componentId, templateId);
     }
 
     /**
