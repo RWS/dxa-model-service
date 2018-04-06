@@ -127,16 +127,16 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         page.setFileExtension(PathUtils.getExtension(pageMeta.getPath()));
 
         // top-level /Publication and /OwningPublication
-        page.setPublication(_loadPublication(publicationId));
-        page.setOwningPublication(_loadPublication(pageMeta.getOwningPublicationId()));
+        page.setPublication(_loadPublication(pageRequest.getPublicationId(), pageRequest.getUriType()));
+        page.setOwningPublication(_loadPublication(pageRequest.getPublicationId(), pageRequest.getUriType()));
 
         page.setStructureGroup(_loadStructureGroup(toConvert, pageRequest, page));
 
-        page.setMetadata(_convertContent(toConvert.getMetadata(), publicationId));
+        page.setMetadata(_convertContent(toConvert.getMetadata(), _convertPageRequestToEntityRequest(pageRequest, page.getId())));
 
         PageTemplateData pageTemplate = toConvert.getPageTemplate();
         if (pageTemplate != null) {
-            page.setPageTemplate(_buildPageTemplate(pageTemplate, publicationId));
+            page.setPageTemplate(_buildPageTemplate(pageTemplate, pageRequest));
         }
 
         // component presentations, one CP per one top-level (not embedded, not from include page) EMD
@@ -144,7 +144,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             List<ComponentPresentation> presentations = new ArrayList<>();
             ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(publicationId);
             for (RegionModelData region : toConvert.getRegions()) {
-                presentations.addAll(_loadComponentPresentations(region, publicationId, componentPresentationFactory));
+                presentations.addAll(_loadComponentPresentations(region, pageRequest, componentPresentationFactory));
             }
             page.setComponentPresentations(presentations);
         }
@@ -159,7 +159,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
 
-        return _buildEntityModel(toConvert, entityRequest.getPublicationId(), new ComponentPresentationFactory(entityRequest.getPublicationId()));
+        return _buildEntityModel(toConvert, entityRequest, new ComponentPresentationFactory(entityRequest.getPublicationId()));
     }
 
     @Nullable
@@ -179,7 +179,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         try {
             String content = contentService.loadPageContent(navigationJsonRequest);
             sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
-                    pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
+                    pageRequest.getUriType(), pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
         } catch (IOException e) {
             throw new ContentProviderException("Error parsing navigation.json", e);
         } catch (PageNotFoundException e) {
@@ -199,17 +199,18 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
     @NotNull
-    private PageTemplate _buildPageTemplate(@NotNull PageTemplateData pageTemplateData, int publicationId) throws ContentProviderException {
+    private PageTemplate _buildPageTemplate(@NotNull PageTemplateData pageTemplateData, PageRequestDto pageRequestDto) throws ContentProviderException {
         PageTemplate pageTemplate = new PageTemplateImpl();
-        pageTemplate.setId(TcmUtils.buildTcmUri(publicationId, pageTemplateData.getId(), PAGE_TEMPLATE_ITEM_TYPE));
+        int publicationId = pageRequestDto.getPublicationId();
+        pageTemplate.setId(TcmUtils.buildTcmUri(pageRequestDto.getUriType(), publicationId, pageTemplateData.getId(), PAGE_TEMPLATE_ITEM_TYPE));
         pageTemplate.setTitle(pageTemplateData.getTitle());
         pageTemplate.setFileExtension(pageTemplateData.getFileExtension());
         pageTemplate.setRevisionDate(pageTemplateData.getRevisionDate());
-        pageTemplate.setMetadata(_convertContent(pageTemplateData.getMetadata(), publicationId));
+        pageTemplate.setMetadata(_convertContent(pageTemplateData.getMetadata(), _convertPageRequestToEntityRequest(pageRequestDto, pageTemplateData.getId())));
         return pageTemplate;
     }
 
-    private Publication _loadPublication(int publicationId) throws ContentProviderException {
+    private Publication _loadPublication(int publicationId, String namespace) throws ContentProviderException {
         PublicationMeta publicationMeta = metadataService.getPublicationMeta(publicationId);
 
         if (publicationMeta == null || publicationMeta.getId() == 0) {
@@ -217,16 +218,14 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
 
-        Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
+        Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(namespace, publicationMeta.getId()));
         publication.setTitle(publicationMeta.getTitle());
-        publication.setId(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
-//        publication.setCustomProperties();
-//        publication.setExtensionData();
+        publication.setId(TcmUtils.buildPublicationTcmUri(namespace, publicationMeta.getId()));
         return publication;
     }
 
     private List<ComponentPresentation> _loadComponentPresentations(@NotNull RegionModelData region,
-                                                                    int publicationId, ComponentPresentationFactory factory) throws ContentProviderException {
+                                                                    PageRequestDto requestDto, ComponentPresentationFactory factory) throws ContentProviderException {
         if (region.getIncludePageId() != null) { // include pages are not needed in DD4T representation
             log.debug("Skipping region {} because it's an include page", region);
             return Collections.emptyList();
@@ -235,31 +234,35 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         List<ComponentPresentation> presentations = new ArrayList<>();
         if (region.getRegions() != null) {
             for (RegionModelData nested : region.getRegions()) {
-                presentations.addAll(_loadComponentPresentations(nested, publicationId, factory));
+                presentations.addAll(_loadComponentPresentations(nested, requestDto, factory));
             }
         }
 
         if (region.getEntities() != null) {
             for (EntityModelData entity : region.getEntities()) {
-                presentations.add(_buildEntityModel(entity, publicationId, factory));
+                presentations.add(_buildEntityModel(entity, _convertPageRequestToEntityRequest(requestDto, entity.getId()), factory));
             }
 
         }
         return presentations;
     }
 
+    private EntityRequestDto _convertPageRequestToEntityRequest(PageRequestDto pageRequest, String entityId) {
+        return EntityRequestDto.builder(pageRequest.getPublicationId(), entityId).uriType(pageRequest.getUriType()).build();
+    }
 
-    private ComponentPresentation _buildEntityModel(EntityModelData entity, int publicationId, ComponentPresentationFactory factory) throws ContentProviderException {
+
+    private ComponentPresentation _buildEntityModel(EntityModelData entity, EntityRequestDto entityRequestDto, ComponentPresentationFactory factory) throws ContentProviderException {
         ComponentPresentation presentation = new ComponentPresentationImpl();
         presentation.setIsDynamic(entity.getId().matches("\\d+-\\d+"));
 
         EntityModelData entityModelData = presentation.isDynamic() ?
-                entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build()) : entity;
+                entityModelService.loadEntity(EntityRequestDto.builder(entityRequestDto.getPublicationId(), entity.getId()).build()) : entity;
 
-        presentation.setComponent(_convertEntity(entityModelData, publicationId));
+        presentation.setComponent(_convertEntity(entityModelData, entityRequestDto));
         ComponentTemplateData templateData = entityModelData.getComponentTemplate();
         if (templateData != null) {
-            ComponentTemplate componentTemplate = _buildComponentTemplate(templateData, publicationId);
+            ComponentTemplate componentTemplate = _buildComponentTemplate(templateData, entityRequestDto);
             presentation.setComponentTemplate(componentTemplate);
         }
         // todo OrderOnPage ?
@@ -267,24 +270,25 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
     @NotNull
-    private ComponentTemplate _buildComponentTemplate(@NotNull ComponentTemplateData componentTemplateData, int publicationId) throws ContentProviderException {
+    private ComponentTemplate _buildComponentTemplate(@NotNull ComponentTemplateData componentTemplateData, EntityRequestDto entityRequestDto) throws ContentProviderException {
         ComponentTemplateImpl componentTemplate = new ComponentTemplateImpl();
-        componentTemplate.setId(TcmUtils.buildTcmUri(publicationId, componentTemplateData.getId(), TcmUtils.COMPONENT_TEMPLATE_ITEM_TYPE));
+        componentTemplate.setId(TcmUtils.buildTcmUri(entityRequestDto.getUriType(), entityRequestDto.getPublicationId(), componentTemplateData.getId(), TcmUtils.COMPONENT_TEMPLATE_ITEM_TYPE));
         componentTemplate.setTitle(componentTemplateData.getTitle());
         componentTemplate.setRevisionDate(componentTemplateData.getRevisionDate());
         componentTemplate.setOutputFormat(componentTemplateData.getOutputFormat());
-        componentTemplate.setMetadata(_convertContent(componentTemplateData.getMetadata(), publicationId));
+        componentTemplate.setMetadata(_convertContent(componentTemplateData.getMetadata(), entityRequestDto));
         return componentTemplate;
     }
 
-    private Component _convertEntity(EntityModelData entity, int publicationId) throws ContentProviderException {
+    private Component _convertEntity(EntityModelData entity, EntityRequestDto entityRequestDto) throws ContentProviderException {
         String entityId = entity.getId();
         if (entityId.matches("\\d+-\\d+")) {
             entityId = entityId.split("-")[0];
         }
         ComponentImpl component = new ComponentImpl();
-        component.setId(TcmUtils.buildTcmUri(String.valueOf(publicationId), entityId));
-        component.setContent(_convertContent(entity.getContent(), publicationId,
+        int publicationId = entityRequestDto.getPublicationId();
+        component.setId(TcmUtils.buildTcmUri(entityRequestDto.getUriType(), String.valueOf(publicationId), entityId));
+        component.setContent(_convertContent(entity.getContent(), entityRequestDto,
                 configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId()), null, 0));
 
         SchemaImpl schema = new SchemaImpl();
@@ -309,9 +313,9 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setTitle(meta.getTitle());
         component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));
         component.setRevisionDate(new DateTime(meta.getModificationDate()));
-        component.setMetadata(_convertContent(entity.getMetadata(), publicationId));
-        component.setPublication(_loadPublication(meta.getPublicationId()));
-        component.setOwningPublication(_loadPublication(meta.getOwningPublicationId()));
+        component.setMetadata(_convertContent(entity.getMetadata(), entityRequestDto));
+        component.setPublication(_loadPublication(meta.getPublicationId(), entityRequestDto.getUriType()));
+        component.setOwningPublication(_loadPublication(meta.getOwningPublicationId(), entityRequestDto.getUriType()));
         component.setComponentType(meta.isMultimedia() ? Component.ComponentType.MULTIMEDIA : Component.ComponentType.NORMAL);
         component.setCategories(Arrays.stream(meta.getCategories())
                 .map(category -> {
@@ -339,19 +343,19 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                     return cat;
                 }).collect(Collectors.toList()));
         component.setVersion(meta.getMajorVersion());
-        component.setPublication(_loadPublication(meta.getPublicationId()));
-        component.setPublication(_loadPublication(meta.getOwningPublicationId()));
+        component.setPublication(_loadPublication(meta.getPublicationId(), entityRequestDto.getUriType()));
+        component.setPublication(_loadPublication(meta.getOwningPublicationId(), entityRequestDto.getUriType()));
 
         return component;
     }
 
     @Contract("null, _ -> null; !null, _ -> !null")
-    private Map<String, Field> _convertContent(ContentModelData contentModelData, int publicationId) throws ContentProviderException {
-        return _convertContent(contentModelData, publicationId, null, null, 0);
+    private Map<String, Field> _convertContent(ContentModelData contentModelData, EntityRequestDto entityRequest) throws ContentProviderException {
+        return _convertContent(contentModelData, entityRequest, null, null, 0);
     }
 
     @Contract("null, _, _, _, _ -> null; !null, _, _, _, _ -> !null")
-    private Map<String, Field> _convertContent(ContentModelData contentModelData, int publicationId,
+    private Map<String, Field> _convertContent(ContentModelData contentModelData, EntityRequestDto entityRequest,
                                                @Nullable JsonSchema schema, @Nullable JsonSchemaField schemaField, int multivalueCounter) throws ContentProviderException {
         if (contentModelData == null) {
             return null;
@@ -359,7 +363,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
         Map<String, Field> content = new HashMap<>();
         for (Map.Entry<String, Object> entry : contentModelData.entrySet()) {
-            Field convertedField = _convertToField(entry, publicationId, schema, schemaField, multivalueCounter);
+            Field convertedField = _convertToField(entry, entityRequest, schema, schemaField, multivalueCounter);
             if (convertedField != null) {
                 content.put(entry.getKey(), convertedField);
             } else {
@@ -381,7 +385,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     }
 
     @Nullable
-    private Field _convertToField(@NotNull Map.Entry<String, Object> entry, int publicationId,
+    private Field _convertToField(@NotNull Map.Entry<String, Object> entry, EntityRequestDto entityRequest,
                                   @Nullable JsonSchema contextSchema, @Nullable JsonSchemaField contextSchemaField, int multivalueCounter) throws ContentProviderException {
         Object value = entry.getValue();
         Field field = null;
@@ -390,15 +394,15 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         JsonSchemaField currentField = _findCurrentField(currentFields, entry.getKey());
 
         if (value instanceof ListWrapper) {
-            field = _convertListWrapperToField((ListWrapper) value, publicationId, contextSchema);
+            field = _convertListWrapperToField((ListWrapper) value, entityRequest, contextSchema);
         } else if (value instanceof ContentModelData) {
-            field = _convertEmbeddedToField(Collections.singletonList((ContentModelData) value), publicationId, contextSchema, currentField);
+            field = _convertEmbeddedToField(Collections.singletonList((ContentModelData) value), entityRequest, contextSchema, currentField);
         } else if (value instanceof EntityModelData) {
-            field = _convertToCompLinkField(Collections.singletonList((EntityModelData) value), publicationId);
+            field = _convertToCompLinkField(Collections.singletonList((EntityModelData) value), entityRequest);
         } else if (value instanceof KeywordModelData) {
-            field = _convertToKeywordField(Collections.singletonList((KeywordModelData) value), publicationId);
+            field = _convertToKeywordField(Collections.singletonList((KeywordModelData) value), entityRequest);
         } else if (value instanceof RichTextData) {
-            field = _convertToRichTextField(Collections.singletonList((RichTextData) value), publicationId);
+            field = _convertToRichTextField(Collections.singletonList((RichTextData) value), entityRequest);
         } else if (value instanceof String) {
             // todo here we need to derive type from schemas.json because not everything is String in DD4T like it is in R2
             field = _convertToTextField(Collections.singletonList((String) value));
@@ -432,27 +436,27 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return schemaField != null ? schemaField.getFields() : (schema != null ? schema.getFields() : null);
     }
 
-    private Keyword _convertKeyword(KeywordModelData kmd, int publicationId) {
+    private Keyword _convertKeyword(KeywordModelData kmd, EntityRequestDto entityRequest) {
         KeywordImpl keyword = new KeywordImpl();
         //todo finish
         keyword.setTitle(kmd.getTitle());
-        keyword.setId(TcmUtils.buildKeywordTcmUri(String.valueOf(publicationId), kmd.getId()));
-        keyword.setTaxonomyId(TcmUtils.buildKeywordTcmUri(String.valueOf(publicationId), kmd.getTaxonomyId()));
+        keyword.setId(TcmUtils.buildKeywordTcmUri(entityRequest.getUriType(), String.valueOf(entityRequest.getPublicationId()), kmd.getId()));
+        keyword.setTaxonomyId(TcmUtils.buildKeywordTcmUri(entityRequest.getUriType(), String.valueOf(entityRequest.getPublicationId()), kmd.getTaxonomyId()));
         keyword.setKey(kmd.getKey());
         keyword.setDescription(kmd.getDescription());
         return keyword;
     }
 
-    private Field _convertListWrapperToField(ListWrapper<?> wrapper, int publicationId, @Nullable JsonSchema schema) throws ContentProviderException {
+    private Field _convertListWrapperToField(ListWrapper<?> wrapper, EntityRequestDto entityRequest, @Nullable JsonSchema schema) throws ContentProviderException {
         if (!wrapper.empty()) {
             if (wrapper instanceof ListWrapper.ContentModelDataListWrapper) {
-                return _convertEmbeddedToField(((ListWrapper.ContentModelDataListWrapper) wrapper).getValues(), publicationId, schema, null);
+                return _convertEmbeddedToField(((ListWrapper.ContentModelDataListWrapper) wrapper).getValues(), entityRequest, schema, null);
             } else if (wrapper instanceof ListWrapper.KeywordModelDataListWrapper) {
-                return _convertToKeywordField(((ListWrapper.KeywordModelDataListWrapper) wrapper).getValues(), publicationId);
+                return _convertToKeywordField(((ListWrapper.KeywordModelDataListWrapper) wrapper).getValues(), entityRequest);
             } else if (wrapper instanceof ListWrapper.EntityModelDataListWrapper) {
-                return _convertToCompLinkField(((ListWrapper.EntityModelDataListWrapper) wrapper).getValues(), publicationId);
+                return _convertToCompLinkField(((ListWrapper.EntityModelDataListWrapper) wrapper).getValues(), entityRequest);
             } else if (wrapper instanceof ListWrapper.RichTextDataListWrapper) {
-                return _convertToRichTextField(((ListWrapper.RichTextDataListWrapper) wrapper).getValues(), publicationId);
+                return _convertToRichTextField(((ListWrapper.RichTextDataListWrapper) wrapper).getValues(), entityRequest);
             } else {
                 Object o = wrapper.get(0);
                 if (o instanceof String) {
@@ -467,14 +471,14 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return null;
     }
 
-    private EmbeddedField _convertEmbeddedToField(List<ContentModelData> cmds, int publicationId, @Nullable JsonSchema schema, JsonSchemaField schemaField) throws ContentProviderException {
+    private EmbeddedField _convertEmbeddedToField(List<ContentModelData> cmds, EntityRequestDto entityRequest, @Nullable JsonSchema schema, JsonSchemaField schemaField) throws ContentProviderException {
         EmbeddedField embeddedField = new EmbeddedField();
 
         List<FieldSet> fieldSets = new ArrayList<>();
         for (int i = 0, cmdsSize = cmds.size(); i < cmdsSize; i++) {
             ContentModelData contentModelData = cmds.get(i);
             FieldSet fieldSet = new FieldSetImpl();
-            fieldSet.setContent(_convertContent(contentModelData, publicationId, schema, schemaField, i + 1));
+            fieldSet.setContent(_convertContent(contentModelData, entityRequest, schema, schemaField, i + 1));
             fieldSets.add(fieldSet);
         }
 
@@ -482,12 +486,12 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return embeddedField;
     }
 
-    private ComponentLinkField _convertToCompLinkField(List<EntityModelData> emds, int publicationId) throws ContentProviderException {
+    private ComponentLinkField _convertToCompLinkField(List<EntityModelData> emds, EntityRequestDto entityRequest) throws ContentProviderException {
         ComponentLinkField linkField = new ComponentLinkField();
 
         List<Component> components = new ArrayList<>(emds.size());
         for (EntityModelData emd : emds) {
-            components.add(_convertEntity(emd, publicationId));
+            components.add(_convertEntity(emd, entityRequest));
         }
 
         linkField.setLinkedComponentValues(components);
@@ -500,19 +504,19 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return textField;
     }
 
-    private KeywordField _convertToKeywordField(List<KeywordModelData> kmds, int publicationId) {
+    private KeywordField _convertToKeywordField(List<KeywordModelData> kmds, EntityRequestDto entityRequest) {
         KeywordField keywordField = new KeywordField();
 
         List<Keyword> keywords = new ArrayList<>(kmds.size());
         for (KeywordModelData kmd : kmds) {
-            keywords.add(_convertKeyword(kmd, publicationId));
+            keywords.add(_convertKeyword(kmd, entityRequest));
         }
 
         keywordField.setKeywords(keywords);
         return keywordField;
     }
 
-    private Field _convertToRichTextField(List<RichTextData> richTextData, int publicationId) throws ContentProviderException {
+    private Field _convertToRichTextField(List<RichTextData> richTextData, EntityRequestDto entityRequest) throws ContentProviderException {
         // todo make this work TSI-2698
         List<Object> list = new ArrayList<>();
         AdoptedRichTextField richTextField = new AdoptedRichTextField();
@@ -521,7 +525,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                 if (o instanceof String) {
                     list.add(o);
                 } else if (o instanceof EntityModelData) {
-                    list.add(_convertEntity((EntityModelData) o, publicationId));
+                    list.add(_convertEntity((EntityModelData) o, entityRequest));
                 }
             }
         }
