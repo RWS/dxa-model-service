@@ -132,7 +132,10 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
         page.setStructureGroup(_loadStructureGroup(toConvert, pageRequest, page));
 
-        page.setMetadata(_convertContent(toConvert.getMetadata(), _convertPageRequestToEntityRequest(pageRequest, page.getId())));
+        // entity ID isn't important in this case so we use 0-0.
+        // EntityRequestDto is used to keep and pass some requested params (uriType and publicationId)
+        // through
+        page.setMetadata(_convertContent(toConvert.getMetadata(), _convertPageRequestToEntityRequest(pageRequest, "0-0")));
 
         PageTemplateData pageTemplate = toConvert.getPageTemplate();
         if (pageTemplate != null) {
@@ -206,7 +209,11 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         pageTemplate.setTitle(pageTemplateData.getTitle());
         pageTemplate.setFileExtension(pageTemplateData.getFileExtension());
         pageTemplate.setRevisionDate(pageTemplateData.getRevisionDate());
-        pageTemplate.setMetadata(_convertContent(pageTemplateData.getMetadata(), _convertPageRequestToEntityRequest(pageRequestDto, pageTemplateData.getId())));
+
+        // entity ID isn't important in this case so we use 0-0.
+        // EntityRequestDto is used to keep and pass some requested params (uriType and publicationId)
+        // through
+        pageTemplate.setMetadata(_convertContent(pageTemplateData.getMetadata(), _convertPageRequestToEntityRequest(pageRequestDto, "0-0")));
         return pageTemplate;
     }
 
