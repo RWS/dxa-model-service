@@ -176,6 +176,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
         PageRequestDto navigationJsonRequest = pageRequest.toBuilder()
+                .pageId(0)
                 .path(PathUtils.combinePath(publicationUrl, "navigation.json"))
                 .build();
         Optional<LightSitemapItem> sitemapItem;
