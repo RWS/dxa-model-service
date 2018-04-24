@@ -1,5 +1,6 @@
 {
   "Id": "9786",
+  "Namespace": "tcm",
   "StructureGroupId": "3",
   "Meta": {
     "twitter:card": "summary",
@@ -9,6 +10,7 @@
   },
   "PageTemplate": {
     "Id": "108",
+    "Namespace": "tcm",
     "Title": "Content Page Without Navigation",
     "FileExtension": "html",
     "Metadata": {
@@ -41,8 +43,10 @@
             "ViewName": "Article"
           },
           "Id": "9712",
+          "Namespace": "tcm",
           "ComponentTemplate": {
             "Id": "83",
+            "Namespace": "tcm",
             "Title": "Article",
             "OutputFormat": "HTML Fragment",
             "Metadata": {
