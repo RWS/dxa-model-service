@@ -229,7 +229,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
                             TcmUtils.buildTcmUri(
                                     entityModelData.getNamespace(),
                                     requestDto.getPublicationId(),
-                                    TcmUtils.getItemId(entityModelData.getId())
+                                    (int) Integer.valueOf(entityModelData.getId())
                             ),
                             String.valueOf(requestDto.getPublicationId())
                     );
