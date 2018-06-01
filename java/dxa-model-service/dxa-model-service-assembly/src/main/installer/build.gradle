@@ -379,12 +379,6 @@ def runScript = { processDefinition ->
     proc
 }
 
-def checkWindowsAsAdmin = {
-    if ("net session".execute().waitFor() != 0) {
-        throw new RuntimeException("You have to run the script as Administrator if you want to install the service")
-    }
-}
-
 def getEnvVar = { String name ->
     System.getProperty(name) ?: (System.getenv(name) ?: '')
 }
@@ -535,7 +529,6 @@ requestParameters << {
         } else if (runScriptMode == 'install' || runScriptMode == 'uninstall') {
 
             runScriptCallbackWindows << {
-                checkWindowsAsAdmin()
                 println "Uninstalling Windows Service..."
                 processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")])
             }
@@ -546,7 +539,6 @@ requestParameters << {
                 return
             } else {
                 runScriptCallbackWindows << {
-                    checkWindowsAsAdmin()
                     println "Installing Windows Service..."
                     processes << runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")])
                 }
