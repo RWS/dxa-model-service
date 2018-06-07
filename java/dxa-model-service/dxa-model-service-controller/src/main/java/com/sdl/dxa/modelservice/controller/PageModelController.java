@@ -6,6 +6,7 @@ import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
+import com.sdl.dxa.modelservice.controller.Utils.ClaimCookieUtils;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,6 +79,8 @@ public class PageModelController {
                                   @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                   @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
                                   HttpServletRequest request) throws ContentProviderException, JsonProcessingException {
+
+        ClaimCookieUtils.setupClaimStore(request);
 
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageId, pageInclusion, dataModelType, isRawContent, request);
 
