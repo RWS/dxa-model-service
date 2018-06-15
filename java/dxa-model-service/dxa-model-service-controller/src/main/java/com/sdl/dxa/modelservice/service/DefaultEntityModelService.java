@@ -83,7 +83,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
     @NotNull
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public org.dd4t.contentmodel.ComponentPresentation loadLegacyEntityModel(EntityRequestDto entityRequest) throws ContentProviderException {
-        String content = contentService.loadComponentPresentation(entityRequest).getContent();
+        String content = contentService.loadRenderedComponentPresentation(entityRequest.getPublicationId(), entityRequest.getComponentId(), entityRequest.getTemplateId());
         log.trace("Loaded entity content for {}", entityRequest);
         return _processDd4tEntityModel(content, entityRequest);
     }

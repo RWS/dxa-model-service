@@ -213,10 +213,10 @@ public class ToR2ConverterImpl implements ToR2Converter {
         return PathUtils.removeSequenceFromPageTitle(title);
     }
 
-    private String _dataModelToString(Object modelData, int publicationId) {
+    private String _dataModelToString(Object modelData, PageRequestDto requestDto) {
         if (modelData instanceof ListWrapper) {
             return ((ListWrapper<?>) modelData).getValues().stream()
-                    .map(elem -> _dataModelToString(elem, publicationId))
+                    .map(elem -> _dataModelToString(elem, requestDto))
                     .collect(Collectors.joining(", "));
         } else if (modelData instanceof EntityModelData) {
             // link
@@ -225,7 +225,14 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
             return entityModelData.getBinaryContent() != null ?
                     entityModelData.getBinaryContent().getUrl() :
-                    linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityModelData.getId()), String.valueOf(publicationId));
+                    linkResolver.resolveLink(
+                            TcmUtils.buildTcmUri(
+                                    entityModelData.getNamespace(),
+                                    requestDto.getPublicationId(),
+                                    (int) Integer.valueOf(entityModelData.getId())
+                            ),
+                            String.valueOf(requestDto.getPublicationId())
+                    );
         } else if (modelData instanceof KeywordModelData) {
             return ((KeywordModelData) modelData).getTitle();
         } else if (modelData instanceof RichTextData) {
@@ -236,7 +243,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
     }
 
-    private Map<String, String> _processPageMeta(Page page, PageModelData pageModel, int publicationId) throws ContentProviderException {
+    private Map<String, String> _processPageMeta(Page page, PageModelData pageModel, PageRequestDto requestDto) throws ContentProviderException {
         Map<String, String> meta = new HashMap<>();
 
         String description = _getField(page.getMetadata(), "description");
@@ -244,11 +251,11 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         // here we recursively flatten a nested metadata map to a single-level map
         // and make string out of all the values, we don't want models in metadata
-        ContentModelData pageMetadata = pageModel.getMetadata() != null ? pageModel.getMetadata() : _convertContent(page.getMetadata(), publicationId);
+        ContentModelData pageMetadata = pageModel.getMetadata() != null ? pageModel.getMetadata() : _convertContent(page.getMetadata(), requestDto.getPublicationId());
         meta.putAll(_recursiveFlatten(pageMetadata).entrySet().parallelStream()
                 .collect(Collectors.toMap(
                         entry -> String.valueOf(entry.getKey()),
-                        entry -> _dataModelToString(entry.getValue(), publicationId))));
+                        entry -> _dataModelToString(entry.getValue(), requestDto))));
 
         if (isNullOrEmpty(image) || isNullOrEmpty(description)) {
             for (ComponentPresentation cp : page.getComponentPresentations()) {
@@ -275,7 +282,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
 
 
-        String title = _extractPageTitle(page, meta, publicationId);
+        String title = _extractPageTitle(page, meta, requestDto.getPublicationId());
         meta.put("twitter:card", "summary");
         meta.put("og:title", title);
         meta.put("og:type", "article");
@@ -306,6 +313,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         PageModelData page = new PageModelData();
 
         page.setId(String.valueOf(TcmUtils.getItemId(toConvert.getId())));
+        page.setNamespace(TcmUtils.getNamespace(toConvert.getId()));
         page.setPageTemplate(_buildPageTemplate(toConvert.getPageTemplate(), pageRequest.getPublicationId()));
         page.setUrlPath(PathUtils.stripDefaultExtension(metadataService.getPageMeta(pageRequest.getPublicationId(), toConvert.getId()).getURLPath()));
         page.setStructureGroupId(String.valueOf(TcmUtils.getItemId(toConvert.getStructureGroup().getId())));
@@ -316,7 +324,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         }
 
         page.setMetadata(_convertContent(toConvert.getMetadata(), pageRequest.getPublicationId()));
-        final Map<String, String> pageMeta = _processPageMeta(toConvert, page, pageRequest.getPublicationId());
+        final Map<String, String> pageMeta = _processPageMeta(toConvert, page, pageRequest);
         page.setMeta(pageMeta);
         page.setTitle(_extractPageTitle(toConvert, pageMeta, pageRequest.getPublicationId()));
 
@@ -482,21 +490,18 @@ public class ToR2ConverterImpl implements ToR2Converter {
         String name = tree.get("Title").asText();
 
         PageMeta pageMeta = metadataService.getPageMeta(pageRequest.getPublicationId(),
-                TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), String.valueOf(TcmUtils.getItemId(id))));
+                TcmUtils.buildPageTcmUri(TcmUtils.getNamespace(id), pageRequest.getPublicationId(), String.valueOf(TcmUtils.getItemId(id))));
 
-        return _createPageRegionData(
-                String.valueOf(TcmUtils.getItemId(id)),
-                name,
-                PathUtils.getFileName(pageMeta.getPath()),
-                pageRequest);
+        return _createPageRegionData(id, name, PathUtils.getFileName(pageMeta.getPath()), pageRequest);
     }
 
     private RegionModelData _createPageRegionData(String id, String name, String path, PageRequestDto pageRequest) {
-        RegionModelData region = new RegionModelData(name, id, null, null);
+        String includePageId = String.valueOf(TcmUtils.getItemId(id));
+        RegionModelData region = new RegionModelData(name, includePageId, null, null);
 
         region.setMvcData(MvcUtils.parseMvcQualifiedViewName(name, false));
         region.setXpmMetadata(new XpmUtils.RegionXpmBuilder()
-                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(pageRequest.getPublicationId(), id))
+                .setIncludedFromPageID(TcmUtils.buildPageTcmUri(TcmUtils.getNamespace(id), pageRequest.getPublicationId(), includePageId))
                 .setIncludedFromPageTitle(name)
                 .setIncludedFromPageFileName(path)
                 .buildXpm());
@@ -518,6 +523,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
     private PageTemplateData _buildPageTemplate(PageTemplate pageTemplate, int publicationId) throws ContentProviderException {
         PageTemplateData templateData = new PageTemplateData();
         templateData.setId(String.valueOf(TcmUtils.getItemId(pageTemplate.getId())));
+        templateData.setNamespace(TcmUtils.getNamespace(pageTemplate.getId()));
         templateData.setTitle(pageTemplate.getTitle());
         templateData.setFileExtension(pageTemplate.getFileExtension());
         templateData.setRevisionDate(pageTemplate.getRevisionDate());
@@ -627,6 +633,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
     private KeywordModelData _convertKeyword(Keyword keyword, int publicationId) throws ContentProviderException {
         KeywordModelData data = new KeywordModelData(
                 String.valueOf(TcmUtils.getItemId(keyword.getId())),
+                TcmUtils.getNamespace(keyword.getId()),
                 keyword.getDescription(),
                 keyword.getKey(),
                 String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyId())),
@@ -690,6 +697,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
         EntityModelData entity = new EntityModelData();
         int componentId = TcmUtils.getItemId(_component.getId());
         entity.setId(String.valueOf(componentId));
+        entity.setNamespace(TcmUtils.getNamespace(_component.getId()));
 
         if (_component.getComponentType() == Component.ComponentType.MULTIMEDIA) {
             entity.setBinaryContent(_convertMultimediaContent(_component.getMultimedia()));
@@ -718,6 +726,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
                 ComponentTemplateData templateData = new ComponentTemplateData();
                 templateData.setId(String.valueOf(TcmUtils.getItemId(componentTemplate.getId())));
+                templateData.setNamespace(TcmUtils.getNamespace(componentTemplate.getId()));
                 templateData.setTitle(componentTemplate.getTitle());
                 templateData.setRevisionDate(componentTemplate.getRevisionDate());
                 templateData.setMetadata(_convertContent(componentTemplate.getMetadata(), publicationId));
@@ -754,7 +763,6 @@ public class ToR2ConverterImpl implements ToR2Converter {
 
         return result;
     }
-
 
     private Object _convertNotSpecificField(Field field) throws ContentProviderException {
         return _convertField(field, new SingleOrMultipleFork() {

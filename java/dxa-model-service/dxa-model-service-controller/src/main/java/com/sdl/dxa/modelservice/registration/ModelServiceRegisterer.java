@@ -12,13 +12,16 @@ import com.sdl.web.discovery.registration.ODataClientProvider;
 import com.sdl.web.discovery.registration.SecuredODataClient;
 import com.sdl.web.discovery.registration.capability.ContentServiceCapabilityBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,12 +36,16 @@ public class ModelServiceRegisterer {
 
     static final String CONFIG_FILE_NAME = "cd_storage_conf.xml";
 
+    private static final String CS_CAPABILITY_PROPERTY_NAME = "dxa-model-service";
+
     private static final XPathConfigurationPath CONTENT_SERVICE_CAPABILITY_ROLE_XPATH =
             new XPathConfigurationPath("/Roles/Role[@Name=\"ContentServiceCapability\"]");
 
     private final SecuredODataClient dataClient;
 
     private final Configuration configuration;
+
+    private volatile String knownPropertyValue;
 
     public ModelServiceRegisterer() throws ConfigurationException {
         configuration = readConfiguration();
@@ -75,11 +82,31 @@ public class ModelServiceRegisterer {
         List<KeyValuePair> mergedProperties = mergeExtensionProperties(newCapability, storedCapability);
         log.debug("Merged properties: {}", mergedProperties);
 
+        findRegistrationProperty(mergedProperties).ifPresent(kv -> this.knownPropertyValue = kv.getValue());
+
         storedCapability.setExtensionProperties(mergedProperties);
         storedCapability.setEnvironment(environment);
         dataClient.updateEntity(storedCapability);
 
         log.info("Registered Model Service {} on behalf of user {}", newCapability, registeredFrom);
+    }
+
+    @Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 /* once a minute after a minute */)
+    public void verifyRegistration() throws ConfigurationException {
+        ContentServiceCapability capability = loadStoredCapability();
+        Optional<KeyValuePair> property = findRegistrationProperty(capability.getExtensionProperties());
+
+        if (this.knownPropertyValue == null ||
+                !property.isPresent() || !this.knownPropertyValue.equals(property.get().getValue())) {
+            log.warn("Detected that Model Service is not registered against Discovery Service (or we don't know that it is), registering again");
+            register(); // no limit on how many times we try, try as long as service is up
+        }
+    }
+
+    private Optional<KeyValuePair> findRegistrationProperty(@NotNull List<KeyValuePair> properties) {
+        return properties.stream()
+                .filter(kv -> CS_CAPABILITY_PROPERTY_NAME.equals(kv.getKey()))
+                .findFirst();
     }
 
     private Environment loadEnvironment() {

@@ -12,8 +12,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 @PropertySource("classpath:dxa.properties")
 @Import({TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
 public class DxaModelServiceApplication {

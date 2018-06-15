@@ -18,7 +18,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.sdl.dxa', name: 'dxa-builder', version: '2.0.0', changing: true
+        classpath group: 'com.sdl.dxa', name: 'dxa-builder', version: '2.1.0-SNAPSHOT', changing: true
     }
 }
 
@@ -106,17 +106,17 @@ def configuration = [
                         .withDescription("Do you want to register Model Service now in Discovery Service?")
                         .withDefaultValue(project, 'register', 'no')
                         .withSystemEnv('MS_AUTO_REGISTER')
-                        .withValidator(valueInList('yes', 'no')),
+                        .withValidator(valueInList('yes', 'no', 'true', 'false')),
                 secured           : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
                         .withDefaultValue(project, 'secured', 'yes')
                         .withSystemEnv('MS_SECURITY_ENABLED')
-                        .withValidator(valueInList('yes', 'no'))
+                        .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
                         new XmlProperty()
                                 .thatModifiesXml("/Configuration/Security/@OAuthEnabled")
                                 .inFile("$configFolder/cd_ambient_conf.xml")
-                                .withMapping("yes -> true; no -> false")
+                                .withMapping('yes -> true; no -> false; $self$')
                                 .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
                 ),
                 'credentialsCheck': new Parameter()
@@ -133,21 +133,21 @@ def configuration = [
                 cacheEnabled      : new Parameter()
                         .withDescription("Is Cache Enabled for Model Service and CIL?")
                         .withSystemEnv('CIL_CACHE_ENABLED')
-                        .withValidator(valueInList('yes', 'no'))
+                        .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
                         new PropertiesFileProperty()
                                 .withName("spring.cache.type")
-                                .withMapping("yes -> jcache; no -> none")
+                                .withMapping('yes -> jcache; no -> none; $self$')
                                 .inFile("$configFolder/application.properties"),
                         new XmlProperty()
                                 .thatModifiesXml("/ServiceConfig/@CacheEnabled")
                                 .inFile("$configFolder/cd_client_conf.xml")
-                                .withMapping("yes -> true; no -> false")
+                                .withMapping('yes -> true; no -> false; $self$')
                                 .wrappedWith('${CIL_CACHE_ENABLED:-', '}'),
                         new XmlProperty()
                                 .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
                                 .inFile("$configFolder/cd_storage_conf.xml")
-                                .withMapping("yes -> true; no -> false")
+                                .withMapping('yes -> true; no -> false; $self$')
                                 .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
                         .withDynamicDefault(
                         { configuration ->
@@ -217,7 +217,7 @@ def configuration = [
                                         .thatReplaces('\\$description\\s?=\\s?\"', '[^\"]+', '"')
                                         .inFile("../bin/installService.ps1")),
                 ],
-                'cacheEnabled.yes' : [
+                'cacheEnabled.true' : [
                         cacheDuration: new Parameter()
                                 .withDescription('What is Cache Expiration Duration in seconds?')
                                 .withDynamicDefault(
@@ -235,7 +235,7 @@ def configuration = [
                                 new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
                                         .inFile("$configFolder/cd_storage_conf.xml"))
                 ],
-                'register.yes'     : [
+                'register.true'     : [
                         modelServiceUrl   : new Parameter()
                                 .withDescription('What is Model Service URL to register it in Discovery?')
                                 .withSystemEnv('MS_URL')
@@ -364,6 +364,8 @@ task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configureS
     }
 }
 registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
+// happens after all parameters requested, here for reference:
+// registerDiscovery.enabled = ...
 
 def runScript = { processDefinition ->
     ProcessBuilder pb = new ProcessBuilder(processDefinition)
@@ -375,12 +377,6 @@ def runScript = { processDefinition ->
     Process proc = pb.start()
     proc.waitFor()
     proc
-}
-
-def checkWindowsAsAdmin = {
-    if ("net session".execute().waitFor() != 0) {
-        throw new RuntimeException("You have to run the script as Administrator if you want to install the service")
-    }
 }
 
 def getEnvVar = { String name ->
@@ -533,7 +529,6 @@ requestParameters << {
         } else if (runScriptMode == 'install' || runScriptMode == 'uninstall') {
 
             runScriptCallbackWindows << {
-                checkWindowsAsAdmin()
                 println "Uninstalling Windows Service..."
                 processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")])
             }
@@ -544,7 +539,6 @@ requestParameters << {
                 return
             } else {
                 runScriptCallbackWindows << {
-                    checkWindowsAsAdmin()
                     println "Installing Windows Service..."
                     processes << runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")])
                 }
@@ -558,7 +552,12 @@ requestParameters << {
     configuration.parameters.each {
         def parameter = (it.value as Parameter).request(properties, version, isBatch, configuration)
         if (parameter) {
-            def extra = configuration.extras["${it.key}.${parameter.toString().replaceAll(/[^a-zA-Z0-9.-]/, '')}"]
+            def normalizedAnswer = parameter.toString()
+                    .replaceAll(/[^a-zA-Z0-9.-]/, '')
+                    .replaceAll(/^yes$/, 'true')
+                    .replaceAll(/^no$/, 'false')
+
+            def extra = configuration.extras["${it.key}.${normalizedAnswer}"]
             (extra as Map)?.each {
                 (it.value as Parameter).request(properties, version, isBatch, configuration)
             }
@@ -576,5 +575,5 @@ requestParameters << {
         }
     }
 
-    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() == 'yes'
+    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() in ['yes', 'true']
 }

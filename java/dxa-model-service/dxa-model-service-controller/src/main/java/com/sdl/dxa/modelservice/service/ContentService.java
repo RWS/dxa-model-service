@@ -5,6 +5,7 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.web.api.dynamic.ComponentPresentationAssemblerImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
@@ -67,10 +68,13 @@ public class ContentService {
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
         int publicationId = pageRequest.getPublicationId();
+        if (pageRequest.getPageId() != 0) {
+            log.info("Page ID is known, no need to search it, requesting pubId = {}, pageId = {}", publicationId, pageRequest.getPageId());
+            return loadPageContent(publicationId, pageRequest.getPageId());
+        }
+
         String path = pageRequest.getPath();
-
         log.debug("Trying to request a page with localization id = '{}' and path = '{}'", publicationId, path);
-
         // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
         OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
@@ -99,6 +103,30 @@ public class ContentService {
     }
 
     /**
+     * Loads component presentation content for an entity and renders all tcdl links.
+     *
+     * @param publicationId Publication ID
+     * @param componentId Component ID
+     * @param templateId Template ID
+     * @return rendered component presentation content of an entity based on a request
+     */
+    @NotNull
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
+    public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) throws DxaItemNotFoundException {
+        ComponentPresentationAssemblerImpl assembler = new ComponentPresentationAssemblerImpl(publicationId);
+
+        if (templateId <= 0) {
+            templateId = configService.getDefaults().getDynamicTemplateId(publicationId);
+        }
+
+        String content = assembler.getContent(componentId, templateId);
+        if(content == null) {
+            throw new DxaItemNotFoundException("Cannot find a CP for componentId = " + componentId + ", template id = " + templateId);
+        }
+        return content;
+    }
+
+    /**
      * Loads component presentation for an entity without any processing.
      *
      * @param entityRequest current entity request
@@ -109,29 +137,27 @@ public class ContentService {
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}")
     public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
         int publicationId = entityRequest.getPublicationId();
+        int componentId = entityRequest.getComponentId();
+        int templateId = entityRequest.getTemplateId();
 
-        String componentUri = TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId());
-        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(componentUri);
+        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(publicationId);
 
         ComponentPresentation componentPresentation;
 
-        if (entityRequest.getDcpType() == EntityRequestDto.DcpType.HIGHEST_PRIORITY && entityRequest.getTemplateId() <= 0) {
-            log.debug("Load Component Presentation with component id = {} with highest priority", componentUri);
-            componentPresentation = componentPresentationFactory.getComponentPresentationWithHighestPriority(componentUri);
+        if (entityRequest.getDcpType() == EntityRequestDto.DcpType.HIGHEST_PRIORITY && templateId <= 0) {
+            log.debug("Load Component Presentation with component id = {} with highest priority", componentId);
+            componentPresentation = componentPresentationFactory.getComponentPresentationWithHighestPriority(componentId);
         } else {
-            String templateUri;
-            if (entityRequest.getTemplateId() > 0) {
-                templateUri = TcmUtils.buildTemplateTcmUri(publicationId, entityRequest.getTemplateId());
-            } else {
-                templateUri = TcmUtils.buildTemplateTcmUri(publicationId, configService.getDefaults().getDynamicTemplateId(publicationId));
+            if (templateId <= 0) {
+                templateId = configService.getDefaults().getDynamicTemplateId(publicationId);
             }
 
-            log.debug("Load Component Presentation with component uri = {} and template uri = {}", componentUri, templateUri);
-            componentPresentation = componentPresentationFactory.getComponentPresentation(componentUri, templateUri);
+            log.debug("Load Component Presentation with component ID = {} and template ID = {}", componentId, templateId);
+            componentPresentation = componentPresentationFactory.getComponentPresentation(publicationId, componentId, templateId);
         }
 
         if (componentPresentation == null) {
-            throw new DxaItemNotFoundException("Cannot find a CP for componentUri = " + componentUri + ", template id = " + entityRequest.getTemplateId());
+            throw new DxaItemNotFoundException("Cannot find a CP for componentId = " + componentId + ", template id = " + templateId);
         }
         return componentPresentation;
     }

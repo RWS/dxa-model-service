@@ -112,7 +112,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         PageImpl page = new PageImpl();
 
         int publicationId = pageRequest.getPublicationId();
-        String pageTcmUri = buildPageTcmUri(publicationId, toConvert.getId());
+        String pageTcmUri = buildPageTcmUri(toConvert.getNamespace(), publicationId, toConvert.getId());
 
         // first set everything obvious at the top-level
         page.setId(pageTcmUri);
@@ -127,8 +127,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         page.setFileExtension(PathUtils.getExtension(pageMeta.getPath()));
 
         // top-level /Publication and /OwningPublication
-        page.setPublication(_loadPublication(publicationId));
-        page.setOwningPublication(_loadPublication(pageMeta.getOwningPublicationId()));
+        page.setPublication(_loadPublication(publicationId, toConvert.getNamespace()));
+        page.setOwningPublication(_loadPublication(pageMeta.getOwningPublicationId(), toConvert.getNamespace()));
 
         page.setStructureGroup(_loadStructureGroup(toConvert, pageRequest, page));
 
@@ -173,13 +173,14 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
         PageRequestDto navigationJsonRequest = pageRequest.toBuilder()
+                .pageId(0)
                 .path(PathUtils.combinePath(publicationUrl, "navigation.json"))
                 .build();
         Optional<LightSitemapItem> sitemapItem;
         try {
             String content = contentService.loadPageContent(navigationJsonRequest);
             sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
-                    pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
+                    toConvert.getNamespace(), pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
         } catch (IOException e) {
             throw new ContentProviderException("Error parsing navigation.json", e);
         } catch (PageNotFoundException e) {
@@ -201,7 +202,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     @NotNull
     private PageTemplate _buildPageTemplate(@NotNull PageTemplateData pageTemplateData, int publicationId) throws ContentProviderException {
         PageTemplate pageTemplate = new PageTemplateImpl();
-        pageTemplate.setId(TcmUtils.buildTcmUri(publicationId, pageTemplateData.getId(), PAGE_TEMPLATE_ITEM_TYPE));
+        pageTemplate.setId(TcmUtils.buildTcmUri(pageTemplateData.getNamespace(), publicationId, pageTemplateData.getId(), PAGE_TEMPLATE_ITEM_TYPE));
         pageTemplate.setTitle(pageTemplateData.getTitle());
         pageTemplate.setFileExtension(pageTemplateData.getFileExtension());
         pageTemplate.setRevisionDate(pageTemplateData.getRevisionDate());
@@ -209,7 +210,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return pageTemplate;
     }
 
-    private Publication _loadPublication(int publicationId) throws ContentProviderException {
+    private Publication _loadPublication(int publicationId, String uriType) throws ContentProviderException {
         PublicationMeta publicationMeta = metadataService.getPublicationMeta(publicationId);
 
         if (publicationMeta == null || publicationMeta.getId() == 0) {
@@ -217,9 +218,9 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             return null;
         }
 
-        Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
+        Publication publication = new PublicationImpl(TcmUtils.buildPublicationTcmUri(uriType, publicationMeta.getId()));
         publication.setTitle(publicationMeta.getTitle());
-        publication.setId(TcmUtils.buildPublicationTcmUri(publicationMeta.getId()));
+        publication.setId(TcmUtils.buildPublicationTcmUri(uriType, publicationMeta.getId()));
 //        publication.setCustomProperties();
 //        publication.setExtensionData();
         return publication;
@@ -269,7 +270,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
     @NotNull
     private ComponentTemplate _buildComponentTemplate(@NotNull ComponentTemplateData componentTemplateData, int publicationId) throws ContentProviderException {
         ComponentTemplateImpl componentTemplate = new ComponentTemplateImpl();
-        componentTemplate.setId(TcmUtils.buildTcmUri(publicationId, componentTemplateData.getId(), TcmUtils.COMPONENT_TEMPLATE_ITEM_TYPE));
+        componentTemplate.setId(TcmUtils.buildTcmUri(componentTemplateData.getNamespace(), publicationId, componentTemplateData.getId(), TcmUtils.COMPONENT_TEMPLATE_ITEM_TYPE));
         componentTemplate.setTitle(componentTemplateData.getTitle());
         componentTemplate.setRevisionDate(componentTemplateData.getRevisionDate());
         componentTemplate.setOutputFormat(componentTemplateData.getOutputFormat());
@@ -283,7 +284,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
             entityId = entityId.split("-")[0];
         }
         ComponentImpl component = new ComponentImpl();
-        component.setId(TcmUtils.buildTcmUri(String.valueOf(publicationId), entityId));
+        component.setId(TcmUtils.buildTcmUri(entity.getNamespace(), String.valueOf(publicationId), entityId));
         component.setContent(_convertContent(entity.getContent(), publicationId,
                 configService.getDefaults().getSchemasJson(publicationId).get(entity.getSchemaId()), null, 0));
 
@@ -310,8 +311,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         component.setLastPublishedDate(new DateTime(meta.getLastPublicationDate()));
         component.setRevisionDate(new DateTime(meta.getModificationDate()));
         component.setMetadata(_convertContent(entity.getMetadata(), publicationId));
-        component.setPublication(_loadPublication(meta.getPublicationId()));
-        component.setOwningPublication(_loadPublication(meta.getOwningPublicationId()));
+        component.setPublication(_loadPublication(meta.getPublicationId(), entity.getNamespace()));
+        component.setOwningPublication(_loadPublication(meta.getOwningPublicationId(), entity.getNamespace()));
         component.setComponentType(meta.isMultimedia() ? Component.ComponentType.MULTIMEDIA : Component.ComponentType.NORMAL);
         component.setCategories(Arrays.stream(meta.getCategories())
                 .map(category -> {
@@ -339,8 +340,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                     return cat;
                 }).collect(Collectors.toList()));
         component.setVersion(meta.getMajorVersion());
-        component.setPublication(_loadPublication(meta.getPublicationId()));
-        component.setPublication(_loadPublication(meta.getOwningPublicationId()));
+        component.setPublication(_loadPublication(meta.getPublicationId(), entity.getNamespace()));
+        component.setPublication(_loadPublication(meta.getOwningPublicationId(), entity.getNamespace()));
 
         return component;
     }
@@ -436,8 +437,8 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         KeywordImpl keyword = new KeywordImpl();
         //todo finish
         keyword.setTitle(kmd.getTitle());
-        keyword.setId(TcmUtils.buildKeywordTcmUri(String.valueOf(publicationId), kmd.getId()));
-        keyword.setTaxonomyId(TcmUtils.buildKeywordTcmUri(String.valueOf(publicationId), kmd.getTaxonomyId()));
+        keyword.setId(TcmUtils.buildKeywordTcmUri(kmd.getNamespace(), String.valueOf(publicationId), kmd.getId()));
+        keyword.setTaxonomyId(TcmUtils.buildKeywordTcmUri(kmd.getNamespace(), String.valueOf(publicationId), kmd.getTaxonomyId()));
         keyword.setKey(kmd.getKey());
         keyword.setDescription(kmd.getDescription());
         return keyword;

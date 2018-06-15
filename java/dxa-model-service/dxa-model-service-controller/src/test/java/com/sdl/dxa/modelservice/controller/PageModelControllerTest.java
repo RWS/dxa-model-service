@@ -18,6 +18,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.Optional;
+
 import static org.mockito.BDDMockito.argThat;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.Mockito.atLeastOnce;
@@ -82,7 +84,8 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T")).andExpect(status().isOk());
 
         //then
-        verify(this.legacyPageModelService, atLeastOnce()).loadLegacyPageModel(matcherFor(DataModelType.DD4T, ContentType.MODEL, "/"));
+        verify(this.legacyPageModelService, atLeastOnce()).loadLegacyPageModel(matcherFor(DataModelType.DD4T, ContentType.MODEL,
+                Optional.of("/"), Optional.empty()));
     }
 
     @Test
@@ -93,7 +96,8 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T&raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.DD4T, ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.DD4T, ContentType.RAW,
+                Optional.of("/"), Optional.empty()));
     }
 
     @Test
@@ -104,7 +108,8 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//")).andExpect(status().isOk());
 
         //then
-        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(DataModelType.R2, ContentType.MODEL, "/"));
+        verify(this.pageModelService, atLeastOnce()).loadPageModel(matcherFor(DataModelType.R2, ContentType.MODEL,
+                Optional.of("/"), Optional.empty()));
     }
 
     @Test
@@ -115,7 +120,20 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW,
+                Optional.of("/"), Optional.empty()));
+    }
+
+    @Test
+    public void shouldAddOptionalPageId_AndPassItToRequestBuilder() throws Exception {
+        //given 
+
+        //when
+        mvc.perform(get("/PageModel/tcm/42-123?raw=true")).andExpect(status().isOk());
+
+        //then
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW,
+                Optional.empty(), Optional.of(123)));
     }
 
 
@@ -134,17 +152,18 @@ public class PageModelControllerTest {
     }
 
     private PageRequestDto matcherFor(String expected) {
-        return matcherFor(DataModelType.R2, ContentType.MODEL, expected);
+        return matcherFor(DataModelType.R2, ContentType.MODEL, Optional.of(expected), Optional.empty());
     }
 
-    private PageRequestDto matcherFor(DataModelType dataModelType, ContentType contentType, String expected) {
+    private PageRequestDto matcherFor(DataModelType dataModelType, ContentType contentType, Optional<String> expected, Optional<Integer> pageId) {
         return argThat(new BaseMatcher<PageRequestDto>() {
             @Override
             public boolean matches(Object item) {
                 PageRequestDto requestDto = (PageRequestDto) item;
                 return requestDto.getDataModelType() == dataModelType
                         && requestDto.getContentType() == contentType
-                        && requestDto.getPath().equals(expected);
+                        && ((expected.isPresent() && requestDto.getPath().equals(expected.get()))
+                        || (pageId.isPresent() && requestDto.getPageId() == pageId.get()));
             }
 
             @Override
