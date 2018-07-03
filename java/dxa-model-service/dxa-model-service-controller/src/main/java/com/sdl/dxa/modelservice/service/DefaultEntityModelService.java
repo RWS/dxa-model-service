@@ -7,9 +7,10 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
+import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
-import com.sdl.webapp.common.util.TcmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
@@ -39,6 +40,10 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
 
     private final ContentService contentService;
 
+    private final RichTextLinkResolver richTextLinkResolver;
+
+    private final ConfigService configService;
+
     private DataBinder dd4tDataBinder;
 
     private RichTextResolver dd4tRichTextResolver;
@@ -53,10 +58,15 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
                                      LinkResolver linkResolver,
                                      ContentService contentService,
                                      DataBinder dd4tDataBinder,
-                                     RichTextResolver dd4tRichTextResolver) {
+                                     RichTextResolver dd4tRichTextResolver,
+                                     RichTextLinkResolver richTextLinkResolver,
+                                     ConfigService configService) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
         this.contentService = contentService;
+        this.richTextLinkResolver = richTextLinkResolver;
+        this.configService = configService;
+
         this.dd4tDataBinder = dd4tDataBinder;
         this.dd4tRichTextResolver = dd4tRichTextResolver;
     }
@@ -126,16 +136,24 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         } else {
             log.trace("Parsing entity content {}", entityContent);
             modelData = _parseR2Content(entityContent, EntityModelData.class);
-            return modelData;
         }
 
-        int publicationId = entityRequest.getPublicationId();
-        if (entityRequest.isResolveLink()) {
-            modelData.setLinkUrl(linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId()), String.valueOf(publicationId)));
-        }
+        log.trace("Parsed entity content to entity model {}", modelData);
+
+        log.trace("processing entity model {} for entity request {}", modelData, entityRequest);
+
+        _getModelExpander(entityRequest).expandEntity(modelData);
+
+        log.trace("expanded the whole model for {}", entityRequest);
 
         return modelData;
     }
+
+    @NotNull
+    private EntityModelExpander _getModelExpander(EntityRequestDto entityRequestDto) {
+        return new EntityModelExpander(entityRequestDto, richTextLinkResolver, linkResolver, configService);
+    }
+
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
         try {
