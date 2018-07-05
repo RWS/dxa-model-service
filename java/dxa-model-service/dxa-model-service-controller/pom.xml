@@ -24,7 +24,7 @@
         <java.version>1.8</java.version>
 
         <dxa.version>${project.version}</dxa.version>
-        <cil.version>10.1.0-1012</cil.version>
+        <cil.version>10.1.0-1019</cil.version>
 
         <oauth-common.version>10.1.0-1011</oauth-common.version>
         <adf-api.version>10.1.0-1011</adf-api.version>
