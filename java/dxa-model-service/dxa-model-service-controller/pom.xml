@@ -60,7 +60,6 @@
             <groupId>com.sdl.web</groupId>
             <artifactId>cil</artifactId>
             <type>pom</type>
-            <version>${cil.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ugc_container</artifactId>
