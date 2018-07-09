@@ -59,6 +59,7 @@
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>cil</artifactId>
+            <version>${cil.version}</version>
             <type>pom</type>
             <exclusions>
                 <exclusion>
