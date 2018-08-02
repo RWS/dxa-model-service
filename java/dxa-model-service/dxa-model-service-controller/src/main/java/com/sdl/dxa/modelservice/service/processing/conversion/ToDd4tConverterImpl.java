@@ -81,8 +81,6 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     private final ContentService contentService;
 
-    private final EntityModelService entityModelService;
-
     private final ConfigService configService;
 
     private final ObjectMapper objectMapper;
@@ -91,12 +89,10 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
 
     @Autowired
     public ToDd4tConverterImpl(ContentService contentService,
-                               EntityModelService entityModelService,
                                ConfigService configService,
                                @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                                MetadataService metadataService) {
         this.contentService = contentService;
-        this.entityModelService = entityModelService;
         this.configService = configService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
@@ -249,16 +245,12 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         return presentations;
     }
 
-
-    private ComponentPresentation _buildEntityModel(EntityModelData entity, int publicationId, ComponentPresentationFactory factory) throws ContentProviderException {
+    ComponentPresentation _buildEntityModel(EntityModelData entity, int publicationId, ComponentPresentationFactory factory) throws ContentProviderException {
         ComponentPresentation presentation = new ComponentPresentationImpl();
         presentation.setIsDynamic(entity.getId().matches("\\d+-\\d+"));
 
-        EntityModelData entityModelData = presentation.isDynamic() ?
-                entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build()) : entity;
-
-        presentation.setComponent(_convertEntity(entityModelData, publicationId));
-        ComponentTemplateData templateData = entityModelData.getComponentTemplate();
+        presentation.setComponent(_convertEntity(entity, publicationId));
+        ComponentTemplateData templateData = entity.getComponentTemplate();
         if (templateData != null) {
             ComponentTemplate componentTemplate = _buildComponentTemplate(templateData, publicationId);
             presentation.setComponentTemplate(componentTemplate);
