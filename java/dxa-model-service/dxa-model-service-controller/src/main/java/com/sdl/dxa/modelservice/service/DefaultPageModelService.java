@@ -1,11 +1,13 @@
 package com.sdl.dxa.modelservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
@@ -28,7 +30,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
@@ -100,6 +104,27 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         return _processR2PageModel(pageContent, pageRequest);
     }
 
+    private List<EntityModelData> _expandDynamicEntities(@NotNull RegionModelData region, int publicationId) throws ContentProviderException {
+
+        List<EntityModelData> entities = new ArrayList<>();
+        if (region.getRegions() != null) {
+            for (RegionModelData nested : region.getRegions()) {
+                entities.addAll(_expandDynamicEntities(nested, publicationId));
+            }
+        }
+
+        if (region.getEntities() != null) {
+            for (EntityModelData entity : region.getEntities()) {
+                if(entity.isDynamic()) {
+                    entity = entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build());
+                }
+                entities.add(entity);
+            }
+        }
+
+        return entities;
+    }
+
     @Contract("!null, _ -> !null")
     private Page _processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
         Page page;
@@ -107,6 +132,12 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         if (publishedModelType == DataModelType.R2) {
             log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", pageRequest);
             PageModelData r2page = _processR2PageModel(pageContent, pageRequest);
+            // All entities must be loaded here, before page goes to converter
+            if (r2page.getRegions() != null) {
+                for (RegionModelData region : r2page.getRegions()) {
+                    region.setEntities(_expandDynamicEntities(region, pageRequest.getPublicationId()));
+                }
+            }
             page = toDd4tConverter.convertToDd4t(r2page, pageRequest);
         } else {
             try {

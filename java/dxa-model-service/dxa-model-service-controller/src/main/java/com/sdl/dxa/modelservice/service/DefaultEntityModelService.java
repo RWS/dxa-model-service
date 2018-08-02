@@ -94,6 +94,12 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         if (publishedModelType == DataModelType.R2) {
             log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", entityRequest);
             EntityModelData r2entity = _processR2EntityModel(content, entityRequest);
+
+            // Expand entity if it's dynamic
+            if(r2entity.isDynamic()) {
+                r2entity = this.loadEntity(entityRequest);
+            }
+
             return toDd4tConverter.convertToDd4t(r2entity, entityRequest);
         } else {
             try {
