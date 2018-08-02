@@ -96,7 +96,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
             EntityModelData r2entity = _processR2EntityModel(content, entityRequest);
 
             // Expand entity if it's dynamic
-            if(r2entity.getId().matches("\\d+-\\d+")) {
+            if(r2entity.isDynamic()) {
                 r2entity = this.loadEntity(entityRequest);
             }
 

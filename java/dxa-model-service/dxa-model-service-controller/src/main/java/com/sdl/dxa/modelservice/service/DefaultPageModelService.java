@@ -115,7 +115,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
         if (region.getEntities() != null) {
             for (EntityModelData entity : region.getEntities()) {
-                if(entity.getId().matches("\\d+-\\d+")) {
+                if(entity.isDynamic()) {
                     entity = entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build());
                 }
                 entities.add(entity);
