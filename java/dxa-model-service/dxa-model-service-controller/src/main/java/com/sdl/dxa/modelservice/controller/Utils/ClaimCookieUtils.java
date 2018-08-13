@@ -18,12 +18,16 @@ public class ClaimCookieUtils {
      */
     public static void setupClaimStore(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
-        if(cookies != null) {
-            ClaimStore claimStore = AmbientDataContext.getCurrentClaimStore();
-            for (Cookie cooky : cookies) {
-                if (cooky.getName().startsWith("taf.")) {
-                    String value = new String(Base64.getDecoder().decode(cooky.getValue()));
-                    claimStore.put(URI.create(cooky.getName().replace('.', ':')), value);
+        if (cookies == null) {
+            return;
+        }
+        ClaimStore claimStore = AmbientDataContext.getCurrentClaimStore();
+        for (Cookie cooky : cookies) {
+            if (cooky.getName().startsWith("taf.")) {
+                String value = new String(Base64.getDecoder().decode(cooky.getValue()));
+                URI uriKey = URI.create(cooky.getName().replace('.', ':'));
+                if (!claimStore.contains(uriKey) && !claimStore.isReadOnly(uriKey)) {
+                    claimStore.put(uriKey, value);
                 }
             }
         }
