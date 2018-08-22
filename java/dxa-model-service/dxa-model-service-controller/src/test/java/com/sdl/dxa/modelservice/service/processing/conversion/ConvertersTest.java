@@ -144,7 +144,6 @@ public class ConvertersTest {
         public ToDd4tConverter toDd4tConverter() throws ContentProviderException, IOException {
             return new ToDd4tConverterImpl(
                     contentService(),
-                    entityModelService(),
                     configService(),
                     r2Mapper(),
                     metadataService());

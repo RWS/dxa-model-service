@@ -80,10 +80,8 @@ public class ConfigService {
          */
         @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result <= 0")
         public int getDynamicTemplateId(int publicationId) {
-            try {
                 StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
-                InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();
-
+            try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
                 JsonNode jsonNode = objectMapper.readTree(allJson).get(configDcpUriField);
 
                 if (jsonNode == null) {

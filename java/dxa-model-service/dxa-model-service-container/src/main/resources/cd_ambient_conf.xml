@@ -14,6 +14,8 @@
     </Security>
 
     <ForwardedClaims CookieName="TAFContext">
+        <Claim Uri="taf:request:parameters"/>
+        <Claim Uri="taf:ish:userconditions"/>
         <Claim Uri="taf:session:preview:preview_session"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:acceptlanguage"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:recurringvisitor"/>
@@ -40,6 +42,8 @@
     </ForwardedClaims>
 
     <GloballyAcceptedClaims>
+        <Claim Uri="taf:request:parameters"/>
+        <Claim Uri="taf:ish:userconditions"/>
         <Claim Uri="taf:session:preview:preview_session"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:acceptlanguage"/>
         <Claim Uri="taf:claim:ambientdata:footprintcartridge:recurringvisitor"/>
