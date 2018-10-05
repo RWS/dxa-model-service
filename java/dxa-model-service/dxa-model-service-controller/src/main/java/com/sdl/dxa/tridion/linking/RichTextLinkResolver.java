@@ -3,6 +3,7 @@ package com.sdl.dxa.tridion.linking;
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.webapp.common.api.content.LinkResolver;
+import com.sdl.webapp.common.util.TcmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,18 +65,26 @@ public class RichTextLinkResolver {
         this.configService = configService;
     }
 
+    public String processFragment(@NotNull String fragment, int localizationId) {
+        return processFragment(fragment,localizationId,-1);
+    }
+
     /**
      * Processes the fragment as {@link #processFragment(String, int, Set)} just for single fragment.
      *
      * @param fragment       fragment of a rich text to process
      * @param localizationId current localization ID
+     * @param contextId    context page ID for proximity linking
      * @return modified fragment
      */
-    public String processFragment(@NotNull String fragment, int localizationId) {
-        return processFragment(fragment, localizationId, new HashSet<>());
+    public String processFragment(@NotNull String fragment, int localizationId, int contextId) {
+        return processFragment(fragment, localizationId, new HashSet<>(), contextId);
     }
 
-    /**
+    public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer) {
+        return processFragment(fragment,localizationId,notResolvedBuffer,-1);
+    }
+        /**
      * Processes a rich text fragment trying to resolve links from it. In case of non-resolvable link, puts it into buffer.
      * <p>Reuse the same buffer if you have multiple fragments with possible links start/end parts in different fragments:</p>
      * <pre><code>
@@ -94,9 +103,10 @@ public class RichTextLinkResolver {
      * @param fragment          fragment of a rich text to process
      * @param localizationId    current localization ID
      * @param notResolvedBuffer buffer to put non resolvable links to, make sure it's modifiable
+     * @param contextId    context page ID for proximity linking
      * @return modified fragment
      */
-    public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer) {
+    public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer, int contextId) {
 
         log.trace("RichTextResolver, resolve = {}, remove = {}, input fragment: '{}'",
                 configService.getDefaults().isRichTextResolve(), configService.getDefaults().isRichTextXmlnsRemove(), fragment);
@@ -109,7 +119,7 @@ public class RichTextLinkResolver {
         final String _fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(fragment) : generateHref(fragment);
 
         return processEndLinks(
-                processStartLinks(_fragment, localizationId, notResolvedBuffer),
+                processStartLinks(_fragment, localizationId, notResolvedBuffer, contextId),
                 notResolvedBuffer);
     }
 
@@ -171,13 +181,14 @@ public class RichTextLinkResolver {
     }
 
     @NotNull
-    private String processStartLinks(@NotNull String stringFragment, int localizationId, @NotNull Set<String> linksNotResolved) {
+    private String processStartLinks(@NotNull String stringFragment, int localizationId, @NotNull Set<String> linksNotResolved, int contextId) {
         String fragment = stringFragment;
         Matcher startMatcher = START_LINK.matcher(fragment);
 
         while (startMatcher.matches()) {
             String tcmUri = startMatcher.group("tcmUri");
-            String link = linkResolver.resolveLink(tcmUri, String.valueOf(localizationId), true);
+            String pageUri = TcmUtils.buildTcmUri(localizationId,contextId,64);
+            String link = linkResolver.resolveLink(tcmUri, String.valueOf(localizationId), true, pageUri);
             if (Strings.isNullOrEmpty(link)) {
                 log.info("Cannot resolve link to {}, suppressing link", tcmUri);
                 fragment = startMatcher.group("before") + startMatcher.group("after");
