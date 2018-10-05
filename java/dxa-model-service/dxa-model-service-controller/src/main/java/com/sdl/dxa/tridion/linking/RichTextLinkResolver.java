@@ -3,7 +3,6 @@ package com.sdl.dxa.tridion.linking;
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.webapp.common.api.content.LinkResolver;
-import com.sdl.webapp.common.util.TcmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
