@@ -187,8 +187,7 @@ public class RichTextLinkResolver {
 
         while (startMatcher.matches()) {
             String tcmUri = startMatcher.group("tcmUri");
-            String pageUri = TcmUtils.buildTcmUri(localizationId,contextId,64);
-            String link = linkResolver.resolveLink(tcmUri, String.valueOf(localizationId), true, pageUri);
+            String link = linkResolver.resolveLink(tcmUri, String.valueOf(localizationId), true, String.valueOf(contextId));
             if (Strings.isNullOrEmpty(link)) {
                 log.info("Cannot resolve link to {}, suppressing link", tcmUri);
                 fragment = startMatcher.group("before") + startMatcher.group("after");

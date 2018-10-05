@@ -85,14 +85,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     @Override
     protected void processPageModel(PageModelData pageModelData) {
         // pages may have meta (sic!: not metadata which is part of content wrapper), process it
-        String pageUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), pageId, 64);
         pageModelData.setMeta(Optional.ofNullable(pageModelData.getMeta())
                 .orElse(Collections.emptyMap())
                 .entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey, meta ->
                                 TcmUtils.isTcmUri(meta.getValue()) ?
-                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true, pageUri) :
+                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true, String.valueOf(pageId)) :
                                         richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId(),pageId))));
     }
 
@@ -102,8 +101,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             _expandEntity(entityModelData, pageRequest);
         }
         String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
-        String pageUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), pageId, 64);
-        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId()),pageUri));
+        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId()),String.valueOf(pageId)));
     }
 
     @Override

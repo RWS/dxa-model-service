@@ -33,10 +33,10 @@ public class RichTextLinkResolverTest {
 
     @Before
     public void init() {
-        when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"), eq(true), eq("tcm:1--1-64"))).thenReturn("");
-        when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"), eq(true), eq("tcm:1--1-64"))).thenReturn("");
-        when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"), eq(true), eq("tcm:1--1-64"))).thenReturn("resolved-link");
-        when(linkResolver.resolveLink(eq("tcm:1-12"), eq("1"), eq(true), eq("tcm:1--1-64"))).thenReturn("resolved-link.html");
+        when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"), eq(true), eq("-1"))).thenReturn("");
+        when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"), eq(true), eq("-1"))).thenReturn("");
+        when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"), eq(true), eq("-1"))).thenReturn("resolved-link");
+        when(linkResolver.resolveLink(eq("tcm:1-12"), eq("1"), eq(true), eq("-1"))).thenReturn("resolved-link.html");
 
         ConfigService.Defaults defaults = new ConfigService.Defaults(null, null);
         defaults.setRichTextXmlnsRemove(true);
