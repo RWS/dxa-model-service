@@ -121,7 +121,7 @@ public class ContentServiceTest {
     }
 
 
-    //@Test
+    @Test
     public void shouldRequestSinglePath_AfterNormalizingInitial_IfPathHasExtension() throws Exception {
         //given
         PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path.html").build();
