@@ -24,18 +24,11 @@
         <java.version>1.8</java.version>
 
         <dxa.version>${project.version}</dxa.version>
-        <cil.version>10.1.0-1017</cil.version>
-
-        <oauth-common.version>10.1.0-1011</oauth-common.version>
-        <adf-api.version>10.1.0-1011</adf-api.version>
-
-        <discovery-registration-api.version>10.1.0-1017</discovery-registration-api.version>
-        <oauth.version>10.1.0-1011</oauth.version>
-        <adf-engine.version>10.1.0-1011</adf-engine.version>
+        <cil.version>11.0.0-SNAPSHOT</cil.version>
 
         <powermock.version>1.6.6</powermock.version>
 
-        <jackson.version>2.9.4</jackson.version>
+        <jackson.version>2.9.6</jackson.version>
         <dd4t.version>2.1.2</dd4t.version>
     </properties>
 
@@ -157,30 +150,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>discovery-registration-api</artifactId>
-            <version>${discovery-registration-api.version}</version>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-discovery-registration-api</artifactId>
+            <version>${cil.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl.delivery</groupId>
-            <artifactId>oauth</artifactId>
-            <version>${oauth.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>oauth-common</artifactId>
-            <version>${oauth-common.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>adf-api</artifactId>
-            <version>${adf-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>adf-engine</artifactId>
-            <version>${adf-engine.version}</version>
+            <artifactId>udp-adf-engine</artifactId>
+            <version>${cil.version}</version>
         </dependency>
 
         <dependency>
