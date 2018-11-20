@@ -102,6 +102,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         }
         String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
         entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId()),String.valueOf(pageId)));
+        entityModelData.setContextId(String.valueOf(pageId));
     }
 
     @Override

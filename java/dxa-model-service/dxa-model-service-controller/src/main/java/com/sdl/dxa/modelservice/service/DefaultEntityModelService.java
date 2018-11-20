@@ -150,7 +150,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         if (entityRequest.isResolveLink()) {
             modelData.setLinkUrl(linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId()),String.valueOf(publicationId),String.valueOf(entityRequest.getContextId())));
         }
-
+        modelData.setContextId(String.valueOf(entityRequest.getContextId()));
         return modelData;
     }
 
