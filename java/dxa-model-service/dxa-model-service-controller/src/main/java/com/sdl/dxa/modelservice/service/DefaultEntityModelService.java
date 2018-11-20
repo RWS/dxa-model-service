@@ -11,6 +11,7 @@ import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
+import com.sdl.webapp.common.util.TcmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
@@ -145,6 +146,10 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         _getModelExpander(entityRequest).expandEntity(modelData);
 
         log.trace("expanded the whole model for {}", entityRequest);
+        int publicationId = entityRequest.getPublicationId();
+        if (entityRequest.isResolveLink()) {
+            modelData.setLinkUrl(linkResolver.resolveLink(TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId()),String.valueOf(publicationId),String.valueOf(entityRequest.getContextId())));
+        }
 
         return modelData;
     }

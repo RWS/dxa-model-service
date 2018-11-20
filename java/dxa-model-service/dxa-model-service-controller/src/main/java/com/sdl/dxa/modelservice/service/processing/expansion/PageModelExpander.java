@@ -47,16 +47,20 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private ConfigService configService;
 
+    private int pageId;
+
     public PageModelExpander(PageRequestDto pageRequest,
                              EntityModelService entityModelService,
                              RichTextLinkResolver richTextLinkResolver,
                              LinkResolver linkResolver,
-                             ConfigService configService) {
+                             ConfigService configService,
+                             int pageId) {
         this.pageRequest = pageRequest;
         this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
+        this.pageId = pageId;
     }
 
     /**
@@ -87,8 +91,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey, meta ->
                                 TcmUtils.isTcmUri(meta.getValue()) ?
-                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true) :
-                                        richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId()))));
+                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true, String.valueOf(pageId)) :
+                                        richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId(),pageId))));
     }
 
     @Override
@@ -97,7 +101,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             _expandEntity(entityModelData, pageRequest);
         }
         String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
-        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId())));
+        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId()),String.valueOf(pageId)));
     }
 
     @Override
@@ -129,7 +133,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         List<Object> fragments = richTextData.getValues().stream()
                 .map(fragment ->
                         fragment instanceof String ?
-                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks) :
+                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks, pageId) :
                                 fragment)
                 .collect(Collectors.toList());
 
@@ -192,7 +196,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     }
 
     private void _expandEntity(EntityModelData toExpand, PageRequestDto pageRequest) {
-        EntityRequestDto entityRequest = EntityRequestDto.builder(pageRequest.getPublicationId(), toExpand.getId()).build();
+        EntityRequestDto entityRequest = EntityRequestDto.builder(pageRequest.getPublicationId(), toExpand.getId(), pageId).build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
