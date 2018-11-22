@@ -13,6 +13,8 @@ import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
 import com.sdl.dxa.modelservice.service.processing.links.ComponentLinkDescriptor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.EntityLinkProcessor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.EntryLinkProcessor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -26,11 +28,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,7 +76,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         log.info("Page expansion started {}", page.getId());
 
         traverseObject(page);
-        this.batchLinkResolver.flush();
+        this.batchLinkResolver.resolveAndFlush();
         log.info("Page expansion took {}", DateTime.now().getMillis() - now);
     }
 
@@ -92,15 +92,17 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processPageModel(PageModelData pageModelData) {
-        // pages may have meta (sic!: not metadata which is part of content wrapper), process it
-        pageModelData.setMeta(Optional.ofNullable(pageModelData.getMeta())
-                .orElse(Collections.emptyMap())
-                .entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey, meta ->
-                                TcmUtils.isTcmUri(meta.getValue()) ?
-                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true) :
-                                        richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId()))));
+        Map<String, String> meta = pageModelData.getMeta();
+        for (Map.Entry<String, String> entry : meta.entrySet()) {
+            if(TcmUtils.isTcmUri(entry.getValue())) {
+                Integer pubId = TcmUtils.getPublicationId(entry.getValue());
+                ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey(), entry.getValue()));
+                this.batchLinkResolver.dispatchLinkResolution(ld);
+            } else {
+                String value = this.richTextLinkResolver.processFragment(entry.getValue(), pageRequest.getPublicationId());
+                meta.replace(entry.getKey(), value);
+            }
+        }
     }
 
     @Override
@@ -109,13 +111,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             _expandEntity(entityModelData, pageRequest);
         }
 
-        try {
-            ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(), entityModelData);
-            this.batchLinkResolver.dispatchLinkResolution(ld);
-        } catch (Exception e) {
-            log.error("Error: {}, Stack Trace: {}", e.getMessage(), e.getStackTrace());
-        }
-
+        ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+        this.batchLinkResolver.dispatchLinkResolution(ld);
     }
 
     @Override

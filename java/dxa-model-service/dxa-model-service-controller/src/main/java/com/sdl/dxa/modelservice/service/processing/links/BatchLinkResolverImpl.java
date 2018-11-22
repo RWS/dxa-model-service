@@ -5,8 +5,6 @@ import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
-import lombok.extern.slf4j.Slf4j;
-import org.simpleframework.xml.core.Commit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -38,17 +36,13 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Override
     public void dispatchLinkResolution(LinkDescriptor descriptor) {
         descriptor.subscribe(_retriever.addLinkRequest(_createBatchLinkRequest(descriptor)));
-        if(this._subscribers.containsKey(descriptor.getId())) {
-            List<LinkDescriptor> descriptors = this._subscribers.get(descriptor.getId());
-            descriptors.add(descriptor);
-        } else {
-            List<LinkDescriptor> list = new ArrayList<>();
-            list.add(descriptor);
-            this._subscribers.put(descriptor.getId(), list);
-        }
+
+        List<LinkDescriptor> descriptors = this._subscribers.computeIfAbsent(descriptor.getId(), k -> new ArrayList<>());
+
+        descriptors.add(descriptor);
     }
 
-    public void flush() {
+    public void resolveAndFlush() {
         this._resolve();
         this._flush();
     }

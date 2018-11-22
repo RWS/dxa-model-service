@@ -1,6 +1,7 @@
 package com.sdl.dxa.modelservice.service.processing.links;
 
 public interface LinkDescriptor {
+
     void subscribe(String subscriptionId);
 
     String getSubscription();
@@ -15,7 +16,7 @@ public interface LinkDescriptor {
 
     void setLinkUrl(String url);
 
-    String getType();
+    abstract String getType();
 
     default Integer getPageId() {
         return -1;

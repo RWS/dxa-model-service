@@ -17,5 +17,5 @@ public interface BatchLinkResolver {
      * Initiates resolution.
      *
      */
-    void flush();
+    void resolveAndFlush();
 }
