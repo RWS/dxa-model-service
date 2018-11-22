@@ -19,6 +19,7 @@ import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -62,8 +63,6 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processEntityModel(EntityModelData entityModelData) {
-        String componentUri = TcmUtils.buildTcmUri(String.valueOf(entityRequest.getPublicationId()), entityModelData.getId());
-        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(entityRequest.getPublicationId())));
     }
 
     @Override

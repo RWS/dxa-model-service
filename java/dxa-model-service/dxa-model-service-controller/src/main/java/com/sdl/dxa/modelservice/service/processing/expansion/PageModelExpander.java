@@ -11,6 +11,8 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
+import com.sdl.dxa.modelservice.service.processing.links.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -21,6 +23,7 @@ import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,18 +48,22 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private LinkResolver linkResolver;
 
+    private BatchLinkResolver batchLinkResolver;
+
     private ConfigService configService;
 
     public PageModelExpander(PageRequestDto pageRequest,
                              EntityModelService entityModelService,
                              RichTextLinkResolver richTextLinkResolver,
                              LinkResolver linkResolver,
-                             ConfigService configService) {
+                             ConfigService configService,
+                             BatchLinkResolver batchLinkResolver) {
         this.pageRequest = pageRequest;
         this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
+        this.batchLinkResolver = batchLinkResolver;
     }
 
     /**
@@ -65,7 +72,12 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
      * @param page model to expand
      */
     public void expandPage(@Nullable PageModelData page) {
+        long now = DateTime.now().getMillis();
+        log.info("Page expansion started {}", page.getId());
+
         traverseObject(page);
+        this.batchLinkResolver.flush();
+        log.info("Page expansion took {}", DateTime.now().getMillis() - now);
     }
 
     @Override
@@ -96,8 +108,14 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         if (_isEntityToExpand(entityModelData)) {
             _expandEntity(entityModelData, pageRequest);
         }
-        String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
-        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId())));
+
+        try {
+            ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(), entityModelData);
+            this.batchLinkResolver.dispatchLinkResolution(ld);
+        } catch (Exception e) {
+            log.error("Error: {}, Stack Trace: {}", e.getMessage(), e.getStackTrace());
+        }
+
     }
 
     @Override
@@ -196,7 +214,11 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
-            toExpand.copyFrom(entityModelService.loadEntity(entityRequest));
+            long now = DateTime.now().getMillis();
+            log.info("Loading started {}", entityRequest.getComponentId());
+            EntityModelData e = entityModelService.loadEntity(entityRequest);
+            log.info("Loading took {} ms", DateTime.now().getMillis() - now);
+            toExpand.copyFrom(e);
         } catch (ContentProviderException e) {
             _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, configService.getErrors().isMissingEntitySuppress(), e);
         }

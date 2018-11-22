@@ -9,6 +9,8 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
+import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
+import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -23,6 +25,7 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -156,7 +159,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto) {
-        return new PageModelExpander(pageRequestDto, entityModelService, richTextLinkResolver, linkResolver, configService);
+        return new PageModelExpander(pageRequestDto, entityModelService, richTextLinkResolver, linkResolver, configService, getBatchLinkResolver());
     }
 
     @Contract("!null, _ -> !null")
@@ -196,5 +199,10 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         } catch (IOException e) {
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
+    }
+
+    @Lookup
+    public BatchLinkResolver getBatchLinkResolver() {
+        return null;
     }
 }
