@@ -10,7 +10,9 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.modelservice.service.DefaultEntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
 import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
 import com.sdl.dxa.modelservice.service.processing.links.ComponentLinkDescriptor;
 import com.sdl.dxa.modelservice.service.processing.links.processors.EntityLinkProcessor;
@@ -213,7 +215,12 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         try {
             long now = DateTime.now().getMillis();
             log.info("Loading started {}", entityRequest.getComponentId());
-            EntityModelData e = entityModelService.loadEntity(entityRequest);
+            EntityModelData e;
+            if (EntityModelServiceSuppressLinks.class.isAssignableFrom(entityModelService.getClass())) {
+                e = ((EntityModelServiceSuppressLinks)entityModelService).loadEntity(entityRequest, false);
+            } else {
+                e = entityModelService.loadEntity(entityRequest);
+            }
             log.info("Loading took {} ms", DateTime.now().getMillis() - now);
             toExpand.copyFrom(e);
         } catch (ContentProviderException e) {

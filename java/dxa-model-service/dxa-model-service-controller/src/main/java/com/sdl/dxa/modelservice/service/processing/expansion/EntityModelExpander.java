@@ -42,14 +42,19 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     private ConfigService configService;
 
+    private boolean _resolveLinks = true;
+
     public EntityModelExpander(EntityRequestDto request,
                                RichTextLinkResolver richTextLinkResolver,
                                LinkResolver linkResolver,
-                               ConfigService configService) {
+                               ConfigService configService,
+                               boolean resolveLinks) {
         this.entityRequest = request;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
+
+        this._resolveLinks = resolveLinks;
     }
 
     /**
@@ -63,6 +68,14 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processEntityModel(EntityModelData entityModelData) {
+        if(shouldResolveLinks()) {
+            String componentUri = TcmUtils.buildTcmUri(String.valueOf(entityRequest.getPublicationId()), entityModelData.getId());
+            entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(entityRequest.getPublicationId())));
+        }
+    }
+
+    private boolean shouldResolveLinks() {
+        return _resolveLinks;
     }
 
     @Override
