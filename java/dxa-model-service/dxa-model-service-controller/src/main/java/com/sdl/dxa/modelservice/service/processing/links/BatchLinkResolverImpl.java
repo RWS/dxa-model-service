@@ -62,7 +62,11 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             for(LinkDescriptor descriptor : descriptors) {
                 if (descriptor != null && descriptor.couldBeResolved()) {
                     String resolvedUrl = this._retriever.getLink(descriptor.getSubscription()).getURL();
-                    descriptor.setLinkUrl(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) : resolvedUrl);
+                    if(resolvedUrl != null) {
+                        descriptor.setLinkUrl(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) : resolvedUrl);
+                    } else {
+                        descriptor.setLinkUrl("");
+                    }
                 }
             }
         }
