@@ -12,11 +12,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -41,27 +38,7 @@ public class DefaultsTest {
         defaults.setConfigDcpUriField("dataPresentationTemplateUri");
 
         when(contentResolver.getStaticContent(eq(StaticContentRequestDto.builder("/system/config/_all.json", "42").build())))
-                .thenReturn(new StaticContentItem() {
-                    @Override
-                    public long getLastModified() {
-                        return file.lastModified();
-                    }
-
-                    @Override
-                    public String getContentType() {
-                        return "content_type";
-                    }
-
-                    @Override
-                    public InputStream getContent() throws IOException {
-                        return new BufferedInputStream(new FileInputStream(file));
-                    }
-
-                    @Override
-                    public boolean isVersioned() {
-                        return true;
-                    }
-                });
+                .thenReturn(new StaticContentItem("content_type", file, true));
     }
 
     @Test
