@@ -1,7 +1,7 @@
 package com.sdl.dxa.modelservice.service.processing.links.processors;
 
 public interface LinkProcessor {
-    void updateUrl(String url);
+    void update(String url);
 
     String getId();
 }

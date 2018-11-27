@@ -10,6 +10,13 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
+import com.sdl.dxa.modelservice.service.processing.links.ComponentLinkDescriptor;
+import com.sdl.dxa.modelservice.service.processing.links.LinkDescriptor;
+import com.sdl.dxa.modelservice.service.processing.links.RichTextLinkDescriptor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.EntityLinkProcessor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.FragmentLinkListProcessor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.FragmentListProcessor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -17,15 +24,16 @@ import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +48,8 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     private LinkResolver linkResolver;
 
+    private BatchLinkResolver batchLinkResolver;
+
     private ConfigService configService;
 
     private boolean _resolveLinks = true;
@@ -48,13 +58,16 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
                                RichTextLinkResolver richTextLinkResolver,
                                LinkResolver linkResolver,
                                ConfigService configService,
-                               boolean resolveLinks) {
+                               boolean resolveLinks,
+                               BatchLinkResolver batchLinkResolver) {
         this.entityRequest = request;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
 
         this._resolveLinks = resolveLinks;
+        this.batchLinkResolver = batchLinkResolver;
+
     }
 
     /**
@@ -64,18 +77,21 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
      */
     public void expandEntity(@Nullable EntityModelData entity) {
         traverseObject(entity);
-    }
-
-    @Override
-    protected void processEntityModel(EntityModelData entityModelData) {
-        if(shouldResolveLinks()) {
-            String componentUri = TcmUtils.buildTcmUri(String.valueOf(entityRequest.getPublicationId()), entityModelData.getId());
-            entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(entityRequest.getPublicationId())));
+        if (shouldResolveLinks()) {
+            this.batchLinkResolver.resolveAndFlush();
         }
     }
 
     private boolean shouldResolveLinks() {
         return _resolveLinks;
+    }
+
+    @Override
+    protected void processEntityModel(EntityModelData entityModelData) {
+        if (shouldResolveLinks()) {
+            LinkDescriptor ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+            this.batchLinkResolver.dispatchLinkResolution(ld);
+        }
     }
 
     @Override
@@ -104,15 +120,32 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processRichTextData(RichTextData richTextData) {
-        Set<String> notResolvedLinks = new HashSet<>();
-        List<Object> fragments = richTextData.getValues().stream()
-                .map(fragment ->
-                        fragment instanceof String ?
-                                richTextLinkResolver.processFragment((String) fragment, entityRequest.getPublicationId(), notResolvedLinks) :
-                                fragment)
-                .collect(Collectors.toList());
+        if (shouldResolveLinks()) {
+            List<Object> fragments = richTextData.getValues().stream()
+                    .map(fragment -> {
+                        if (fragment instanceof String) {
+                            String uuid = UUID.randomUUID().toString();
+                            String fragmentString = String.valueOf(fragment);
 
-        richTextData.setFragments(fragments);
+                            this.batchLinkResolver.dispatchLinkListResolution(
+                                    new RichTextLinkDescriptor(
+                                            richTextLinkResolver.retrieveBatchOfLinks(fragmentString),
+                                            new FragmentListProcessor(richTextData, uuid, fragmentString, this.richTextLinkResolver)
+                                    )
+                            );
+                            return uuid;
+                        } else {
+                            return fragment;
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+            richTextData.setFragments(fragments);
+        }
+    }
+
+    private boolean _isKeywordToExpand(Object value) {
+        return value instanceof KeywordModelData && ((KeywordModelData) value).getTitle() == null;
     }
 
     @NotNull
@@ -125,6 +158,13 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
             metadata.put(key, _getMetadataValues(publicationId, value));
         }
         return metadata;
+    }
+
+    private void _suppressIfNeeded(String message, boolean suppressingFlag) {
+        log.warn(message);
+        if (!suppressingFlag) {
+            throw new DataModelExpansionException(message);
+        }
     }
 
     @NotNull
@@ -157,16 +197,5 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
         values = values == null ? new ListWrapper<>(value.getMultipleValues()) : values;
         return values;
-    }
-
-    private boolean _isKeywordToExpand(Object value) {
-        return value instanceof KeywordModelData && ((KeywordModelData) value).getTitle() == null;
-    }
-
-    private void _suppressIfNeeded(String message, boolean suppressingFlag) {
-        log.warn(message);
-        if (!suppressingFlag) {
-            throw new DataModelExpansionException(message);
-        }
     }
 }

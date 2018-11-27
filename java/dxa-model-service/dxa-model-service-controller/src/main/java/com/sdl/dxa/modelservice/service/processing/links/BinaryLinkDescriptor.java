@@ -6,7 +6,7 @@ import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 
 public class BinaryLinkDescriptor extends BaseLinkDescriptor {
 
-    public BinaryLinkDescriptor(int publicationId, LinkProcessor processor) {
+    public BinaryLinkDescriptor(Integer publicationId, LinkProcessor processor) {
         super(publicationId, processor);
     }
 

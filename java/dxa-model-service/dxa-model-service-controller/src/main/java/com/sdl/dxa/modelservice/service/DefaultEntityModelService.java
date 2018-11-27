@@ -8,6 +8,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
+import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -22,6 +23,7 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -156,9 +158,8 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     @NotNull
     private EntityModelExpander _getModelExpander(EntityRequestDto entityRequestDto, boolean resolveLinks) {
-        return new EntityModelExpander(entityRequestDto, richTextLinkResolver, linkResolver, configService, resolveLinks);
+        return new EntityModelExpander(entityRequestDto, richTextLinkResolver, linkResolver, configService, resolveLinks, getBatchLinkResolver());
     }
-
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
         try {
@@ -167,4 +168,10 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }
+
+    @Lookup
+    public BatchLinkResolver getBatchLinkResolver() {
+        return null;
+    }
+
 }

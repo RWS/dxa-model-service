@@ -4,19 +4,19 @@ public interface LinkDescriptor {
 
     void subscribe(String subscriptionId);
 
-    String getSubscription();
+    void update(String url);
 
     boolean couldBeResolved();
 
     String getId();
 
+    String getSubscription();
+
+    String getType();
+
     Integer getComponentId();
 
-    int getPublicationId();
-
-    void setLinkUrl(String url);
-
-    abstract String getType();
+    Integer getPublicationId();
 
     default Integer getPageId() {
         return -1;

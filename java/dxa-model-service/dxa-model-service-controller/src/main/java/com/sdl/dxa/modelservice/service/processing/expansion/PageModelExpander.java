@@ -15,8 +15,12 @@ import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
 import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
 import com.sdl.dxa.modelservice.service.processing.links.ComponentLinkDescriptor;
+import com.sdl.dxa.modelservice.service.processing.links.RichTextLinkDescriptor;
 import com.sdl.dxa.modelservice.service.processing.links.processors.EntityLinkProcessor;
 import com.sdl.dxa.modelservice.service.processing.links.processors.EntryLinkProcessor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.FragmentLinkListProcessor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.FragmentListProcessor;
+import com.sdl.dxa.modelservice.service.processing.links.processors.LinkListProcessor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -31,9 +35,11 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -101,8 +107,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                 ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey(), entry.getValue()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
-                String value = this.richTextLinkResolver.processFragment(entry.getValue(), pageRequest.getPublicationId());
-                meta.replace(entry.getKey(), value);
+                List<String> links = this.richTextLinkResolver.retrieveBatchOfLinks(entry.getValue());
+                this.batchLinkResolver.dispatchLinkListResolution(
+                        new RichTextLinkDescriptor(
+                                links,
+                                new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(), this.richTextLinkResolver)
+                        )
+                );
             }
         }
     }
@@ -142,12 +153,33 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processRichTextData(RichTextData richTextData) {
-        Set<String> notResolvedLinks = new HashSet<>();
-        List<Object> fragments = richTextData.getValues().stream()
-                .map(fragment ->
-                        fragment instanceof String ?
-                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks) :
-                                fragment)
+//        Set<String> notResolvedLinks = new HashSet<>();
+//        List<Object> fragments = richTextData.getValues().stream()
+//                .map(fragment ->
+//                        fragment instanceof String ?
+//                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks) :
+//                                fragment)
+//                .collect(Collectors.toList());
+
+        List<Object> fragments = richTextData
+                .getValues()
+                .stream()
+                .map(fragment -> {
+                    if (fragment instanceof String) {
+                        String uuid = UUID.randomUUID().toString();
+                        String fragmentString = String.valueOf(fragment);
+
+                        this.batchLinkResolver.dispatchLinkListResolution(
+                                new RichTextLinkDescriptor(
+                                        richTextLinkResolver.retrieveBatchOfLinks(fragmentString),
+                                        new FragmentListProcessor(richTextData, uuid, fragmentString, this.richTextLinkResolver)
+                                )
+                        );
+                        return uuid;
+                    } else {
+                        return fragment;
+                    }
+                })
                 .collect(Collectors.toList());
 
         richTextData.setFragments(fragments);
