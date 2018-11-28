@@ -21,11 +21,11 @@ public class EntryLinkProcessor implements LinkProcessor {
     }
 
     private String _createId() {
-        return Integer.toString(TcmUtils.getItemId(this.value));
+        return Integer.toString(TcmUtils.getItemId(this.key));
     }
     @Override
     public void update(String url) {
-        this.model.replace(this.key, this.value);
+        this.model.replace(this.key, url);
     }
 
     @Override

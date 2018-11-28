@@ -39,6 +39,16 @@ public class RichTextLinkResolver {
             Pattern.compile("(?<before>.*(xlink|xmlns):(?<tag>href=)(?<value>\"[^\"]*?\"))(?<after>.*)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
+    private static final Pattern COLLECT_LINK =
+            // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
+            // beforeWithLink: <p>Text <a data="1" href=
+            // before: <p>Text
+            // tcmUri: tcm:1-2
+            // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
+            // after: link text</a><!--CompLink tcm:1-2--> after text</p>
+            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*\\shref=\")(?<tcmUri>tcm:\\d+-\\d+)(?<afterWithLink>\"[^>]*>)",
+                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+
     private static final Pattern START_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // beforeWithLink: <p>Text <a data="1" href=
@@ -161,12 +171,12 @@ public class RichTextLinkResolver {
     @NotNull
     public List<String> retrieveBatchOfLinks(@NotNull String stringFragment) {
         String fragment = stringFragment;
-        Matcher startMatcher = START_LINK.matcher(fragment);
+        Matcher startMatcher = COLLECT_LINK.matcher(fragment);
         List<String> links = new ArrayList<>();
 
-        while (startMatcher.matches()) {
+        while (startMatcher.find()) {
             links.add(startMatcher.group("tcmUri"));
-            startMatcher = START_LINK.matcher(fragment);
+//            startMatcher = START_LINK.matcher(fragment);
         }
 
         return links;
