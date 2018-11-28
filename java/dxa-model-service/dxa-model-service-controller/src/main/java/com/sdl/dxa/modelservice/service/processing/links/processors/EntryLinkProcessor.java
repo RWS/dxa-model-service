@@ -9,14 +9,10 @@ public class EntryLinkProcessor implements LinkProcessor {
 
     private String id;
     private String key;
-    private String value;
 
-    public EntryLinkProcessor(Map<String, String> map, String key, String value) {
+    public EntryLinkProcessor(Map<String, String> map, String key) {
         this.model = map;
-
         this.key = key;
-        this.value = value;
-
         this.id = this._createId();
     }
 

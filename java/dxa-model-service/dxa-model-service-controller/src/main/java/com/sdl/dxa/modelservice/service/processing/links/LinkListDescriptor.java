@@ -8,4 +8,6 @@ public interface LinkListDescriptor {
     void update(Map<String, String> links);
 
     String getType();
+
+    Integer getPublicationId();
 }

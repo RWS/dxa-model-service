@@ -12,12 +12,17 @@ public abstract class BaseLinkListDescriptor implements LinkListDescriptor {
 
     private Map<String, String> links;
 
+    private Integer publicationId;
 
-    BaseLinkListDescriptor(List<String> links, LinkListProcessor linkProcessor) {
-        this.linkProcessor = linkProcessor;
-
+    BaseLinkListDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
+        this.publicationId = publicationId;
         this.links = this.prepareLinks(links);
+        this.linkProcessor = linkProcessor;
+    }
 
+    @Override
+    public Integer getPublicationId() {
+        return this.publicationId;
     }
 
     private Map<String, String> prepareLinks(List<String> links) {

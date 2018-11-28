@@ -129,6 +129,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
                             this.batchLinkResolver.dispatchLinkListResolution(
                                     new RichTextLinkDescriptor(
+                                            entityRequest.getPublicationId(),
                                             richTextLinkResolver.retrieveBatchOfLinks(fragmentString),
                                             new FragmentListProcessor(richTextData, uuid, fragmentString, this.richTextLinkResolver)
                                     )

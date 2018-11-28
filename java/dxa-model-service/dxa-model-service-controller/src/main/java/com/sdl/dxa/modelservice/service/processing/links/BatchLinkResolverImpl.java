@@ -6,7 +6,6 @@ import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
-import com.sdl.webapp.common.util.TcmUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -55,15 +54,15 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         Map<String, String> links = descriptor.getLinks();
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
 
-            Integer pubId = TcmUtils.getPublicationId(linkEntry.getKey());
+            Integer pubId = descriptor.getPublicationId();
             LinkDescriptor ld = null;
 
             if (descriptor.getType() == LINK_TYPE_BINARY) {
-                ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey(), linkEntry.getValue()));
+                ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
             }
 
             if (descriptor.getType() == LINK_TYPE_COMPONENT) {
-                ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey(), linkEntry.getValue()));
+                ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
             }
 
 

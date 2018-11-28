@@ -46,7 +46,7 @@ public class RichTextLinkResolver {
             // tcmUri: tcm:1-2
             // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*\\shref=\")(?<tcmUri>tcm:\\d+-\\d+)(?<afterWithLink>\"[^>]*>)",
+            Pattern.compile(".*?<a[^>]*\\shref=\"(?<tcmUri>tcm:\\d+-\\d+)\"[^>]*>",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
@@ -176,7 +176,6 @@ public class RichTextLinkResolver {
 
         while (startMatcher.find()) {
             links.add(startMatcher.group("tcmUri"));
-//            startMatcher = START_LINK.matcher(fragment);
         }
 
         return links;

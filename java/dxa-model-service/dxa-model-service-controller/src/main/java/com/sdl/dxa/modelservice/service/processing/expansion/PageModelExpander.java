@@ -104,12 +104,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         for (Map.Entry<String, String> entry : meta.entrySet()) {
             if(TcmUtils.isTcmUri(entry.getValue())) {
                 Integer pubId = TcmUtils.getPublicationId(entry.getValue());
-                ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey(), entry.getValue()));
+                ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
                 List<String> links = this.richTextLinkResolver.retrieveBatchOfLinks(entry.getValue());
                 this.batchLinkResolver.dispatchLinkListResolution(
                         new RichTextLinkDescriptor(
+                                pageRequest.getPublicationId(),
                                 links,
                                 new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(), this.richTextLinkResolver)
                         )
@@ -171,6 +172,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
                         this.batchLinkResolver.dispatchLinkListResolution(
                                 new RichTextLinkDescriptor(
+                                        pageRequest.getPublicationId(),
                                         richTextLinkResolver.retrieveBatchOfLinks(fragmentString),
                                         new FragmentListProcessor(richTextData, uuid, fragmentString, this.richTextLinkResolver)
                                 )
