@@ -80,9 +80,8 @@ public class ConfigService {
          */
         @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result <= 0")
         public int getDynamicTemplateId(int publicationId) {
-            try {
-                StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
-                InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();
+            StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
+            try(InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
 
                 JsonNode jsonNode = objectMapper.readTree(allJson).get(configDcpUriField);
 
@@ -106,16 +105,13 @@ public class ConfigService {
          */
         @Cacheable(value = "config", key = "{#root.methodName, #publicationId}")
         public Map<String, JsonSchema> getSchemasJson(int publicationId) throws ContentProviderException {
-            try {
-                StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(mappingsSchemas, String.valueOf(publicationId)).build();
-                InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();
-                List<JsonSchema> schemas =
-                        objectMapper.readValue(allJson, objectMapper.getTypeFactory().constructCollectionType(List.class, JsonSchema.class));
+            StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(mappingsSchemas, String.valueOf(publicationId)).build();
+            try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
+                List<JsonSchema> schemas = objectMapper.readValue(allJson, objectMapper.getTypeFactory().constructCollectionType(List.class, JsonSchema.class));
                 return schemas.parallelStream()
                         .collect(Collectors.toMap(schema -> String.valueOf(schema.getId()), schema -> schema));
             } catch (IOException | DxaItemNotFoundException e) {
-                log.error("Exception happened while loading schemas.json, cannot get schemas config, pub ID = {}", publicationId, e);
-                throw new ContentProviderException("Exception happened while loading schemas.json, cannot get schemas config", e);
+                throw new ContentProviderException("Could not load schemas.json, Failed to get schemas config for pubId: " + publicationId, e);
             }
         }
     }
