@@ -10,17 +10,15 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.modelservice.service.DefaultEntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
-import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
-import com.sdl.dxa.modelservice.service.processing.links.ComponentLinkDescriptor;
-import com.sdl.dxa.modelservice.service.processing.links.RichTextLinkDescriptor;
-import com.sdl.dxa.modelservice.service.processing.links.processors.EntityLinkProcessor;
-import com.sdl.dxa.modelservice.service.processing.links.processors.EntryLinkProcessor;
-import com.sdl.dxa.modelservice.service.processing.links.processors.FragmentLinkListProcessor;
-import com.sdl.dxa.modelservice.service.processing.links.processors.FragmentListProcessor;
-import com.sdl.dxa.modelservice.service.processing.links.processors.LinkListProcessor;
+import com.sdl.dxa.tridion.linking.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
+import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
+import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -31,14 +29,10 @@ import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -80,12 +74,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
      * @param page model to expand
      */
     public void expandPage(@Nullable PageModelData page) {
-        long now = DateTime.now().getMillis();
-        log.info("Page expansion started {}", page.getId());
+        long startTime = System.currentTimeMillis();
+        log.info("Expansion of the page with id {} has started!", page.getId());
 
         traverseObject(page);
         this.batchLinkResolver.resolveAndFlush();
-        log.info("Page expansion took {}", DateTime.now().getMillis() - now);
+
+        log.info("Expansion of the page with id {} has taken {} ms.", page.getId(), System.currentTimeMillis() - startTime);
     }
 
     @Override
@@ -107,8 +102,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                 ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
-                List<String> links = this.richTextLinkResolver.retrieveBatchOfLinks(entry.getValue());
-                this.batchLinkResolver.dispatchLinkListResolution(
+                List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
+                this.batchLinkResolver.dispatchMultipleLinksResolution(
                         new RichTextLinkDescriptor(
                                 pageRequest.getPublicationId(),
                                 links,
@@ -154,14 +149,6 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processRichTextData(RichTextData richTextData) {
-//        Set<String> notResolvedLinks = new HashSet<>();
-//        List<Object> fragments = richTextData.getValues().stream()
-//                .map(fragment ->
-//                        fragment instanceof String ?
-//                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks) :
-//                                fragment)
-//                .collect(Collectors.toList());
-
         List<Object> fragments = richTextData
                 .getValues()
                 .stream()
@@ -170,10 +157,10 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                         String uuid = UUID.randomUUID().toString();
                         String fragmentString = String.valueOf(fragment);
 
-                        this.batchLinkResolver.dispatchLinkListResolution(
+                        this.batchLinkResolver.dispatchMultipleLinksResolution(
                                 new RichTextLinkDescriptor(
                                         pageRequest.getPublicationId(),
-                                        richTextLinkResolver.retrieveBatchOfLinks(fragmentString),
+                                        richTextLinkResolver.retrieveAllLinksFromFragment(fragmentString),
                                         new FragmentListProcessor(richTextData, uuid, fragmentString, this.richTextLinkResolver)
                                 )
                         );
@@ -247,15 +234,15 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
-            long now = DateTime.now().getMillis();
-            log.info("Loading started {}", entityRequest.getComponentId());
+            long startTime = System.currentTimeMillis();
+            log.debug("Loading of the entity with id {} has started.", entityRequest.getComponentId());
+
             EntityModelData e;
             if (EntityModelServiceSuppressLinks.class.isAssignableFrom(entityModelService.getClass())) {
                 e = ((EntityModelServiceSuppressLinks)entityModelService).loadEntity(entityRequest, false);
             } else {
                 e = entityModelService.loadEntity(entityRequest);
-            }
-            log.info("Loading took {} ms", DateTime.now().getMillis() - now);
+            }            log.debug("Loading of the entity with id {} has taken {} ms", entityRequest.getComponentId(), System.currentTimeMillis() - startTime);
             toExpand.copyFrom(e);
         } catch (ContentProviderException e) {
             _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, configService.getErrors().isMissingEntitySuppress(), e);

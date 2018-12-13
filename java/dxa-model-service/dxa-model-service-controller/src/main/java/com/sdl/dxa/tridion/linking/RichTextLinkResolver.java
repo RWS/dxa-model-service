@@ -2,7 +2,6 @@ package com.sdl.dxa.tridion.linking;
 
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.modelservice.service.processing.links.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -41,11 +40,7 @@ public class RichTextLinkResolver {
 
     private static final Pattern COLLECT_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // beforeWithLink: <p>Text <a data="1" href=
-            // before: <p>Text
             // tcmUri: tcm:1-2
-            // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // after: link text</a><!--CompLink tcm:1-2--> after text</p>
             Pattern.compile(".*?<a[^>]*\\shref=\"(?<tcmUri>tcm:\\d+-\\d+)\"[^>]*>",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
@@ -168,12 +163,25 @@ public class RichTextLinkResolver {
         return _fragment;
     }
 
+    /**
+     * Generates HREF based on xlmns:href.
+     *
+     * @param fragmentString rich text fragment to process
+     * @return Parses all the links out of the rich text fragment and returns them as a list
+     */
     @NotNull
-    public List<String> retrieveBatchOfLinks(@NotNull String stringFragment) {
-        String fragment = stringFragment;
-        Matcher startMatcher = COLLECT_LINK.matcher(fragment);
+    public List<String> retrieveAllLinksFromFragment(@NotNull String fragmentString) {
+        String fragment;
         List<String> links = new ArrayList<>();
 
+        if (!configService.getDefaults().isRichTextResolve()) {
+            log.debug("RichText link resolving is turned off, don't do anything");
+            return links;
+        }
+
+        fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(fragmentString) : generateHref(fragmentString);
+
+        Matcher startMatcher = COLLECT_LINK.matcher(fragment);
         while (startMatcher.find()) {
             links.add(startMatcher.group("tcmUri"));
         }
@@ -200,6 +208,7 @@ public class RichTextLinkResolver {
 
             startMatcher = START_LINK.matcher(fragment);
         }
+
         return fragment;
     }
 
@@ -207,6 +216,13 @@ public class RichTextLinkResolver {
     public String applyBatchOfLinksStart(@NotNull String stringFragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> linksNotResolved) {
         String fragment = stringFragment;
         Matcher startMatcher = START_LINK.matcher(fragment);
+
+        if (!configService.getDefaults().isRichTextResolve()) {
+            log.debug("RichText link resolving is turned off, don't do anything");
+            return fragment;
+        }
+
+        fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(stringFragment) : generateHref(stringFragment);
 
         while (startMatcher.matches()) {
             String tcmUri = startMatcher.group("tcmUri");
@@ -222,6 +238,7 @@ public class RichTextLinkResolver {
 
             startMatcher = START_LINK.matcher(fragment);
         }
+
         return processEndLinks(fragment, linksNotResolved);
     }
 
@@ -244,23 +261,4 @@ public class RichTextLinkResolver {
 
         return fragment;
     }
-
-//    @NotNull
-//    private String applyBatchOfLinksFinish(@NotNull String stringFragment, @NotNull Set<String> linksNotResolved) {
-//        String fragment = stringFragment;
-//        Matcher endMatcher = END_LINK.matcher(fragment);
-//        while (endMatcher.matches()) {
-//            String tcmUri = endMatcher.group("tcmUri");
-//            if (linksNotResolved.contains(tcmUri)) {
-//                log.trace("TCM Uri {} was not resolved, removing end </a> with marker");
-//                fragment = endMatcher.group("before") + endMatcher.group("after");
-//            } else {
-//                log.trace("TCM Uri {} was resolved, removing only marker, leaving </a>");
-//                fragment = endMatcher.group("beforeWithLink") + endMatcher.group("after");
-//            }
-//
-//            endMatcher = END_LINK.matcher(fragment);
-//        }
-//        return fragment;
-//    }
 }

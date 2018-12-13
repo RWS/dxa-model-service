@@ -1,4 +1,4 @@
-package com.sdl.dxa.modelservice.service.processing.links.processors;
+package com.sdl.dxa.tridion.linking.processors;
 
 import java.util.Map;
 

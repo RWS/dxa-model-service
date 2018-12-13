@@ -1,12 +1,13 @@
-package com.sdl.dxa.modelservice.service.processing.links;
+package com.sdl.dxa.tridion.linking.descriptors;
 
-import com.sdl.dxa.modelservice.service.processing.links.processors.LinkListProcessor;
+import com.sdl.dxa.tridion.linking.descriptors.api.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.processors.LinkListProcessor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseLinkListDescriptor implements LinkListDescriptor {
+public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescriptor {
 
     private LinkListProcessor linkProcessor;
 
@@ -14,7 +15,7 @@ public abstract class BaseLinkListDescriptor implements LinkListDescriptor {
 
     private Integer publicationId;
 
-    BaseLinkListDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
+    BaseMultipleLinksDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
         this.publicationId = publicationId;
         this.links = this.prepareLinks(links);
         this.linkProcessor = linkProcessor;

@@ -1,7 +1,11 @@
-package com.sdl.dxa.modelservice.service.processing.links;
+package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.modelservice.service.processing.links.processors.EntryLinkProcessor;
+import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.api.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
@@ -29,33 +33,37 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
 
     private BatchLinkRetriever retriever;
 
-    private Map<String, List<LinkDescriptor>> subscribers = new HashMap<>();
+    private Map<String, List<SingleLinkDescriptor>> subscribers = new HashMap<>();
 
-    private List<ImmutablePair<LinkListDescriptor, Map<String, String>>> subscriberLists = new ArrayList<>();
+    private List<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists = new ArrayList<>();
 
     public BatchLinkResolverImpl() {
         this.retriever = new BatchLinkRetrieverImpl();
     }
 
     @Override
-    public void dispatchLinkResolution(LinkDescriptor descriptor) {
+    public void dispatchLinkResolution(SingleLinkDescriptor descriptor) {
 
         if(descriptor == null) {
             return;
         }
 
-        descriptor.subscribe(this.retriever.addLinkRequest(createBatchLinkRequest(descriptor)));
-        List<LinkDescriptor> descriptors = this.subscribers.computeIfAbsent(descriptor.getId(), k -> new ArrayList<>());
+        List<SingleLinkDescriptor> descriptors = this.subscribers.computeIfAbsent(descriptor.getId(), k -> new ArrayList<>());
+
+        // Plan link for resolution only once per unique ID
+        if(descriptors.isEmpty()) {
+            descriptor.subscribe(this.retriever.addLinkRequest(createBatchLinkRequest(descriptor)));
+        }
         descriptors.add(descriptor);
     }
 
     @Override
-    public void dispatchLinkListResolution(LinkListDescriptor descriptor) {
+    public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor) {
         Map<String, String> links = descriptor.getLinks();
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
 
             Integer pubId = descriptor.getPublicationId();
-            LinkDescriptor ld = null;
+            SingleLinkDescriptor ld = null;
 
             if (descriptor.getType() == LINK_TYPE_BINARY) {
                 ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
@@ -64,7 +72,6 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             if (descriptor.getType() == LINK_TYPE_COMPONENT) {
                 ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
             }
-
 
             dispatchLinkResolution(ld);
         }
@@ -83,21 +90,21 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     private void flush() {
         this.updateRefs();
         this.updateLists();
-        this.subscribers.clear();
-        this.subscriberLists.clear();
         this.retriever.clearRequestData();
     }
 
     private void updateLists() {
-        for (ImmutablePair<LinkListDescriptor, Map<String, String>> entry : subscriberLists) {
-            LinkListDescriptor descriptor = entry.getLeft();
+        for (ImmutablePair<MultipleLinksDescriptor, Map<String, String>> entry : subscriberLists) {
+            MultipleLinksDescriptor descriptor = entry.getLeft();
             descriptor.update(entry.getRight());
         }
+
+        this.subscriberLists.clear();
     }
 
     private void updateRefs() {
-        for (List<LinkDescriptor> descriptors : this.subscribers.values()) {
-            for (LinkDescriptor descriptor : descriptors) {
+        for (List<SingleLinkDescriptor> descriptors : this.subscribers.values()) {
+            for (SingleLinkDescriptor descriptor : descriptors) {
                 if (descriptor != null && descriptor.couldBeResolved()) {
                     String resolvedUrl = this.retriever.getLink(descriptor.getSubscription()).getURL();
                     if (resolvedUrl != null) {
@@ -108,9 +115,11 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                 }
             }
         }
+
+        this.subscribers.clear();
     }
 
-    private BatchLinkRequest createBatchLinkRequest(LinkDescriptor descriptor) {
+    private BatchLinkRequest createBatchLinkRequest(SingleLinkDescriptor descriptor) {
         BatchLinkRequest request;
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:

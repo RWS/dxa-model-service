@@ -1,6 +1,6 @@
-package com.sdl.dxa.modelservice.service.processing.links;
+package com.sdl.dxa.tridion.linking.descriptors;
 
-import com.sdl.dxa.modelservice.service.processing.links.processors.LinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.LinkProcessor;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 

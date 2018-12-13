@@ -1,8 +1,9 @@
-package com.sdl.dxa.modelservice.service.processing.links;
+package com.sdl.dxa.tridion.linking.descriptors;
 
-import com.sdl.dxa.modelservice.service.processing.links.processors.LinkProcessor;
+import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.processors.LinkProcessor;
 
-public abstract class BaseLinkDescriptor implements LinkDescriptor {
+public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     private LinkProcessor linkProcessor;
 
     private Integer publicationId;
