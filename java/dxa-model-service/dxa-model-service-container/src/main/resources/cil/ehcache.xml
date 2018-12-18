@@ -7,7 +7,7 @@
         <expiry>
             <ttl unit="seconds">3600</ttl>
         </expiry>
-        <heap unit="entries">10000</heap>
+        <heap unit="GB">2</heap>
     </cache-template>
 
     <cache alias="defaultCache" uses-template="default"/>
