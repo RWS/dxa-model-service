@@ -31,7 +31,7 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     }
 
     @Override
-    public String getId() {
+    public String getLinkId() {
         return String.format("%s-%s", this.getPublicationId(), this.getComponentId().toString());
     }
 
