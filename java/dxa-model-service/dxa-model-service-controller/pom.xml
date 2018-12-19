@@ -3,7 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sdl.dxa</groupId>
+    <parent>
+        <groupId>com.sdl.dxa</groupId>
+        <artifactId>dxa-model-service</artifactId>
+        <version>2.0.0</version>
+    </parent>
+
     <artifactId>dxa-model-service-controller</artifactId>
     <version>2.0.0</version>
     <packaging>jar</packaging>
@@ -11,32 +16,9 @@
     <name>DXA Model Service</name>
     <description>DXA Model Service</description>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.3.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-
-        <dxa.version>${project.version}</dxa.version>
-        <cil.version>10.1.0-1012</cil.version>
-
-        <oauth-common.version>10.1.0-1011</oauth-common.version>
-        <adf-api.version>10.1.0-1011</adf-api.version>
-
-        <discovery-registration-api.version>10.1.0-1017</discovery-registration-api.version>
-        <oauth.version>10.1.0-1011</oauth.version>
-        <adf-engine.version>10.1.0-1011</adf-engine.version>
-
-        <powermock.version>1.6.6</powermock.version>
-
-        <jackson.version>2.9.4</jackson.version>
-        <dd4t.version>2.1.0</dd4t.version>
     </properties>
 
     <dependencies>
@@ -44,23 +26,19 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-data-model</artifactId>
-            <version>${dxa.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-common</artifactId>
-            <version>${dxa.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-tridion-common</artifactId>
-            <version>${dxa.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>cil</artifactId>
             <type>pom</type>
-            <version>${cil.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ugc_container</artifactId>
@@ -89,7 +67,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-core</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -108,7 +85,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-api</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -127,7 +103,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-providers</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -147,7 +122,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-providers-common</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -167,28 +141,22 @@
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>discovery-registration-api</artifactId>
-            <version>${discovery-registration-api.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>oauth</artifactId>
-            <version>${oauth.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>oauth-common</artifactId>
-            <version>${oauth-common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>adf-api</artifactId>
-            <version>${adf-api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>adf-engine</artifactId>
-            <version>${adf-engine.version}</version>
         </dependency>
 
         <dependency>
@@ -225,7 +193,6 @@
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
-            <version>1.11</version>
         </dependency>
 
         <dependency>
@@ -241,13 +208,11 @@
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
-            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -256,19 +221,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

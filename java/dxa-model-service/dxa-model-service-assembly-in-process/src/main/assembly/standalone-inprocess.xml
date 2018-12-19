@@ -49,7 +49,13 @@
                 <include>com.sdl.dxa:dxa-common</include>
                 <include>com.sdl.dxa:dxa-tridion-common</include>
                 <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
+                <include>joda-time:joda-time</include>
                 <include>org.dd4t:dd4t-*</include>
+                <include>io.github.lukehutch:fast-classpath-scanner</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>commons-codec:commons-codec</include>
+
                 <include>com.sdl.web:discovery-registration-api</include>
                 <include>com.sdl.delivery:oauth</include>
                 <include>com.sdl.delivery:oauth-common</include>
@@ -57,7 +63,10 @@
                 <include>com.sdl.delivery:adf-engine</include>
 
                 <!-- Sucks -->
+                <include>com.sdl.delivery:adf-client</include>
+                <include>com.sdl.web:content-api</include>
                 <include>com.sdl.web:content-client-api</include>
+                <include>com.sdl.web:ambient-client</include>
 
                 <!-- In Process deps -->
                 <include>javax.activation:activation</include>
@@ -75,6 +84,7 @@
                 <include>com.tridion:cd_model</include>
                 <include>com.tridion:cd_tcdl</include>
                 <include>com.tridion:cd_wai</include>
+                <include>com.tridion:cd_common_config_legacy</include>
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>
                 <include>dom4j:dom4j</include>

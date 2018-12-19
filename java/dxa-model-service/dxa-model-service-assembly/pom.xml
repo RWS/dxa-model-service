@@ -30,7 +30,10 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-controller</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-model-service-odata</artifactId>
         </dependency>
     </dependencies>
 

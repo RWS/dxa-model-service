@@ -128,12 +128,63 @@
                 <artifactId>dxa-model-service-controller</artifactId>
                 <version>${dxa.model-service.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-model-service-in-process</artifactId>
+                <version>${dxa.model-service.version}</version>
+            </dependency>
 
-            <!-- CIL dependencies really needed by the model service without code changes. Sucks. -->
+            <!-- CIL dependencies really needed by the model service without code changes. Sucks. Big Time -->
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>adf-client</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-api</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
             <dependency>
                 <groupId>com.sdl.web</groupId>
                 <artifactId>content-client-api</artifactId>
                 <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-ambient-client</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+
+            <!-- Always needed 3rd party libs -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${jodatime.version}</version>
+            </dependency>
+
+            <!-- TODO -->
+            <dependency>
+                <groupId>io.github.lukehutch</groupId>
+                <artifactId>fast-classpath-scanner</artifactId>
+                <version>2.4.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
             </dependency>
 
             <!-- In process dependencies -->
@@ -332,12 +383,46 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-model-service-in-process</artifactId>
+        </dependency>
 
         <!-- CIL dependencies really needed. This sucks -->
-
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>adf-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>content-client-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-ambient-client</artifactId>
+        </dependency>
+
+
+        <!-- always needed 3rd party dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-joda</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
         </dependency>
 
         <!-- In Process Dependencies -->
