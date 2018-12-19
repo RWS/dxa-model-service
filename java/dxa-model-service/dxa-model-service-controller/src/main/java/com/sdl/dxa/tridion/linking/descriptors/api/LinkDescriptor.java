@@ -7,6 +7,7 @@ public interface LinkDescriptor {
     default Integer getPageId() {
         return -1;
     };
+
     /**
      * Describes type of the links this class holds.
      *

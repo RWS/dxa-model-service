@@ -12,7 +12,7 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.tridion.linking.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.LinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
@@ -86,7 +86,13 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
     @Override
     protected void processEntityModel(EntityModelData entityModelData) {
         if (shouldResolveLinks()) {
-            SingleLinkDescriptor ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+            SingleLinkDescriptor ld;
+            if(entityModelData.getId().matches("\\d+-\\d+")) {
+                ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+            } else {
+                ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+            }
+
             this.batchLinkResolver.dispatchLinkResolution(ld);
         }
     }

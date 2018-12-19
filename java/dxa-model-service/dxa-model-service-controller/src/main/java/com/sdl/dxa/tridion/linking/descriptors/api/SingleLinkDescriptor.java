@@ -8,9 +8,16 @@ public interface SingleLinkDescriptor extends LinkDescriptor {
 
     boolean couldBeResolved();
 
-    String getId();
-
-    String getSubscription();
+    String getLinkId();
 
     Integer getComponentId();
+
+    /**
+     * @return ID of the template the component is rendered with.
+     */
+    default Integer getTemplateId() {
+        return -1;
+    };
+
+    String getSubscription();
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
+import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_DYNAMIC_COMPONENT;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_PAGE;
 
 @Component
@@ -48,7 +49,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             return;
         }
 
-        List<SingleLinkDescriptor> descriptors = this.subscribers.computeIfAbsent(descriptor.getId(), k -> new ArrayList<>());
+        List<SingleLinkDescriptor> descriptors = this.subscribers.computeIfAbsent(descriptor.getLinkId(), k -> new ArrayList<>());
 
         // Plan link for resolution only once per unique ID
         if(descriptors.isEmpty()) {
@@ -132,6 +133,15 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                 request = new BatchLinkRequestImpl.BinaryLinkRequestBuilder()
                         .withBinaryComponentId(descriptor.getComponentId())
                         .withPublicationId(descriptor.getPublicationId())
+                        .build();
+                break;
+            case LINK_TYPE_DYNAMIC_COMPONENT:
+                request = new BatchLinkRequestImpl.DynamicComponentLinkRequestBuilder()
+                        .withTargetPageId(descriptor.getPageId())
+                        .withPublicationId(descriptor.getPublicationId())
+                        .withTargetTemplateId(descriptor.getTemplateId())
+                        .withTargetComponentId(descriptor.getComponentId())
+                        .withShowTextOnFail(false)
                         .build();
                 break;
             case LINK_TYPE_COMPONENT:
