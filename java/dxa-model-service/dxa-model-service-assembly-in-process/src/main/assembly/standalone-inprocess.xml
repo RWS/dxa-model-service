@@ -76,7 +76,13 @@
                 <include>com.sdl.web:content-client-api</include>
                 <include>com.sdl.web:ambient-client</include>
                 <include>com.sdl.web:discovery-client-lightweight</include>
+                <include>com.sdl.web:discovery-client</include>
                 <include>com.sdl.web:discovery-common</include>
+
+                <!-- Sucks even more -->
+
+                <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
+                <include>org.scala-lang:scala-library</include>
 
                 <!-- OData for Disco client -->
 

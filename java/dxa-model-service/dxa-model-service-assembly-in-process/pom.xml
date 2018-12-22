@@ -160,6 +160,11 @@
             </dependency>
             <dependency>
                 <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-client</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
                 <artifactId>discovery-client-lightweight</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
@@ -490,6 +495,10 @@
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>content-ambient-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdl.web</groupId>
