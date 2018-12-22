@@ -45,16 +45,25 @@
             <unpack>false</unpack>
             <includes>
                 <include>com.sdl.dxa:dxa-model-service-controller</include>
+                <include>com.sdl.dxa:dxa-model-service-in-process</include>
                 <include>com.sdl.dxa:dxa-data-model</include>
                 <include>com.sdl.dxa:dxa-common</include>
                 <include>com.sdl.dxa:dxa-tridion-common</include>
+
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
+
                 <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
                 <include>joda-time:joda-time</include>
+                <include>org.aspectj:aspectjweaver</include>
                 <include>org.dd4t:dd4t-*</include>
                 <include>io.github.lukehutch:fast-classpath-scanner</include>
                 <include>org.apache.commons:commons-lang3</include>
+                <include>commons-io:commons-io</include>
                 <include>commons-codec:commons-codec</include>
+                <include>org.apache.commons:commons-compress</include>
 
                 <include>com.sdl.web:discovery-registration-api</include>
                 <include>com.sdl.delivery:oauth</include>
@@ -67,6 +76,18 @@
                 <include>com.sdl.web:content-api</include>
                 <include>com.sdl.web:content-client-api</include>
                 <include>com.sdl.web:ambient-client</include>
+                <include>com.sdl.web:discovery-client-lightweight</include>
+                <include>com.sdl.web:discovery-common</include>
+
+                <!-- OData for Disco client -->
+
+                <!-- OData client for Disco registration -->
+                <include>com.sdl:odata_api</include>
+                <include>com.sdl:odata_client_api</include>
+                <include>com.sdl:odata_client</include>
+                <include>com.sdl:odata_edm</include>
+                <include>com.sdl:odata_parser</include>
+                <include>com.sdl:odata_renderer</include>
 
                 <!-- In Process deps -->
                 <include>javax.activation:activation</include>

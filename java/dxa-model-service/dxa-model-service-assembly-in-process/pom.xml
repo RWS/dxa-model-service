@@ -3,12 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>cd_common_maven</artifactId>
-        <groupId>com.tridion</groupId>
-        <version>10.1.0-SNAPSHOT</version>
+        <artifactId>dxa-model-service</artifactId>
+        <groupId>com.sdl.dxa</groupId>
+        <version>2.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <version>2.0.1-SNAPSHOT</version>
     <artifactId>dxa-model-service-assembly-in-process</artifactId>
 
     <name>DXA Model In Process Service Assembly</name>
@@ -17,7 +18,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <dxa.model-service.version>2.0.0</dxa.model-service.version>
+        <dxa.model-service.version>2.0.1-SNAPSHOT</dxa.model-service.version>
+        <dd4t.version>2.1.5</dd4t.version>
+        <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
 
         <service-container.version>10.1.0-1017</service-container.version>
         <standalone.path>standalone</standalone.path>
@@ -155,9 +158,45 @@
                 <artifactId>content-ambient-client</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-client-lightweight</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-common</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
 
 
             <!-- Always needed 3rd party libs -->
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-core</artifactId>
+                <version>${dd4t.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-joda</artifactId>
@@ -169,22 +208,69 @@
                 <version>${jodatime.version}</version>
             </dependency>
 
-            <!-- TODO -->
             <dependency>
                 <groupId>io.github.lukehutch</groupId>
                 <artifactId>fast-classpath-scanner</artifactId>
-                <version>2.4.7</version>
+                <version>${fast-classpath-scanner.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons.compress.version}</version>
+            </dependency>
+
+
+            <!-- OData client for Disco registration -->
+
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_api</artifactId>
+                <version>${odata.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_client_api</artifactId>
+                <version>${odata.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_client</artifactId>
+                <version>${odata.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_edm</artifactId>
+                <version>${odata.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_parser</artifactId>
+                <version>${odata.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_renderer</artifactId>
+                <version>${odata.version.range}</version>
             </dependency>
 
             <!-- In process dependencies -->
@@ -405,9 +491,37 @@
             <groupId>com.sdl.web</groupId>
             <artifactId>content-ambient-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-client-lightweight</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-common</artifactId>
+        </dependency>
 
 
         <!-- always needed 3rd party dependencies -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dd4t</groupId>
+            <artifactId>dd4t-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
@@ -417,12 +531,56 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.github.lukehutch</groupId>
+            <artifactId>fast-classpath-scanner</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+
+        <!-- OData client for Disco registration -->
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_client_api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_edm</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_parser</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_renderer</artifactId>
         </dependency>
 
         <!-- In Process Dependencies -->

@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cd_common_maven</artifactId>
+        <groupId>com.tridion</groupId>
+        <version>10.1.0-SNAPSHOT</version>
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sdl.dxa</groupId>
     <artifactId>dxa-model-service</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DXA Model Service Parent</name>
@@ -27,7 +32,7 @@
 
         <java.version>1.8</java.version>
 
-        <dxa.version>${project.version}</dxa.version>
+        <dxa.version>2.0.0</dxa.version>
         <cil.version>10.1.0-1012</cil.version>
 
         <oauth-common.version>10.1.0-1011</oauth-common.version>
@@ -44,7 +49,7 @@
         <javax-cache.version>1.0.0</javax-cache.version>
         <ehcache.version>3.3.1</ehcache.version>
         <jackson.version>2.9.4</jackson.version>
-        <dd4t.version>2.1.0</dd4t.version>
+        <dd4t.version>2.1.5</dd4t.version>
         <spring-boot.version>1.5.16.RELEASE</spring-boot.version>
     </properties>
 
@@ -99,6 +104,31 @@
                 <artifactId>dxa-tridion-common</artifactId>
                 <version>${dxa.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_broker</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_linking</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-compatible</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-model</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.sdl.web</groupId>
                 <artifactId>cil</artifactId>

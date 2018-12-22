@@ -36,6 +36,8 @@ import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
 /**
  * Service capable to load content and construct {@code models} out of it.
+ *
+ * Note: for in process the LinkResolver is overridden to BrokerTridionLinkResolver.
  */
 @Slf4j
 @Service
@@ -63,7 +65,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Autowired
     public DefaultPageModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                                   LinkResolver linkResolver,
+                                   @Qualifier("dxaLinkResolver") LinkResolver linkResolver,
                                    ConfigService configService,
                                    EntityModelService entityModelService,
                                    ContentService contentService,

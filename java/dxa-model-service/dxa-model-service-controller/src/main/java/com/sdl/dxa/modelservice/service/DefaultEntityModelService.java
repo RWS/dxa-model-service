@@ -57,7 +57,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     @Autowired
     public DefaultEntityModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                                     LinkResolver linkResolver,
+                                     @Qualifier("dxaLinkResolver") LinkResolver linkResolver,
                                      ContentService contentService,
                                      DataBinder dd4tDataBinder,
                                      RichTextResolver dd4tRichTextResolver,
@@ -73,7 +73,6 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
         this.dd4tRichTextResolver = dd4tRichTextResolver;
     }
 
-    @Autowired
     public void setToDd4tConverter(ToDd4tConverter toDd4tConverter) {
         this.toDd4tConverter = toDd4tConverter;
     }

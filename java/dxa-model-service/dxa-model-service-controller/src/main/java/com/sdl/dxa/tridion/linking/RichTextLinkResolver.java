@@ -6,6 +6,7 @@ import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -70,7 +71,8 @@ public class RichTextLinkResolver {
     private final BatchLinkResolver batchLinkResolver;
 
     @Autowired
-    public RichTextLinkResolver(LinkResolver linkResolver, ConfigService configService, BatchLinkResolver batchLinkResolver) {
+    public RichTextLinkResolver(@Qualifier("dxaLinkResolver") LinkResolver linkResolver, ConfigService configService,
+                                BatchLinkResolver batchLinkResolver) {
         this.linkResolver = linkResolver;
         this.configService = configService;
         this.batchLinkResolver = batchLinkResolver;

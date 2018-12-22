@@ -79,6 +79,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
     }
 
+    @Override
     public void resolveAndFlush() {
         this.resolve();
         this.flush();
