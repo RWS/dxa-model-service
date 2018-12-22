@@ -57,7 +57,6 @@
                 <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
                 <include>joda-time:joda-time</include>
-                <include>org.aspectj:aspectjweaver</include>
                 <include>org.dd4t:dd4t-*</include>
                 <include>io.github.lukehutch:fast-classpath-scanner</include>
                 <include>org.apache.commons:commons-lang3</include>
