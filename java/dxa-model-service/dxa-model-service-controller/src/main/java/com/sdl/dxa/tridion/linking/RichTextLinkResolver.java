@@ -2,6 +2,7 @@ package com.sdl.dxa.tridion.linking;
 
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;

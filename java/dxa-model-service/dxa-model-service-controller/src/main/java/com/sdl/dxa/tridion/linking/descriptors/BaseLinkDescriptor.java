@@ -1,7 +1,7 @@
 package com.sdl.dxa.tridion.linking.descriptors;
 
-import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
-import com.sdl.dxa.tridion.linking.processors.LinkProcessor;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
 public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     private LinkProcessor linkProcessor;
