@@ -50,12 +50,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.dd4t</groupId>
@@ -84,8 +82,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>adf-engine</artifactId>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-engine</artifactId>
         </dependency>
 
         <dependency>

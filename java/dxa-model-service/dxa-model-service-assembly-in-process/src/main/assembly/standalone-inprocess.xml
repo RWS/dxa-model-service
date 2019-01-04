@@ -65,16 +65,15 @@
                 <include>org.apache.commons:commons-compress</include>
 
                 <include>com.sdl.web:discovery-registration-api</include>
-                <include>com.sdl.delivery:oauth</include>
-                <include>com.sdl.delivery:oauth-common</include>
-                <include>com.sdl.delivery:adf-api</include>
-                <include>com.sdl.delivery:adf-engine</include>
+                <include>com.sdl.web:web-oauth</include>
+                <include>com.sdl.web:web-oauth-common</include>
+                <include>com.sdl.web:web-ambient-api</include>
+                <include>com.sdl.web:web-ambient-engine</include>
 
                 <!-- Sucks -->
-                <include>com.sdl.delivery:adf-client</include>
                 <include>com.sdl.web:content-api</include>
                 <include>com.sdl.web:content-client-api</include>
-                <include>com.sdl.web:ambient-client</include>
+                <include>com.sdl.web:web-ambient-client</include>
                 <include>com.sdl.web:discovery-client-lightweight</include>
                 <include>com.sdl.web:discovery-client</include>
                 <include>com.sdl.web:discovery-common</include>

@@ -146,20 +146,20 @@
             <artifactId>discovery-registration-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>oauth</artifactId>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>oauth-common</artifactId>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>adf-api</artifactId>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>adf-engine</artifactId>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-engine</artifactId>
         </dependency>
 
         <dependency>
