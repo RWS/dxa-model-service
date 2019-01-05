@@ -23,7 +23,9 @@
         <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
 
         <service-container.version>8.5.1-SNAPSHOT</service-container.version>
+        <springframework.version>4.3.3.RELEASE</springframework.version>
         <udp.version.range>[8.5.0,8.5.0-2000)</udp.version.range>
+
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
@@ -177,6 +179,11 @@
 
 
             <!-- Always needed 3rd party libs -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${springframework.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
@@ -532,6 +539,10 @@
 
 
         <!-- always needed 3rd party dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
