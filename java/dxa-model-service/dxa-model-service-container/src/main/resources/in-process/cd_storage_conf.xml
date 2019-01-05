@@ -206,6 +206,7 @@
                 </DataSource>
             </Storage>
             -->
+            <!--
             <Storage Type="persistence" Id="defaultdb" dialect="${dbtype}"
                      Class="com.tridion.storage.persistence.JPADAOFactory">
                 <Pool Type="jdbc" Size="5" MonitorInterval="60" IdleTimeout="120" CheckoutTimeout="120"/>
@@ -217,6 +218,7 @@
                     <Property Name="password" Value="${dbpassword}"/>
                 </DataSource>
             </Storage>
+            -->
         </Storages>
 
         <!--
@@ -244,6 +246,11 @@
     </Global>
 
     <ItemTypes defaultStorageId="defaultdb" cached="${objectcacheenabled:-false}">
+
+        <!-- Mandatory config if you want link caching! -->
+        <Item typeMapping="Metadata" cached="true" storageId="defaultdb"/>
+        <Item typeMapping="DynamicLinkInfo" cached="true" storageId="defaultdb"/>
+
         <!--
             Query type mapping is replacement for Query generator.
             If query generator was defined in a Broker configuration, Query type mapping should be bind to default DB.
@@ -259,9 +266,9 @@
         <Item typeMapping="Binary" itemExtension=".pdf" storageId="defaultFile" cached="true"/>
         <Item typeMapping="Binary" itemExtension=".iso" storageId="defaultFile" cached="false"/>
         <Item typeMapping="ComponentLinkClick" cached="true" storageId="defaultFile"/>
-        <Item typeMapping="Metadata" cached="true" storageId="defaultFile"/>
+
         <Item typeMapping="ComponentVisit" cached="true" storageId="defaultFile"/>
-        <Item typeMapping="DynamicLinkInfo" cached="true" storageId="defaultFile"/>
+
 
         <Item typeMapping="Page" cached="false" storageId="defaultFile"/>
 
