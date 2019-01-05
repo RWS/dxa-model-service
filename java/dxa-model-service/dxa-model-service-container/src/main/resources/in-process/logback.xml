@@ -10,6 +10,17 @@
     <property name="log.folder" value="${MS_LOG_FOLDER:-./logs}"/>
 
     <!-- Appenders -->
+    <appender name="appender.cache" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.folder}/cd_client.cachelog.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${log.history}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>${log.encoding}</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <prudent>true</prudent>
+    </appender>
     <appender name="rollingADFLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${log.folder}/cd_adf.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -52,19 +63,29 @@
     </appender>
 
     <!-- Loggers -->
+    <logger name="com.sdl.web.client.cache" level="${core.log.level}" additivity="false">
+        <appender-ref ref="appender.cache"/>
+    </logger>
+
+    <logger name="com.tridion" level="${core.log.level}">
+        <appender-ref ref="rollingCoreLog"/>
+    </logger>
+    <logger name="com.sdl.web" level="${core.log.level}">
+        <appender-ref ref="rollingCoreLog"/>
+    </logger>
+
+    <logger name="org.ehcache" level="${log.level}" additivity="false">
+        <appender-ref ref="appender.cache"/>
+    </logger>
+    <logger name="org.terracotta" level="${log.level}" additivity="false">
+        <appender-ref ref="appender.cache"/>
+    </logger>
+
     <logger name="com.sdl.web.ambient" level="${log.level}">
         <appender-ref ref="rollingADFLog"/>
     </logger>
     <logger name="com.tridion.ambientdata" level="${log.level}">
         <appender-ref ref="rollingADFLog"/>
-    </logger>
-
-    <logger name="com.tridion" level="${log.level}">
-        <appender-ref ref="rollingCoreLog"/>
-    </logger>
-
-    <logger name="com.sdl.web" level="${log.level}">
-        <appender-ref ref="rollingCoreLog"/>
     </logger>
 
     <logger name="com.sdl.dxa" level="${log.level}">
@@ -88,5 +109,4 @@
     <root level="${log.level}">
         <appender-ref ref="STDOUT"/>
     </root>
-
 </configuration>
