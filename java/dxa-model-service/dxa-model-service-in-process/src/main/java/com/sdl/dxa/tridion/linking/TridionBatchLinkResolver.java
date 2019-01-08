@@ -12,8 +12,12 @@ import com.tridion.linking.ComponentLink;
 import com.tridion.linking.DynamicComponentLink;
 import com.tridion.linking.Link;
 import com.tridion.linking.PageLink;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
@@ -29,13 +33,24 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.remove-extension:#{true}}")
     private boolean shouldRemoveExtension;
 
+    private Map<String, List<SingleLinkDescriptor>> subscribers = new HashMap<>();
+    private List<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists = new ArrayList<>();
+
     @Override
     public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
         if (descriptor == null) {
             return;
         }
 
-        resolveLink(descriptor);
+        List<SingleLinkDescriptor>
+                descriptors = this.subscribers.computeIfAbsent(descriptor.getLinkId(), k -> new ArrayList<>());
+
+        // Plan link for resolution only once per unique ID
+        if(descriptors.isEmpty()) {
+            descriptor.subscribe(descriptor.getLinkId());
+        }
+        descriptors.add(descriptor);
+
     }
 
     @Override
@@ -54,14 +69,42 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
             }
 
-            resolveLink(ld);
+            dispatchLinkResolution(ld);
         }
+
+        this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
     }
 
     @Override
     public void resolveAndFlush() {
-        // do nothing.
+        this.updateRefs();
+        this.updateLists();
     }
+
+    private void updateRefs() {
+        for (List<SingleLinkDescriptor> descriptors : this.subscribers.values()) {
+            for (SingleLinkDescriptor descriptor : descriptors) {
+                if (descriptor != null) {
+                    resolveLink(descriptor);
+                }
+            }
+        }
+
+        this.subscribers.clear();
+    }
+
+    private void updateLists() {
+        for (ImmutablePair<MultipleLinksDescriptor, Map<String, String>> entry : subscriberLists) {
+            MultipleLinksDescriptor descriptor = entry.getLeft();
+
+
+
+            descriptor.update(entry.getRight());
+        }
+
+        this.subscriberLists.clear();
+    }
+
 
     private void resolveLink(SingleLinkDescriptor descriptor) {
 
