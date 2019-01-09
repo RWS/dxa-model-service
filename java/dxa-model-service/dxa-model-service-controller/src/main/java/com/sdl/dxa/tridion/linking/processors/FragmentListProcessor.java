@@ -2,6 +2,7 @@ package com.sdl.dxa.tridion.linking.processors;
 
 import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,11 +19,12 @@ public class FragmentListProcessor implements LinkListProcessor {
 
     private String fragment;
 
-    public FragmentListProcessor(RichTextData model, String uuid, String fragment, RichTextLinkResolver resolver) {
+    public FragmentListProcessor(RichTextData model,
+                                 ImmutablePair<String, String> uuidAndFragmentPair, RichTextLinkResolver resolver) {
         this.model = model;
 
-        this.uuid = uuid;
-        this.fragment = fragment;
+        this.uuid = uuidAndFragmentPair.getLeft();
+        this.fragment = uuidAndFragmentPair.getRight();
 
         this.resolver = resolver;
     }
@@ -33,7 +35,7 @@ public class FragmentListProcessor implements LinkListProcessor {
                 .getValues()
                 .stream()
                 .map(fragment -> {
-                    if (fragment instanceof String && String.valueOf(fragment) == this.uuid) {
+                    if (fragment instanceof ImmutablePair && ((ImmutablePair) fragment).getLeft() == this.uuid) {
                         return this.resolver.applyBatchOfLinksStart(this.fragment, links, new HashSet<>());
                     } else {
                         return fragment;

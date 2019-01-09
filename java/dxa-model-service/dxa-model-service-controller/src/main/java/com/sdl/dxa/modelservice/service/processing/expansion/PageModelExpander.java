@@ -13,6 +13,7 @@ import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
 import com.sdl.dxa.tridion.linking.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
@@ -21,7 +22,6 @@ import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
-import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -29,14 +29,15 @@ import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
 
 /**
  * Expands {@link PageModelData} using an instance of {@link PageRequestDto}.
@@ -157,29 +158,26 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processRichTextData(RichTextData richTextData) {
-        List<Object> fragments = richTextData
-                .getValues()
-                .stream()
-                .map(fragment -> {
-                    if (fragment instanceof String) {
-                        String uuid = UUID.randomUUID().toString();
-                        String fragmentString = String.valueOf(fragment);
 
-                        this.batchLinkResolver.dispatchMultipleLinksResolution(
-                                new RichTextLinkDescriptor(
-                                        pageRequest.getPublicationId(),
-                                        richTextLinkResolver.retrieveAllLinksFromFragment(fragmentString),
-                                        new FragmentListProcessor(richTextData, uuid, fragmentString, this.richTextLinkResolver)
-                                )
-                        );
-                        return uuid;
-                    } else {
-                        return fragment;
-                    }
-                })
-                .collect(Collectors.toList());
+        final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
 
         richTextData.setFragments(fragments);
+
+        for (Object fragment : fragments) {
+            if (fragment instanceof ImmutablePair) {
+
+                this.batchLinkResolver.dispatchMultipleLinksResolution(
+                        new RichTextLinkDescriptor(
+                                pageRequest.getPublicationId(),
+                                richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight()),
+                                new FragmentListProcessor(
+                                        richTextData, (ImmutablePair<String, String>) fragment,
+                                    this.richTextLinkResolver)
+                        )
+                );
+
+            }
+        }
     }
 
     @NotNull
