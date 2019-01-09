@@ -21,7 +21,6 @@
         <module>dxa-model-service-controller</module>
         <module>dxa-model-service-assembly</module>
         <module>dxa-model-service-container</module>
-        <module>dxa-model-service-assembly-in-process</module>
         <module>dxa-model-service-odata</module>
         <module>dxa-model-service-in-process</module>
     </modules>
@@ -69,6 +68,14 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>in-process</id>
+            <modules>
+                <module>dxa-model-service-assembly-in-process</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
