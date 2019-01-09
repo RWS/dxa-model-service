@@ -21,8 +21,8 @@ public class FragmentUtils {
         return richTextData.getValues()
                 .stream()
                 .map(fragment -> {
-                    String uuid = UUID.randomUUID().toString();
                     if (fragment instanceof String) {
+                        String uuid = UUID.randomUUID().toString();
                         String fragmentString = String.valueOf(fragment);
                         return new ImmutablePair<>(uuid, fragmentString);
                     } else {
