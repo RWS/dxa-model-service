@@ -80,6 +80,8 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
             dispatchLinkResolution(ld);
         }
 
+        descriptor.update(links);
+
         // this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
     }
 
