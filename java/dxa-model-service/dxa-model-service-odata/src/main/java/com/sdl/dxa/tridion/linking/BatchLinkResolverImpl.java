@@ -16,9 +16,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
@@ -34,9 +36,10 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
 
     private BatchLinkRetriever retriever;
 
-    private Map<String, List<SingleLinkDescriptor>> subscribers = new HashMap<>();
+    private ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
 
-    private List<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists = new ArrayList<>();
+    private ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists
+            = new ConcurrentLinkedQueue<>();
 
     public BatchLinkResolverImpl() {
         this.retriever = new BatchLinkRetrieverImpl();
