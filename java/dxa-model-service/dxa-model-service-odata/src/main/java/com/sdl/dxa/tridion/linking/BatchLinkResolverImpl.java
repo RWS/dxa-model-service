@@ -34,6 +34,12 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.remove-extension:#{true}}")
     private boolean shouldRemoveExtension;
 
+    @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
+    private boolean shouldStripIndexPath;
+
+    @Value("${dxa.web.link-resolver.showTextOnFail:#{false}}")
+    private boolean showTextOnFail;
+
     private BatchLinkRetriever retriever;
 
     private ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
@@ -112,8 +118,14 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             for (SingleLinkDescriptor descriptor : descriptors) {
                 if (descriptor != null && descriptor.couldBeResolved()) {
                     String resolvedUrl = this.retriever.getLink(descriptor.getSubscription()).getURL();
+
+
+
                     if (resolvedUrl != null) {
-                        descriptor.update(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) : resolvedUrl);
+
+                        String resolvedLink = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedUrl) : resolvedUrl;
+                        descriptor.update(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedLink) :
+                                resolvedLink);
                     } else {
                         descriptor.update("");
                     }
@@ -145,7 +157,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                         .withPublicationId(descriptor.getPublicationId())
                         .withTargetTemplateId(descriptor.getTemplateId())
                         .withTargetComponentId(descriptor.getComponentId())
-                        .withShowTextOnFail(false)
+                        .withShowTextOnFail(showTextOnFail)
                         .build();
                 break;
             case LINK_TYPE_COMPONENT:
@@ -155,7 +167,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                         .withSourcePageId(descriptor.getPageId())
                         .withPublicationId(descriptor.getPublicationId())
                         .withTargetComponentId(descriptor.getComponentId())
-                        .withShowTextOnFail(false)
+                        .withShowTextOnFail(showTextOnFail)
                         .withShowAnchor(false)
                         .build();
 

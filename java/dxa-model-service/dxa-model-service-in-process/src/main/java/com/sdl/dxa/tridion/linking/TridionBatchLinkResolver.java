@@ -29,6 +29,12 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.remove-extension:#{true}}")
     private boolean shouldRemoveExtension;
 
+    @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
+    private boolean shouldStripIndexPath;
+
+    @Value("${dxa.web.link-resolver.showTextOnFail:#{false}}")
+    private boolean showTextOnFail;
+
     @Override
     public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
         if (descriptor == null) {
@@ -90,7 +96,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, binaryLink
                         .getLink(TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()), "",
-                                "", "", "", false));
+                                "", "", "", showTextOnFail));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
@@ -99,22 +105,27 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                         new DynamicComponentLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, dynamicComponentLink
                         .getLink(descriptor.getPageId(), descriptor.getComponentId(), descriptor.getTemplateId(), "",
-                                "", false));
+                                "", showTextOnFail));
                 break;
             case LINK_TYPE_COMPONENT:
             default:
 
                 final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, componentLink
-                        .getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false));
+                        .getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", showTextOnFail, false));
         }
     }
 
     private void updateDescriptor(final SingleLinkDescriptor descriptor, final Link link) {
 
         if (link.isResolved()) {
-            descriptor.update(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(link.getURL()) :
-                    link.getURL());
+
+            String resolvedLink = link.getURL();
+            String resolvedUrl = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedLink) : resolvedLink;
+
+            descriptor.update(
+                    this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) :
+                    resolvedUrl);
         } else {
             descriptor.update("");
         }
