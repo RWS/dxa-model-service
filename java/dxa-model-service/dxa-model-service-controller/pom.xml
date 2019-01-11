@@ -20,6 +20,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- DXA & SDL Web -->
         <dependency>
@@ -46,16 +61,9 @@
             </exclusions>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_broker</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>content-compatible</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.sdl.web</groupId>
