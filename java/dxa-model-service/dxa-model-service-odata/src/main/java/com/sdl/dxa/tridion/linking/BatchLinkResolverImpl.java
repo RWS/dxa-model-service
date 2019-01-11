@@ -37,9 +37,6 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
     private boolean shouldStripIndexPath;
 
-    @Value("${dxa.web.link-resolver.showTextOnFail:#{false}}")
-    private boolean showTextOnFail;
-
     private BatchLinkRetriever retriever;
 
     private ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
@@ -157,7 +154,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                         .withPublicationId(descriptor.getPublicationId())
                         .withTargetTemplateId(descriptor.getTemplateId())
                         .withTargetComponentId(descriptor.getComponentId())
-                        .withShowTextOnFail(showTextOnFail)
+                        .withShowTextOnFail(false)
                         .build();
                 break;
             case LINK_TYPE_COMPONENT:
@@ -167,7 +164,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                         .withSourcePageId(descriptor.getPageId())
                         .withPublicationId(descriptor.getPublicationId())
                         .withTargetComponentId(descriptor.getComponentId())
-                        .withShowTextOnFail(showTextOnFail)
+                        .withShowTextOnFail(false)
                         .withShowAnchor(false)
                         .build();
 

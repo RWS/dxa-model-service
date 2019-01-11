@@ -32,9 +32,6 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
     private boolean shouldStripIndexPath;
 
-    @Value("${dxa.web.link-resolver.showTextOnFail:#{false}}")
-    private boolean showTextOnFail;
-
     @Override
     public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
         if (descriptor == null) {
@@ -96,7 +93,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, binaryLink
                         .getLink(TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()), "",
-                                "", "", "", showTextOnFail));
+                                "", "", "", false));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
@@ -105,14 +102,14 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                         new DynamicComponentLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, dynamicComponentLink
                         .getLink(descriptor.getPageId(), descriptor.getComponentId(), descriptor.getTemplateId(), "",
-                                "", showTextOnFail));
+                                "", false));
                 break;
             case LINK_TYPE_COMPONENT:
             default:
 
                 final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, componentLink
-                        .getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", showTextOnFail, false));
+                        .getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false));
         }
     }
 
