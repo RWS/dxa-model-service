@@ -106,7 +106,14 @@ def configuration = [
                         .withDescription("Do you want to register Model Service now in Discovery Service?")
                         .withDefaultValue(project, 'register', 'no')
                         .withSystemEnv('MS_AUTO_REGISTER')
-                        .withValidator(valueInList('yes', 'no', 'true', 'false')),
+                        .withValidator(valueInList('yes', 'no', 'true', 'false'))
+                        .withProperties(
+                            new PropertiesFileProperty()
+                                .inFile("$configFolder/dxa.properties")
+                                .withMapping('yes -> true; no -> false; $self$')
+                                .withName("register")
+            
+                        ),
                 secured           : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
                         .withDefaultValue(project, 'secured', 'yes')
@@ -335,38 +342,58 @@ def introduce = { String text ->
     }
 }
 
-task finishAssembly
-finishAssembly.doFirst introduce('I am finishing assembling Model Service if needed (first run)')
-finishAssembly.enabled = isFirstRun
+task finishAssembly {
+    ext.enabled = isFirstRun;
+
+    doFirst {
+        introduce('I am finishing assembling Model Service if needed (first run)')
+    }
+}
 
 task mavenInstall(type: MavenBuildTask, dependsOn: finishAssembly) {
-    batch = project.hasProperty('batch')
+    batch = project.hasProperty('batch');
+
+    ext.enabled = MavenBuildTask.isMvnInstalled()
 
     if (project.hasProperty('mavenProperties')) {
-        mavenProperties = project.mavenProperties
+        mavenProperties = project.mavenProperties;
+    }
+
+    doFirst {
+        introduce('I am installing artifacts to a local Maven repository');
     }
 }
-mavenInstall.doFirst introduce('I am installing artifacts to a local Maven repository')
-mavenInstall.enabled = MavenBuildTask.isMvnInstalled()
 
-task requestParameters(dependsOn: [finishAssembly, mavenInstall])
-requestParameters.doFirst introduce('I am requesting all the needed parameters and configuring further tasks. Type \'halt\' to stop')
-
-task configureService(dependsOn: requestParameters)
-configureService.doFirst introduce("I am configuring all the needed parameters in $configFolder folder")
-
-task registerDiscovery(type: JavaExec, dependsOn: [requestParameters, configureService]) {
-    main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
-    classpath = files { file('../services/model-service').listFiles() + file('../lib').listFiles() + file('../config') }
-    standardOutput = new ByteArrayOutputStream()
-    ext.output = {
-        return standardOutput.toString()
+task requestParameters {
+    dependsOn finishAssembly, mavenInstall
+    doFirst {
+        introduce('I am requesting all the needed parameters and configuring further tasks. Type \'halt\' to stop')
     }
 }
-registerDiscovery.doFirst introduce("I am registering Model Service in Discovery Service")
+
+task configureService {
+    dependsOn requestParameters
+    doFirst {
+        introduce("I am configuring all the needed parameters in $configFolder folder")
+    }
+}
+
+//task registerDiscovery(type: JavaExec) {
+//    dependsOn requestParameters, configureService
+//
+//    main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
+//    classpath = files { file('../services/model-service').listFiles() + file('../lib').listFiles() + file('../config') }
+//    standardOutput = new ByteArrayOutputStream()
+//    ext.output = {
+//        return standardOutput.toString()
+//    }
+//    doFirst {
+//        introduce("I am registering Model Service in Discovery Service")
+//    }
+//}
+
 // happens after all parameters requested, here for reference:
 // registerDiscovery.enabled = ...
-
 def runScript = { processDefinition ->
     ProcessBuilder pb = new ProcessBuilder(processDefinition)
 
@@ -383,18 +410,30 @@ def getEnvVar = { String name ->
     System.getProperty(name) ?: (System.getenv(name) ?: '')
 }
 
-def processes = []
-task runScriptCallbackWindows(dependsOn: [configureService, registerDiscovery])
-runScriptCallbackWindows.enabled = isWindows
-task runScriptCallbackLinux(type: Exec, dependsOn: [configureService, registerDiscovery]) {
-    executable 'bash'
-    args '../bin/start.sh', getEnvVar("startparameters")
-    ignoreExitValue true
-}
-runScriptCallbackLinux.enabled = !isWindows
+def processes = [];
 
-task runScriptCallback(dependsOn: [configureService, registerDiscovery, runScriptCallbackWindows, runScriptCallbackLinux])
-task run(dependsOn: [configureService, registerDiscovery, runScriptCallback])
+task runScriptCallbackWindows {
+    dependsOn configureService
+    ext.enabled = isWindows
+}
+
+task runScriptCallbackLinux(type: Exec) {
+    dependsOn configureService
+    executable 'bash'
+
+    args '../bin/start.sh', getEnvVar("startparameters")
+
+    ignoreExitValue true
+    ext.enabled = !isWindows
+}
+
+task runScriptCallback {
+    dependsOn runScriptCallbackWindows, runScriptCallbackLinux
+}
+
+task run {
+    dependsOn runScriptCallback
+}
 
 finishAssembly << {
     def location = (configuration.cdLayoutLocation as Parameter).request(properties, version, isBatch, configuration)
@@ -499,8 +538,8 @@ finishAssembly << {
 }
 
 requestParameters << {
-    def runScriptMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
-    if (runScriptMode == 'no') {
+    def scriptRunMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
+    if (scriptRunMode == 'no') {
         runScriptCallback.enabled = false
         runScriptCallbackWindows.enabled = false
         runScriptCallbackLinux.enabled = false
@@ -514,7 +553,7 @@ requestParameters << {
             }
         }
 
-        if (runScriptMode == 'run') {
+        if (scriptRunMode == 'run') {
             if (isWindows) {
                 runScriptCallbackWindows << {
                     processes << runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")])
@@ -526,16 +565,16 @@ requestParameters << {
                     runScript(["bash", "-c", "../bin/stop.sh"])
                 }
             }
-        } else if (runScriptMode == 'install' || runScriptMode == 'uninstall') {
+        } else if (scriptRunMode == 'install' || scriptRunMode == 'uninstall') {
 
             runScriptCallbackWindows << {
                 println "Uninstalling Windows Service..."
                 processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")])
             }
 
-            if (runScriptMode == 'uninstall') {
+            if (scriptRunMode == 'uninstall') {
                 configureService.enabled = false
-                registerDiscovery.enabled = false
+                //registerDiscovery.enabled = false
                 return
             } else {
                 runScriptCallbackWindows << {
@@ -574,6 +613,4 @@ requestParameters << {
             }
         }
     }
-
-    registerDiscovery.enabled = (configuration.parameters.register as Parameter).get() in ['yes', 'true']
 }
