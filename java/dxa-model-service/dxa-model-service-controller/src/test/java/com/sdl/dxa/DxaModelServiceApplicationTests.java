@@ -1,6 +1,5 @@
 package com.sdl.dxa;
 
-import com.sdl.web.spring.configuration.DxaModelServiceApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

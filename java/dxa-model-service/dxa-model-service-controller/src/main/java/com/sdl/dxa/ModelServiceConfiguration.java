@@ -11,10 +11,21 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  */
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class IdProviderConfiguration {
+public class ModelServiceConfiguration {
 
     @Bean
     public LocalizationIdProvider localizationIdProvider () {
         return new ModelServiceLocalizationIdProvider();
     }
+//
+//    @Bean
+//    public LocalizationAwareKeyGenerator localizationAwareKeyGenerator() {
+//        return new LocalizationAwareKeyGenerator();
+//    }
+//
+//    @Bean
+//    @Primary
+//    public NamedCacheProvider namedCacheProvider() throws ConfigurationException {
+//        return new DefaultNamedCacheProvider();
+//    }
 }

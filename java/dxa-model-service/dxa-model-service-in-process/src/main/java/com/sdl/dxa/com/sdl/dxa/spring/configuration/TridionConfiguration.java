@@ -32,6 +32,7 @@ public class TridionConfiguration {
     }
 
     @Bean
+    @Primary
     public WebTaxonomyFactory webTaxonomyFactory() {
         return new WebTaxonomyFactory() {
 

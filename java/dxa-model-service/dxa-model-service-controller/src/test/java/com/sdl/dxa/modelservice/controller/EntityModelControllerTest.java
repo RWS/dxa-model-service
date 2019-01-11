@@ -9,7 +9,7 @@ import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
-import com.sdl.web.spring.configuration.DxaModelServiceApplication;
+import com.sdl.dxa.DxaModelServiceApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;

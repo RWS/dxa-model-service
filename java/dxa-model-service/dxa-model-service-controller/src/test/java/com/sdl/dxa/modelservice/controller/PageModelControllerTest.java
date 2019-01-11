@@ -1,13 +1,12 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.DxaModelServiceApplication;
 import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ContentService;
-import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
-import com.sdl.web.spring.configuration.DxaModelServiceApplication;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
@@ -39,9 +38,6 @@ public class PageModelControllerTest {
 
     @MockBean
     private ContentService contentService;
-
-    @MockBean
-    private EntityModelService modelService;
 
     @Autowired
     private MockMvc mvc;

@@ -15,7 +15,6 @@ import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.broker.querying.criteria.content.PublicationCriteria;
 import com.tridion.broker.querying.criteria.operators.AndCriteria;
 import com.tridion.broker.querying.criteria.operators.OrCriteria;
-import com.tridion.broker.querying.filter.LimitFilter;
 import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
@@ -78,7 +77,7 @@ public class ContentService {
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
         Query query = new Query(new AndCriteria(urlCriteria, new PublicationCriteria(publicationId)));
-        query.setResultFilter(new LimitFilter(1));
+        query.setResultFilter(new com.tridion.broker.querying.filter.LimitFilter(1));
         query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.ASCENDING));
 
         log.debug("Query {} for {}", query, pageRequest);

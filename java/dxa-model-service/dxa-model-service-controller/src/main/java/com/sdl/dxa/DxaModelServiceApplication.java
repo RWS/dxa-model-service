@@ -1,7 +1,5 @@
-package com.sdl.web.spring.configuration;
+package com.sdl.dxa;
 
-import com.sdl.dxa.Dd4tSpringConfiguration;
-import com.sdl.dxa.IdProviderConfiguration;
 import com.sdl.dxa.caching.TridionCacheConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
@@ -14,16 +12,12 @@ import org.springframework.context.annotation.PropertySource;
 
 
 @SpringBootApplication(
-        scanBasePackages = {
-                "com.sdl.dxa.modelservice.controller",
-                "com.sdl.dxa.tridion.navigation",
-                "com.sdl.dxa.spring.configuration","com.sdl.dxa.caching"},
         exclude = {
-                HibernateJpaAutoConfiguration.class,
-                DataSourceAutoConfiguration.class,
-                DataSourceTransactionManagerAutoConfiguration.class})
+            HibernateJpaAutoConfiguration.class,
+            DataSourceAutoConfiguration.class,
+            DataSourceTransactionManagerAutoConfiguration.class})
 @PropertySource("classpath:dxa.properties")
-@Import({IdProviderConfiguration.class, TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
+@Import({ModelServiceConfiguration.class, TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
 public class DxaModelServiceApplication {
 
     /**
