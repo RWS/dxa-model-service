@@ -1,6 +1,7 @@
 package com.sdl.web.spring.configuration;
 
 import com.sdl.dxa.Dd4tSpringConfiguration;
+import com.sdl.dxa.IdProviderConfiguration;
 import com.sdl.dxa.caching.TridionCacheConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
@@ -22,7 +23,7 @@ import org.springframework.context.annotation.PropertySource;
                 DataSourceAutoConfiguration.class,
                 DataSourceTransactionManagerAutoConfiguration.class})
 @PropertySource("classpath:dxa.properties")
-@Import({TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
+@Import({IdProviderConfiguration.class, TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
 public class DxaModelServiceApplication {
 
     /**

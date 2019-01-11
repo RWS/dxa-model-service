@@ -1,5 +1,6 @@
-package com.sdl.dxa.caching;
+package com.sdl.dxa.modelservice;
 
+import com.sdl.dxa.caching.LocalizationIdProvider;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
