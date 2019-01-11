@@ -2,20 +2,54 @@
 <config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
         xmlns='http://www.ehcache.org/v3'
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.1.xsd">
-
     <heap-store>
-        <max-object-graph-size>10000</max-object-graph-size>
-        <max-object-size unit="MB">100</max-object-size>
+        <max-object-graph-size>100000</max-object-graph-size>
     </heap-store>
 
     <cache-template name="default">
         <expiry>
-            <ttl unit="seconds">3600</ttl>
+            <ttl unit="seconds">30</ttl>
         </expiry>
-        <heap unit="GB">2</heap>
+        <heap unit="MB">100</heap>
     </cache-template>
 
-    <cache alias="defaultCache" uses-template="default"/>
+    <!-- CIL -->
+    <cache alias="defaultCache">
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="MB">100</heap>
+    </cache>
+
+    <!-- Capability Lookup -->
+    <cache alias="com.sdl.web.discovery.datalayer.model.ContentServiceCapability">
+        <key-type>java.io.Serializable</key-type>
+        <value-type>com.sdl.web.discovery.datalayer.model.ContentServiceCapability</value-type>
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="MB">10</heap>
+    </cache>
+
+    <!-- Configuration Cache -->
+    <cache alias="com.sdl.delivery.configuration.ConfigurationResource">
+        <key-type>java.io.Serializable</key-type>
+        <value-type>com.sdl.delivery.configuration.ConfigurationResource</value-type>
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="MB">10</heap>
+    </cache>
+
+    <!-- All Serializable MS objects -->
+    <cache alias="java.io.Serializable">
+        <key-type>java.lang.String</key-type>
+        <value-type>java.io.Serializable</value-type>
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="GB">2</heap>
+    </cache>
 
     <!-- Model Service failed lookups cache -->
     <cache alias="failures">
@@ -24,14 +58,7 @@
         </expiry>
         <heap unit="MB">100</heap>
     </cache>
-    <!-- Capability Lookup -->
-    <cache alias="com.sdl.web.discovery.datalayer.model.ContentServiceCapability">
 
-        <expiry>
-            <ttl unit="seconds">60</ttl>
-        </expiry>
-        <heap unit="MB">10</heap>
-    </cache>
     <!-- Entity and Page Models. Restricted -->
     <cache alias="pageModels">
         <expiry>
