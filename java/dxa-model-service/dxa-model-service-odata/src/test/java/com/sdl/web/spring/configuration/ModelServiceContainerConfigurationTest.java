@@ -1,6 +1,5 @@
 package com.sdl.web.spring.configuration;
 
-import com.sdl.dxa.DxaModelServiceApplication;
 import org.junit.Test;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

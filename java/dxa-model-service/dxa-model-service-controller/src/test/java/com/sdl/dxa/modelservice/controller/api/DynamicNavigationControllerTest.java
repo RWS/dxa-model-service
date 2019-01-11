@@ -4,8 +4,13 @@ import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
+import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.LegacyPageModelService;
+import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
 import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationModelProvider;
+import com.sdl.web.spring.configuration.DxaModelServiceApplication;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = DxaModelServiceApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class DynamicNavigationControllerTest {
 
@@ -42,6 +47,16 @@ public class DynamicNavigationControllerTest {
 
     @MockBean
     private OnDemandNavigationModelProvider onDemandNavigationModelProvider;
+    @MockBean
+    private PageModelService pageModelService;
+
+    @MockBean
+    private LegacyPageModelService legacyPageModelService;
+    @MockBean
+    private ContentService contentService;
+
+    @MockBean
+    private EntityModelService modelService;
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {
