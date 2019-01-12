@@ -1,9 +1,9 @@
 package com.sdl.dxa.com.sdl.dxa.spring.configuration;
 
-import com.sdl.dxa.tridion.linking.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.BrokerTridionLinkResolver;
 import com.sdl.dxa.tridion.linking.TridionBatchLinkResolver;
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.web.api.dynamic.formatter.WebTaxonomyFormatter;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.dynamic.taxonomies.filters.WebTaxonomyFilter;
