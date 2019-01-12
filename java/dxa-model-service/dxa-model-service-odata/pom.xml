@@ -49,14 +49,6 @@
                     <artifactId>ugc_taglib</artifactId>
                     <groupId>com.sdl.web</groupId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.sdl.audiencemanager</groupId>
-                    <artifactId>audiencemanager_profile_compatibility</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sdl.audiencemanager</groupId>
-                    <artifactId>audiencemanager_tracking_compatibility</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 

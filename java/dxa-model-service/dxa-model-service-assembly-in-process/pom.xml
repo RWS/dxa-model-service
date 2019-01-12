@@ -12,7 +12,7 @@
     <version>2.0.1-SNAPSHOT</version>
     <artifactId>dxa-model-service-assembly-in-process</artifactId>
 
-    <name>DXA Model In Process Service Assembly</name>
+    <name>DXA In Process Model Service Assembly</name>
     <description>DXA Model In Process Service Assembly</description>
 
     <properties>

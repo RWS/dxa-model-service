@@ -13,7 +13,7 @@
     <version>2.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>DXA Model Service</name>
+    <name>DXA Model Service Controller</name>
     <description>DXA Model Service</description>
 
     <properties>
