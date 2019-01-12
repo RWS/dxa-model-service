@@ -1,7 +1,7 @@
 package com.sdl.dxa.tridion.linking.descriptors;
 
-import com.sdl.dxa.tridion.linking.descriptors.api.MultipleLinksDescriptor;
-import com.sdl.dxa.tridion.linking.processors.LinkListProcessor;
+import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
 
 import java.util.HashMap;
 import java.util.List;

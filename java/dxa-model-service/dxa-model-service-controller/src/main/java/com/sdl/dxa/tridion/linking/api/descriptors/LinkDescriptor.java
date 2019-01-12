@@ -1,4 +1,4 @@
-package com.sdl.dxa.tridion.linking.descriptors.api;
+package com.sdl.dxa.tridion.linking.api.descriptors;
 
 public interface LinkDescriptor {
     /**

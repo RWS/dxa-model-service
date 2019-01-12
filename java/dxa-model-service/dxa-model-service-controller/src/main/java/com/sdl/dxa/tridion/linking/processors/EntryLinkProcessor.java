@@ -1,5 +1,6 @@
 package com.sdl.dxa.tridion.linking.processors;
 
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 import com.sdl.webapp.common.util.TcmUtils;
 
 import java.util.Map;

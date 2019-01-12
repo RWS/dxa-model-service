@@ -1,7 +1,7 @@
-package com.sdl.dxa.tridion.linking;
+package com.sdl.dxa.tridion.linking.api;
 
-import com.sdl.dxa.tridion.linking.descriptors.api.MultipleLinksDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 
 public interface BatchLinkResolver {
 
