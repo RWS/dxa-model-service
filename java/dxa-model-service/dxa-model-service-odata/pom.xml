@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dxa-model-service-odata</artifactId>
-    <name>DXA CIL Model Service</name>
+    <name>DXA CIL (OData) Model Service</name>
 
     <build>
         <plugins>
@@ -38,6 +38,10 @@
             <type>pom</type>
             <exclusions>
                 <exclusion>
+                    <groupId>org.scala-lang.modules</groupId>
+                    <artifactId>scala-parser-combinators_2.11</artifactId>
+                </exclusion>
+                <exclusion>
                     <artifactId>ugc_container</artifactId>
                     <groupId>com.sdl.web</groupId>
                 </exclusion>
@@ -54,6 +58,12 @@
                     <artifactId>audiencemanager_tracking_compatibility</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-parser-combinators_2.12</artifactId>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>

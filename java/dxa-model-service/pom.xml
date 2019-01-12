@@ -51,7 +51,8 @@
         <ehcache.version>3.3.1</ehcache.version>
         <jackson.version>2.9.4</jackson.version>
         <dd4t.version>2.1.5</dd4t.version>
-        <spring-boot.version>1.5.16.RELEASE</spring-boot.version>
+        <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
+        <scala-parser.version>1.0.4</scala-parser.version>
     </properties>
 
     <build>
@@ -91,10 +92,11 @@
                 <artifactId>dxa-model-service-odata</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>com.sdl.dxa</groupId>
-                <artifactId>dxa-model-service-in-process</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.scala-lang.modules</groupId>
+                <artifactId>scala-parser-combinators_2.12</artifactId>
+                <version>${scala-parser.version}</version>
             </dependency>
 
             <!-- DXA & SDL Web -->
