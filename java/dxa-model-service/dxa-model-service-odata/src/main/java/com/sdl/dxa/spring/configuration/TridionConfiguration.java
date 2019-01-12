@@ -6,7 +6,6 @@ import com.sdl.dxa.tridion.linking.TridionLinkResolver;
 import com.sdl.web.ambient.client.AmbientClientFilter;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
-import com.tridion.ambientdata.web.AmbientDataServletFilter;
 import com.tridion.taxonomies.TaxonomyRelationManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +19,6 @@ public class TridionConfiguration {
     @Bean
     public AmbientClientFilter ambientClientFilter() {
         return new AmbientClientFilter();
-    }
-
-    @Bean
-    public AmbientDataServletFilter ambientDataServletFilter() {
-        return new AmbientDataServletFilter();
     }
 
     @Bean
