@@ -49,8 +49,47 @@
             <artifactId>dxa-model-service-odata</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_api</artifactId>
+            <version>${odata.version.range}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_client_api</artifactId>
+            <version>${odata.version.range}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_client</artifactId>
+            <version>${odata.version.range}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_edm</artifactId>
+            <version>${odata.version.range}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_parser</artifactId>
+            <version>${odata.version.range}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl</groupId>
+            <artifactId>odata_renderer</artifactId>
+            <version>${odata.version.range}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.xml.stream</groupId>

@@ -5,17 +5,16 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.tridion.compatibility.TridionQueryLoader;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.broker.StorageException;
-import com.tridion.broker.querying.Query;
 import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.broker.querying.criteria.content.PublicationCriteria;
 import com.tridion.broker.querying.criteria.operators.AndCriteria;
 import com.tridion.broker.querying.criteria.operators.OrCriteria;
-import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
@@ -24,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -43,6 +43,9 @@ public class ContentService {
     private final ConfigService configService;
 
     private final ObjectMapper objectMapper;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     public ContentService(ConfigService configService,
@@ -76,14 +79,17 @@ public class ContentService {
         OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
-        Query query = new Query(new AndCriteria(urlCriteria, new PublicationCriteria(publicationId)));
-        query.setResultFilter(new com.tridion.broker.querying.filter.LimitFilter(1));
-        query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.ASCENDING));
 
-        log.debug("Query {} for {}", query, pageRequest);
+        // Use a wrapper to make it work on CIL and In Process
+
+        final TridionQueryLoader queryLoader = applicationContext.getBean(TridionQueryLoader.class);
 
         try {
-            String[] result = query.executeQuery();
+            String[] result =
+                    queryLoader.constructQueryAndSetResultFilter(
+                            new AndCriteria(urlCriteria,
+                                new PublicationCriteria(publicationId)), pageRequest);
+
             log.debug("Requested publication '{}', path '{}', result is '{}'", publicationId, path, result);
             if (result.length == 0) {
                 log.debug("Page not found for {}", pageRequest);

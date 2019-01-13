@@ -1,8 +1,6 @@
 package com.sdl.dxa.spring.configuration;
 
-import com.sdl.dxa.tridion.linking.BatchLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.web.ambient.client.AmbientClientFilter;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
@@ -34,10 +32,5 @@ public class TridionConfiguration {
     @Bean(name = "dxaLinkResolver")
     public TridionLinkResolver linkResolver() {
         return new TridionLinkResolver();
-    }
-
-    @Bean
-    public BatchLinkResolver batchLinkResolver() {
-        return new BatchLinkResolverImpl();
     }
 }

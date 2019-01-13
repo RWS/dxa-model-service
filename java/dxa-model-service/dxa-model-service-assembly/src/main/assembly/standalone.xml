@@ -111,7 +111,7 @@
 
                 <include>org.ehcache:ehcache</include>
                 <include>io.github.lukehutch:fast-classpath-scanner</include>
-
+                <include>de.ruedigermoeller:fst</include>
                 <include>com.google.code.gson:gson</include>
 
                 <include>org.apache.httpcomponents:httpclient</include>
