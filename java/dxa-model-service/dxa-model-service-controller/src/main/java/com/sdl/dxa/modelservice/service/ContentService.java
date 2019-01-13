@@ -44,14 +44,15 @@ public class ContentService {
 
     private final ObjectMapper objectMapper;
 
-    @Autowired
     private ApplicationContext applicationContext;
 
     @Autowired
     public ContentService(ConfigService configService,
-                          ObjectMapper objectMapper) {
+                          ObjectMapper objectMapper,
+                          ApplicationContext appContext) {
         this.configService = configService;
         this.objectMapper = objectMapper;
+        this.applicationContext = appContext;
     }
 
     /**

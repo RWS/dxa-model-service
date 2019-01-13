@@ -3,6 +3,7 @@ package com.sdl.dxa.modelservice.service;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.tridion.compatibility.TridionQueryLoader;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -59,6 +62,12 @@ public class ContentServiceTest {
     @Mock
     private Query query;
 
+    @Mock
+    TridionQueryLoader queryLoader;
+
+    @Mock
+    ApplicationContext mockApplicationContext;
+
     @InjectMocks
     private ContentService contentService;
 
@@ -72,6 +81,8 @@ public class ContentServiceTest {
         PowerMockito.whenNew(ComponentPresentationFactory.class).withAnyArguments().thenReturn(componentPresentationFactory);
         when(componentPresentationFactory.getComponentPresentationWithHighestPriority(anyString())).thenReturn(componentPresentation);
         when(componentPresentationFactory.getComponentPresentation(anyString(), anyString())).thenReturn(componentPresentation);
+
+        when(mockApplicationContext.getBean(TridionQueryLoader.class)).thenReturn(queryLoader);
 
         PowerMockito.whenNew(Query.class).withAnyArguments().thenReturn(query);
 
@@ -88,7 +99,7 @@ public class ContentServiceTest {
 
         String expected = "page content";
 
-        doReturn(new String[]{"tcm:1-2"}).when(query).executeQuery();
+        doReturn(new String[]{"tcm:1-2"}).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
         doReturn(expected).when(pageContentMock).getString();
 
         //when
@@ -104,7 +115,7 @@ public class ContentServiceTest {
         //given
         PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path.html").build();
 
-        doReturn(new String[]{"tcm:1-2"}).when(query).executeQuery();
+        doReturn(new String[]{"tcm:1-2"}).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
         String content = contentService.loadPageContent(pageRequestDto);
@@ -118,7 +129,7 @@ public class ContentServiceTest {
         //given
         PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path").build();
 
-        doReturn(new String[0]).when(query).executeQuery();
+        doReturn(new String[0]).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
         contentService.loadPageContent(pageRequestDto);
