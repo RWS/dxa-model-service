@@ -218,8 +218,7 @@ public class RichTextLinkResolverTest {
     @Test
     public void testGetAllFragmentsThroughRegex() {
 
-        String fragment = "<p><a title=\"Latest News\" href=\"tcm:15-564\">INTERNA LRTF  LINK</a><!--CompLink " +
-                "tcm:15-564--> Loremus <a title=\"Unused Component\" href=\"tcm:15-980\">UNRESOLVED " +
+        String fragment = "<p><a title=\"Unused Component\" href=\"tcm:15-980\">UNRESOLVED " +
                 "LINK</a><!--CompLink tcm:15-980--> <span>ipsumis dolor sit amet, consectetur adipiscing elit. Ut " +
                 "semper ex tortor, a ullamcorper sem venenatis sed. In interdum leo eu orci pharetra luctus. Nulla ut" +
                 " blandit urna, ac maximus mauris. Cras sapien dolor, blandit eu nisi at, pretium facilisis quam" +
@@ -227,7 +226,8 @@ public class RichTextLinkResolverTest {
                 "<p>Donec ipsum ex, pellentesque id diam a, aliquam commodo nibh. Fusce lacinia arcu lorem, volutpat " +
                 "pulvinar quam scelerisque vel. Etiam auctor pulvinar mi, eget pretium odio. Curabitur iaculis nisl " +
                 "augue, fermentum porta arcu condimentum convallis. Ut sit amet nisi a enim blandit accumsan. Integer" +
-                " scelerisque ac nibh a viverra. Ut sed nisi id velit egestas mollis.</p>";
+                " scelerisque ac nibh a viverra.<a title=\"Latest News\" href=\"tcm:15-564\">INTERNA LRTF  LINK</a>" +
+                " Ut sed nisi id velit egestas mollis.</p>";
         long start = System.currentTimeMillis();
 
         List<String> links = richTextLinkResolver.retrieveAllLinksFromFragment(fragment);
@@ -237,4 +237,25 @@ public class RichTextLinkResolverTest {
         System.out.println("Duration: " + end + " ms.");
     }
 
+    @Test
+    public void testNoLinksReturn() {
+        String fragment = "<p>" +
+                "LINK</a><!--CompLink tcm:15-980--> <span>ipsumis dolor sit amet, consectetur adipiscing elit. Ut " +
+                "semper ex tortor, a ullamcorper sem venenatis sed. In interdum leo eu orci pharetra luctus. Nulla ut" +
+                " blandit urna, ac maximus mauris. Cras sapien dolor, blandit eu nisi at, pretium facilisis quam" +
+                ". </span></p>\n" +
+                "<p>Donec ipsum ex, pellentesque id diam a, aliquam commodo nibh. Fusce lacinia arcu lorem, volutpat " +
+                "pulvinar quam scelerisque vel. Etiam auctor pulvinar mi, eget pretium odio. Curabitur iaculis nisl " +
+                "augue, fermentum porta arcu condimentum convallis. Ut sit amet nisi a enim blandit accumsan. Integer" +
+                " scelerisque ac nibh a viverra." +
+                " Ut sed nisi id velit egestas mollis.</p>";
+
+        long start = System.currentTimeMillis();
+
+        List<String> links = richTextLinkResolver.retrieveAllLinksFromFragment(fragment);
+        long end = System.currentTimeMillis() - start;
+
+        assertEquals(0, links.size());
+        System.out.println("Duration: " + end + " ms.");
+    }
 }

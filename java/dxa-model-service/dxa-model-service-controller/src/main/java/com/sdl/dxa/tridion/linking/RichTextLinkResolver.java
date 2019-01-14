@@ -186,6 +186,11 @@ public class RichTextLinkResolver {
             return links;
         }
 
+        if (!fragmentString.contains("href=\"tcm")) {
+            log.debug("No tcms in here to process.");
+            return links;
+        }
+
         fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(fragmentString) : generateHref(fragmentString);
 
         log.debug("Fragment is: {}", fragment);
