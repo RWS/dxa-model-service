@@ -159,7 +159,11 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     @Override
     protected void processRichTextData(RichTextData richTextData) {
 
+        long start = System.currentTimeMillis();
+
         final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
+
+        log.debug("Processing {} fragments.", fragments.size());
 
         richTextData.setFragments(fragments);
 
@@ -178,6 +182,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
             }
         }
+
+        log.info("Page Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
 
     @NotNull

@@ -2,6 +2,7 @@ package com.sdl.dxa;
 
 import com.sdl.dxa.caching.LocalizationIdProvider;
 import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  */
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableCaching
 public class ModelServiceConfiguration {
 
     @Bean
@@ -28,4 +30,6 @@ public class ModelServiceConfiguration {
 //    public NamedCacheProvider namedCacheProvider() throws ConfigurationException {
 //        return new DefaultNamedCacheProvider();
 //    }
+
+
 }

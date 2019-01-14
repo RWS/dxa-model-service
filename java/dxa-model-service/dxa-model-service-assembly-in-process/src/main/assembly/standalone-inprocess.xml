@@ -56,6 +56,7 @@
 
                 <include>org.fusesource.jansi:jansi</include>
                 <include>org.springframework:spring-context-support</include>
+                <include>org.springframework.boot:spring-boot-starter-cache</include>
                 <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
                 <include>joda-time:joda-time</include>

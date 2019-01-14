@@ -124,9 +124,13 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processRichTextData(RichTextData richTextData) {
+
+        long start = System.currentTimeMillis();
+
         if (shouldResolveLinks()) {
             final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
 
+            log.info("Processing {} fragments.", fragments.size());
             richTextData.setFragments(fragments);
 
             for (Object fragment : fragments) {
@@ -144,7 +148,11 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
                 }
             }
+        } else {
+            log.debug(">>> Did not resolve links.");
         }
+
+        log.info("Entity Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
 
     private boolean _isKeywordToExpand(Object value) {

@@ -164,6 +164,8 @@
                 <include>com.tridion.smarttarget:smarttarget_entitymodel</include>
 
                 <include>org.springframework:spring-context-support</include>
+                <include>org.springframework.boot:spring-boot-starter-cache</include>
+
                 <!--stax-1.2.0.jar - needed?-->
                 <include>stax:stax</include>
                 <include>javax.xml.stream:stax-api</include>

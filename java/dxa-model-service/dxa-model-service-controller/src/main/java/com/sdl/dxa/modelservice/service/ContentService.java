@@ -71,6 +71,7 @@ public class ContentService {
     @NotNull
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
+        log.info("Page: {}, request: {} - CACHE NOT USED", pageRequest.getPublicationId(), pageRequest.getPath());
         int publicationId = pageRequest.getPublicationId();
         String path = pageRequest.getPath();
 
