@@ -48,7 +48,7 @@
         <expiry>
             <ttl unit="seconds">30</ttl>
         </expiry>
-        <heap unit="GB">2</heap>
+        <heap unit="MB">100</heap>
     </cache>
 
     <!-- Model Service failed lookups cache -->
@@ -56,7 +56,7 @@
         <expiry>
             <ttl unit="seconds">30</ttl>
         </expiry>
-        <heap unit="MB">100</heap>
+        <heap unit="MB">500</heap>
     </cache>
 
     <!-- Entity and Page Models. Restricted -->
@@ -64,12 +64,12 @@
         <expiry>
             <ttl unit="seconds">30</ttl>
         </expiry>
-        <heap unit="MB">100</heap>
+        <heap unit="GB">2</heap>
     </cache>
     <cache alias="entityModels">
         <expiry>
             <ttl unit="seconds">30</ttl>
         </expiry>
-        <heap unit="MB">100</heap>
+        <heap unit="GB">2</heap>
     </cache>
 </config>
