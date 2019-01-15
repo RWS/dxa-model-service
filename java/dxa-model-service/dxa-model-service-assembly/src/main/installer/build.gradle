@@ -112,7 +112,6 @@ def configuration = [
                                 .inFile("$configFolder/dxa.properties")
                                 .withMapping('yes -> true; no -> false; $self$')
                                 .withName("register")
-            
                         ),
                 secured           : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
@@ -343,7 +342,7 @@ def introduce = { String text ->
 }
 
 task finishAssembly {
-    ext.enabled = isFirstRun;
+    enabled = isFirstRun
 
     doFirst {
         introduce('I am finishing assembling Model Service if needed (first run)')
@@ -352,8 +351,7 @@ task finishAssembly {
 
 task mavenInstall(type: MavenBuildTask, dependsOn: finishAssembly) {
     batch = project.hasProperty('batch');
-
-    ext.enabled = MavenBuildTask.isMvnInstalled()
+    enabled = MavenBuildTask.isMvnInstalled()
 
     if (project.hasProperty('mavenProperties')) {
         mavenProperties = project.mavenProperties;
@@ -378,20 +376,6 @@ task configureService {
     }
 }
 
-//task registerDiscovery(type: JavaExec) {
-//    dependsOn requestParameters, configureService
-//
-//    main = 'com.sdl.dxa.modelservice.registration.ModelServiceRegisterer'
-//    classpath = files { file('../services/model-service').listFiles() + file('../lib').listFiles() + file('../config') }
-//    standardOutput = new ByteArrayOutputStream()
-//    ext.output = {
-//        return standardOutput.toString()
-//    }
-//    doFirst {
-//        introduce("I am registering Model Service in Discovery Service")
-//    }
-//}
-
 // happens after all parameters requested, here for reference:
 // registerDiscovery.enabled = ...
 def runScript = { processDefinition ->
@@ -414,7 +398,7 @@ def processes = [];
 
 task runScriptCallbackWindows {
     dependsOn configureService
-    ext.enabled = isWindows
+    enabled = isWindows
 }
 
 task runScriptCallbackLinux(type: Exec) {
@@ -424,7 +408,7 @@ task runScriptCallbackLinux(type: Exec) {
     args '../bin/start.sh', getEnvVar("startparameters")
 
     ignoreExitValue true
-    ext.enabled = !isWindows
+    enabled = !isWindows
 }
 
 task runScriptCallback {
@@ -439,7 +423,8 @@ finishAssembly << {
     def location = (configuration.cdLayoutLocation as Parameter).request(properties, version, isBatch, configuration)
     def mavenInstallConfiguration = []
 
-    println location
+    println "Location of CD Layout is: $location";
+
     [
             [
                     path     : [
