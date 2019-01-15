@@ -8,6 +8,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -22,6 +23,7 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
 @Slf4j
 @Service
-public class DefaultEntityModelService implements EntityModelService, LegacyEntityModelService {
+public class DefaultEntityModelService implements EntityModelServiceSuppressLinks, LegacyEntityModelService {
 
     private final ObjectMapper objectMapper;
 
@@ -55,7 +57,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
 
     @Autowired
     public DefaultEntityModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                                     LinkResolver linkResolver,
+                                     @Qualifier("dxaLinkResolver") LinkResolver linkResolver,
                                      ContentService contentService,
                                      DataBinder dd4tDataBinder,
                                      RichTextResolver dd4tRichTextResolver,
@@ -71,7 +73,6 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         this.dd4tRichTextResolver = dd4tRichTextResolver;
     }
 
-    @Autowired
     public void setToDd4tConverter(ToDd4tConverter toDd4tConverter) {
         this.toDd4tConverter = toDd4tConverter;
     }
@@ -81,13 +82,18 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         this.toR2Converter = toR2Converter;
     }
 
+    @NotNull
+    public EntityModelData loadEntity(EntityRequestDto entityRequest, boolean resolveLinks) throws ContentProviderException {
+        String content = contentService.loadComponentPresentation(entityRequest).getContent();
+        log.trace("Loaded entity content for {}", entityRequest);
+        return _processR2EntityModel(content, entityRequest, resolveLinks);
+    }
+
     @Override
     @NotNull
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
-        String content = contentService.loadComponentPresentation(entityRequest).getContent();
-        log.trace("Loaded entity content for {}", entityRequest);
-        return _processR2EntityModel(content, entityRequest);
+        return loadEntity(entityRequest, true);
     }
 
     @NotNull
@@ -103,7 +109,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
         DataModelType publishedModelType = getModelType(content);
         if (publishedModelType == DataModelType.R2) {
             log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", entityRequest);
-            EntityModelData r2entity = _processR2EntityModel(content, entityRequest);
+            EntityModelData r2entity = _processR2EntityModel(content, entityRequest, true);
             return toDd4tConverter.convertToDd4t(r2entity, entityRequest);
         } else {
             try {
@@ -125,7 +131,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
     }
 
     @Contract("!null, _ -> !null")
-    private EntityModelData _processR2EntityModel(String entityContent, EntityRequestDto entityRequest) throws ContentProviderException {
+    private EntityModelData _processR2EntityModel(String entityContent, EntityRequestDto entityRequest, boolean resolveLinks) throws ContentProviderException {
         log.trace("processing entity model for entity request {}", entityRequest);
 
         EntityModelData modelData;
@@ -142,7 +148,7 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
 
         log.trace("processing entity model {} for entity request {}", modelData, entityRequest);
 
-        _getModelExpander(entityRequest).expandEntity(modelData);
+        _getModelExpander(entityRequest, resolveLinks).expandEntity(modelData);
 
         log.trace("expanded the whole model for {}", entityRequest);
 
@@ -150,10 +156,9 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
     }
 
     @NotNull
-    private EntityModelExpander _getModelExpander(EntityRequestDto entityRequestDto) {
-        return new EntityModelExpander(entityRequestDto, richTextLinkResolver, linkResolver, configService);
+    private EntityModelExpander _getModelExpander(EntityRequestDto entityRequestDto, boolean resolveLinks) {
+        return new EntityModelExpander(entityRequestDto, richTextLinkResolver, linkResolver, configService, resolveLinks, getBatchLinkResolver());
     }
-
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
         try {
@@ -162,4 +167,10 @@ public class DefaultEntityModelService implements EntityModelService, LegacyEnti
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }
+
+    @Lookup
+    public BatchLinkResolver getBatchLinkResolver() {
+        return null;
+    }
+
 }

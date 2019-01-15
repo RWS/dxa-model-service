@@ -1,5 +1,6 @@
 package com.sdl.dxa.modelservice.controller;
 
+import com.sdl.dxa.DxaModelServiceApplication;
 import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = DxaModelServiceApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class PageModelControllerTest {
 

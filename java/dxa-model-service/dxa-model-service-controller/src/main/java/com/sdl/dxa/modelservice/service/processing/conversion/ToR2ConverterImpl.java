@@ -96,7 +96,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
     public ToR2ConverterImpl(ContentService contentService,
                              @Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
                              MetadataService metadataService,
-                             LinkResolver linkResolver) {
+                             @Qualifier("dxaLinkResolver") LinkResolver linkResolver) {
         this.contentService = contentService;
         this.objectMapper = objectMapper;
         this.metadataService = metadataService;
