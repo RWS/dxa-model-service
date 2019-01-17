@@ -11,7 +11,17 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
+import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
+import com.sdl.dxa.tridion.linking.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
+import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -19,17 +29,15 @@ import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
 
 /**
  * Expands {@link PageModelData} using an instance of {@link PageRequestDto}.
@@ -45,18 +53,22 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private LinkResolver linkResolver;
 
+    private BatchLinkResolver batchLinkResolver;
+
     private ConfigService configService;
 
     public PageModelExpander(PageRequestDto pageRequest,
                              EntityModelService entityModelService,
                              RichTextLinkResolver richTextLinkResolver,
                              LinkResolver linkResolver,
-                             ConfigService configService) {
+                             ConfigService configService,
+                             BatchLinkResolver batchLinkResolver) {
         this.pageRequest = pageRequest;
         this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
+        this.batchLinkResolver = batchLinkResolver;
     }
 
     /**
@@ -65,7 +77,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
      * @param page model to expand
      */
     public void expandPage(@Nullable PageModelData page) {
+        long startTime = System.currentTimeMillis();
+        log.info("Expansion of the page with id {} has started!", page.getId());
+
         traverseObject(page);
+        this.batchLinkResolver.resolveAndFlush();
+
+        log.info("Expansion of the page with id {} has taken {} ms.", page.getId(), System.currentTimeMillis() - startTime);
     }
 
     @Override
@@ -80,15 +98,23 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processPageModel(PageModelData pageModelData) {
-        // pages may have meta (sic!: not metadata which is part of content wrapper), process it
-        pageModelData.setMeta(Optional.ofNullable(pageModelData.getMeta())
-                .orElse(Collections.emptyMap())
-                .entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey, meta ->
-                                TcmUtils.isTcmUri(meta.getValue()) ?
-                                        linkResolver.resolveLink(meta.getValue(), String.valueOf(pageRequest.getPublicationId()), true) :
-                                        richTextLinkResolver.processFragment(meta.getValue(), pageRequest.getPublicationId()))));
+        Map<String, String> meta = pageModelData.getMeta();
+        for (Map.Entry<String, String> entry : meta.entrySet()) {
+            if(TcmUtils.isTcmUri(entry.getValue())) {
+                Integer pubId = TcmUtils.getPublicationId(entry.getValue());
+                ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
+                this.batchLinkResolver.dispatchLinkResolution(ld);
+            } else {
+                List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
+                this.batchLinkResolver.dispatchMultipleLinksResolution(
+                        new RichTextLinkDescriptor(
+                                pageRequest.getPublicationId(),
+                                links,
+                                new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(), this.richTextLinkResolver)
+                        )
+                );
+            }
+        }
     }
 
     @Override
@@ -96,8 +122,15 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         if (_isEntityToExpand(entityModelData)) {
             _expandEntity(entityModelData, pageRequest);
         }
-        String componentUri = TcmUtils.buildTcmUri(String.valueOf(pageRequest.getPublicationId()), entityModelData.getId());
-        entityModelData.setLinkUrl(linkResolver.resolveLink(componentUri, String.valueOf(pageRequest.getPublicationId())));
+
+        SingleLinkDescriptor ld;
+        if(entityModelData.getId().matches("\\d+-\\d+")) {
+            ld = new DynamicComponentLinkDescriptor(pageRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+        } else {
+            ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+        }
+
+        this.batchLinkResolver.dispatchLinkResolution(ld);
     }
 
     @Override
@@ -125,15 +158,26 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processRichTextData(RichTextData richTextData) {
-        Set<String> notResolvedLinks = new HashSet<>();
-        List<Object> fragments = richTextData.getValues().stream()
-                .map(fragment ->
-                        fragment instanceof String ?
-                                richTextLinkResolver.processFragment((String) fragment, pageRequest.getPublicationId(), notResolvedLinks) :
-                                fragment)
-                .collect(Collectors.toList());
+
+        final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
 
         richTextData.setFragments(fragments);
+
+        for (Object fragment : fragments) {
+            if (fragment instanceof ImmutablePair) {
+
+                this.batchLinkResolver.dispatchMultipleLinksResolution(
+                        new RichTextLinkDescriptor(
+                                pageRequest.getPublicationId(),
+                                richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight()),
+                                new FragmentListProcessor(
+                                        richTextData, (ImmutablePair<String, String>) fragment,
+                                    this.richTextLinkResolver)
+                        )
+                );
+
+            }
+        }
     }
 
     @NotNull
@@ -196,7 +240,16 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
-            toExpand.copyFrom(entityModelService.loadEntity(entityRequest));
+            long startTime = System.currentTimeMillis();
+            log.debug("Loading of the entity with id {} has started.", entityRequest.getComponentId());
+
+            EntityModelData e;
+            if (EntityModelServiceSuppressLinks.class.isAssignableFrom(entityModelService.getClass())) {
+                e = ((EntityModelServiceSuppressLinks)entityModelService).loadEntity(entityRequest, false);
+            } else {
+                e = entityModelService.loadEntity(entityRequest);
+            }            log.debug("Loading of the entity with id {} has taken {} ms", entityRequest.getComponentId(), System.currentTimeMillis() - startTime);
+            toExpand.copyFrom(e);
         } catch (ContentProviderException e) {
             _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, configService.getErrors().isMissingEntitySuppress(), e);
         }

@@ -35,6 +35,8 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 /**
  * The service to load raw content stored in Broker database completely without or with light processing.
  * See details in Javadoc of a concrete method.
+ *
+ * Will work both in-process and over OData.
  */
 @Slf4j
 @Service
@@ -83,7 +85,7 @@ public class ContentService {
         query.setResultFilter(new LimitFilter(1));
         query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.ASCENDING));
 
-        log.trace("Query {} for {}", query, pageRequest);
+        log.debug("Query {} for {}", query, pageRequest);
 
         try {
             String[] result = query.executeQuery();

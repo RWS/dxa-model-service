@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>cd_common_maven</artifactId>
+        <groupId>com.tridion</groupId>
+        <version>10.1.0-SNAPSHOT</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sdl.dxa</groupId>
@@ -15,5 +21,406 @@
         <module>dxa-model-service-controller</module>
         <module>dxa-model-service-assembly</module>
         <module>dxa-model-service-container</module>
+        <module>dxa-model-service-odata</module>
+        <module>dxa-model-service-in-process</module>
     </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <java.version>1.8</java.version>
+
+        <dxa.version>2.0.0</dxa.version>
+
+        <udp.version.range>[8.5.0,8.5.1)</udp.version.range>
+        <cil.version>[8.5.0,8.5.1)</cil.version>
+
+        <oauth-common.version>[8.5.0,8.5.1)</oauth-common.version>
+        <adf-api.version>[8.5.0,8.5.1)</adf-api.version>
+
+        <discovery-registration-api.version>[8.5.0,8.5.1)</discovery-registration-api.version>
+        <oauth.version>[8.5.0,8.5.1)</oauth.version>
+        <adf-engine.version>[8.5.0,8.5.1)</adf-engine.version>
+
+        <hamcrest.version>1.3</hamcrest.version>
+        <powermock.version>1.6.6</powermock.version>
+        <junit.version>4.12</junit.version>
+
+        <javax-cache.version>1.0.0</javax-cache.version>
+        <ehcache.version>3.3.1</ehcache.version>
+        <jackson.version>2.9.4</jackson.version>
+        <dd4t.version>2.1.5</dd4t.version>
+        <spring-boot.version>1.5.16.RELEASE</spring-boot.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>in-process</id>
+            <modules>
+                <module>dxa-model-service-assembly-in-process</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Internal -->
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-model-service-controller</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-model-service-odata</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-model-service-in-process</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- DXA & SDL Web -->
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-data-model</artifactId>
+                <version>${dxa.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-common</artifactId>
+                <version>${dxa.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.dxa</groupId>
+                <artifactId>dxa-tridion-common</artifactId>
+                <version>${dxa.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_broker</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_linking</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-compatible</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-model</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>cil</artifactId>
+                <type>pom</type>
+                <version>${cil.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>ugc_container</artifactId>
+                        <groupId>com.sdl.web</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>ugc_taglib</artifactId>
+                        <groupId>com.sdl.web</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sdl.audiencemanager</groupId>
+                        <artifactId>audiencemanager_profile_compatibility</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sdl.audiencemanager</groupId>
+                        <artifactId>audiencemanager_tracking_compatibility</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-afterburner</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-core</artifactId>
+                <version>${dd4t.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-caching</artifactId>
+                <version>${dd4t.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-databind</artifactId>
+                <version>${dd4t.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-api</artifactId>
+                <version>${dd4t.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-providers</artifactId>
+                <version>${dd4t.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.dd4t</groupId>
+                <artifactId>dd4t-providers-common</artifactId>
+                <version>${dd4t.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-jaxb-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-afterburner</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-registration-api</artifactId>
+                <version>${discovery-registration-api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-oauth</artifactId>
+                <version>${oauth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-oauth-common</artifactId>
+                <version>${oauth-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-ambient-api</artifactId>
+                <version>${adf-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-ambient-engine</artifactId>
+                <version>${adf-engine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-cache</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-actuator</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${javax-cache.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
+
+            <!-- For colored output on Windows -->
+            <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>1.11</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.16.22</version>
+                <optional>true</optional>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-all</artifactId>
+                <version>${hamcrest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>${hamcrest.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.restdocs</groupId>
+                <artifactId>spring-restdocs-mockmvc</artifactId>
+                <version>1.1.2.RELEASE</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

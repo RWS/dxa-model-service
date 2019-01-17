@@ -1,0 +1,140 @@
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>standalone</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>${standalone.build.dir}</directory>
+            <outputDirectory>${standalone.path}</outputDirectory>
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${resources.dir}</directory>
+            <outputDirectory>${standalone.path}</outputDirectory>
+            <includes>
+                <include>README.md</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${resources.dir}</directory>
+            <outputDirectory>${standalone.path}/config</outputDirectory>
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
+            <includes>
+                <include>${project.build.finalName}.${project.packaging}</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <includes>
+                <include>com.sdl.dxa:dxa-model-service-controller</include>
+                <include>com.sdl.dxa:dxa-model-service-in-process</include>
+                <include>com.sdl.dxa:dxa-data-model</include>
+                <include>com.sdl.dxa:dxa-common</include>
+                <include>com.sdl.dxa:dxa-tridion-common</include>
+
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
+
+                <include>org.springframework:spring-context-support</include>
+                <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
+                <include>joda-time:joda-time</include>
+                <include>org.dd4t:dd4t-*</include>
+                <include>io.github.lukehutch:fast-classpath-scanner</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>commons-io:commons-io</include>
+                <include>commons-codec:commons-codec</include>
+                <include>org.apache.commons:commons-compress</include>
+
+                <include>com.sdl.web:discovery-registration-api</include>
+                <include>com.sdl.web:web-oauth</include>
+                <include>com.sdl.web:web-oauth-common</include>
+                <include>com.sdl.web:web-ambient-api</include>
+                <include>com.sdl.web:web-ambient-engine</include>
+
+                <!-- Sucks -->
+                <include>com.sdl.web:content-api</include>
+                <include>com.sdl.web:content-client-api</include>
+                <include>com.sdl.web:web-ambient-client</include>
+                <include>com.sdl.web:discovery-client-lightweight</include>
+                <include>com.sdl.web:discovery-client</include>
+                <include>com.sdl.web:discovery-common</include>
+
+                <!-- Sucks even more -->
+
+                <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
+                <include>org.scala-lang:scala-library</include>
+
+                <!-- OData for Disco client -->
+
+                <!-- OData client for Disco registration -->
+                <include>com.sdl:odata_api</include>
+                <include>com.sdl:odata_client_api</include>
+                <include>com.sdl:odata_client</include>
+                <include>com.sdl:odata_edm</include>
+                <include>com.sdl:odata_parser</include>
+                <include>com.sdl:odata_renderer</include>
+
+                <!-- In Process deps -->
+                <include>javax.activation:activation</include>
+                <include>antlr:antlr</include>
+                <include>javax.cache:cache-api</include>
+                <include>org.ehcache:ehcache</include>
+                <include>com.tridion:cd_preview_ambient</include>
+                <include>com.tridion:cd_broker</include>
+                <include>com.tridion:cd_cache</include>
+                <include>com.tridion:cd_core</include>
+                <include>com.tridion:cd_datalayer</include>
+                <include>com.tridion:cd_discovery</include>
+                <include>com.tridion:cd_dynamic</include>
+                <include>com.tridion:cd_linking</include>
+                <include>com.tridion:cd_model</include>
+                <include>com.tridion:cd_tcdl</include>
+                <include>com.tridion:cd_wai</include>
+                <include>com.tridion:cd_common_config_legacy</include>
+                <include>commons-dbcp:commons-dbcp</include>
+                <include>commons-pool:commons-pool</include>
+                <include>dom4j:dom4j</include>
+                <include>com.vs.ezlicrun:easylicense</include>
+                <include>org.hibernate.common:hibernate-commons-annotations</include>
+                <include>org.hibernate:hibernate-core</include>
+                <include>org.hibernate:hibernate-entitymanager</include>
+                <include>org.hibernate.javax.persistence:hibernate-jpa-*</include>
+                <include>javax.transaction:jta</include>
+                <include>org.javassist:javassist</include>
+                <include>javax.xml.bind:jaxb-api</include>
+                <include>com.sun.xml.bind:jaxb-impl</include>
+                <include>org.jboss.spec.javax.transaction:jboss-transaction-api_*</include>
+                <include>org.jboss.logging:jboss-logging-annotations</include>
+                <include>org.jboss:jandex</include>
+                <include>org.codehaus.jettison:jettison</include>
+                <include>org.springframework:spring-jdbc</include>
+                <include>org.springframework:spring-orm</include>
+                <include>org.springframework:spring-tx</include>
+                <include>javax.xml.stream:stax-api</include>
+                <include>com.google.code.gson:gson</include>
+                <include>com.microsoft:sqljdbc4</include>
+            </includes>
+            <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>
