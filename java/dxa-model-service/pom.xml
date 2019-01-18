@@ -4,7 +4,7 @@
     <parent>
         <artifactId>cd_common_maven</artifactId>
         <groupId>com.tridion</groupId>
-        <version>10.1.0-SNAPSHOT</version>
+        <version>8.5.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
