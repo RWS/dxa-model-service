@@ -33,6 +33,9 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
     private boolean shouldStripIndexPath;
 
+    @Value("${dxa.web.link-resolver.keep-trailing-slash:#{false}}")
+    private boolean shouldKeepTrailingSlash;
+
     @Override
     public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
         if (descriptor == null) {
@@ -120,6 +123,9 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
             String resolvedLink = link.getURL();
             String resolvedUrl = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedLink) : resolvedLink;
+            if (shouldKeepTrailingSlash && (! resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedLink)) {
+                resolvedUrl = resolvedUrl + "/";
+            }
 
             descriptor.update(
                     this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) :

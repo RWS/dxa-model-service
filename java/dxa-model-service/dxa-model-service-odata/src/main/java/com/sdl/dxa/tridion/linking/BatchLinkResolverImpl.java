@@ -38,6 +38,9 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
     private boolean shouldStripIndexPath;
 
+    @Value("${dxa.web.link-resolver.keep-trailing-slash:#{false}}")
+    private boolean shouldKeepTrailingSlash;
+
     private BatchLinkRetriever retriever;
 
     private ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
@@ -122,6 +125,10 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                     if (resolvedUrl != null) {
 
                         String resolvedLink = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedUrl) : resolvedUrl;
+                        if (shouldKeepTrailingSlash && (! resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedUrl)) {
+                            resolvedLink = resolvedLink + "/";
+                        }
+
                         descriptor.update(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedLink) :
                                 resolvedLink);
                     } else {
