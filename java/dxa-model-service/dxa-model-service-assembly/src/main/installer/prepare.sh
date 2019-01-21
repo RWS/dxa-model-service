@@ -84,29 +84,6 @@ Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
 fi
 
-if [[ -n $AWS_SSM_PARAMS ]] && [[ -n $AWS_SSM_PREFIX ]]
-    then
-    echo "Reading SSM params"
-
-    EC2_AVAIL_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
-    EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed -e 's:\([0-9][0-9]*\)[a-z]*\$:\\1:'`"
-
-    for PARAM in $AWS_SSM_PARAMS; do
-    echo "Reading SSM param ${PARAM}"
-    value=$(aws ssm get-parameters --names "${AWS_SSM_PREFIX}${PARAM}" \
-          --with-decryption --region $EC2_REGION \
-          --output text --query 'Parameters[0].Value')
-    if [ "$value" = "None" ]; then
-        echo "Skipping not set SSM param ${AWS_SSM_PREFIX}.${PARAM}"
-    else
-        echo "Exporting SSM param ${PARAM} ${value}"
-        eval export $PARAM=\$value
-    fi
-    done
-
-    echo "Reading SSM params done"
-fi
-
 # Increase the maximum file descriptors if we can.
 if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
     MAX_FD_LIMIT=`ulimit -H -n`
