@@ -124,6 +124,8 @@
                 <include>org.hibernate.javax.persistence:hibernate-jpa-*</include>
                 <include>javax.transaction:jta</include>
                 <include>org.javassist:javassist</include>
+                <include>net.bytebuddy:byte-buddy</include>
+                <include>javax.persistence:javax.persistence-api</include>
                 <include>javax.xml.bind:jaxb-api</include>
                 <include>com.sun.xml.bind:jaxb-impl</include>
                 <include>org.jboss.spec.javax.transaction:jboss-transaction-api_*</include>
