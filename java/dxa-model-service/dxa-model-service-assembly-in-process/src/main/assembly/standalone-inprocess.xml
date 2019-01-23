@@ -114,6 +114,12 @@
                 <include>com.tridion:cd_tcdl</include>
                 <include>com.tridion:cd_wai</include>
                 <include>com.tridion:cd_common_config_legacy</include>
+
+                <include>com.tridion:cd_preview_content_common</include>
+                <include>com.tridion:cd_session</include>
+                <include>com.tridion:cd_wrapper</include>
+                <include>com.tridion:cd_preview_web</include>
+
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>
                 <include>dom4j:dom4j</include>

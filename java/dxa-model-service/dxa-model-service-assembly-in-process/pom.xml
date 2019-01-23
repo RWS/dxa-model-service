@@ -389,6 +389,30 @@
                 <artifactId>cd_wai</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
+
+
+            <!-- Session Preview -->
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_content_common</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_session</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_wrapper</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_web</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
             <dependency>
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
@@ -724,6 +748,26 @@
             <groupId>com.tridion</groupId>
             <artifactId>cd_wai</artifactId>
         </dependency>
+
+        <!-- Session Preview -->
+
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_content_common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_session</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_wrapper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>

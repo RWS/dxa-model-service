@@ -43,6 +43,17 @@
         </encoder>
         <prudent>true</prudent>
     </appender>
+    <appender name="rollingSessionLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.folder}/cd_session.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${log.history}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>${log.encoding}</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <prudent>true</prudent>
+    </appender>
     <appender name="appender.dxa" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${log.folder}/dxa.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -70,6 +81,13 @@
     <logger name="com.tridion" level="${core.log.level}">
         <appender-ref ref="rollingCoreLog"/>
     </logger>
+    <logger name="com.tridion.storage.persistence.session" level="${core.log.level}">
+        <appender-ref ref="rollingSessionLog"/>
+    </logger>
+    <logger name="com.tridion.storage.session" level="${core.log.level}">
+        <appender-ref ref="rollingSessionLog"/>
+    </logger>
+
     <logger name="com.sdl.web" level="${core.log.level}">
         <appender-ref ref="rollingCoreLog"/>
     </logger>
