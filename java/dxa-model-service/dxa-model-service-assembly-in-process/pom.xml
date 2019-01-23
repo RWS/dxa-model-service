@@ -12,7 +12,7 @@
     <version>2.1.1-SNAPSHOT</version>
     <artifactId>dxa-model-service-assembly-in-process</artifactId>
 
-    <name>DXA Model In Process Service Assembly</name>
+    <name>DXA In Process Model Service Assembly</name>
     <description>DXA Model In Process Service Assembly</description>
 
     <properties>
@@ -25,7 +25,9 @@
         <service-container.version>8.5.1-SNAPSHOT</service-container.version>
         <springframework.version>4.3.3.RELEASE</springframework.version>
         <udp.version.range>[8.5.0,8.5.0-2000)</udp.version.range>
-
+        <hibernate-jpa.version>1.0.0.Final</hibernate-jpa.version>
+        <byte-buddy.version>1.8.17</byte-buddy.version>
+        <persistence-api.version>2.2</persistence-api.version>
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
@@ -195,6 +197,11 @@
                 <version>${dd4t.version}</version>
             </dependency>
             <dependency>
+                <groupId>dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.version}</version>
@@ -219,6 +226,11 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${jodatime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <dependency>
@@ -377,6 +389,30 @@
                 <artifactId>cd_wai</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
+
+
+            <!-- Session Preview -->
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_content_common</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_session</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_wrapper</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_web</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
             <dependency>
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
@@ -406,6 +442,21 @@
                 <groupId>javax.transaction</groupId>
                 <artifactId>jta</artifactId>
                 <version>${javax-transaction.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.1-api</artifactId>
+                <version>${hibernate-jpa.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.persistence</groupId>
+                <artifactId>javax.persistence-api</artifactId>
+                <version>${persistence-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
@@ -697,6 +748,26 @@
             <groupId>com.tridion</groupId>
             <artifactId>cd_wai</artifactId>
         </dependency>
+
+        <!-- Session Preview -->
+
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_content_common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_session</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_wrapper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
@@ -704,6 +775,10 @@
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
             <groupId>com.vs.ezlicrun</groupId>
@@ -716,6 +791,18 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.transaction</groupId>
@@ -736,6 +823,10 @@
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
         </dependency>
         <dependency>
             <groupId>xalan</groupId>

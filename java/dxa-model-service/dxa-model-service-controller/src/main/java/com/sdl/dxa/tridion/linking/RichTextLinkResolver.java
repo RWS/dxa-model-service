@@ -2,6 +2,7 @@ package com.sdl.dxa.tridion.linking;
 
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +43,8 @@ public class RichTextLinkResolver {
     private static final Pattern COLLECT_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
-            Pattern.compile(".*?<a[^>]*\\shref=\"(?<tcmUri>tcm:\\d+-\\d+)\"[^>]*>",
+            // Original, slow: ".*?<a[^>]*\\shref=\"(?<tcmUri>tcm:\\d+-\\d+)\"[^>]*>"
+            Pattern.compile("href=\"(?<tcmUri>tcm:\\d+-\\d+)\"",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
@@ -174,6 +176,9 @@ public class RichTextLinkResolver {
     @NotNull
     public List<String> retrieveAllLinksFromFragment(@NotNull String fragmentString) {
         String fragment;
+
+
+
         List<String> links = new ArrayList<>();
 
         if (!configService.getDefaults().isRichTextResolve()) {
@@ -181,13 +186,24 @@ public class RichTextLinkResolver {
             return links;
         }
 
+        if (!fragmentString.contains("href=\"tcm")) {
+            log.debug("No tcms in here to process.");
+            return links;
+        }
+
         fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(fragmentString) : generateHref(fragmentString);
+
+        log.debug("Fragment is: {}", fragment);
+
+        long start = System.currentTimeMillis();
 
         Matcher startMatcher = COLLECT_LINK.matcher(fragment);
         while (startMatcher.find()) {
             links.add(startMatcher.group("tcmUri"));
         }
 
+        log.debug(">>> matching took: {} ms.", ((System.currentTimeMillis() - start)));
+        log.debug(">>> Found {} links", links.size());
         return links;
     }
 

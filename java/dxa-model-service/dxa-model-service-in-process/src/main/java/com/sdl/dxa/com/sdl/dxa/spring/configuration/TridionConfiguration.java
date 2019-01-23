@@ -1,10 +1,9 @@
-package com.sdl.dxa;
+package com.sdl.dxa.com.sdl.dxa.spring.configuration;
 
-import com.sdl.dxa.caching.TridionCacheConfiguration;
-import com.sdl.dxa.tridion.linking.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.BrokerTridionLinkResolver;
 import com.sdl.dxa.tridion.linking.TridionBatchLinkResolver;
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.web.api.dynamic.formatter.WebTaxonomyFormatter;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.dynamic.taxonomies.filters.WebTaxonomyFilter;
@@ -15,37 +14,17 @@ import com.tridion.taxonomies.TaxonomyRelationManager;
 import com.tridion.taxonomies.filters.TaxonomyFilter;
 import com.tridion.taxonomies.formatters.TaxonomyFormatter;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.ansi.AnsiOutput;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
 
 import java.util.List;
 
-@SpringBootApplication(
-        exclude = {
-                HibernateJpaAutoConfiguration.class,
-                DataSourceAutoConfiguration.class,
-                DataSourceTransactionManagerAutoConfiguration.class})
-
-@PropertySource("classpath:dxa.properties")
-@Import({TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
-public class DxaModelServiceApplication {
-
-    /**
-     * The main method stays here only because it is needed for development. Should not affect the application.
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(DxaModelServiceApplication.class, args);
-        AnsiOutput.setEnabled(AnsiOutput.Enabled.DETECT);
-    }
-
+/**
+ * TridionConfiguration.
+ */
+@Configuration
+public class TridionConfiguration {
 
     @Bean
     public AmbientDataServletFilter ambientDataServletFilter() {
@@ -53,6 +32,7 @@ public class DxaModelServiceApplication {
     }
 
     @Bean
+    @Primary
     public WebTaxonomyFactory webTaxonomyFactory() {
         return new WebTaxonomyFactory() {
 
@@ -79,51 +59,47 @@ public class DxaModelServiceApplication {
 
             @Override
             public Keyword getTaxonomyKeywords(final String taxonomyURI, final WebTaxonomyFilter taxonomyFilter) {
-                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI,
-                        getTaxonomyFilter(taxonomyFilter));
+                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI, getTaxonomyFilter(taxonomyFilter));
             }
 
             @Override
             public Keyword getTaxonomyKeywords(final String taxonomyURI, final WebTaxonomyFilter taxonomyFilter,
                                                final WebTaxonomyFormatter taxonomyFormatter) {
-                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI,
-                        getTaxonomyFilter(taxonomyFilter),
+                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI, getTaxonomyFilter(taxonomyFilter),
                         getTaxonomyFormatter(taxonomyFormatter));
             }
 
             @Override
             public Keyword getTaxonomyKeywords(final String taxonomyURI, final WebTaxonomyFilter taxonomyFilter,
                                                final String keywordContextURI) {
-                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI,
-                        getTaxonomyFilter(taxonomyFilter),
-                        keywordContextURI);
+                return taxonomyFactory
+                        .getTaxonomyKeywords(taxonomyURI, getTaxonomyFilter(taxonomyFilter), keywordContextURI);
             }
 
             @Override
             public Keyword getTaxonomyKeywords(final String taxonomyURI, final WebTaxonomyFilter taxonomyFilter,
                                                final String contextElementURI,
                                                final WebTaxonomyFormatter taxonomyFormatter) {
-                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI,
-                        getTaxonomyFilter(taxonomyFilter), contextElementURI,
-                        getTaxonomyFormatter(taxonomyFormatter));
+                return taxonomyFactory
+                        .getTaxonomyKeywords(taxonomyURI, getTaxonomyFilter(taxonomyFilter), contextElementURI,
+                                getTaxonomyFormatter(taxonomyFormatter));
             }
 
             @Override
             public Keyword getTaxonomyKeywords(final String taxonomyURI, final WebTaxonomyFilter taxonomyFilter,
                                                final String contextKeyword, final Keyword[] selectedKeywords) {
-                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI,
-                        getTaxonomyFilter(taxonomyFilter),
-                        contextKeyword, selectedKeywords);
+                return taxonomyFactory
+                        .getTaxonomyKeywords(taxonomyURI, getTaxonomyFilter(taxonomyFilter), contextKeyword,
+                                selectedKeywords);
             }
 
             @Override
             public Keyword getTaxonomyKeywords(final String taxonomyURI, final WebTaxonomyFilter taxonomyFilter,
                                                final String contextElementURI, final Keyword[] selectedKeywords,
                                                final WebTaxonomyFormatter taxonomyFormatter) {
-                return taxonomyFactory.getTaxonomyKeywords(taxonomyURI,
-                        getTaxonomyFilter(taxonomyFilter),
-                        contextElementURI,
-                        selectedKeywords, getTaxonomyFormatter(taxonomyFormatter));
+                return taxonomyFactory
+                        .getTaxonomyKeywords(taxonomyURI, getTaxonomyFilter(taxonomyFilter), contextElementURI,
+                                selectedKeywords, getTaxonomyFormatter(taxonomyFormatter));
             }
 
             @Override

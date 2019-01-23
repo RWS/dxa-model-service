@@ -12,12 +12,12 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
-import com.sdl.dxa.tridion.linking.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
@@ -159,7 +159,11 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     @Override
     protected void processRichTextData(RichTextData richTextData) {
 
+        long start = System.currentTimeMillis();
+
         final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
+
+        log.debug("Processing {} fragments.", fragments.size());
 
         richTextData.setFragments(fragments);
 
@@ -178,6 +182,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
             }
         }
+
+        log.info("Page Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
 
     @NotNull

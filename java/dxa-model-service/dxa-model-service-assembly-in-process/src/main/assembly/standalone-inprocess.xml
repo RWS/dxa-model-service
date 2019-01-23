@@ -54,12 +54,15 @@
                 <include>com.fasterxml.jackson.core:jackson-databind</include>
                 <include>com.fasterxml.jackson.core:jackson-annotations</include>
 
+                <include>org.fusesource.jansi:jansi</include>
                 <include>org.springframework:spring-context-support</include>
+                <include>org.springframework.boot:spring-boot-starter-cache</include>
                 <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
                 <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
                 <include>joda-time:joda-time</include>
                 <include>org.dd4t:dd4t-*</include>
                 <include>io.github.lukehutch:fast-classpath-scanner</include>
+                <include>org.jsoup:jsoup</include>
                 <include>org.apache.commons:commons-lang3</include>
                 <include>commons-io:commons-io</include>
                 <include>commons-codec:commons-codec</include>
@@ -111,6 +114,12 @@
                 <include>com.tridion:cd_tcdl</include>
                 <include>com.tridion:cd_wai</include>
                 <include>com.tridion:cd_common_config_legacy</include>
+
+                <include>com.tridion:cd_preview_content_common</include>
+                <include>com.tridion:cd_session</include>
+                <include>com.tridion:cd_wrapper</include>
+                <include>com.tridion:cd_preview_web</include>
+
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>
                 <include>dom4j:dom4j</include>
@@ -121,6 +130,8 @@
                 <include>org.hibernate.javax.persistence:hibernate-jpa-*</include>
                 <include>javax.transaction:jta</include>
                 <include>org.javassist:javassist</include>
+                <include>net.bytebuddy:byte-buddy</include>
+                <include>javax.persistence:javax.persistence-api</include>
                 <include>javax.xml.bind:jaxb-api</include>
                 <include>com.sun.xml.bind:jaxb-impl</include>
                 <include>org.jboss.spec.javax.transaction:jboss-transaction-api_*</include>

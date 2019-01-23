@@ -11,7 +11,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
-import com.sdl.dxa.tridion.linking.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;

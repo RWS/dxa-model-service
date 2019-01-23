@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking.processors;
 
 import com.sdl.dxa.api.datamodel.model.RichTextData;
+import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 

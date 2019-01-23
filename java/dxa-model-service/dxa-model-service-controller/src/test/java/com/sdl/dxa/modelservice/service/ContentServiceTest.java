@@ -3,15 +3,12 @@ package com.sdl.dxa.modelservice.service;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
-import com.sdl.web.api.broker.querying.filter.BrokerResultFilter;
-import com.sdl.web.api.broker.querying.filter.LimitFilter;
-import com.sdl.web.api.dynamic.ComponentPresentationAssemblerImpl;
+import com.sdl.dxa.tridion.compatibility.TridionQueryLoader;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.tridion.broker.StorageException;
 import com.tridion.broker.querying.Query;
-import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
@@ -27,6 +24,7 @@ import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -34,13 +32,12 @@ import java.io.IOException;
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +66,12 @@ public class ContentServiceTest {
     @Mock
     private Query query;
 
+    @Mock
+    TridionQueryLoader queryLoader;
+
+    @Mock
+    ApplicationContext mockApplicationContext;
+
     @InjectMocks
     private ContentService contentService;
 
@@ -76,6 +79,9 @@ public class ContentServiceTest {
 
     @Before
     public void init() throws Exception {
+        when(pageContentMock.getString()).thenReturn("characterData");
+
+        when(pageContentFactory.getPageContent(1, 2)).thenReturn(pageContentMock);
         PowerMockito.whenNew(PageContentFactory.class).withAnyArguments().thenReturn(pageContentFactory);
         when(pageContentFactory.getPageContent(1, 2)).thenReturn(pageContentMock);
 
@@ -83,6 +89,8 @@ public class ContentServiceTest {
         when(componentPresentationFactory.getComponentPresentationWithHighestPriority(anyInt())).thenReturn(componentPresentation);
         when(componentPresentationFactory.getComponentPresentation(anyString(), anyString())).thenReturn(componentPresentation);
         when(componentPresentationFactory.getComponentPresentation(anyInt(), anyInt(), anyInt())).thenReturn(componentPresentation);
+
+        when(mockApplicationContext.getBean(TridionQueryLoader.class)).thenReturn(queryLoader);
 
         PowerMockito.whenNew(Query.class).withAnyArguments().thenReturn(query);
 
@@ -99,10 +107,7 @@ public class ContentServiceTest {
 
         String expected = "page content";
 
-        mockPageURLCriteria("/page.html");
-        mockPageURLCriteria("/page/index.html");
-
-        doReturn(new String[]{"tcm:1-2"}).when(query).executeQuery();
+        doReturn(new String[]{"tcm:1-2"}).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
         doReturn(expected).when(pageContentMock).getString();
 
         //when
@@ -110,21 +115,6 @@ public class ContentServiceTest {
 
         //then
         assertEquals(expected, pageContent);
-        PowerMockito.verifyNew(PageURLCriteria.class).withArguments("/path.html");
-        PowerMockito.verifyNew(PageURLCriteria.class).withArguments("/path/index.html");
-
-        // TODO:
-//        verify(query).setResultFilter(argThat(new BaseMatcher<BrokerResultFilter>() {
-//            @Override
-//            public boolean matches(Object item) {
-//                return ((LimitFilter) item).getMaximumResults() == 1;
-//            }
-//
-//            @Override
-//            public void describeTo(Description description) {
-//                description.appendText("Should add a limit filter for a single entry");
-//            }
-//        }));
     }
 
 
@@ -133,18 +123,13 @@ public class ContentServiceTest {
         //given
         PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path.html").build();
 
-        String expected = "page content";
-        doReturn(expected).when(pageContentMock).getString();
-
-        mockPageURLCriteria("/page.html");
-        doReturn(new String[]{"tcm:1-2"}).when(query).executeQuery();
+        doReturn(new String[]{"tcm:1-2"}).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
-        contentService.loadPageContent(pageRequestDto);
+        String content = contentService.loadPageContent(pageRequestDto);
 
         //then
-        PowerMockito.verifyNew(PageURLCriteria.class).withArguments("/path.html");
-        PowerMockito.verifyNew(PageURLCriteria.class, never()).withArguments("/path/index.html");
+        assertEquals("characterData", content);
     }
 
     @Test(expected = PageNotFoundException.class)
@@ -152,7 +137,7 @@ public class ContentServiceTest {
         //given
         PageRequestDto pageRequestDto = PageRequestDto.builder(1, "/path").build();
 
-        doReturn(new String[0]).when(query).executeQuery();
+        doReturn(new String[0]).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
         contentService.loadPageContent(pageRequestDto);
@@ -304,18 +289,4 @@ public class ContentServiceTest {
         //then
         //exception
     }
-
-    private void mockPageURLCriteria(String path) throws Exception {
-        PageURLCriteria pathHtmlCriteria = mock(PageURLCriteria.class);
-        when(pathHtmlCriteria.getURL()).thenReturn(path);
-        PowerMockito.whenNew(PageURLCriteria.class).withArguments(path).thenReturn(pathHtmlCriteria);
-    }
-
-    private ComponentPresentationAssemblerImpl mockCPAssembler(int publicationId) throws Exception {
-        ComponentPresentationAssemblerImpl assembler = mock(ComponentPresentationAssemblerImpl.class);
-        PowerMockito.whenNew(ComponentPresentationAssemblerImpl.class).withArguments(publicationId).thenReturn(assembler);
-
-        return assembler;
-    }
-
 }

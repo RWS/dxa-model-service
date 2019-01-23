@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking.processors;
 
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
 public class EntityLinkProcessor implements LinkProcessor {
     private EntityModelData model;

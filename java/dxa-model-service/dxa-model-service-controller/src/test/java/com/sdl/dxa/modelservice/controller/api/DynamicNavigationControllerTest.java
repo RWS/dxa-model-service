@@ -1,5 +1,6 @@
 package com.sdl.dxa.modelservice.controller.api;
 
+import com.sdl.dxa.DxaModelServiceApplication;
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = DxaModelServiceApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class DynamicNavigationControllerTest {
 

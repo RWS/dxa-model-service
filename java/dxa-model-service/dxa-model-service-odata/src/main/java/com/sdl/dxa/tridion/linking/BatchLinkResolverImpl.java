@@ -1,16 +1,19 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.MultipleLinksDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -29,16 +32,23 @@ import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_PAGE;
 
 @Component
 @Scope(value = "prototype")
+@Slf4j
 public class BatchLinkResolverImpl implements BatchLinkResolver {
 
     @Value("${dxa.web.link-resolver.remove-extension:#{true}}")
     private boolean shouldRemoveExtension;
 
+    @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
+    private boolean shouldStripIndexPath;
+
+    @Value("${dxa.web.link-resolver.keep-trailing-slash:#{false}}")
+    private boolean shouldKeepTrailingSlash;
+
     private BatchLinkRetriever retriever;
 
-    private ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
+    private volatile ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
 
-    private ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists
+    private volatile ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists
             = new ConcurrentLinkedQueue<>();
 
     public BatchLinkResolverImpl() {
@@ -64,20 +74,14 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Override
     public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor) {
         Map<String, String> links = descriptor.getLinks();
+        Integer pubId = descriptor.getPublicationId();
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
-
-            Integer pubId = descriptor.getPublicationId();
-            SingleLinkDescriptor ld = null;
-
-            if (descriptor.getType() == LINK_TYPE_BINARY) {
-                ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
+            EntryLinkProcessor processor = new EntryLinkProcessor(links, linkEntry.getKey());
+            if (LINK_TYPE_BINARY.equals(descriptor.getType())) {
+                dispatchLinkResolution(new BinaryLinkDescriptor(pubId, processor));
+            } else if (LINK_TYPE_COMPONENT.equals(descriptor.getType())) {
+                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, processor));
             }
-
-            if (descriptor.getType() == LINK_TYPE_COMPONENT) {
-                ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
-            }
-
-            dispatchLinkResolution(ld);
         }
         this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
     }
@@ -99,29 +103,38 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     }
 
     private void updateLists() {
-        for (ImmutablePair<MultipleLinksDescriptor, Map<String, String>> entry : subscriberLists) {
+        ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> oldSubscribers = subscriberLists;
+        subscriberLists = new ConcurrentLinkedQueue<>();
+        for (ImmutablePair<MultipleLinksDescriptor, Map<String, String>> entry : oldSubscribers) {
             MultipleLinksDescriptor descriptor = entry.getLeft();
             descriptor.update(entry.getRight());
         }
-
-        this.subscriberLists.clear();
     }
 
     private void updateRefs() {
-        for (List<SingleLinkDescriptor> descriptors : this.subscribers.values()) {
+        ConcurrentMap<String, List<SingleLinkDescriptor>> oldDescriptors = this.subscribers;
+        subscribers = new ConcurrentHashMap<>();
+        for (List<SingleLinkDescriptor> descriptors : oldDescriptors.values()) {
             for (SingleLinkDescriptor descriptor : descriptors) {
-                if (descriptor != null && descriptor.couldBeResolved()) {
-                    String resolvedUrl = this.retriever.getLink(descriptor.getSubscription()).getURL();
-                    if (resolvedUrl != null) {
-                        descriptor.update(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) : resolvedUrl);
-                    } else {
-                        descriptor.update("");
-                    }
+                if (descriptor == null || !descriptor.couldBeResolved()) {
+                    continue;
                 }
+                String resolvedUrl = this.retriever.getLink(descriptor.getSubscription()).getURL();
+                if (resolvedUrl == null) {
+                    descriptor.update("");
+                    continue;
+                }
+                String resolvedLink = shouldStripIndexPath
+                        ? PathUtils.stripIndexPath(resolvedUrl)
+                        : resolvedUrl;
+                if (shouldKeepTrailingSlash && PathUtils.isIndexPath(resolvedUrl)) {
+                    resolvedLink = resolvedLink + "/";
+                }
+                descriptor.update(this.shouldRemoveExtension
+                        ? PathUtils.stripDefaultExtension(resolvedLink)
+                        : resolvedLink);
             }
         }
-
-        this.subscribers.clear();
     }
 
     private BatchLinkRequest createBatchLinkRequest(SingleLinkDescriptor descriptor) {

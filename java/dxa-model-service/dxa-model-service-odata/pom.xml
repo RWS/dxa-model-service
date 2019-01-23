@@ -10,6 +10,22 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dxa-model-service-odata</artifactId>
+    <name>DXA CIL (OData) Model Service</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
@@ -22,6 +38,10 @@
             <type>pom</type>
             <exclusions>
                 <exclusion>
+                    <groupId>org.scala-lang.modules</groupId>
+                    <artifactId>scala-parser-combinators_2.11</artifactId>
+                </exclusion>
+                <exclusion>
                     <artifactId>ugc_container</artifactId>
                     <groupId>com.sdl.web</groupId>
                 </exclusion>
@@ -29,15 +49,13 @@
                     <artifactId>ugc_taglib</artifactId>
                     <groupId>com.sdl.web</groupId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.sdl.audiencemanager</groupId>
-                    <artifactId>audiencemanager_profile_compatibility</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sdl.audiencemanager</groupId>
-                    <artifactId>audiencemanager_tracking_compatibility</artifactId>
-                </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-parser-combinators_2.12</artifactId>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
@@ -87,6 +105,10 @@
         </dependency>
 
         <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-compatible</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -105,11 +127,6 @@
             <groupId>org.springframework.restdocs</groupId>
             <artifactId>spring-restdocs-mockmvc</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test</artifactId>
-            <version>1.5.16.RELEASE</version>
         </dependency>
     </dependencies>
 

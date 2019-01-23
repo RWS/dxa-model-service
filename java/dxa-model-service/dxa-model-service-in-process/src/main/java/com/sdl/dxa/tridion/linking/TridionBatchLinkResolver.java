@@ -1,10 +1,11 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.MultipleLinksDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.api.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.linking.BinaryLink;
@@ -28,6 +29,12 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
     @Value("${dxa.web.link-resolver.remove-extension:#{true}}")
     private boolean shouldRemoveExtension;
+
+    @Value("${dxa.web.link-resolver.strip-index-path:#{true}}")
+    private boolean shouldStripIndexPath;
+
+    @Value("${dxa.web.link-resolver.keep-trailing-slash:#{false}}")
+    private boolean shouldKeepTrailingSlash;
 
     @Override
     public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
@@ -113,8 +120,16 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     private void updateDescriptor(final SingleLinkDescriptor descriptor, final Link link) {
 
         if (link.isResolved()) {
-            descriptor.update(this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(link.getURL()) :
-                    link.getURL());
+
+            String resolvedLink = link.getURL();
+            String resolvedUrl = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedLink) : resolvedLink;
+            if (shouldKeepTrailingSlash && (! resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedLink)) {
+                resolvedUrl = resolvedUrl + "/";
+            }
+
+            descriptor.update(
+                    this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) :
+                    resolvedUrl);
         } else {
             descriptor.update("");
         }

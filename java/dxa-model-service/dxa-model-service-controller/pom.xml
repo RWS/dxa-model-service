@@ -13,7 +13,7 @@
     <version>2.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>DXA Model Service</name>
+    <name>DXA Model Service Controller</name>
     <description>DXA Model Service</description>
 
     <!--<parent>-->
@@ -36,6 +36,21 @@
         <jackson.version>2.9.6</jackson.version>
         <dd4t.version>2.1.2</dd4t.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- DXA & SDL Web -->
         <dependency>
@@ -82,7 +97,6 @@
             </exclusions>
         </dependency>
 
-
         <dependency>
             <groupId>com.tridion</groupId>
             <artifactId>cd_broker</artifactId>
@@ -91,7 +105,6 @@
         <dependency>
             <groupId>com.sdl.web</groupId>
             <artifactId>content-compatible</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.sdl.web</groupId>

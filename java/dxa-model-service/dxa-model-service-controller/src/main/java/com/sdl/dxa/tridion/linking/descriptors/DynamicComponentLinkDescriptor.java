@@ -1,6 +1,6 @@
 package com.sdl.dxa.tridion.linking.descriptors;
 
-import com.sdl.dxa.tridion.linking.processors.LinkProcessor;
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -2,7 +2,7 @@ package com.sdl.dxa.modelservice.controller.api;
 
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
-import com.sdl.dxa.caching.ModelServiceLocalizationIdProvider;
+import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
 import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;

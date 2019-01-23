@@ -1,4 +1,4 @@
-package com.sdl.dxa.tridion.linking.processors;
+package com.sdl.dxa.tridion.linking.api.processors;
 
 import java.util.Map;
 
