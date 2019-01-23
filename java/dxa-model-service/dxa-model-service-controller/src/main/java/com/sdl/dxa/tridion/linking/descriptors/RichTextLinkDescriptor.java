@@ -15,5 +15,6 @@ public class RichTextLinkDescriptor extends BaseMultipleLinksDescriptor {
     public String getType() {
         return LINK_TYPE_COMPONENT;
     }
+
 }
 
