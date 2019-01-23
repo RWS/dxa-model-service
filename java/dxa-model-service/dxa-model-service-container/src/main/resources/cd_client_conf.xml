@@ -5,5 +5,5 @@
                CacheProviderClass="com.sdl.web.client.cache.GeneralCacheProvider" CacheConnectionTimeout="10000">
     <DiscoveryService ServiceUri="${DISCOVERY_URL:-http://localhost:8082/discovery.svc}"/>
 
-    <TokenService ClientId="cduser" ClientSecret="CDUserP@ssw0rd"/>
+    <TokenService ClientId="cduser" ClientSecret="${cduserpassword:-encrypted:o/cgCBwmULeOyUZghFaKJA==}"/>
 </ServiceConfig>
