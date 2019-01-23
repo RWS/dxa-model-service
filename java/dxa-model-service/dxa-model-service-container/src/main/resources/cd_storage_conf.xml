@@ -21,7 +21,7 @@
 
                 Existing properties with same name will be updated.
                 -->
-                <!-- Extension property to identify location of dxa model builder service (by default stagin``g is on port 8998 and live is on 8999) -->
+                <!-- Extension property to identify location of dxa model builder service (by default staging is on port 8998 and live is on 8999) -->
                 <Property Name="dxa-model-service" Value="${MS_URL:-http://localhost:8998}"/>
             </Role>
         </Roles>
