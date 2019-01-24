@@ -17,14 +17,6 @@
     <description>DXA Model Service Assembly</description>
 
     <properties>
-
-        <dxa.model-service.version>2.1.1-SNAPSHOT</dxa.model-service.version>
-        <dd4t.version>2.1.5</dd4t.version>
-        <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
-
-        <service-container.version>11.0.0-1027</service-container.version>
-        <springframework.version>4.3.19.RELEASE</springframework.version>
-
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/cil</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
@@ -37,8 +29,8 @@
             <artifactId>dxa-model-service-controller</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>com.tridion</groupId>
-                    <artifactId>cd_broker</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-broker</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -49,37 +41,31 @@
         <dependency>
             <groupId>com.sdl</groupId>
             <artifactId>odata_api</artifactId>
-            <version>${odata.version.range}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl</groupId>
             <artifactId>odata_client_api</artifactId>
-            <version>${odata.version.range}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl</groupId>
             <artifactId>odata_client</artifactId>
-            <version>${odata.version.range}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl</groupId>
             <artifactId>odata_edm</artifactId>
-            <version>${odata.version.range}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl</groupId>
             <artifactId>odata_parser</artifactId>
-            <version>${odata.version.range}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl</groupId>
             <artifactId>odata_renderer</artifactId>
-            <version>${odata.version.range}</version>
         </dependency>
 
         <dependency>
@@ -126,7 +112,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
@@ -147,7 +132,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>clean-leftovers</id>
