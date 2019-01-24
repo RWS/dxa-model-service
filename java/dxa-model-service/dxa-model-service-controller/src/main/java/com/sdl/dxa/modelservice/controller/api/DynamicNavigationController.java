@@ -9,6 +9,7 @@ import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
 import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationModelProvider;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,8 +43,9 @@ public class DynamicNavigationController {
     public ResponseEntity<TaxonomyNodeModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
         SitemapRequestDto requestDto = SitemapRequestDto.wholeTree(localizationId).build();
 
-        return navigationModelProvider.getNavigationModel(requestDto).map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return navigationModelProvider.getNavigationModel(requestDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping(value = {"/subtree", "/subtree/{sitemapItemId}"}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -66,6 +68,6 @@ public class DynamicNavigationController {
                         .expandLevels(new DepthCounter(descendantLevels))
                         .build())
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
