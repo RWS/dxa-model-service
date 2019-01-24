@@ -22,7 +22,7 @@
         <dd4t.version>2.1.5</dd4t.version>
         <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
 
-        <service-container.version>${udp.version.range}</service-container.version>
+        <service-container.version>11.0.0-1027</service-container.version>
         <springframework.version>4.3.19.RELEASE</springframework.version>
 
         <standalone.path>standalone</standalone.path>
@@ -112,7 +112,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>service-container-assembly</artifactId>
+                                    <artifactId>udp-service-container-assembly</artifactId>
                                     <type>zip</type>
                                     <version>${service-container.version}</version>
                                 </artifactItem>
