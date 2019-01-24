@@ -19,6 +19,7 @@ import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
+import com.tridion.dynamiccontent.ComponentPresentationAssembler;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +123,7 @@ public class ContentService {
     @NotNull
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
     public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) throws DxaItemNotFoundException {
-        ComponentPresentationAssemblerImpl assembler = new ComponentPresentationAssemblerImpl(publicationId);
+        ComponentPresentationAssembler assembler = new ComponentPresentationAssembler(publicationId);
 
         if (templateId <= 0) {
             templateId = configService.getDefaults().getDynamicTemplateId(publicationId);

@@ -1,10 +1,11 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
+import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
+import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.modelservice.controller.Utils.ClaimCookieUtils;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;

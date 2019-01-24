@@ -22,11 +22,11 @@
         <dd4t.version>2.1.5</dd4t.version>
         <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
 
-        <service-container.version>8.5.1-SNAPSHOT</service-container.version>
-        <springframework.version>4.3.3.RELEASE</springframework.version>
-        <udp.version.range>[8.5.0,8.5.0-2000)</udp.version.range>
+        <service-container.version>${udp.version.range}</service-container.version>
+        <springframework.version>4.3.19.RELEASE</springframework.version>
         <hibernate-jpa.version>1.0.0.Final</hibernate-jpa.version>
         <byte-buddy.version>1.8.17</byte-buddy.version>
+        <ezlicense.version>2.5</ezlicense.version>
         <persistence-api.version>2.2</persistence-api.version>
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
@@ -144,38 +144,38 @@
 
             <!-- CIL dependencies really needed by the model service without code changes. Sucks. Big Time -->
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>web-ambient-client</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-adf-client</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>content-api</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-cis-api</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>content-client-api</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-cil-api</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>content-ambient-client</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-cil-adf</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>discovery-client</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-discovery-client</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>discovery-client-lightweight</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-discovery-client-lightweight</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>discovery-common</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-discovery-common</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
 
@@ -310,106 +310,115 @@
                 <version>${ehcache.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>web-ambient-api</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-adf-api</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>web-ambient-engine</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-adf-engine</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-preview-cartridge</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-api-broker</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_preview_ambient</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-cache</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_broker</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-common-config-api</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_cache</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-common-config-legacy</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_common_config_api</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-common-config</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_common_config_legacy</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-core</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_common_config</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-datalayer</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_core</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-discovery</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_datalayer</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-api-dynamic</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_discovery</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-api-linking</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_dynamic</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-model</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_linking</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-tcdl</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_model</artifactId>
-                <version>${udp.version.range}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_tcdl</artifactId>
-                <version>${udp.version.range}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_wai</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-api-wai</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
 
 
             <!-- Session Preview -->
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_preview_content_common</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-preview-cis-common</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_session</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-preview-cis-session-common</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_wrapper</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-session</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
-                <groupId>com.tridion</groupId>
-                <artifactId>cd_preview_web</artifactId>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-wrapper</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-preview-filter</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
 
@@ -514,8 +523,8 @@
                 <version>${gson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.microsoft</groupId>
-                <artifactId>sqljdbc4</artifactId>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
                 <version>${mssql-jdbc.version}</version>
             </dependency>
 
@@ -560,32 +569,32 @@
 
         <!-- CIL dependencies really needed. This sucks -->
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-ambient-client</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-adf-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>content-api</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cis-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>content-client-api</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cil-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>content-ambient-client</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cil-adf</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>discovery-client</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-discovery-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>discovery-client-lightweight</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-discovery-client-lightweight</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>discovery-common</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-discovery-common</artifactId>
         </dependency>
 
 
@@ -685,87 +694,109 @@
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-ambient-api</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-adf-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>web-ambient-engine</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-adf-engine</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-preview-cartridge</artifactId>
+            <version>${udp.version.range}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-api-broker</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_preview_ambient</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cache</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_broker</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-common-config-api</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_cache</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-common-config-legacy</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_common_config_api</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-common-config</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_common_config_legacy</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-core</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_common_config</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-datalayer</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_core</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-discovery</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_datalayer</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-api-dynamic</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_discovery</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-api-linking</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_dynamic</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-model</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_linking</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-tcdl</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_tcdl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_wai</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-api-wai</artifactId>
+            <version>${udp.version.range}</version>
         </dependency>
 
         <!-- Session Preview -->
 
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_preview_content_common</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-preview-cis-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_session</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-preview-cis-session-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_wrapper</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-session</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_preview_web</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-wrapper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-preview-filter</artifactId>
         </dependency>
 
         <dependency>
@@ -860,9 +891,10 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>com.microsoft</groupId>
-            <artifactId>sqljdbc4</artifactId>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -17,10 +17,10 @@
     <description>DXA Model Service</description>
 
     <!--<parent>-->
-        <!--<groupId>org.springframework.boot</groupId>-->
-        <!--<artifactId>spring-boot-starter-parent</artifactId>-->
-        <!--<version>1.5.3.RELEASE</version>-->
-        <!--<relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
+    <!--<groupId>org.springframework.boot</groupId>-->
+    <!--<artifactId>spring-boot-starter-parent</artifactId>-->
+    <!--<version>1.5.3.RELEASE</version>-->
+    <!--<relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     <!--</parent>-->
 
     <properties>
@@ -29,7 +29,7 @@
         <java.version>1.8</java.version>
 
         <dxa.version>2.1.0-SNAPSHOT</dxa.version>
-        <cil.version>11.0.0-SNAPSHOT</cil.version>
+        <cil.version>${udp.version.range}</cil.version>
 
         <powermock.version>1.6.6</powermock.version>
 
@@ -46,6 +46,16 @@
                     <excludes>
                         <exclude>**/**</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -98,17 +108,17 @@
         </dependency>
 
         <dependency>
-            <groupId>com.tridion</groupId>
-            <artifactId>cd_broker</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-api-broker</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>content-compatible</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cil-api-compatible</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>content-model</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-content-model</artifactId>
         </dependency>
 
         <dependency>
@@ -252,7 +262,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -277,19 +286,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>
