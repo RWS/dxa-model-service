@@ -463,26 +463,18 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.web</groupId>
+                <groupId>com.sdl.delivery</groupId>
                 <artifactId>cil</artifactId>
                 <type>pom</type>
                 <version>${publish-web.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>ugc_container</artifactId>
-                        <groupId>com.sdl.web</groupId>
+                        <artifactId>udp-ugc-container</artifactId>
+                        <groupId>com.sdl.delivery</groupId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>ugc_taglib</artifactId>
-                        <groupId>com.sdl.web</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sdl.audiencemanager</groupId>
-                        <artifactId>audiencemanager_profile_compatibility</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.sdl.audiencemanager</groupId>
-                        <artifactId>audiencemanager_tracking_compatibility</artifactId>
+                        <artifactId>ugc-taglib</artifactId>
+                        <groupId>com.sdl.delivery</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>

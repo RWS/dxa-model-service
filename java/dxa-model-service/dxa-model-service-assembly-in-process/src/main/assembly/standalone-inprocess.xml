@@ -143,7 +143,7 @@
                 <include>org.springframework:spring-tx</include>
                 <include>javax.xml.stream:stax-api</include>
                 <include>com.google.code.gson:gson</include>
-                <include>com.microsoft:sqljdbc4</include>
+                <include>com.microsoft.sqlserver:mssql-jdbc</include>
             </includes>
             <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
         </dependencySet>

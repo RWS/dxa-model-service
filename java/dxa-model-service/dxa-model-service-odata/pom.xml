@@ -33,7 +33,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
+            <groupId>com.sdl.delivery</groupId>
             <artifactId>cil</artifactId>
             <type>pom</type>
             <exclusions>
@@ -42,12 +42,12 @@
                     <artifactId>scala-parser-combinators_2.11</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>ugc_container</artifactId>
-                    <groupId>com.sdl.web</groupId>
+                    <artifactId>udp-ugc-container</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>ugc_taglib</artifactId>
-                    <groupId>com.sdl.web</groupId>
+                    <artifactId>ugc-taglib</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

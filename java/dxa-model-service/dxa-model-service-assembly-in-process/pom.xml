@@ -165,6 +165,11 @@
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-discovery-registration-api</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-discovery-client</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
@@ -557,7 +562,7 @@
             <artifactId>dxa-model-service-controller</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>com.sdl.web</groupId>
+                    <groupId>com.sdl.delivery</groupId>
                     <artifactId>cil</artifactId>
                 </exclusion>
             </exclusions>
@@ -583,6 +588,10 @@
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-cil-adf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-discovery-registration-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
