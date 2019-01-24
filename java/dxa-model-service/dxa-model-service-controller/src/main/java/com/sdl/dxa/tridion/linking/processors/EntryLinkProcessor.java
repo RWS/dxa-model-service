@@ -18,7 +18,8 @@ public class EntryLinkProcessor implements LinkProcessor {
     }
 
     private String _createId() {
-        return Integer.toString(TcmUtils.getItemId(this.key));
+        int itemId = TcmUtils.getItemId(this.model.get(this.key));
+        return Integer.toString(itemId);
     }
     @Override
     public void update(String url) {
