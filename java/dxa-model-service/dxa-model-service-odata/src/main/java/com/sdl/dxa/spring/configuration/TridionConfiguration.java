@@ -3,8 +3,7 @@ package com.sdl.dxa.spring.configuration;
 import com.sdl.dxa.tridion.content.StaticContentResolver;
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
 import com.sdl.web.ambient.client.AmbientClientFilter;
-import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
-import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
+import com.tridion.taxonomies.TaxonomyFactory;
 import com.tridion.taxonomies.TaxonomyRelationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -33,8 +32,8 @@ public class TridionConfiguration {
     }
 
     @Bean
-    public WebTaxonomyFactory webTaxonomyFactory() {
-        return new WebTaxonomyFactoryImpl();
+    public TaxonomyFactory taxonomyFactory() {
+        return new TaxonomyFactory();
     }
 
     @Bean
