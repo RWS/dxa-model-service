@@ -39,8 +39,6 @@
         <adf.version>11.0.0-SNAPSHOT</adf.version>
         <api.version>11.0.0-SNAPSHOT</api.version>
         <cache.version>11.0.0-SNAPSHOT</cache.version>
-        <cil-api.version>11.0.0-SNAPSHOT</cil-api.version>
-        <cil-model.version>11.0.0-SNAPSHOT</cil-model.version>
         <cil.version>11.0.0-SNAPSHOT</cil.version>
         <cis-api.version>11.0.0-SNAPSHOT</cis-api.version>
         <cis-model.version>11.0.0-SNAPSHOT</cis-model.version>
