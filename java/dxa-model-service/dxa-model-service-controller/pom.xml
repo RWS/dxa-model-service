@@ -79,17 +79,13 @@
             <!-- Exclusions to deal with content-compatible only -->
             <exclusions>
                 <exclusion>
-                    <groupId>com.sdl.web</groupId>
-                    <artifactId>cil</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>cil</artifactId>
                     <groupId>com.sdl.delivery</groupId>
+                    <artifactId>cil</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.sdl.web</groupId>
+            <groupId>com.sdl.delivery</groupId>
             <artifactId>cil</artifactId>
             <version>${cil.version}</version>
             <type>pom</type>
@@ -97,12 +93,12 @@
             <!-- Exclusions to deal with content-compatible only -->
             <exclusions>
                 <exclusion>
-                    <artifactId>ugc_container</artifactId>
-                    <groupId>com.sdl.web</groupId>
+                    <artifactId>ugc-container</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>ugc_taglib</artifactId>
-                    <groupId>com.sdl.web</groupId>
+                    <artifactId>ugc-taglib</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
