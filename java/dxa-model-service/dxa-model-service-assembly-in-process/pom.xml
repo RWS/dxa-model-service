@@ -324,8 +324,6 @@
                 <artifactId>udp-adf-engine</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
-
-
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-preview-cartridge</artifactId>
@@ -341,6 +339,11 @@
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cache</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-core-license</artifactId>
                 <version>${udp.version.range}</version>
             </dependency>
             <dependency>
@@ -728,6 +731,10 @@
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-cache</artifactId>
             <version>${udp.version.range}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-core-license</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
