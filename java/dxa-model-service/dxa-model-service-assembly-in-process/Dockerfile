@@ -8,17 +8,15 @@ WORKDIR /dxa-model-service
 
 RUN chmod +x bin/start.sh
 RUN chmod +x bin/stop.sh
+
 RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
 RUN sed -i 's/The service is not started\./Container stopped./g' bin/stop.sh
 
-RUN chmod +x installer/prepare.sh
+WORKDIR /dxa-model-service/bin
 
-WORKDIR /dxa-model-service/installer
-RUN ./prepare.sh loadDependencies
+CMD ["/bin/bash", "-C", "start.sh", "--server-port=$SERVER_PORT"]
 
-CMD ["/bin/bash", "-C", "prepare.sh", "--console=plain", "-PrunScript=run", "-Pbatch"]
-
-EXPOSE 8998
+EXPOSE 8080
 EXPOSE 8082
 
 MAINTAINER SDL
