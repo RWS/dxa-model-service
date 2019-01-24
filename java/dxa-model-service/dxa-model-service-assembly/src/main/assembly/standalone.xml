@@ -159,10 +159,6 @@
                 <include>org.scala-lang:scala-library</include>
                 <include>org.simpleframework:simple-xml</include>
 
-                <!-- TODO needs el-api, jdom, oro? -->
-                <include>com.tridion.smarttarget:smarttarget_core</include>
-                <include>com.tridion.smarttarget:smarttarget_entitymodel</include>
-
                 <include>org.springframework:spring-context-support</include>
                 <include>org.springframework.boot:spring-boot-starter-cache</include>
 

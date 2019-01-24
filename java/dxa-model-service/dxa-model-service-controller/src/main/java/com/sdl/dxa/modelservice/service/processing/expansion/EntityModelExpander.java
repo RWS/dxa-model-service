@@ -10,12 +10,12 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
-import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -29,11 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
 
@@ -158,10 +155,6 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
         log.info("Entity Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
 
-    private boolean _isKeywordToExpand(Object value) {
-        return value instanceof KeywordModelData && ((KeywordModelData) value).getTitle() == null;
-    }
-
     @NotNull
     private ContentModelData _getKeywordMetadata(Keyword keyword, int publicationId) {
         ContentModelData metadata = new ContentModelData();
@@ -172,13 +165,6 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
             metadata.put(key, _getMetadataValues(publicationId, value));
         }
         return metadata;
-    }
-
-    private void _suppressIfNeeded(String message, boolean suppressingFlag) {
-        log.warn(message);
-        if (!suppressingFlag) {
-            throw new DataModelExpansionException(message);
-        }
     }
 
     @NotNull

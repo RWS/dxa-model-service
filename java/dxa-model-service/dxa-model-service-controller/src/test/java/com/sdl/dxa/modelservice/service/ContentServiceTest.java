@@ -13,9 +13,8 @@ import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
+import com.tridion.dynamiccontent.ComponentPresentationAssembler;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,14 +31,14 @@ import java.io.IOException;
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ContentService.class)
@@ -178,7 +177,7 @@ public class ContentServiceTest {
 
         String expected = "component presentation content";
 
-        ComponentPresentationAssemblerImpl assembler = mockCPAssembler(entityRequest.getPublicationId());
+        ComponentPresentationAssembler assembler = mockCPAssembler(entityRequest.getPublicationId());
         when(assembler.getContent(anyInt(), anyInt())).thenReturn(expected);
 
         //when
@@ -195,7 +194,7 @@ public class ContentServiceTest {
 
         String expected = "component presentation content";
 
-        ComponentPresentationAssemblerImpl assembler = mockCPAssembler(entityRequest.getPublicationId());
+        ComponentPresentationAssembler assembler = mockCPAssembler(entityRequest.getPublicationId());
         when(assembler.getContent(anyInt(), eq(DYNAMIC_TEMPLATE_ID))).thenReturn(expected);
 
         //when
@@ -209,7 +208,7 @@ public class ContentServiceTest {
     public void shouldThrow404Exception_IfRenderedComponentPresentationNotFound() throws DxaItemNotFoundException, Exception {
         //given
         EntityRequestDto entityRequest = EntityRequestDto.builder(42, 1, 2).build();
-        ComponentPresentationAssemblerImpl assembler = mockCPAssembler(entityRequest.getPublicationId());
+        ComponentPresentationAssembler assembler = mockCPAssembler(entityRequest.getPublicationId());
         when(assembler.getContent(anyInt(), anyInt())).thenReturn(null);
 
 
@@ -288,5 +287,12 @@ public class ContentServiceTest {
 
         //then
         //exception
+    }
+
+    private ComponentPresentationAssembler mockCPAssembler(int publicationId) throws Exception {
+        ComponentPresentationAssembler assembler = mock(ComponentPresentationAssembler.class);
+        PowerMockito.whenNew(ComponentPresentationAssembler.class).withArguments(publicationId).thenReturn(assembler);
+
+        return assembler;
     }
 }

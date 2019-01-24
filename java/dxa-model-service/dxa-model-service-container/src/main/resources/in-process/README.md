@@ -12,9 +12,9 @@ You are required to run the installer to configure the Model Service before the 
 
 The following artifacts will be installed to this Model Service Container and to your Maven local repository (if Maven is installed on this machine):
 
-- `com.sdl.web:discovery-registration-api:jar`
-- `com.sdl.web:web-oauth:jar`
-- `com.sdl.web:web-ambient-engine:jar`
+- `com.sdl.delivery:udp-discovery-registration-api:jar`
+- `com.sdl.delivery:udp-oauth:jar`
+- `com.sdl.delivery:udp-adf-engine:jar`
 
 The following artifacts will be installed to this Model Service Container but not to your maven Repository:
 
