@@ -68,19 +68,19 @@
                 <include>commons-codec:commons-codec</include>
                 <include>org.apache.commons:commons-compress</include>
 
-                <include>com.sdl.web:discovery-registration-api</include>
-                <include>com.sdl.web:web-oauth</include>
-                <include>com.sdl.web:web-oauth-common</include>
-                <include>com.sdl.web:web-ambient-api</include>
-                <include>com.sdl.web:web-ambient-engine</include>
+                <include>com.sdl.delivery:udp-discovery-registration-api</include>
+                <include>com.sdl.delivery:udp-oauth</include>
+                <include>com.sdl.delivery:udp-oauth-common</include>
+                <include>com.sdl.delivery:udp-adf-api</include>
+                <include>com.sdl.delivery:udp-adf-engine</include>
 
                 <!-- Sucks -->
-                <include>com.sdl.web:content-api</include>
-                <include>com.sdl.web:content-client-api</include>
-                <include>com.sdl.web:web-ambient-client</include>
-                <include>com.sdl.web:discovery-client-lightweight</include>
-                <include>com.sdl.web:discovery-client</include>
-                <include>com.sdl.web:discovery-common</include>
+                <include>com.sdl.delivery:udp-cis-api</include>
+                <include>com.sdl.delivery:udp-cil-api</include>
+                <include>com.sdl.delivery:udp-cil-adf</include>
+                <include>com.sdl.delivery:udp-discovery-client-lightweight</include>
+                <include>com.sdl.delivery:udp-discovery-client</include>
+                <include>com.sdl.delivery:udp-discovery-common</include>
 
                 <!-- Sucks even more -->
 
@@ -102,23 +102,28 @@
                 <include>antlr:antlr</include>
                 <include>javax.cache:cache-api</include>
                 <include>org.ehcache:ehcache</include>
-                <include>com.tridion:cd_preview_ambient</include>
-                <include>com.tridion:cd_broker</include>
-                <include>com.tridion:cd_cache</include>
-                <include>com.tridion:cd_core</include>
-                <include>com.tridion:cd_datalayer</include>
-                <include>com.tridion:cd_discovery</include>
-                <include>com.tridion:cd_dynamic</include>
-                <include>com.tridion:cd_linking</include>
-                <include>com.tridion:cd_model</include>
-                <include>com.tridion:cd_tcdl</include>
-                <include>com.tridion:cd_wai</include>
-                <include>com.tridion:cd_common_config_legacy</include>
 
-                <include>com.tridion:cd_preview_content_common</include>
-                <include>com.tridion:cd_session</include>
-                <include>com.tridion:cd_wrapper</include>
-                <include>com.tridion:cd_preview_web</include>
+
+                <include>com.sdl.delivery:udp-preview-cartridge</include>
+                <include>com.sdl.delivery:udp-api-broker</include>
+                <include>com.sdl.delivery:udp-cache</include>
+                <include>com.sdl.delivery:udp-core</include>
+                <include>com.sdl.delivery:udp-datalayer</include>
+                <include>com.sdl.delivery:udp-discovery</include>
+                <include>com.sdl.delivery:udp-api-dynamic</include>
+                <include>com.sdl.delivery:udp-api-linking</include>
+                <include>com.sdl.delivery:udp-model</include>
+                <include>com.sdl.delivery:udp-tcdl</include>
+                <include>com.sdl.delivery:udp-api-wai</include>
+                <include>com.sdl.delivery:udp-common-config-legacy</include>
+
+                <include>com.sdl.delivery:udp-preview-cis-common</include>
+                <include>com.sdl.delivery:udp-preview-cis-session-common</include>
+                <include>com.sdl.delivery:udp-session</include>
+                <include>com.sdl.delivery:udp-wrapper</include>
+                <include>com.sdl.delivery:udp-preview-filter</include>
+
+
 
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>
