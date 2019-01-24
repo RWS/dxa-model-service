@@ -81,6 +81,7 @@
             <artifactId>odata_renderer</artifactId>
             <version>${odata.version.range}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
