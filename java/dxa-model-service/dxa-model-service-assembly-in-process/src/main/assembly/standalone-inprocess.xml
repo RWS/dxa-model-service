@@ -124,7 +124,6 @@
                 <include>com.sdl.delivery:udp-preview-filter</include>
 
 
-
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>
                 <include>dom4j:dom4j</include>
