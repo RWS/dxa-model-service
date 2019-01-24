@@ -35,15 +35,17 @@
 
         <udp.version.range>[11.0.0,11.0.1-!)</udp.version.range>
 
-        <cil.version>${udp.version.range}</cil.version>
+        <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
+        released artifacts for each repository -->
+        <adf.version>11.0.0-SNAPSHOT</adf.version>
+        <api.version>11.0.0-SNAPSHOT</api.version>
+        <cil.version>11.0.0-SNAPSHOT</cil.version>
+        <cil-model.version>11.0.0-SNAPSHOT</cil-model.version>
+        <cis-model.version>11.0.0-SNAPSHOT</cis-model.version>
+        <discovery-service.version>11.0.0-SNAPSHOT</discovery-service.version>
+        <publish-web.version>11.0.0-SNAPSHOT</publish-web.version>
 
-        <oauth-common.version>${udp.version.range}</oauth-common.version>
-        <adf-api.version>[${udp.version.range}</adf-api.version>
-
-        <discovery-registration-api.version>${udp.version.range}</discovery-registration-api.version>
-        <oauth.version>${udp.version.range}</oauth.version>
-        <adf-engine.version>${udp.version.range}</adf-engine.version>
-
+        <!-- Third party dependency versions -->
         <hamcrest.version>1.3</hamcrest.version>
         <powermock.version>1.6.6</powermock.version>
         <junit.version>4.12</junit.version>
@@ -66,6 +68,295 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <includes>
+                        <include>com.sdl:*</include>
+                        <include>com.sdl.audiencemanager:*</include>
+                        <include>com.sdl.delivery:*</include>
+                        <include>com.sdl.tridion.xo:*</include>
+                        <include>com.sdl.web:*</include>
+                        <include>com.tridion:*</include>
+                    </includes>
+                    <properties>
+                        <!-- External repositories -->
+                        <property>
+                            <name>odata.version</name>
+                            <version>${odata.version.range}</version>
+                        </property>
+                        <!-- Local repositories -->
+                        <property>
+                            <name>adf.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>adf-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>am-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>api.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>build.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cache.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cid.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cid-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cil.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cil-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cis.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cis-api.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cis-core.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cis-ish.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cis-model.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>combined-docker.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>common.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>common-docker.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>common-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>common.checkstyle.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>content.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-build.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-client.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-client-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-extension.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-service.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>context-test.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>core.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>cx.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>datalayer.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>deployer.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>deployer-ish.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>deployer-web.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>discovery.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>discovery-service.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>docker.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>iq-api.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>iq-client.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>iq-data.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>iq-provider.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>iq-service.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>model.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>monitoring.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>preview.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>publish.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>publish-web.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>service-container.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>tcdl.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>transport.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>ugc.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <!-- XO repositories-->
+                        <property>
+                            <name>xo-cartridges.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-common.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-common-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-data.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-deployer.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-management.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-migrate-fas-to-elastic.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-net.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-p13n-api.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-provider.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-query.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-query-client.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                        <property>
+                            <name>xo-smarttarget-compatible.version</name>
+                            <version>${udp.version.range}</version>
+                        </property>
+                    </properties>
                 </configuration>
             </plugin>
         </plugins>
@@ -101,7 +392,7 @@
                 <version>${scala-parser.version}</version>
             </dependency>
 
-            <!-- DXA & SDL Web -->
+            <!-- DXA  -->
             <dependency>
                 <groupId>com.sdl.dxa</groupId>
                 <artifactId>dxa-data-model</artifactId>
@@ -118,41 +409,64 @@
                 <version>${dxa.version}</version>
             </dependency>
 
+            <!-- CD Dependencies -->
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-api-broker</artifactId>
-                <version>${udp.version.range}</version>
+                <version>${api.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cis-model</artifactId>
-                <version>${udp.version.range}</version>
+                <version>${cis-model.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-api-linking</artifactId>
-                <version>${udp.version.range}</version>
+                <version>${api.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cil-api-compatible</artifactId>
-                <version>${udp.version.range}</version>
+                <version>${cil.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-content-model</artifactId>
-                <version>${udp.version.range}</version>
+                <artifactId>udp-discovery-registration-api</artifactId>
+                <version>${discovery-service.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-adf-engine</artifactId>
+                <version>${adf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-oauth</artifactId>
+                <version>${adf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-oauth-common</artifactId>
+                <version>${adf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-adf-api</artifactId>
+                <version>${adf.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.web</groupId>
                 <artifactId>cil</artifactId>
                 <type>pom</type>
-                <version>${cil.version}</version>
+                <version>${publish-web.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>ugc_container</artifactId>
@@ -295,32 +609,6 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>discovery-registration-api</artifactId>
-                <version>${discovery-registration-api.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>web-oauth</artifactId>
-                <version>${oauth.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.web</groupId>
-                <artifactId>web-oauth-common</artifactId>
-                <version>${oauth-common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-adf-api</artifactId>
-                <version>${adf-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-adf-engine</artifactId>
-                <version>${adf-engine.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot</artifactId>
