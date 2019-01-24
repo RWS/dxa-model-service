@@ -96,6 +96,7 @@
                 <include>com.sdl.web:content-model</include>
                 <include>com.sdl.web:content-tags</include>
 
+                <include>com.sdl.web:discovery-registration-api</include>
 
                 <include>com.sdl.web:context-api</include>
                 <include>com.sdl.web:context-client</include>
