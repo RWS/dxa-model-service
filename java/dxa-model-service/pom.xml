@@ -31,7 +31,7 @@
 
         <java.version>1.8</java.version>
 
-        <dxa.version>2.0.0</dxa.version>
+        <dxa.version>2.0.1</dxa.version>
 
         <udp.version.range>[8.5.0,8.5.1)</udp.version.range>
         <cil.version>[8.5.0,8.5.1)</cil.version>
