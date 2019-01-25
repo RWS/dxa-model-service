@@ -30,3 +30,5 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+*.versionsBackup
+.flattened-pom.xml

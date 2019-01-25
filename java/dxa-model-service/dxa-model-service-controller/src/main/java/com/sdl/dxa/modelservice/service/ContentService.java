@@ -5,27 +5,26 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.web.api.dynamic.ComponentPresentationAssemblerImpl;
+import com.sdl.dxa.tridion.compatibility.TridionQueryLoader;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.broker.StorageException;
-import com.tridion.broker.querying.Query;
 import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.broker.querying.criteria.content.PublicationCriteria;
 import com.tridion.broker.querying.criteria.operators.AndCriteria;
 import com.tridion.broker.querying.criteria.operators.OrCriteria;
-import com.tridion.broker.querying.filter.LimitFilter;
-import com.tridion.broker.querying.sorting.SortParameter;
 import com.tridion.content.PageContentFactory;
 import com.tridion.data.CharacterData;
 import com.tridion.dcp.ComponentPresentation;
 import com.tridion.dcp.ComponentPresentationFactory;
+import com.tridion.dynamiccontent.ComponentPresentationAssembler;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,6 +34,8 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 /**
  * The service to load raw content stored in Broker database completely without or with light processing.
  * See details in Javadoc of a concrete method.
+ *
+ * Will work both in-process and over OData.
  */
 @Slf4j
 @Service
@@ -44,11 +45,15 @@ public class ContentService {
 
     private final ObjectMapper objectMapper;
 
+    private ApplicationContext applicationContext;
+
     @Autowired
     public ContentService(ConfigService configService,
-                          ObjectMapper objectMapper) {
+                          ObjectMapper objectMapper,
+                          ApplicationContext appContext) {
         this.configService = configService;
         this.objectMapper = objectMapper;
+        this.applicationContext = appContext;
     }
 
     /**
@@ -67,6 +72,7 @@ public class ContentService {
     @NotNull
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
+        log.info("Page: {}, request: {} - CACHE NOT USED", pageRequest.getPublicationId(), pageRequest.getPath());
         int publicationId = pageRequest.getPublicationId();
         if (pageRequest.getPageId() != 0) {
             log.info("Page ID is known, no need to search it, requesting pubId = {}, pageId = {}", publicationId, pageRequest.getPageId());
@@ -74,19 +80,23 @@ public class ContentService {
         }
 
         String path = pageRequest.getPath();
+
         log.debug("Trying to request a page with localization id = '{}' and path = '{}'", publicationId, path);
         // cannot call OrCriteria#addCriteria(Criteria) due to SOException, https://jira.sdl.com/browse/CRQ-3850
         OrCriteria urlCriteria = PathUtils.hasExtension(path) ?
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path))) :
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
-        Query query = new Query(new AndCriteria(urlCriteria, new PublicationCriteria(publicationId)));
-        query.setResultFilter(new LimitFilter(1));
-        query.addSorting(new SortParameter(SortParameter.ITEMS_URL, SortParameter.ASCENDING));
 
-        log.trace("Query {} for {}", query, pageRequest);
+        // Use a wrapper to make it work on CIL and In Process
+
+        final TridionQueryLoader queryLoader = applicationContext.getBean(TridionQueryLoader.class);
 
         try {
-            String[] result = query.executeQuery();
+            String[] result =
+                    queryLoader.constructQueryAndSetResultFilter(
+                            new AndCriteria(urlCriteria,
+                                new PublicationCriteria(publicationId)), pageRequest);
+
             log.debug("Requested publication '{}', path '{}', result is '{}'", publicationId, path, result);
             if (result.length == 0) {
                 log.debug("Page not found for {}", pageRequest);
@@ -113,7 +123,7 @@ public class ContentService {
     @NotNull
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
     public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) throws DxaItemNotFoundException {
-        ComponentPresentationAssemblerImpl assembler = new ComponentPresentationAssemblerImpl(publicationId);
+        ComponentPresentationAssembler assembler = new ComponentPresentationAssembler(publicationId);
 
         if (templateId <= 0) {
             templateId = configService.getDefaults().getDynamicTemplateId(publicationId);

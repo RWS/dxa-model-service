@@ -1,0 +1,157 @@
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+    <id>standalone</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>${standalone.build.dir}</directory>
+            <outputDirectory>${standalone.path}</outputDirectory>
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${resources.dir}</directory>
+            <outputDirectory>${standalone.path}</outputDirectory>
+            <includes>
+                <include>README.md</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${resources.dir}</directory>
+            <outputDirectory>${standalone.path}/config</outputDirectory>
+            <excludes>
+                <exclude>README.md</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
+            <includes>
+                <include>${project.build.finalName}.${project.packaging}</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <includes>
+                <include>com.sdl.dxa:dxa-model-service-controller</include>
+                <include>com.sdl.dxa:dxa-model-service-in-process</include>
+                <include>com.sdl.dxa:dxa-data-model</include>
+                <include>com.sdl.dxa:dxa-common</include>
+                <include>com.sdl.dxa:dxa-tridion-common</include>
+
+                <include>com.fasterxml.jackson.core:jackson-core</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+                <include>com.fasterxml.jackson.core:jackson-annotations</include>
+
+                <include>org.fusesource.jansi:jansi</include>
+                <include>org.springframework:spring-context-support</include>
+                <include>org.springframework.boot:spring-boot-starter-cache</include>
+                <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
+                <include>joda-time:joda-time</include>
+                <include>org.dd4t:dd4t-*</include>
+                <include>io.github.lukehutch:fast-classpath-scanner</include>
+                <include>org.jsoup:jsoup</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>commons-io:commons-io</include>
+                <include>commons-codec:commons-codec</include>
+                <include>org.apache.commons:commons-compress</include>
+
+                <include>com.sdl.delivery:udp-discovery-registration-api</include>
+                <include>com.sdl.delivery:udp-oauth</include>
+                <include>com.sdl.delivery:udp-oauth-common</include>
+                <include>com.sdl.delivery:udp-adf-api</include>
+                <include>com.sdl.delivery:udp-adf-engine</include>
+                <include>com.sdl.delivery:udp-adf-client</include>
+
+                <!-- Sucks -->
+                <include>com.sdl.delivery:udp-cis-api</include>
+                <include>com.sdl.delivery:udp-cil-api</include>
+                <include>com.sdl.delivery:udp-cil-adf</include>
+                <include>com.sdl.delivery:udp-discovery-client-lightweight</include>
+                <include>com.sdl.delivery:udp-discovery-client</include>
+                <include>com.sdl.delivery:udp-discovery-common</include>
+
+                <!-- Sucks even more -->
+
+                <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
+                <include>org.scala-lang:scala-library</include>
+
+                <!-- OData for Disco client -->
+
+                <!-- OData client for Disco registration -->
+                <include>com.sdl:odata_api</include>
+                <include>com.sdl:odata_client_api</include>
+                <include>com.sdl:odata_client</include>
+                <include>com.sdl:odata_edm</include>
+                <include>com.sdl:odata_parser</include>
+                <include>com.sdl:odata_renderer</include>
+
+                <!-- In Process deps -->
+                <include>javax.activation:activation</include>
+                <include>antlr:antlr</include>
+                <include>javax.cache:cache-api</include>
+                <include>org.ehcache:ehcache</include>
+
+
+                <include>com.sdl.delivery:udp-preview-cartridge</include>
+                <include>com.sdl.delivery:udp-api-broker</include>
+                <include>com.sdl.delivery:udp-cache</include>
+                <include>com.sdl.delivery:udp-core</include>
+                <include>com.sdl.delivery:udp-core-license</include>
+                <include>com.sdl.delivery:udp-datalayer</include>
+                <include>com.sdl.delivery:udp-discovery</include>
+                <include>com.sdl.delivery:udp-api-dynamic</include>
+                <include>com.sdl.delivery:udp-api-linking</include>
+                <include>com.sdl.delivery:udp-model</include>
+                <include>com.sdl.delivery:udp-tcdl</include>
+                <include>com.sdl.delivery:udp-api-wai</include>
+                <include>com.sdl.delivery:udp-common-config-legacy</include>
+
+                <include>com.sdl.delivery:udp-preview-cis-common</include>
+                <include>com.sdl.delivery:udp-preview-cis-session-common</include>
+                <include>com.sdl.delivery:udp-session</include>
+                <include>com.sdl.delivery:udp-wrapper</include>
+                <include>com.sdl.delivery:udp-preview-filter</include>
+
+
+                <include>commons-dbcp:commons-dbcp</include>
+                <include>commons-pool:commons-pool</include>
+                <include>dom4j:dom4j</include>
+                <include>com.vs.ezlicrun:easylicense</include>
+                <include>org.hibernate.common:hibernate-commons-annotations</include>
+                <include>org.hibernate:hibernate-core</include>
+                <include>org.hibernate:hibernate-entitymanager</include>
+                <include>org.hibernate.javax.persistence:hibernate-jpa-*</include>
+                <include>javax.transaction:jta</include>
+                <include>org.javassist:javassist</include>
+                <include>net.bytebuddy:byte-buddy</include>
+                <include>javax.persistence:javax.persistence-api</include>
+                <include>javax.xml.bind:jaxb-api</include>
+                <include>com.sun.xml.bind:jaxb-impl</include>
+                <include>org.jboss.spec.javax.transaction:jboss-transaction-api_*</include>
+                <include>org.jboss.logging:jboss-logging-annotations</include>
+                <include>org.jboss:jandex</include>
+                <include>org.codehaus.jettison:jettison</include>
+                <include>org.springframework:spring-jdbc</include>
+                <include>org.springframework:spring-orm</include>
+                <include>org.springframework:spring-tx</include>
+                <include>javax.xml.stream:stax-api</include>
+                <include>com.google.code.gson:gson</include>
+                <include>com.microsoft.sqlserver:mssql-jdbc</include>
+            </includes>
+            <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>

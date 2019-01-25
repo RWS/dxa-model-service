@@ -4,7 +4,6 @@ RUN apt-get update && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /dxa-model-service && chmod 755 /dxa-model-service
 COPY target/dxa-model-service/standalone /dxa-model-service
-COPY target/template/standalone /dxa-model-service
 WORKDIR /dxa-model-service
 
 RUN chmod +x bin/start.sh
@@ -30,4 +29,5 @@ CMD echo "Waiting for discovery-service to be up and running" && \
 
 EXPOSE 8998
 EXPOSE 8082
+
 MAINTAINER SDL
