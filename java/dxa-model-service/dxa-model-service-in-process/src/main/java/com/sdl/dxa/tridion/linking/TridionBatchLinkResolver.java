@@ -6,7 +6,7 @@ import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
-import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.MultipleEntryLinkProcessor;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.linking.BinaryLink;
 import com.tridion.linking.ComponentLink;
@@ -60,11 +60,11 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
             SingleLinkDescriptor ld = null;
 
             if (descriptor.getType().equals(LINK_TYPE_BINARY)) {
-                ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
+                ld = new BinaryLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
             }
 
             if (descriptor.getType().equals(LINK_TYPE_COMPONENT)) {
-                ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(links, linkEntry.getKey()));
+                ld = new ComponentLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
             }
 
 
@@ -92,14 +92,6 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 updateDescriptor(descriptor, pageLink.getLink(descriptor.getPageId()));
                 break;
 
-            case LINK_TYPE_BINARY:
-
-                final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
-                updateDescriptor(descriptor, binaryLink
-                        .getLink(TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()), "",
-                                "", "", "", false));
-                break;
-
             case LINK_TYPE_DYNAMIC_COMPONENT:
 
                 final DynamicComponentLink dynamicComponentLink =
@@ -108,12 +100,30 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                         .getLink(descriptor.getPageId(), descriptor.getComponentId(), descriptor.getTemplateId(), "",
                                 "", false));
                 break;
+            case LINK_TYPE_BINARY:
             case LINK_TYPE_COMPONENT:
             default:
+                final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
+                Link resolvedLink = binaryLink.getLink(
+                        TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
+                        "",
+                        "",
+                        "",
+                        "",
+                        false);
+                if(resolvedLink.isResolved()) {
+                    updateDescriptor(descriptor, resolvedLink);
+                } else {
+                    final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
+                    resolvedLink = componentLink.getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false);
 
-                final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
-                updateDescriptor(descriptor, componentLink
-                        .getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false));
+                    updateDescriptor(descriptor, resolvedLink);
+                }
+
+                break;
+
+
+
         }
     }
 

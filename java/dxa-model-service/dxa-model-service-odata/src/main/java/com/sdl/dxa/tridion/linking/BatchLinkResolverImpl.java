@@ -2,18 +2,18 @@ package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
-import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
+import com.sdl.dxa.tridion.linking.processors.MultipleEntryLinkProcessor;
 import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -67,6 +67,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         // Plan link for resolution only once per unique ID
         if(descriptors.isEmpty()) {
             descriptor.subscribe(this.retriever.addLinkRequest(createBatchLinkRequest(descriptor)));
+        } else {
+            descriptor.subscribe(descriptors.get(0).getSubscription());
         }
         descriptors.add(descriptor);
     }
@@ -76,7 +78,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         Map<String, String> links = descriptor.getLinks();
         Integer pubId = descriptor.getPublicationId();
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
-            EntryLinkProcessor processor = new EntryLinkProcessor(links, linkEntry.getKey());
+            LinkProcessor processor = new MultipleEntryLinkProcessor(links, linkEntry.getKey());
             if (LINK_TYPE_BINARY.equals(descriptor.getType())) {
                 dispatchLinkResolution(new BinaryLinkDescriptor(pubId, processor));
             } else if (LINK_TYPE_COMPONENT.equals(descriptor.getType())) {
@@ -150,6 +152,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                 request = new BatchLinkRequestImpl.BinaryLinkRequestBuilder()
                         .withBinaryComponentId(descriptor.getComponentId())
                         .withPublicationId(descriptor.getPublicationId())
+                        .withVariantId("null")
                         .build();
                 break;
             case LINK_TYPE_DYNAMIC_COMPONENT:
