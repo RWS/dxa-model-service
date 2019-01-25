@@ -35,7 +35,7 @@
         <parent.version.range>(,11.0.1)</parent.version.range>
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
-        released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom -->
+        released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
         <adf.version>11.0.0-SNAPSHOT</adf.version>
         <api.version>11.0.0-SNAPSHOT</api.version>
         <cache.version>11.0.0-SNAPSHOT</cache.version>
@@ -521,7 +521,7 @@
             </modules>
         </profile>
         <profile>
-            <id>release</id>
+            <id>update-dependencies</id>
             <build>
                 <plugins>
                     <plugin>
