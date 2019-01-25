@@ -68,6 +68,8 @@
                 <include>commons-codec:commons-codec</include>
                 <include>org.apache.commons:commons-compress</include>
 
+                <include>com.google.guava:guava</include>
+
                 <include>com.sdl.web:discovery-registration-api</include>
                 <include>com.sdl.web:web-oauth</include>
                 <include>com.sdl.web:web-oauth-common</include>
