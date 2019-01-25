@@ -2,9 +2,7 @@ package com.sdl.dxa.spring.configuration;
 
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
 import com.sdl.web.ambient.client.AmbientClientFilter;
-import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
-import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
-import com.tridion.taxonomies.TaxonomyRelationManager;
+import com.tridion.taxonomies.TaxonomyFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,13 +18,8 @@ public class TridionConfiguration {
     }
 
     @Bean
-    public WebTaxonomyFactory webTaxonomyFactory() {
-        return new WebTaxonomyFactoryImpl();
-    }
-
-    @Bean
-    public TaxonomyRelationManager taxonomyRelationManager() {
-        return new TaxonomyRelationManager();
+    public TaxonomyFactory taxonomyFactory() {
+        return new TaxonomyFactory();
     }
 
     @Bean(name = "dxaLinkResolver")
