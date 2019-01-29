@@ -337,7 +337,7 @@
     <ConfigRepository CacheEnabled="true"
                       CacheExpirationDuration="600"
                       ClientId="registration"
-                      ClientSecret="${TOKEN_REGISTRATION_SECRET:-encrypted:HzfQh9wYwAKShDxCm4DnnBnysAz9PtbDMFXMbPszSVY=}"
+                      ClientSecret="${registrationpassword:-encrypted:HzfQh9wYwAKShDxCm4DnnBnysAz9PtbDMFXMbPszSVY=}"
                       ConnectionTimeout="10000"
                       ServiceMonitorPollDuration="10"
                       ServiceUri="${DISCOVERY_URL:-http://localhost:8082/discovery.svc}"
