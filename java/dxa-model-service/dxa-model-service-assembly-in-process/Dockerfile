@@ -16,7 +16,7 @@ WORKDIR /dxa-model-service/bin
 
 CMD ["/bin/bash", "-C", "start.sh", "--server-port=$SERVER_PORT"]
 
-EXPOSE 8080
+EXPOSE 8998
 EXPOSE 8082
 
 MAINTAINER SDL
