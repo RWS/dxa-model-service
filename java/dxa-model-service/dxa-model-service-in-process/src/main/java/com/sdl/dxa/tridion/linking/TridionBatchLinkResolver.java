@@ -36,6 +36,9 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     @Value("${dxa.web.link-resolver.keep-trailing-slash:#{false}}")
     private boolean shouldKeepTrailingSlash;
 
+    @Value("${dxa.web.link-resolver.relative-urls:#{true}}")
+    private boolean useRelativeUrls;
+
     @Override
     public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
         if (descriptor == null) {
@@ -88,14 +91,14 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:
 
-                final PageLink pageLink = new PageLink(descriptor.getPublicationId());
+                final PageLink pageLink = new PageLink(null, descriptor.getPublicationId(), useRelativeUrls);
                 updateDescriptor(descriptor, pageLink.getLink(descriptor.getPageId()));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
 
                 final DynamicComponentLink dynamicComponentLink =
-                        new DynamicComponentLink(descriptor.getPublicationId());
+                        new DynamicComponentLink(null, descriptor.getPublicationId(), useRelativeUrls);
                 updateDescriptor(descriptor, dynamicComponentLink
                         .getLink(descriptor.getPageId(), descriptor.getComponentId(), descriptor.getTemplateId(), "",
                                 "", false));
@@ -103,7 +106,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
             case LINK_TYPE_BINARY:
             case LINK_TYPE_COMPONENT:
             default:
-                final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
+                final BinaryLink binaryLink = new BinaryLink(null, descriptor.getPublicationId(), useRelativeUrls);
                 Link resolvedLink = binaryLink.getLink(
                         TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
                         "",
@@ -114,7 +117,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 if(resolvedLink.isResolved()) {
                     updateDescriptor(descriptor, resolvedLink);
                 } else {
-                    final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
+                    final ComponentLink componentLink = new ComponentLink(null, descriptor.getPublicationId(), useRelativeUrls);
                     resolvedLink = componentLink.getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false);
 
                     updateDescriptor(descriptor, resolvedLink);
