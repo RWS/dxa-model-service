@@ -70,8 +70,6 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 ld = new ComponentLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
             }
 
-
-
             dispatchLinkResolution(ld);
         }
 
@@ -104,30 +102,38 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                                 "", false));
                 break;
             case LINK_TYPE_BINARY:
+                Link binaryLink = this.resolveBinaryLink(descriptor);
+                if(binaryLink.isResolved()) {
+                    updateDescriptor(descriptor, this.resolveBinaryLink(descriptor));
+                    break;
+                }
             case LINK_TYPE_COMPONENT:
             default:
-                final BinaryLink binaryLink = new BinaryLink(null, descriptor.getPublicationId(), useRelativeUrls);
-                Link resolvedLink = binaryLink.getLink(
-                        TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
+                final ComponentLink componentLink = new ComponentLink(null, descriptor.getPublicationId(), useRelativeUrls);
+                Link resolvedLink = componentLink.getLink(
+                        descriptor.getPageId(),
+                        descriptor.getComponentId(),
+                        -1,
                         "",
                         "",
-                        "",
-                        "",
+                        false,
                         false);
-                if(resolvedLink.isResolved()) {
-                    updateDescriptor(descriptor, resolvedLink);
-                } else {
-                    final ComponentLink componentLink = new ComponentLink(null, descriptor.getPublicationId(), useRelativeUrls);
-                    resolvedLink = componentLink.getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false);
-
-                    updateDescriptor(descriptor, resolvedLink);
-                }
-
+                updateDescriptor(descriptor, resolvedLink.isResolved() ? resolvedLink : this.resolveBinaryLink(descriptor));
                 break;
 
 
-
         }
+    }
+
+    private Link resolveBinaryLink(SingleLinkDescriptor descriptor) {
+        final BinaryLink binaryLink = new BinaryLink(null, descriptor.getPublicationId(), useRelativeUrls);
+        return binaryLink.getLink(
+                TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
+                "",
+                "",
+                "",
+                "",
+                false);
     }
 
     private void updateDescriptor(final SingleLinkDescriptor descriptor, final Link link) {
@@ -136,13 +142,13 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
             String resolvedLink = link.getURL();
             String resolvedUrl = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedLink) : resolvedLink;
-            if (shouldKeepTrailingSlash && (! resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedLink)) {
+            if (shouldKeepTrailingSlash && (!resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedLink)) {
                 resolvedUrl = resolvedUrl + "/";
             }
 
             descriptor.update(
                     this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) :
-                    resolvedUrl);
+                            resolvedUrl);
         } else {
             descriptor.update("");
         }
