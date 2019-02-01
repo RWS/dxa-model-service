@@ -14,6 +14,7 @@
             <outputDirectory>${standalone.path}</outputDirectory>
             <excludes>
                 <exclude>README.md</exclude>
+                <exclude>cloud-assembly</exclude>
             </excludes>
         </fileSet>
         <fileSet>

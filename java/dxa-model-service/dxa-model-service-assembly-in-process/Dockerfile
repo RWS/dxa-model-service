@@ -1,20 +1,21 @@
-FROM 176207018055.dkr.ecr.eu-west-1.amazonaws.com/content-delivery/java8-awscli:10.0.0-1020
+FROM 176207018055.dkr.ecr.eu-west-1.amazonaws.com/content-delivery/java8-awscli:11.0.0-1024
 
 RUN apt-get update && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /dxa-model-service && chmod 755 /dxa-model-service
 COPY target/dxa-model-service/standalone /dxa-model-service
+COPY target/dxa-model-service/standalone/cloud-assembly/bin /dxa-model-service/bin
+
 WORKDIR /dxa-model-service
 
-RUN chmod +x bin/start.sh
-RUN chmod +x bin/stop.sh
+RUN chmod +x bin/*.sh
 
 RUN sed -i 's/& echo \$! > \$PID_FILE//g' bin/start.sh
 RUN sed -i 's/The service is not started\./Container stopped./g' bin/stop.sh
 
 WORKDIR /dxa-model-service/bin
 
-CMD ["/bin/bash", "-C", "start.sh", "--server-port=$SERVER_PORT"]
+CMD ["/bin/bash", "-C", "cloud-start.sh", "--server-port=$SERVER_PORT"]
 
 EXPOSE 8998
 EXPOSE 8082
