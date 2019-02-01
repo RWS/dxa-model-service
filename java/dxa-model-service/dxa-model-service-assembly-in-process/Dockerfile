@@ -16,7 +16,7 @@ RUN sed -i 's/The service is not started\./Container stopped./g' bin/stop.sh
 WORKDIR /dxa-model-service/bin
 
 CMD echo "Waiting for discovery-service to be up and running" && \
-    while [ "$(curl --write-out %{http_code} --silent --output /dev/null ${tokenurl})" -ne "200" ]; do sleep 1; done && \
+    while [ "$(curl --write-out %{http_code} --silent --output /dev/null ${TOKEN_URL})" -ne "200" ]; do sleep 1; done && \
     echo "discovery-service is up and running" && /bin/bash -C 'cloud-start.sh' "$startparameters"
 
 EXPOSE 8998
