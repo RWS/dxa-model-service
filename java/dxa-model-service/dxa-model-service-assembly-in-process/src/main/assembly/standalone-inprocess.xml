@@ -75,6 +75,7 @@
                 <include>com.sdl.delivery:udp-adf-api</include>
                 <include>com.sdl.delivery:udp-adf-engine</include>
                 <include>com.sdl.delivery:udp-adf-client</include>
+                <include>com.sdl.delivery:udp-service-container-filter</include>
 
                 <!-- Sucks -->
                 <include>com.sdl.delivery:udp-cis-api</include>
@@ -151,6 +152,7 @@
                 <include>javax.xml.stream:stax-api</include>
                 <include>com.google.code.gson:gson</include>
                 <include>com.microsoft.sqlserver:mssql-jdbc</include>
+                <include>mysql:mysql-connector-java</include>
             </includes>
             <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
         </dependencySet>

@@ -248,6 +248,10 @@
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-discovery-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-service-container-filter</artifactId>
+        </dependency>
 
 
         <!-- always needed 3rd party dependencies -->
@@ -535,6 +539,10 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
     </dependencies>
 </project>

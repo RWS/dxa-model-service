@@ -165,6 +165,11 @@
                 <type>zip</type>
                 <version>${service-container.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-service-container-filter</artifactId>
+                <version>${service-container.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
