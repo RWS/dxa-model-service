@@ -154,6 +154,9 @@
                 <include>com.microsoft.sqlserver:mssql-jdbc</include>
                 <include>mysql:mysql-connector-java</include>
                 <include>org.apache.activemq:activemq-client</include>
+                <include>org.fusesource.hawtbuf:hawtbuf</include>
+                <include>org.apache.geronimo.specs:geronimo-jms_1.1_spec</include>
+                <include>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec</include>
             </includes>
             <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
         </dependencySet>
