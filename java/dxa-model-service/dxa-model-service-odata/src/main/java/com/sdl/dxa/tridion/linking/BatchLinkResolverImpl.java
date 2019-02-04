@@ -1,5 +1,6 @@
 package com.sdl.dxa.tridion.linking;
 
+import com.google.common.base.Strings;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
@@ -120,14 +121,14 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                     continue;
                 }
                 String resolvedUrl = this.retriever.getLink(descriptor.getSubscription()).getURL();
-                if (resolvedUrl == null) {
+                if (Strings.isNullOrEmpty(resolvedUrl)) {
                     descriptor.update("");
                     continue;
                 }
                 String resolvedLink = shouldStripIndexPath
                         ? PathUtils.stripIndexPath(resolvedUrl)
                         : resolvedUrl;
-                if (shouldKeepTrailingSlash && PathUtils.isIndexPath(resolvedUrl)) {
+                if (shouldKeepTrailingSlash && PathUtils.isIndexPath(resolvedUrl) && !resolvedLink.endsWith("/")) {
                     resolvedLink = resolvedLink + "/";
                 }
                 descriptor.update(this.shouldRemoveExtension
