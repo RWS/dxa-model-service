@@ -203,7 +203,7 @@
                 </DataSource>
             </Storage>
             -->
-            <!--
+
             <Storage Type="persistence" Id="defaultdb" dialect="${dbtype}"
                      Class="com.tridion.storage.persistence.JPADAOFactory">
                 <Pool Type="jdbc" Size="5" MonitorInterval="60" IdleTimeout="120" CheckoutTimeout="120"/>
@@ -213,17 +213,6 @@
                     <Property Name="databaseName" Value="${dbname}"/>
                     <Property Name="user" Value="${dbuser}"/>
                     <Property Name="password" Value="${dbpassword}"/>
-                </DataSource>
-            </Storage>
-            -->
-            <Storage Class="com.tridion.storage.persistence.JPADAOFactory" Id="defaultdb" Type="persistence" dialect="MSSQL">
-                <Pool CheckoutTimeout="120" IdleTimeout="120" MonitorInterval="60" Size="10" Type="jdbc"/>
-                <DataSource Class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
-                    <Property Name="serverName" Value="stgvlad.ams.dev"/>
-                    <Property Name="portNumber" Value="1433"/>
-                    <Property Name="databaseName" Value="UDP_Broker"/>
-                    <Property Name="user" Value="UDPBrokerUser"/>
-                    <Property Name="password" Value="Tr1d10n"/>
                 </DataSource>
             </Storage>
         </Storages>
