@@ -26,6 +26,7 @@
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone</standalone.build.dir>
+        <activemq.version>5.14.5</activemq.version>
     </properties>
 
     <build>
@@ -175,7 +176,11 @@
                 <artifactId>javax.persistence-api</artifactId>
                 <version>${persistence-api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -544,6 +549,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
         </dependency>
     </dependencies>
 </project>

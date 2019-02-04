@@ -153,6 +153,7 @@
                 <include>com.google.code.gson:gson</include>
                 <include>com.microsoft.sqlserver:mssql-jdbc</include>
                 <include>mysql:mysql-connector-java</include>
+                <include>org.apache.activemq:activemq-client</include>
             </includes>
             <outputDirectory>${standalone.path}/services/model-service-in-process</outputDirectory>
         </dependencySet>
