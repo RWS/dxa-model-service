@@ -26,6 +26,10 @@
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone</standalone.build.dir>
+        <activemq.version>5.14.5</activemq.version>
+        <geronimo.j2ee.version>1.0.1</geronimo.j2ee.version>
+        <geronimo.jms.version>1.1.1</geronimo.jms.version>
+        <hawtbuf.version>1.11</hawtbuf.version>
     </properties>
 
     <build>
@@ -46,6 +50,12 @@
                                 <artifactItem>
                                     <groupId>com.sdl.delivery</groupId>
                                     <artifactId>udp-service-container-assembly</artifactId>
+                                    <type>zip</type>
+                                    <version>${service-container.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.sdl.delivery</groupId>
+                                    <artifactId>udp-service-container-cloud-assembly</artifactId>
                                     <type>zip</type>
                                     <version>${service-container.version}</version>
                                 </artifactItem>
@@ -169,7 +179,26 @@
                 <artifactId>javax.persistence-api</artifactId>
                 <version>${persistence-api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+                <version>${geronimo.j2ee.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jms_1.1_spec</artifactId>
+                <version>${geronimo.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtbuf</groupId>
+                <artifactId>hawtbuf</artifactId>
+                <version>${hawtbuf.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -241,6 +270,10 @@
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-discovery-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-service-container-filter</artifactId>
         </dependency>
 
 
@@ -529,6 +562,28 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.hawtbuf</groupId>
+            <artifactId>hawtbuf</artifactId>
         </dependency>
     </dependencies>
 </project>
