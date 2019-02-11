@@ -3,16 +3,25 @@ package com.sdl.dxa.tridion.linking.descriptors;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
+import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
+
 public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
+    private String type;
+
     private LinkProcessor linkProcessor;
 
     private Integer publicationId;
 
     private String subscriptionId;
 
-    BaseLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
+    protected BaseLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor, String type) {
         this.linkProcessor = linkProcessor;
         this.publicationId = publicationId;
+        this.type = type;
+    }
+
+    BaseLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
+        this(publicationId, linkProcessor, LINK_TYPE_COMPONENT);
     }
 
     @Override
@@ -48,5 +57,15 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     @Override
     public Integer getPublicationId() {
         return this.publicationId;
+    }
+
+    @Override
+    public String getType() {
+        return this.type;
+    }
+
+    @Override
+    public LinkProcessor getLinkProcessor() {
+        return this.linkProcessor;
     }
 }
