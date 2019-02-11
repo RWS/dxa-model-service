@@ -1,4 +1,5 @@
 # Getting started with the Model Service Container
+# Getting started with the Model Service Container
 
 Please find below brief instructions on how to setup and run the Model Service Container.
 
@@ -21,7 +22,7 @@ The following artifacts will be installed to this Model Service Container but no
 - `com.sdl.delivery:service-container-assembly:zip`
 
 You can run it simply by executing `prepare.bat` or `prepare.sh` sctipr for Windows or *nix/MacOS environments respectively. Scripts are located in the `installer` folder. 
-Refer to [documentation](https://sdldocreach01.sdlproducts.com/LiveContent/content/en-US/SDL%20DXA-v10/GUID-6DAAFE4F-05D0-4E51-88B0-87A611D5CBB7) for details on how to use installer tool.
+Refer to [documentation](https://docs.sdl.com/LiveContent/content/en-US/SDL%20DXA-v10/GUID-6DAAFE4F-05D0-4E51-88B0-87A611D5CBB7) for details on how to use installer tool.
 
 ## Re-configuring the working Model Service
 

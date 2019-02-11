@@ -153,7 +153,6 @@
                 <include>com.google.code.gson:gson</include>
                 <include>com.microsoft:sqljdbc4</include>
 
-                <include>org.apache.activemq:activemq-client</include>
                 <include>org.fusesource.hawtbuf:hawtbuf</include>
                 <include>org.apache.geronimo.specs:geronimo-jms_1.1_spec</include>
                 <include>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec</include>

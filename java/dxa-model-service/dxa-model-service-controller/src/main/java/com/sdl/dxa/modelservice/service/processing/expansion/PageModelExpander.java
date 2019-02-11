@@ -14,6 +14,7 @@ import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
@@ -103,17 +104,19 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         for (Map.Entry<String, String> entry : meta.entrySet()) {
             if(TcmUtils.isTcmUri(entry.getValue())) {
                 Integer pubId = TcmUtils.getPublicationId(entry.getValue());
-                ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
+                SingleLinkDescriptor ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
                 List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
-                this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(
-                                pageRequest.getPublicationId(),
-                                links,
-                                new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(), this.richTextLinkResolver)
-                        )
-                );
+                if(!links.isEmpty()) {
+                    this.batchLinkResolver.dispatchMultipleLinksResolution(
+                            new RichTextLinkDescriptor(
+                                    pageRequest.getPublicationId(),
+                                    links,
+                                    new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(), this.richTextLinkResolver)
+                            )
+                    );
+                }
             }
         }
     }
@@ -170,17 +173,18 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         for (Object fragment : fragments) {
             if (fragment instanceof ImmutablePair) {
-
-                this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(
-                                pageRequest.getPublicationId(),
-                                richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight()),
-                                new FragmentListProcessor(
-                                        richTextData, (ImmutablePair<String, String>) fragment,
-                                    this.richTextLinkResolver)
-                        )
-                );
-
+                List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight());
+                if(!links.isEmpty()) {
+                    this.batchLinkResolver.dispatchMultipleLinksResolution(
+                            new RichTextLinkDescriptor(
+                                    pageRequest.getPublicationId(),
+                                    links,
+                                    new FragmentListProcessor(
+                                            richTextData, (ImmutablePair<String, String>) fragment,
+                                            this.richTextLinkResolver)
+                            )
+                    );
+                }
             }
         }
 
