@@ -104,8 +104,10 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
+
+        final PageModelData pageModelData = _processR2PageModel(pageContent, pageRequest);
         TimerLogger.log("Load Page Content", (System.currentTimeMillis() - start));
-        return _processR2PageModel(pageContent, pageRequest);
+        return pageModelData;
     }
 
     @Contract("!null, _ -> !null")
