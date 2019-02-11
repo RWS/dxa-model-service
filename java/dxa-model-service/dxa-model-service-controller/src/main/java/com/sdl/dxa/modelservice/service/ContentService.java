@@ -152,6 +152,7 @@ public class ContentService {
             if (data == null) {
                 throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
             }
+
             return data.getString();
         } catch (IOException e) {
             ContentProviderException exception = new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);

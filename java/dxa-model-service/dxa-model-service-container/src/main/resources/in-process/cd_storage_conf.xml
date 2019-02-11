@@ -58,16 +58,13 @@
               -->
 
             <RemoteSynchronization FlushCacheDuringDisconnectInterval="${objectcacheflushinterval:-20000}" Queuesize="${objectcachequeuesize:-1024}" ServiceMonitorInterval="${objectcachemonitorinterval:-10000}">
-                <Connector Class="com.tridion.cache.JMSCacheChannelConnector" Topic="SDLWeb"
-                           UseActiveMQRest="${useactivemqrest:-false}"
-                           ActiveMQRestClientUser="${activemqrestclientuser:-admin}"
-                           ActiveMQRestClientSecret="${activemqrestclientsecret:-admin}"
-                           ActiveMQRestURL="${activemqresturl:-http://activemq:8161/api/jolokia}"
-                           UseActiveMQRestAsync="${useactivemqrestasync:-false}">
+                <Connector Class="com.tridion.cache.JMSCacheChannelConnector" Topic="${activemqtopic:-Tridion}">
                     <JndiContext>
                         <Property Name="java.naming.factory.initial" Value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
-                        <Property Name="java.naming.provider.url" Value="${activemqurl:-http://activemq:8080?soTimeout=50000&amp;useInactivityMonitor=false}"/>
-                        <Property Name="topic.SDLWeb" Value="SDLWebCCS"/>
+                        <Property Name="java.naming.provider.url" Value="${activemqurl:-tcp://activemq:61616?soTimeout=50000&amp;useInactivityMonitor=false}"/>
+                        <Property Name="topic.${activemqtopic:-Tridion}" Value="${activemqtopicdest:-SDLWebCCS}"/>
+                        <Property Name="userName" Value="${activemqclientuser:-admin}"/>
+                        <Property Name="password" Value="${activemqclientsecret:-admin}"/>
                     </JndiContext>
                 </Connector>
             </RemoteSynchronization>
@@ -206,7 +203,6 @@
                 </DataSource>
             </Storage>
             -->
-            <!--
             <Storage Type="persistence" Id="defaultdb" dialect="${dbtype}"
                      Class="com.tridion.storage.persistence.JPADAOFactory">
                 <Pool Type="jdbc" Size="5" MonitorInterval="60" IdleTimeout="120" CheckoutTimeout="120"/>
@@ -216,17 +212,6 @@
                     <Property Name="databaseName" Value="${dbname}"/>
                     <Property Name="user" Value="${dbuser}"/>
                     <Property Name="password" Value="${dbpassword}"/>
-                </DataSource>
-            </Storage>
-            -->
-            <Storage Class="com.tridion.storage.persistence.JPADAOFactory" Id="defaultdb" Type="persistence" dialect="MSSQL">
-                <Pool CheckoutTimeout="120" IdleTimeout="120" MonitorInterval="60" Size="10" Type="jdbc"/>
-                <DataSource Class="com.microsoft.sqlserver.jdbc.SQLServerDataSource">
-                    <Property Name="serverName" Value="stgvlad.ams.dev"/>
-                    <Property Name="portNumber" Value="1433"/>
-                    <Property Name="databaseName" Value="UDP_Broker"/>
-                    <Property Name="user" Value="UDPBrokerUser"/>
-                    <Property Name="password" Value="Tr1d10n"/>
                 </DataSource>
             </Storage>
         </Storages>

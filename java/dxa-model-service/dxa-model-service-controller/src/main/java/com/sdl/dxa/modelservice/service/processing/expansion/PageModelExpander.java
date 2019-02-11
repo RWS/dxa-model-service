@@ -12,12 +12,13 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
-import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
@@ -57,12 +58,9 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private ConfigService configService;
 
-    public PageModelExpander(PageRequestDto pageRequest,
-                             EntityModelService entityModelService,
-                             RichTextLinkResolver richTextLinkResolver,
-                             LinkResolver linkResolver,
-                             ConfigService configService,
-                             BatchLinkResolver batchLinkResolver) {
+    public PageModelExpander(PageRequestDto pageRequest, EntityModelService entityModelService,
+                             RichTextLinkResolver richTextLinkResolver, LinkResolver linkResolver,
+                             ConfigService configService, BatchLinkResolver batchLinkResolver) {
         this.pageRequest = pageRequest;
         this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
@@ -83,7 +81,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         traverseObject(page);
         this.batchLinkResolver.resolveAndFlush();
 
-        log.info("Expansion of the page with id {} has taken {} ms.", page.getId(), System.currentTimeMillis() - startTime);
+        log.info("Expansion of the page with id {} has taken {} ms.", page.getId(),
+                System.currentTimeMillis() - startTime);
     }
 
     @Override
@@ -100,19 +99,17 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     protected void processPageModel(PageModelData pageModelData) {
         Map<String, String> meta = pageModelData.getMeta();
         for (Map.Entry<String, String> entry : meta.entrySet()) {
-            if(TcmUtils.isTcmUri(entry.getValue())) {
+            if (TcmUtils.isTcmUri(entry.getValue())) {
                 Integer pubId = TcmUtils.getPublicationId(entry.getValue());
-                ComponentLinkDescriptor ld = new ComponentLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
+                SingleLinkDescriptor ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
                 List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
                 this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(
-                                pageRequest.getPublicationId(),
-                                links,
-                                new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(), this.richTextLinkResolver)
-                        )
-                );
+                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), links,
+                                new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(),
+                                        this.richTextLinkResolver)));
+
             }
         }
     }
@@ -124,8 +121,9 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         }
 
         SingleLinkDescriptor ld;
-        if(entityModelData.getId().matches("\\d+-\\d+")) {
-            ld = new DynamicComponentLinkDescriptor(pageRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+        if (entityModelData.getId().matches("\\d+-\\d+")) {
+            ld = new DynamicComponentLinkDescriptor(pageRequest.getPublicationId(),
+                    new EntityLinkProcessor(entityModelData));
         } else {
             ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
         }
@@ -139,20 +137,19 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             return;
         }
 
-        String keywordURI = TcmUtils.buildKeywordTcmUri(String.valueOf(pageRequest.getPublicationId()), keywordModel.getId());
+        String keywordURI =
+                TcmUtils.buildKeywordTcmUri(String.valueOf(pageRequest.getPublicationId()), keywordModel.getId());
         log.trace("Found keyword to expand, uri = '{}'", keywordURI);
         Keyword keyword = new TaxonomyFactory().getTaxonomyKeyword(keywordURI);
 
         if (keyword != null) {
-            keywordModel.setDescription(keyword.getKeywordDescription())
-                    .setKey(keyword.getKeywordKey())
+            keywordModel.setDescription(keyword.getKeywordDescription()).setKey(keyword.getKeywordKey())
                     .setTitle(keyword.getKeywordName())
                     .setTaxonomyId(String.valueOf(TcmUtils.getItemId(keyword.getTaxonomyURI())))
                     .setMetadata(_getMetadata(keyword, pageRequest));
         } else {
-            _suppressIfNeeded("Keyword " + keywordModel.getId() + " in publication " +
-                            pageRequest.getPublicationId() + " cannot be found, is it published?",
-                    configService.getErrors().isMissingKeywordSuppress());
+            _suppressIfNeeded("Keyword " + keywordModel.getId() + " in publication " + pageRequest.getPublicationId() +
+                    " cannot be found, is it published?", configService.getErrors().isMissingKeywordSuppress());
         }
     }
 
@@ -169,16 +166,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         for (Object fragment : fragments) {
             if (fragment instanceof ImmutablePair) {
+                List<String> links = this.richTextLinkResolver
+                        .retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight());
 
-                this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(
-                                pageRequest.getPublicationId(),
-                                richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight()),
-                                new FragmentListProcessor(
-                                        richTextData, (ImmutablePair<String, String>) fragment,
-                                    this.richTextLinkResolver)
-                        )
-                );
+                    this.batchLinkResolver.dispatchMultipleLinksResolution(
+                            new RichTextLinkDescriptor(pageRequest.getPublicationId(), links,
+                                    new FragmentListProcessor(richTextData, (ImmutablePair<String, String>) fragment,
+                                            this.richTextLinkResolver)));
 
             }
         }
@@ -209,7 +203,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             if (itemType == TcmUtils.KEYWORD_ITEM_TYPE) {
                 List<KeywordModelData> keywords = new ArrayList<>();
                 for (Object uri : value.getMultipleValues()) {
-                    KeywordModelData keywordModelData = new KeywordModelData().setId(String.valueOf(TcmUtils.getItemId(String.valueOf(uri))));
+                    KeywordModelData keywordModelData =
+                            new KeywordModelData().setId(String.valueOf(TcmUtils.getItemId(String.valueOf(uri))));
                     traverseObject(keywordModelData);
                     keywords.add(keywordModelData);
                 }
@@ -236,13 +231,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     }
 
     private boolean _isEntityToExpand(Object value) {
-        return value instanceof EntityModelData
-                && ((EntityModelData) value).getSchemaId() == null
-                && ((EntityModelData) value).getId().matches("\\d+-\\d+");
+        return value instanceof EntityModelData && ((EntityModelData) value).getSchemaId() == null &&
+                ((EntityModelData) value).getId().matches("\\d+-\\d+");
     }
 
     private void _expandEntity(EntityModelData toExpand, PageRequestDto pageRequest) {
-        EntityRequestDto entityRequest = EntityRequestDto.builder(pageRequest.getPublicationId(), toExpand.getId()).build();
+        EntityRequestDto entityRequest =
+                EntityRequestDto.builder(pageRequest.getPublicationId(), toExpand.getId()).build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {
@@ -251,13 +246,16 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
             EntityModelData e;
             if (EntityModelServiceSuppressLinks.class.isAssignableFrom(entityModelService.getClass())) {
-                e = ((EntityModelServiceSuppressLinks)entityModelService).loadEntity(entityRequest, false);
+                e = ((EntityModelServiceSuppressLinks) entityModelService).loadEntity(entityRequest, false);
             } else {
                 e = entityModelService.loadEntity(entityRequest);
-            }            log.debug("Loading of the entity with id {} has taken {} ms", entityRequest.getComponentId(), System.currentTimeMillis() - startTime);
+            }
+            log.debug("Loading of the entity with id {} has taken {} ms", entityRequest.getComponentId(),
+                    System.currentTimeMillis() - startTime);
             toExpand.copyFrom(e);
         } catch (ContentProviderException e) {
-            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest, configService.getErrors().isMissingEntitySuppress(), e);
+            _suppressIfNeeded("Cannot expand entity " + toExpand + " for page " + pageRequest,
+                    configService.getErrors().isMissingEntitySuppress(), e);
         }
     }
 

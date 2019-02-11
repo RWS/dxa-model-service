@@ -10,17 +10,6 @@
     <property name="log.folder" value="${MS_LOG_FOLDER:-./logs}"/>
 
     <!-- Appenders -->
-    <appender name="appender.cache" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.folder}/cd_client.cachelog.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>${log.history}</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <charset>${log.encoding}</charset>
-            <pattern>${log.pattern}</pattern>
-        </encoder>
-        <prudent>true</prudent>
-    </appender>
     <appender name="rollingADFLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${log.folder}/cd_adf.%d{yyyy-MM-dd}.log</fileNamePattern>
