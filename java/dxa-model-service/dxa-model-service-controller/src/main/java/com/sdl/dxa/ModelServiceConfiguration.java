@@ -1,6 +1,9 @@
 package com.sdl.dxa;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.sdl.dxa.caching.LocalizationIdProvider;
 import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +33,13 @@ public class ModelServiceConfiguration {
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-        jsonConverter.setObjectMapper(applicationContext.getBean(ObjectMapper.class));
+        ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
+
+        objectMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, true);
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        jsonConverter.setObjectMapper(objectMapper);
         return jsonConverter;
     }
 }

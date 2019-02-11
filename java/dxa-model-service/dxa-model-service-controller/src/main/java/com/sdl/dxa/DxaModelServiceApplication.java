@@ -1,6 +1,9 @@
 package com.sdl.dxa;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.sdl.dxa.caching.TridionCacheConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -19,11 +22,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import java.util.List;
 
 
-@SpringBootApplication(
-        exclude = {
-            HibernateJpaAutoConfiguration.class,
-            DataSourceAutoConfiguration.class,
-            DataSourceTransactionManagerAutoConfiguration.class})
+@SpringBootApplication(exclude = {HibernateJpaAutoConfiguration.class, DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class})
 @PropertySource("classpath:dxa.properties")
 @Import({ModelServiceConfiguration.class, TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
 public class DxaModelServiceApplication extends WebMvcConfigurerAdapter {
@@ -41,10 +41,14 @@ public class DxaModelServiceApplication extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        final ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
+
+        objectMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, true);
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
 
-        converters.add(
-                new MappingJackson2HttpMessageConverter(applicationContext.getBean(ObjectMapper.class)));
+        converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
         super.configureMessageConverters(converters);
     }
 
