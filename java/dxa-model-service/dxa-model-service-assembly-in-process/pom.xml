@@ -88,6 +88,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <id>clean-leftovers</id>
@@ -162,6 +163,12 @@
                 <groupId>xalan</groupId>
                 <artifactId>serializer</artifactId>
                 <version>${xalan.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
             </dependency>
 
             <dependency>
@@ -584,6 +591,10 @@
         <dependency>
             <groupId>org.fusesource.hawtbuf</groupId>
             <artifactId>hawtbuf</artifactId>
+        </dependency>
+        <dependency>
+        <groupId>com.microsoft</groupId>
+            <artifactId>sqljdbc4</artifactId>
         </dependency>
     </dependencies>
 </project>
