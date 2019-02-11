@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
@@ -89,27 +90,26 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:
 
-                final PageLink pageLink = new PageLink(null, descriptor.getPublicationId(), useRelativeUrls);
+                final PageLink pageLink = new PageLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, pageLink.getLink(descriptor.getPageId()));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
 
                 final DynamicComponentLink dynamicComponentLink =
-                        new DynamicComponentLink(null, descriptor.getPublicationId(), useRelativeUrls);
+                        new DynamicComponentLink(descriptor.getPublicationId());
                 updateDescriptor(descriptor, dynamicComponentLink
                         .getLink(descriptor.getPageId(), descriptor.getComponentId(), descriptor.getTemplateId(), "",
                                 "", false));
                 break;
             case LINK_TYPE_BINARY:
-                Link binaryLink = this.resolveBinaryLink(descriptor);
-                if(binaryLink.isResolved()) {
-                    updateDescriptor(descriptor, this.resolveBinaryLink(descriptor));
-                    break;
-                }
+                updateDescriptor(descriptor, this.resolveBinaryLink(descriptor));
+                break;
             case LINK_TYPE_COMPONENT:
             default:
-                final ComponentLink componentLink = new ComponentLink(null, descriptor.getPublicationId(), useRelativeUrls);
+
+                long start = System.currentTimeMillis();
+                final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
                 Link resolvedLink = componentLink.getLink(
                         descriptor.getPageId(),
                         descriptor.getComponentId(),
@@ -118,23 +118,31 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                         "",
                         false,
                         false);
-                updateDescriptor(descriptor, resolvedLink.isResolved() ? resolvedLink : this.resolveBinaryLink(descriptor));
+                updateDescriptor(descriptor, resolvedLink.isResolved() ? resolvedLink :
+                        this.resolveBinaryLink(descriptor));
+                TimerLogger.log("Resolve Component Link. Is Resolved: " + resolvedLink.isResolved() +
+                                ", id:" + descriptor.getComponentId(),
+                        (System.currentTimeMillis() - start));
+
                 break;
-
-
         }
     }
 
     private Link resolveBinaryLink(SingleLinkDescriptor descriptor) {
-        final BinaryLink binaryLink = new BinaryLink(null, descriptor.getPublicationId(), useRelativeUrls);
-        return binaryLink.getLink(
+        long start = System.currentTimeMillis();
+        final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
+        Link link =  binaryLink.getLink(
                 TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
                 "",
                 "",
                 "",
                 "",
                 false);
+        TimerLogger.log("Resolve Binary link: " + descriptor.getComponentId() +
+                " Resolved: " + link.isResolved(), (System.currentTimeMillis() - start));
+        return link;
     }
+
 
     private void updateDescriptor(final SingleLinkDescriptor descriptor, final Link link) {
 
@@ -142,13 +150,13 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
             String resolvedLink = link.getURL();
             String resolvedUrl = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedLink) : resolvedLink;
-            if (shouldKeepTrailingSlash && (!resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedLink)) {
+            if (shouldKeepTrailingSlash && (! "/".equals(resolvedUrl)) && PathUtils.isIndexPath(resolvedLink)) {
                 resolvedUrl = resolvedUrl + "/";
             }
 
             descriptor.update(
                     this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) :
-                            resolvedUrl);
+                    resolvedUrl);
         } else {
             descriptor.update("");
         }

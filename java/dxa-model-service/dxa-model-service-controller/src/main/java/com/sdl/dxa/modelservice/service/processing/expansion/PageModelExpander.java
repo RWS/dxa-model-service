@@ -9,6 +9,7 @@ import com.sdl.dxa.api.datamodel.model.util.ListWrapper;
 import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
@@ -84,6 +85,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         this.batchLinkResolver.resolveAndFlush();
 
         log.info("Expansion of the page with id {} has taken {} ms.", page.getId(), System.currentTimeMillis() - startTime);
+        TimerLogger.log("Expand page", System.currentTimeMillis() - startTime);
     }
 
     @Override
