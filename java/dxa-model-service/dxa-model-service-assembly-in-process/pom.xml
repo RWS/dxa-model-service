@@ -32,6 +32,7 @@
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone</standalone.build.dir>
+        <activemq.version>5.14.5</activemq.version>
         <geronimo.j2ee.version>1.0.1</geronimo.j2ee.version>
         <geronimo.jms.version>1.1.1</geronimo.jms.version>
         <hawtbuf.version>1.11</hawtbuf.version>
@@ -941,6 +942,10 @@
         <dependency>
             <groupId>com.microsoft</groupId>
             <artifactId>sqljdbc4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
