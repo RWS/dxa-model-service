@@ -121,6 +121,12 @@
                 <include>com.tridion:cd_session</include>
                 <include>com.tridion:cd_wrapper</include>
                 <include>com.tridion:cd_preview_web</include>
+                <include>com.sdl.web:content-v2-odata-types</include>
+                <include>com.sdl.web:content-v2-odata</include>
+                <include>com.sdl.web:content-common</include>
+                <include>com.sdl.web:content-model</include>
+                <include>com.sdl.web:content-core</include>
+
 
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>

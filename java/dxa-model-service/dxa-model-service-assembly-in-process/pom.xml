@@ -423,6 +423,34 @@
                 <version>${udp.version.range}</version>
             </dependency>
 
+            <!-- Needed for the preview cartridge -->
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-v2-odata-types</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-v2-odata</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-common</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-model</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-core</artifactId>
+                <version>${udp.version.range}</version>
+            </dependency>
+
             <dependency>
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
@@ -802,6 +830,27 @@
             <groupId>com.tridion</groupId>
             <artifactId>cd_preview_web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-v2-odata-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-v2-odata</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-core</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>commons-dbcp</groupId>
