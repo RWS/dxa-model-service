@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
+import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
@@ -101,31 +102,46 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                                 "", false));
                 break;
             case LINK_TYPE_BINARY:
+                updateDescriptor(descriptor, this.resolveBinaryLink(descriptor));
+                break;
             case LINK_TYPE_COMPONENT:
             default:
-                final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
-                Link resolvedLink = binaryLink.getLink(
-                        TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
-                        "",
-                        "",
-                        "",
-                        "",
-                        false);
-                if(resolvedLink.isResolved()) {
-                    updateDescriptor(descriptor, resolvedLink);
-                } else {
-                    final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
-                    resolvedLink = componentLink.getLink(descriptor.getPageId(), descriptor.getComponentId(), -1, "", "", false, false);
 
-                    updateDescriptor(descriptor, resolvedLink);
-                }
+                long start = System.currentTimeMillis();
+                final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
+                Link resolvedLink = componentLink.getLink(
+                        descriptor.getPageId(),
+                        descriptor.getComponentId(),
+                        -1,
+                        "",
+                        "",
+                        false,
+                        false);
+                updateDescriptor(descriptor, resolvedLink.isResolved() ? resolvedLink :
+                        this.resolveBinaryLink(descriptor));
+                TimerLogger.log("Resolve Component Link. Is Resolved: " + resolvedLink.isResolved() +
+                                ", id:" + descriptor.getComponentId(),
+                        (System.currentTimeMillis() - start));
 
                 break;
-
-
-
         }
     }
+
+    private Link resolveBinaryLink(SingleLinkDescriptor descriptor) {
+        long start = System.currentTimeMillis();
+        final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
+        Link link =  binaryLink.getLink(
+                TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
+                "",
+                "",
+                "",
+                "",
+                false);
+        TimerLogger.log("Resolve Binary link: " + descriptor.getComponentId() +
+                " Resolved: " + link.isResolved(), (System.currentTimeMillis() - start));
+        return link;
+    }
+
 
     private void updateDescriptor(final SingleLinkDescriptor descriptor, final Link link) {
 
@@ -133,7 +149,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
             String resolvedLink = link.getURL();
             String resolvedUrl = shouldStripIndexPath ? PathUtils.stripIndexPath(resolvedLink) : resolvedLink;
-            if (shouldKeepTrailingSlash && (! resolvedUrl.equals("/")) && PathUtils.isIndexPath(resolvedLink)) {
+            if (shouldKeepTrailingSlash && (! "/".equals(resolvedUrl)) && PathUtils.isIndexPath(resolvedLink)) {
                 resolvedUrl = resolvedUrl + "/";
             }
 

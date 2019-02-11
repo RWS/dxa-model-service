@@ -6,6 +6,7 @@ import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
@@ -99,8 +100,11 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @NotNull
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
+        long start = System.currentTimeMillis();
+
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
+        TimerLogger.log("Load Page Content", (System.currentTimeMillis() - start));
         return _processR2PageModel(pageContent, pageRequest);
     }
 
@@ -134,6 +138,9 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
+
+        long start = System.currentTimeMillis();
+
         DataModelType publishedModelType = getModelType(pageContent);
         PageModelData pageModel;
         if (publishedModelType == DataModelType.DD4T) {
@@ -155,6 +162,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         _getModelExpander(pageRequest).expandPage(pageModelData);
         log.trace("expanded the whole model for {}", pageRequest);
 
+        TimerLogger.log("Process R2 Model: " + pageModel.getId(), (System.currentTimeMillis() - start));
+
         return pageModelData;
     }
 
@@ -165,6 +174,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
+
+        long start = System.currentTimeMillis();
         if (pageModel.getRegions() != null) {
             Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
             while (iterator.hasNext()) {
@@ -191,6 +202,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                 }
             }
         }
+        TimerLogger.log("Expansion", (System.currentTimeMillis() - start));
         return pageModel;
     }
 

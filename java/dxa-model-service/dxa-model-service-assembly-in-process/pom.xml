@@ -32,6 +32,10 @@
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone</standalone.build.dir>
+        <activemq.version>5.14.5</activemq.version>
+        <geronimo.j2ee.version>1.0.1</geronimo.j2ee.version>
+        <geronimo.jms.version>1.1.1</geronimo.jms.version>
+        <hawtbuf.version>1.11</hawtbuf.version>
     </properties>
 
     <build>
@@ -524,6 +528,26 @@
                 <artifactId>sqljdbc4</artifactId>
                 <version>${mssql-jdbc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+                <version>${geronimo.j2ee.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jms_1.1_spec</artifactId>
+                <version>${geronimo.jms.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtbuf</groupId>
+                <artifactId>hawtbuf</artifactId>
+                <version>${hawtbuf.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -874,6 +898,22 @@
         <dependency>
             <groupId>com.microsoft</groupId>
             <artifactId>sqljdbc4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.hawtbuf</groupId>
+            <artifactId>hawtbuf</artifactId>
         </dependency>
     </dependencies>
 </project>
