@@ -27,6 +27,15 @@ Refer to [documentation](https://sdldocreach01.sdlproducts.com/LiveContent/conte
 
 Installer tool can re-configure the existing Model Service. Simply run installer as for the first time; installer will not ask about SDL Web layout again, and neither you need it for the repeating call.
 
+## Using ActiveMQ
+
+If you use ActiveMQ for cache invalidation in the in-process Model Service and if you use the Active MQ client with version 
+**5.13.0** or higher, then add the following command line parameter, environment variable or JVM option to either *installService.ps1*,
+*start.ps1* or *start.sh*:
+
+    -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=com.tridion.cache,org.apache.activemq,com.thoughtworks.xstream,java.lang
+
+
 ## Start/stop the Model Service Container from the command line in Windows
 
 To start the Model in Windows, please run the Power Shell script `.\bin\start.ps1`.
