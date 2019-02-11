@@ -1,7 +1,6 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
@@ -85,7 +84,6 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         if (descriptor == null) {
             return;
         }
-        long start = System.currentTimeMillis();
 
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:
@@ -107,17 +105,9 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
                 if (binaryLink.isResolved()) {
                     updateDescriptor(descriptor, binaryLink);
-                    TimerLogger.log("Resolve Binary Link. Is Resolved: " + binaryLink.isResolved() +
-                                    ", id:" + descriptor.getComponentId(),
-                            (System.currentTimeMillis() - start));
                 } else {
                     final Link componentLink = resolveComponentLink(descriptor);
                     updateDescriptor(descriptor, componentLink);
-                    TimerLogger.log(
-                            "Resolve Component Link as fallback from Binary Link. Is Resolved: "
-                                    + componentLink.isResolved() +
-                                    ", id:" + descriptor.getComponentId(),
-                            (System.currentTimeMillis() - start));
                 }
                 break;
 
@@ -125,9 +115,6 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
             default:
                 final Link componentLink = resolveComponentLink(descriptor);
                 updateDescriptor(descriptor, componentLink);
-                TimerLogger.log("Resolve Component Link. Is Resolved: " + componentLink.isResolved() +
-                                ", id:" + descriptor.getComponentId(),
-                        (System.currentTimeMillis() - start));
                 break;
         }
     }
