@@ -58,12 +58,7 @@
               -->
 
             <RemoteSynchronization FlushCacheDuringDisconnectInterval="${objectcacheflushinterval:-20000}" Queuesize="${objectcachequeuesize:-1024}" ServiceMonitorInterval="${objectcachemonitorinterval:-10000}">
-                <Connector Class="com.tridion.cache.JMSCacheChannelConnector" Topic="SDLWeb"
-                           UseActiveMQRest="${useactivemqrest:-false}"
-                           ActiveMQRestClientUser="${activemqrestclientuser:-admin}"
-                           ActiveMQRestClientSecret="${activemqrestclientsecret:-admin}"
-                           ActiveMQRestURL="${activemqresturl:-http://activemq:8161/api/jolokia}"
-                           UseActiveMQRestAsync="${useactivemqrestasync:-false}">
+                <Connector Class="com.tridion.cache.JMSCacheChannelConnector" Topic="${activemqtopic:-Tridion}">
                     <JndiContext>
                         <Property Name="java.naming.factory.initial" Value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                         <Property Name="java.naming.provider.url" Value="${activemqurl:-tcp://activemq:61616?soTimeout=50000&amp;useInactivityMonitor=false}"/>
