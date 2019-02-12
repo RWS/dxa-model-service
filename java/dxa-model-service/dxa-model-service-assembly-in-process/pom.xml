@@ -592,9 +592,5 @@
             <groupId>org.fusesource.hawtbuf</groupId>
             <artifactId>hawtbuf</artifactId>
         </dependency>
-        <dependency>
-        <groupId>com.microsoft</groupId>
-            <artifactId>sqljdbc4</artifactId>
-        </dependency>
     </dependencies>
 </project>
