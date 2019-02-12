@@ -171,7 +171,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-
         long start = System.currentTimeMillis();
 
         DataModelType publishedModelType = getModelType(pageContent);

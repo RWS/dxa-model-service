@@ -1,5 +1,7 @@
 package com.sdl.dxa.tridion.linking.api.descriptors;
 
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
+
 public interface SingleLinkDescriptor extends LinkDescriptor {
 
     void subscribe(String subscriptionId);
@@ -11,6 +13,8 @@ public interface SingleLinkDescriptor extends LinkDescriptor {
     String getLinkId();
 
     Integer getComponentId();
+
+    LinkProcessor getLinkProcessor();
 
     /**
      * @return ID of the template the component is rendered with.

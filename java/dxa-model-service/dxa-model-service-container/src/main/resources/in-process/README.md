@@ -1,4 +1,5 @@
 # Getting started with the Model Service Container
+# Getting started with the Model Service Container
 
 Please find below brief instructions on how to setup and run the Model Service Container.
 
@@ -21,11 +22,20 @@ The following artifacts will be installed to this Model Service Container but no
 - `com.sdl.delivery:service-container-assembly:zip`
 
 You can run it simply by executing `prepare.bat` or `prepare.sh` sctipr for Windows or *nix/MacOS environments respectively. Scripts are located in the `installer` folder. 
-Refer to [documentation](https://sdldocreach01.sdlproducts.com/LiveContent/content/en-US/SDL%20DXA-v10/GUID-6DAAFE4F-05D0-4E51-88B0-87A611D5CBB7) for details on how to use installer tool.
+Refer to [documentation](https://docs.sdl.com/LiveContent/content/en-US/SDL%20DXA-v10/GUID-6DAAFE4F-05D0-4E51-88B0-87A611D5CBB7) for details on how to use installer tool.
 
 ## Re-configuring the working Model Service
 
 Installer tool can re-configure the existing Model Service. Simply run installer as for the first time; installer will not ask about SDL Web layout again, and neither you need it for the repeating call.
+
+## Using ActiveMQ
+
+If you use ActiveMQ for cache invalidation in the in-process Model Service and if you use the Active MQ client with version 
+**5.13.0** or higher, then add the following command line parameter, environment variable or JVM option to either *installService.ps1*,
+*start.ps1* or *start.sh*:
+
+    -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=com.tridion.cache,org.apache.activemq,com.thoughtworks.xstream,java.lang
+
 
 ## Start/stop the Model Service Container from the command line in Windows
 

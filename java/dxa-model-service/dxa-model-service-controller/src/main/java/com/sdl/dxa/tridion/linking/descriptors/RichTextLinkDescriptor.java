@@ -8,13 +8,7 @@ import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 
 public class RichTextLinkDescriptor extends BaseMultipleLinksDescriptor {
     public RichTextLinkDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
-        super(publicationId, links, linkProcessor);
+        super(publicationId, links, linkProcessor, LINK_TYPE_BINARY);
     }
-
-    @Override
-    public String getType() {
-        return LINK_TYPE_BINARY;
-    }
-
 }
 

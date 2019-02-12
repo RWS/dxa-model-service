@@ -20,7 +20,7 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
 
     public DynamicComponentLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
-        super(publicationId, linkProcessor);
+        super(publicationId, linkProcessor, LINK_TYPE_DYNAMIC_COMPONENT);
 
         String dynamicId = linkProcessor.getId();
 
@@ -55,11 +55,6 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
             return match != null ? Integer.parseInt(match) : -2;
         }
         return failed;
-    }
-
-    @Override
-    public String getType() {
-        return LINK_TYPE_DYNAMIC_COMPONENT;
     }
 }
 

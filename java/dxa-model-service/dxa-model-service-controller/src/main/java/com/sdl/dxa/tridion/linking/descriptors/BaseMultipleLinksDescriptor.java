@@ -7,7 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
+
 public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescriptor {
+
+    private String type;
 
     private LinkListProcessor linkProcessor;
 
@@ -15,10 +19,15 @@ public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescri
 
     private Integer publicationId;
 
-    BaseMultipleLinksDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
+    BaseMultipleLinksDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor, String type) {
         this.publicationId = publicationId;
         this.links = this.prepareLinks(links);
         this.linkProcessor = linkProcessor;
+        this.type = type;
+    }
+
+    BaseMultipleLinksDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
+        this(publicationId, links, linkProcessor, LINK_TYPE_COMPONENT);
     }
 
     @Override
@@ -42,5 +51,10 @@ public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescri
 
     public void update(Map<String, String> links) {
         this.linkProcessor.update(links);
+    }
+
+    @Override
+    public String getType() {
+        return this.type;
     }
 }

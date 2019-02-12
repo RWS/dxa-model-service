@@ -88,76 +88,67 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         }
         long start = System.currentTimeMillis();
 
+        final Integer pubId = descriptor.getPublicationId();
+        final Integer pageId = descriptor.getPageId();
+        final Integer componentId = descriptor.getComponentId();
+
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:
 
-                final PageLink pageLink = new PageLink(descriptor.getPublicationId());
-                updateDescriptor(descriptor, pageLink.getLink(descriptor.getPageId()));
+                final PageLink pageLink = new PageLink(pubId);
+                updateDescriptor(descriptor, pageLink.getLink(pageId));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
 
                 final DynamicComponentLink dynamicComponentLink =
-                        new DynamicComponentLink(descriptor.getPublicationId());
+                        new DynamicComponentLink(pubId);
                 updateDescriptor(descriptor, dynamicComponentLink
-                        .getLink(descriptor.getPageId(), descriptor.getComponentId(), descriptor.getTemplateId(), "",
+                        .getLink(pageId, componentId, descriptor.getTemplateId(), "",
                                 "", false));
                 break;
             case LINK_TYPE_BINARY:
-                final Link binaryLink = this.resolveBinaryLink(descriptor);
+                final Link binaryLink = this.resolveBinaryLink(pubId, componentId);
 
                 if (binaryLink.isResolved()) {
                     updateDescriptor(descriptor, binaryLink);
-                    TimerLogger.log("Resolve Binary Link. Is Resolved: " + binaryLink.isResolved() +
-                                    ", id:" + descriptor.getComponentId(),
-                            (System.currentTimeMillis() - start));
                 } else {
-                    final Link componentLink = resolveComponentLink(descriptor);
+                    final Link componentLink = resolveComponentLink(pubId, pageId, componentId);
                     updateDescriptor(descriptor, componentLink);
-                    TimerLogger.log(
-                            "Resolve Component Link as fallback from Binary Link. Is Resolved: "
-                                    + componentLink.isResolved() +
-                                    ", id:" + descriptor.getComponentId(),
-                            (System.currentTimeMillis() - start));
                 }
-                break;
 
+                break;
             case LINK_TYPE_COMPONENT:
             default:
-                final Link componentLink = resolveComponentLink(descriptor);
+                final Link componentLink = resolveComponentLink(pubId, pageId, componentId);
                 updateDescriptor(descriptor, componentLink);
-                TimerLogger.log("Resolve Component Link. Is Resolved: " + componentLink.isResolved() +
-                                ", id:" + descriptor.getComponentId(),
-                        (System.currentTimeMillis() - start));
                 break;
         }
     }
 
-    private Link resolveComponentLink(final SingleLinkDescriptor descriptor) {
-        final ComponentLink componentLink = new ComponentLink(descriptor.getPublicationId());
+    private Link resolveBinaryLink(final Integer publicationId, final Integer componentId) {
+        final BinaryLink binaryLink = new BinaryLink(publicationId);
+        return binaryLink.getLink(
+                TcmUtils.buildTcmUri(publicationId, componentId),
+                "",
+                "",
+                "",
+                "",
+                false);
 
+    }
+
+    private Link resolveComponentLink(final Integer publicationId, final Integer pageId, final Integer componentId) {
+        final ComponentLink componentLink = new ComponentLink(publicationId);
         return componentLink.getLink(
-                descriptor.getPageId(),
-                descriptor.getComponentId(),
+                pageId,
+                componentId,
                 -1,
                 "",
                 "",
                 false,
                 false);
-
     }
-
-    private Link resolveBinaryLink(SingleLinkDescriptor descriptor) {
-        final BinaryLink binaryLink = new BinaryLink(descriptor.getPublicationId());
-        return binaryLink.getLink(
-                TcmUtils.buildTcmUri(descriptor.getPublicationId(), descriptor.getComponentId()),
-                "",
-                "",
-                "",
-                "",
-                false);
-    }
-
 
     private void updateDescriptor(final SingleLinkDescriptor descriptor, final Link link) {
 

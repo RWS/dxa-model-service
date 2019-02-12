@@ -338,6 +338,11 @@
             <artifactId>commons-compress</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <!-- OData client for Disco registration -->
 
         <dependency>
