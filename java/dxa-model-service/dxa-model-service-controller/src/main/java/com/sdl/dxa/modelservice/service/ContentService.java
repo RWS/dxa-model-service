@@ -173,7 +173,6 @@ public class ContentService {
     }
 
     String loadPageContent(int publicationId, int pageId) throws ContentProviderException {
-        long start = System.currentTimeMillis();
         try {
             log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
             CharacterData data = new PageContentFactory().getPageContent(publicationId, pageId);

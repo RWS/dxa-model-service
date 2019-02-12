@@ -85,7 +85,6 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         if (descriptor == null) {
             return;
         }
-        long start = System.currentTimeMillis();
 
         final Integer pubId = descriptor.getPublicationId();
         final Integer pageId = descriptor.getPageId();

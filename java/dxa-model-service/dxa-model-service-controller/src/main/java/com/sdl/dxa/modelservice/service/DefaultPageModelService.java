@@ -103,8 +103,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @NotNull
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
-        long start = System.currentTimeMillis();
-
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
 
@@ -169,8 +167,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        long start = System.currentTimeMillis();
-
         DataModelType publishedModelType = getModelType(pageContent);
         PageModelData pageModel;
         if (publishedModelType == DataModelType.DD4T) {
@@ -202,8 +198,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
-
-        long start = System.currentTimeMillis();
         if (pageModel.getRegions() != null) {
             Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
             while (iterator.hasNext()) {
