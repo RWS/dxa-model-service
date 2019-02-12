@@ -8,7 +8,6 @@ import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.EntityRequestDto;
-import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
@@ -110,7 +109,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         log.trace("Loaded page content for {}", pageRequest);
 
         final PageModelData pageModelData = _processR2PageModel(pageContent, pageRequest);
-        TimerLogger.log("Load Page Content", (System.currentTimeMillis() - start));
         return pageModelData;
     }
 
@@ -194,8 +192,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         _getModelExpander(pageRequest).expandPage(pageModelData);
         log.trace("expanded the whole model for {}", pageRequest);
 
-        TimerLogger.log("Process R2 Model: " + pageModel.getId(), (System.currentTimeMillis() - start));
-
         return pageModelData;
     }
 
@@ -234,7 +230,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                 }
             }
         }
-        TimerLogger.log("Expansion", (System.currentTimeMillis() - start));
         return pageModel;
     }
 

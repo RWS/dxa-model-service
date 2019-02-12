@@ -5,7 +5,6 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.metrics.TimerLogger;
 import com.sdl.dxa.tridion.compatibility.TridionQueryLoader;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
@@ -181,7 +180,6 @@ public class ContentService {
             if (data == null) {
                 throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
             }
-            TimerLogger.log("Get char data", (System.currentTimeMillis() - start));
             return data.getString();
         } catch (IOException e) {
             ContentProviderException exception = new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);
