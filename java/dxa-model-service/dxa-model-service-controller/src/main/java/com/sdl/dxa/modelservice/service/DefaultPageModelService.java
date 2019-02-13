@@ -105,7 +105,9 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
-        return _processR2PageModel(pageContent, pageRequest);
+
+        final PageModelData pageModelData = _processR2PageModel(pageContent, pageRequest);
+        return pageModelData;
     }
 
     private List<EntityModelData> _expandDynamicEntities(@NotNull RegionModelData region, int publicationId) throws ContentProviderException {

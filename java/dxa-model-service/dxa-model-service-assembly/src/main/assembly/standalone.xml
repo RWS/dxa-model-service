@@ -144,7 +144,7 @@
 
                 <include>joda-time:joda-time</include>
                 <include>org.jsoup:jsoup</include>
-
+                <include>com.google.guava:guava</include>
 
                 <include>org.projectlombok:lombok</include>
 
