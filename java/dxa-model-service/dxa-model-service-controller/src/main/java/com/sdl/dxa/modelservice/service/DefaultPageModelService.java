@@ -8,6 +8,7 @@ import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
+import com.sdl.dxa.modelservice.service.processing.expansion.DataModelExpansionException;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
@@ -197,7 +198,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                 }
                             }
                         } catch (ContentProviderException e){
-                            log.error("Include Page '{0}' not found.", region.getIncludePageId());
+                            _suppressIfNeeded(String.format("Include Page '%s' not found.", region.getIncludePageId()), configService.getErrors().isMissingIncludePageSuppress(),e);
                         }
                 }
             }
@@ -212,6 +213,14 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }
+
+    private void _suppressIfNeeded(String message, boolean suppressingFlag, ContentProviderException e) {
+        log.warn(message, e);
+        if (!suppressingFlag) {
+            throw new DataModelExpansionException(message, e);
+        }
+    }
+
 
     @Lookup
     public BatchLinkResolver getBatchLinkResolver() {
