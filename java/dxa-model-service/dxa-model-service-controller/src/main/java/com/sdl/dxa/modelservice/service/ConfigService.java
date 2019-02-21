@@ -48,6 +48,8 @@ public class ConfigService {
         private boolean missingKeywordSuppress;
 
         private boolean missingEntitySuppress;
+
+        private boolean missingIncludePageSuppress;
     }
 
     @Data
