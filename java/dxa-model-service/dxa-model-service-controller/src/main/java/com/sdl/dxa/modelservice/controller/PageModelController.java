@@ -91,7 +91,7 @@ public class PageModelController {
 
             result = dataModelType == DataModelType.R2 ?
                     pageModelService.loadPageModel(pageRequestDto) :
-                    JsonDataBinder.getGenericMapper().writeValueAsString(legacyPageModelService.loadLegacyPageModel(pageRequestDto));
+                    legacyPageModelService.loadLegacyPageModel(pageRequestDto);
         }
         return ResponseEntity.ok(result);
     }
