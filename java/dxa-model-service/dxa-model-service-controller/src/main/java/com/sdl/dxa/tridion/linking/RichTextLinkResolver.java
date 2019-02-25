@@ -98,6 +98,7 @@ public class RichTextLinkResolver {
      *
      * @param fragment       fragment of a rich text to process
      * @param localizationId current localization ID
+     * @param contextId the context Id, usually the current page Id.
      * @return modified fragment
      */
     public String processFragment(@NotNull String fragment, int localizationId, int contextId) {
@@ -122,6 +123,7 @@ public class RichTextLinkResolver {
      *
      * @param fragment          fragment of a rich text to process
      * @param localizationId    current localization ID
+     * @param contextId The ID of the current context. Usually a page.
      * @param notResolvedBuffer buffer to put non resolvable links to, make sure it's modifiable
      * @return modified fragment
      */
