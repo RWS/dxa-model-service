@@ -11,21 +11,23 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
     private Integer templateId;
     private Integer componentId;
+    private Integer targetPageId;
 
-    private final Pattern SEPARATE_IDS =
+    private static final Pattern SEPARATE_IDS =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
             Pattern.compile("(?<componentId>\\d+)-(?<templateId>\\d+)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
 
-    public DynamicComponentLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
+    public DynamicComponentLinkDescriptor(Integer publicationId, Integer targetPageId, LinkProcessor linkProcessor) {
         super(publicationId, linkProcessor, LINK_TYPE_DYNAMIC_COMPONENT);
 
         String dynamicId = linkProcessor.getId();
 
         this.templateId = extractGroupFromId(dynamicId, "templateId");
         this.componentId = extractGroupFromId(dynamicId, "componentId");
+        this.targetPageId = targetPageId;
     }
 
     @Override
@@ -37,10 +39,16 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
     public Integer getTemplateId() {
         return this.templateId;
     }
-
+    
     @Override
     public String getLinkId() {
-        return String.format("%s-%s-%s", this.getPublicationId(), this.getComponentId().toString(), this.getTemplateId().toString());
+        return String.format("%s-%s-%s-%s", this.getPublicationId(), this.targetPageId,
+                this.getComponentId().toString(), this.getTemplateId().toString());
+    }
+
+    @Override
+    public Integer getPageId() {
+        return this.targetPageId;
     }
 
     private int extractGroupFromId(String id, String group) {

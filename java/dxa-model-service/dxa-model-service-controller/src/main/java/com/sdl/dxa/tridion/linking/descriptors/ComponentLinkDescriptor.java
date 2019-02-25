@@ -4,8 +4,21 @@ import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
 public class ComponentLinkDescriptor extends BaseLinkDescriptor {
 
-    public ComponentLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
+    private Integer sourcePageId;
+
+    public ComponentLinkDescriptor(Integer publicationId, Integer sourcePageId, LinkProcessor linkProcessor) {
         super(publicationId, linkProcessor);
+        this.sourcePageId = sourcePageId;
+    }
+
+    @Override
+    public String getLinkId() {
+        return String.format("%s-%s-%s", this.getPublicationId(), this.sourcePageId, this.getComponentId().toString());
+    }
+
+    @Override
+    public Integer getPageId() {
+        return this.sourcePageId;
     }
 }
 

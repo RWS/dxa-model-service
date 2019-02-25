@@ -30,6 +30,7 @@ import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,15 +59,18 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private ConfigService configService;
 
+    private Integer pageId;
+
     public PageModelExpander(PageRequestDto pageRequest, EntityModelService entityModelService,
                              RichTextLinkResolver richTextLinkResolver, LinkResolver linkResolver,
-                             ConfigService configService, BatchLinkResolver batchLinkResolver) {
+                             ConfigService configService, BatchLinkResolver batchLinkResolver, Integer pageId) {
         this.pageRequest = pageRequest;
         this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
         this.linkResolver = linkResolver;
         this.configService = configService;
         this.batchLinkResolver = batchLinkResolver;
+        this.pageId = pageId;
     }
 
     /**
@@ -97,16 +101,23 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     @Override
     protected void processPageModel(PageModelData pageModelData) {
+
+        // Note: we get the page ID here in case we're inside an include page.
+        int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
+
         Map<String, String> meta = pageModelData.getMeta();
         for (Map.Entry<String, String> entry : meta.entrySet()) {
             if (TcmUtils.isTcmUri(entry.getValue())) {
                 Integer pubId = TcmUtils.getPublicationId(entry.getValue());
-                SingleLinkDescriptor ld = new BinaryLinkDescriptor(pubId, new EntryLinkProcessor(meta, entry.getKey()));
+
+
+                SingleLinkDescriptor ld = new BinaryLinkDescriptor(pubId, pageId, new EntryLinkProcessor(meta,
+                        entry.getKey()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
                 List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
                 this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), links,
+                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), pageId, links,
                                 new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(),
                                         this.richTextLinkResolver)));
 
@@ -122,10 +133,13 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         SingleLinkDescriptor ld;
         if (entityModelData.getId().matches("\\d+-\\d+")) {
-            ld = new DynamicComponentLinkDescriptor(pageRequest.getPublicationId(),
+            ld = new DynamicComponentLinkDescriptor(
+                    pageRequest.getPublicationId(),
+                    this.pageId,
                     new EntityLinkProcessor(entityModelData));
         } else {
-            ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+            ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(),
+                    this.pageId,new EntityLinkProcessor(entityModelData));
         }
 
         this.batchLinkResolver.dispatchLinkResolution(ld);
@@ -170,7 +184,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                         .retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight());
 
                     this.batchLinkResolver.dispatchMultipleLinksResolution(
-                            new RichTextLinkDescriptor(pageRequest.getPublicationId(), links,
+                            new RichTextLinkDescriptor(pageRequest.getPublicationId(), this.pageId, links,
                                     new FragmentListProcessor(richTextData, (ImmutablePair<String, String>) fragment,
                                             this.richTextLinkResolver)));
 
@@ -236,8 +250,9 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     }
 
     private void _expandEntity(EntityModelData toExpand, PageRequestDto pageRequest) {
-        EntityRequestDto entityRequest =
-                EntityRequestDto.builder(pageRequest.getPublicationId(), toExpand.getId()).build();
+
+        EntityRequestDto entityRequest = EntityRequestDto.builder(
+                pageRequest.getPublicationId(), toExpand.getId(), this.pageId).build();
 
         log.trace("Found entity to expand {}, request {}", toExpand.getId(), entityRequest);
         try {

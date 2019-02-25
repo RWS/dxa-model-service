@@ -68,4 +68,6 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     public LinkProcessor getLinkProcessor() {
         return this.linkProcessor;
     }
+
+
 }
