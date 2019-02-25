@@ -12,7 +12,7 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
     private Integer templateId;
     private Integer componentId;
 
-    private final Pattern SEPARATE_IDS =
+    private static final Pattern SEPARATE_IDS =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
             Pattern.compile("(?<componentId>\\d+)-(?<templateId>\\d+)",
