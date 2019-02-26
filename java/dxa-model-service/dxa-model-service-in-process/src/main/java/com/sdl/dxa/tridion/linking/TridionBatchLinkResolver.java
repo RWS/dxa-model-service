@@ -57,14 +57,16 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
 
             Integer pubId = descriptor.getPublicationId();
+            Integer pageId = descriptor.getPageId();
             SingleLinkDescriptor ld = null;
 
             if (descriptor.getType().equals(LINK_TYPE_BINARY)) {
-                ld = new BinaryLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
+                ld = new BinaryLinkDescriptor(pubId, pageId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
             }
 
             if (descriptor.getType().equals(LINK_TYPE_COMPONENT)) {
-                ld = new ComponentLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
+                ld = new ComponentLinkDescriptor(pubId, pageId, new MultipleEntryLinkProcessor(links,
+                        linkEntry.getKey()));
             }
 
             dispatchLinkResolution(ld);

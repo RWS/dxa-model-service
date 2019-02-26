@@ -2,11 +2,11 @@ package com.sdl.dxa.tridion.linking;
 
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
+import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
+import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
-import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
-import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.MultipleEntryLinkProcessor;
 import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
@@ -77,12 +77,14 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor) {
         Map<String, String> links = descriptor.getLinks();
         Integer pubId = descriptor.getPublicationId();
+        Integer contextId = descriptor.getPageId();
+
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
             LinkProcessor processor = new MultipleEntryLinkProcessor(links, linkEntry.getKey());
             if (LINK_TYPE_BINARY.equals(descriptor.getType())) {
-                dispatchLinkResolution(new BinaryLinkDescriptor(pubId, processor));
+                dispatchLinkResolution(new BinaryLinkDescriptor(pubId, contextId, processor));
             } else if (LINK_TYPE_COMPONENT.equals(descriptor.getType())) {
-                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, processor));
+                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, contextId, processor));
             }
         }
         this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
