@@ -18,6 +18,13 @@ So in order to solve all these problems, this artifact was introduced. It has re
 - Run application in development with this artifact in a classpath so that all resources are available in classpath in runtime too;
 - Pack this resources into the assembly since the project's structure is known and fixed.
 
+Building the Model Service
+---
+Ensure that you've locally installed the cd_* jars required for the build, minimally cd_broker.jar. The command to do so is:
+
+	mvn install:install-file -DgroupId=com.tridion -DartifactId=cd_broker 
+	    -Dversion=<TRIDION_VERSION> -Dpackaging=jar -Dfile=cd_broker-<TRIDION_VERSION>.jar 
+
 Running Spring Boot application from IntelliJ IDEA
 ---
 1. Running class is `com.sdl.dxa.DxaModelServiceApplication` from `dxa-model-service-controller`.

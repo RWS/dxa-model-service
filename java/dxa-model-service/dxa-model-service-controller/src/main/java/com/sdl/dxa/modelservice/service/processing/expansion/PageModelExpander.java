@@ -30,7 +30,6 @@ import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -102,22 +101,19 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     @Override
     protected void processPageModel(PageModelData pageModelData) {
 
-        // Note: we get the page ID here in case we're inside an include page.
-        int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
-
         Map<String, String> meta = pageModelData.getMeta();
         for (Map.Entry<String, String> entry : meta.entrySet()) {
             if (TcmUtils.isTcmUri(entry.getValue())) {
                 Integer pubId = TcmUtils.getPublicationId(entry.getValue());
 
 
-                SingleLinkDescriptor ld = new BinaryLinkDescriptor(pubId, pageId, new EntryLinkProcessor(meta,
+                SingleLinkDescriptor ld = new BinaryLinkDescriptor(pubId, this.pageId, new EntryLinkProcessor(meta,
                         entry.getKey()));
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
                 List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
                 this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), pageId, links,
+                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), this.pageId, links,
                                 new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(),
                                         this.richTextLinkResolver)));
 
