@@ -12,8 +12,8 @@ import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
-import org.dd4t.databind.builder.json.JsonDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -94,13 +94,16 @@ public class PageModelController {
         Object result;
         if (pageRequestDto.getContentType() == ContentType.RAW) {
             result = contentService.loadPageContent(pageRequestDto);
+
+            // We must always return the raw String.
+            return new ResponseEntity<>((String) result, HttpStatus.OK);
         } else {
 
             result = pageRequestDto.getDataModelType() == DataModelType.R2 ?
                     pageModelService.loadPageModel(pageRequestDto) :
                     legacyPageModelService.loadLegacyPageModel(pageRequestDto);
+            return ResponseEntity.ok(result);
         }
-        return ResponseEntity.ok(result);
     }
 
     private PageRequestDto buildPageRequest(String uriType, int localizationId, Optional<Integer> pageId,
