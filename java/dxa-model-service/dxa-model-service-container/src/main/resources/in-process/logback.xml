@@ -4,12 +4,23 @@
     <property name="log.pattern" value="%date %-5level %logger{15} - %message %n"/>
     <property name="log.color.pattern" value="%date %highlight(%-5level) %cyan(%logger{15}) - %message %n"/>
     <property name="log.history" value="7"/>
-    <property name="log.level" value="${MS_LOG_LEVEL:-DEBUG}"/>
+    <property name="log.level" value="${MS_LOG_LEVEL:-INFO}"/>
     <property name="core.log.level" value="${log.level}"/>
     <property name="log.encoding" value="UTF-8"/>
     <property name="log.folder" value="${MS_LOG_FOLDER:-./logs}"/>
 
     <!-- Appenders -->
+    <appender name="appender.cache" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.folder}/cd_client.cachelog.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${log.history}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>${log.encoding}</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <prudent>true</prudent>
+    </appender>
     <appender name="rollingADFLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${log.folder}/cd_adf.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -24,17 +35,6 @@
     <appender name="rollingCoreLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${log.folder}/cd_core.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>${log.history}</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <charset>${log.encoding}</charset>
-            <pattern>${log.pattern}</pattern>
-        </encoder>
-        <prudent>true</prudent>
-    </appender>
-    <appender name="rollingSessionLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.folder}/cd_session.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>${log.history}</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -70,13 +70,6 @@
     <logger name="com.tridion" level="${core.log.level}">
         <appender-ref ref="rollingCoreLog"/>
     </logger>
-    <logger name="com.tridion.storage.persistence.session" level="${core.log.level}">
-        <appender-ref ref="rollingSessionLog"/>
-    </logger>
-    <logger name="com.tridion.storage.session" level="${core.log.level}">
-        <appender-ref ref="rollingSessionLog"/>
-    </logger>
-
     <logger name="com.sdl.web" level="${core.log.level}">
         <appender-ref ref="rollingCoreLog"/>
     </logger>
