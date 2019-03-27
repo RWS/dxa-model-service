@@ -1,7 +1,6 @@
 pipeline {
     agent {
         node { label 'linux&&docker' }
-	def jdk8BuilderImage = docker.build("jdk8-maven:${env.BUILD_ID}", "-f jdk8.build.Dockerfile .") 
     }
 
     stages {
@@ -19,28 +18,40 @@ pipeline {
             }
         }
 */
-        
-        stage ('Build a branch') {
+
+        stage('Create the docker builder image(s)') {
+            steps {
+                script {
+                    def jdk8BuilderImage = docker.build("jdk8-maven:${env.BUILD_ID}", "-f jdk8.build.Dockerfile .")
+                }
+            }
+        }
+
+        stage('Build a branch') {
             when { not { branch 'develop' } }
             // Not on the develop branch, so build it, but do not install it.
             steps {
                 //Sometime in the future these maven-settings should not be needed here (model service should build without acces to SDL repositories)
                 withCredentials([file(credentialsId: 'dxa-maven-settings', variable: 'MAVEN_SETTINGS_PATH')]) {
-                    //Build on JDK8:
-                    jdk8BuilderImage.inside {
-                        sh "mvn -s $MAVEN_SETTINGS_PATH -B clean verify"
+                    script {
+                        //Build on JDK8 and deploy it to local repository:
+                        jdk8BuilderImage.inside {
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -B clean verify"
+                        }
                     }
-		}
+                }
             }
         }
 
-        stage ('Build and deploy from develop') {
+        stage('Build and deploy from develop') {
             when { branch 'develop' }
             steps {
-                //Build on JDK8 and deploy it to local repository:
                 withCredentials([file(credentialsId: 'dxa-maven-settings', variable: 'MAVEN_SETTINGS_PATH')]) {
-                    jdk8BuilderImage.inside {
-                        sh "mvn -B -s $MAVEN_SETTINGS_PATH -Plocal-repository clean source:jar deploy"
+                    script {
+                        //Build on JDK8 and deploy it to local repository:
+                        jdk8BuilderImage.inside {
+                            sh "mvn -B -s $MAVEN_SETTINGS_PATH -Plocal-repository clean source:jar deploy"
+                        }
                     }
                 }
             }
