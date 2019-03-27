@@ -22,7 +22,7 @@ pipeline {
         stage('Create the docker builder image(s)') {
             steps {
                 script {
-                    def jdk8BuilderImage = docker.build("jdk8-maven:${env.BUILD_ID}", "-f jdk8.build.Dockerfile .")
+                    jdk8BuilderImage = docker.build("jdk8-maven:${env.BUILD_ID}", "-f jdk8.build.Dockerfile .")
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
                 //Sometime in the future these maven-settings should not be needed here (model service should build without acces to SDL repositories)
                 withCredentials([file(credentialsId: 'dxa-maven-settings', variable: 'MAVEN_SETTINGS_PATH')]) {
                     script {
-                        //Build on JDK8 and deploy it to local repository:
+                        //Build on JDK8
                         jdk8BuilderImage.inside {
                             sh "mvn -s $MAVEN_SETTINGS_PATH -B clean verify"
                         }
