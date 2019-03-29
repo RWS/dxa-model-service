@@ -61,6 +61,20 @@
         <scala-parser-combinators.version>1.1.1</scala-parser-combinators.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>releases-nexus</id>
+            <name>SDL Releases</name>
+            <url>https://nexus.sdl.com/repository/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots-nexus</id>
+            <name>SDL Snapshots</name>
+            <url>https://nexus.sdl.com/repository/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+
     <dependencyManagement>
         <dependencies>
 
@@ -563,6 +577,21 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+	<profile>
+            <id>sonatype-repository</id>
+            <distributionManagement>
+                <repository>
+                    <id>sonatype-nexus-staging</id>
+                    <name>Nexus Staging Repository</name>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>sonatype-nexus-snapshots</id>
+                    <name>Sonatype Nexus Snapshots</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                </snapshotRepository>
+            </distributionManagement>
         </profile>
     </profiles>
 </project>
