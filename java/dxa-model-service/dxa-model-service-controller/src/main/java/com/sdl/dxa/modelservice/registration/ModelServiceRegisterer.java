@@ -41,7 +41,7 @@ public class ModelServiceRegisterer {
     private static final XPathConfigurationPath CONTENT_SERVICE_CAPABILITY_ROLE_XPATH =
             new XPathConfigurationPath("/Roles/Role[@Name=\"ContentServiceCapability\"]");
 
-    private final SecuredODataClient dataClient;
+    private final ODataClientProvider dataClientProvider;
 
     private final Configuration configuration;
 
@@ -49,7 +49,7 @@ public class ModelServiceRegisterer {
 
     public ModelServiceRegisterer() throws ConfigurationException {
         configuration = readConfiguration();
-        dataClient = new ODataClientProvider(configuration).provideClient();
+        dataClientProvider = new ODataClientProvider(configuration);
     }
 
     public static void main(String[] args) throws ConfigurationException {
@@ -86,12 +86,12 @@ public class ModelServiceRegisterer {
 
         storedCapability.setExtensionProperties(mergedProperties);
         storedCapability.setEnvironment(environment);
-        dataClient.updateEntity(storedCapability);
+        dataClientProvider.provideClient().updateEntity(storedCapability);
 
         log.info("Registered Model Service {} on behalf of user {}", newCapability, registeredFrom);
     }
 
-    @Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 /* once a minute after a minute */)
+    //@Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 /* once a minute after a minute */)
     public void verifyRegistration() throws ConfigurationException {
         ContentServiceCapability capability = loadStoredCapability();
         Optional<KeyValuePair> property = findRegistrationProperty(capability.getExtensionProperties());
@@ -116,7 +116,7 @@ public class ModelServiceRegisterer {
     }
 
     private ContentServiceCapability loadStoredCapability() throws ConfigurationException {
-        return dataClient.<ContentServiceCapability>getEntities(new BasicODataClientQuery.Builder().withEntityType(ContentServiceCapability.class).build())
+        return dataClientProvider.provideClient().<ContentServiceCapability>getEntities(new BasicODataClientQuery.Builder().withEntityType(ContentServiceCapability.class).build())
                 .stream()
                 .filter(ContentServiceCapability.class::isInstance)
                 .map(ContentServiceCapability.class::cast)

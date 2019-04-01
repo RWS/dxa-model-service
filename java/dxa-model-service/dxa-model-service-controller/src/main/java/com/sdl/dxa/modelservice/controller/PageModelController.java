@@ -1,19 +1,19 @@
 package com.sdl.dxa.modelservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sdl.dxa.caching.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
+import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
 import com.sdl.dxa.modelservice.controller.Utils.ClaimCookieUtils;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
-import org.dd4t.databind.builder.json.JsonDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -94,13 +94,16 @@ public class PageModelController {
         Object result;
         if (pageRequestDto.getContentType() == ContentType.RAW) {
             result = contentService.loadPageContent(pageRequestDto);
+
+            // We must always return the raw String.
+            return new ResponseEntity<>((String) result, HttpStatus.OK);
         } else {
 
             result = pageRequestDto.getDataModelType() == DataModelType.R2 ?
                     pageModelService.loadPageModel(pageRequestDto) :
-                    JsonDataBinder.getGenericMapper().writeValueAsString(legacyPageModelService.loadLegacyPageModel(pageRequestDto));
+                    legacyPageModelService.loadLegacyPageModel(pageRequestDto);
+            return ResponseEntity.ok(result);
         }
-        return ResponseEntity.ok(result);
     }
 
     private PageRequestDto buildPageRequest(String uriType, int localizationId, Optional<Integer> pageId,

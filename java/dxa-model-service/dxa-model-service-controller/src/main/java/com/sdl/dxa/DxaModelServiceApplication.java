@@ -1,24 +1,39 @@
 package com.sdl.dxa;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.sdl.dxa.caching.TridionCacheConfiguration;
-import com.sdl.web.ambient.client.AmbientClientFilter;
-import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
-import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
-import com.tridion.ambientdata.web.AmbientDataServletFilter;
-import com.tridion.taxonomies.TaxonomyRelationManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-@SpringBootApplication
-@EnableScheduling
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
+
+
+@SpringBootApplication(exclude = {HibernateJpaAutoConfiguration.class, DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class})
 @PropertySource("classpath:dxa.properties")
-@Import({TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
-public class DxaModelServiceApplication {
+@Import({ModelServiceConfiguration.class, TridionCacheConfiguration.class, Dd4tSpringConfiguration.class})
+public class DxaModelServiceApplication extends WebMvcConfigurerAdapter {
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     /**
      * The main method stays here only because it is needed for development. Should not affect the application.
@@ -28,23 +43,24 @@ public class DxaModelServiceApplication {
         AnsiOutput.setEnabled(AnsiOutput.Enabled.DETECT);
     }
 
-    @Bean
-    public AmbientClientFilter ambientClientFilter() {
-        return new AmbientClientFilter();
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        final ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
+
+        objectMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, true);
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
+        stringConverter.setSupportedMediaTypes(Arrays.asList(
+                MediaType.TEXT_PLAIN,
+                MediaType.TEXT_HTML,
+                MediaType.APPLICATION_JSON));
+
+        converters.add(stringConverter);
+        converters.add(new MappingJackson2HttpMessageConverter(objectMapper));
+
+        super.configureMessageConverters(converters);
     }
 
-    @Bean
-    public AmbientDataServletFilter ambientDataServletFilter() {
-        return new AmbientDataServletFilter();
-    }
-
-    @Bean
-    public WebTaxonomyFactory webTaxonomyFactory() {
-        return new WebTaxonomyFactoryImpl();
-    }
-
-    @Bean
-    public TaxonomyRelationManager taxonomyRelationManager() {
-        return new TaxonomyRelationManager();
-    }
 }

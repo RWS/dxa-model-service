@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 /**
  * Config service encapsulates logic to get settings for specific features of Model Service
+ *
+ * Will work in-process and over OData
  */
 @Data
 @Service

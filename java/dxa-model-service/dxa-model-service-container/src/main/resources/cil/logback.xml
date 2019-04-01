@@ -7,7 +7,7 @@
     <property name="log.level" value="${MS_LOG_LEVEL:-INFO}"/>
     <property name="cil.log.level" value="${CIL_LOG_LEVEL:-WARN}"/>
     <property name="log.encoding" value="UTF-8"/>
-    <property name="log.folder" value="${MS_LOG_FOLDER:-C:/SDLWeb/log}"/>
+    <property name="log.folder" value="${MS_LOG_FOLDER:-./logs}"/>
 
     <!-- Appenders -->
     <appender name="appender.cil" class="ch.qos.logback.core.rolling.RollingFileAppender">

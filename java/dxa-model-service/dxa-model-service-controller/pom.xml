@@ -3,67 +3,83 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sdl.dxa</groupId>
-    <artifactId>dxa-model-service-controller</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <name>DXA Model Service</name>
-    <description>DXA Model Service</description>
-
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.3.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <groupId>com.sdl.dxa</groupId>
+        <artifactId>dxa-model-service</artifactId>
+        <version>2.2.0-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+    <artifactId>dxa-model-service-controller</artifactId>
+    <packaging>jar</packaging>
 
-        <dxa.version>${project.version}</dxa.version>
-        <cil.version>11.0.0-SNAPSHOT</cil.version>
+    <name>DXA Model Service Controller</name>
+    <description>DXA Model Service</description>
 
-        <powermock.version>1.6.6</powermock.version>
-
-        <jackson.version>2.9.6</jackson.version>
-        <dd4t.version>2.1.2</dd4t.version>
-    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <!-- DXA & SDL Web -->
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-data-model</artifactId>
-            <version>${dxa.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-common</artifactId>
-            <version>${dxa.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-tridion-common</artifactId>
-            <version>${dxa.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.web</groupId>
-            <artifactId>cil</artifactId>
-            <version>${cil.version}</version>
-            <type>pom</type>
+            <!-- Exclusions to deal with content-compatible only -->
             <exclusions>
                 <exclusion>
-                    <artifactId>ugc_container</artifactId>
-                    <groupId>com.sdl.web</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>ugc_taglib</artifactId>
-                    <groupId>com.sdl.web</groupId>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>cil</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>cil</artifactId>
+            <type>pom</type>
+            <scope>test</scope>
+            <!-- Exclusions to deal with content-compatible only -->
+            <exclusions>
+                <exclusion>
+                    <artifactId>udp-ugc-container</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>udp-ugc-taglib</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-api-broker</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cil-api-compatible</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.delivery</groupId>
+            <artifactId>udp-cis-model</artifactId>
         </dependency>
 
         <dependency>
@@ -74,7 +90,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-core</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -93,7 +108,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-api</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -112,7 +126,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-providers</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -132,7 +145,6 @@
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-providers-common</artifactId>
-            <version>${dd4t.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -152,19 +164,16 @@
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-discovery-registration-api</artifactId>
-            <version>${cil.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-adf-engine</artifactId>
-            <version>${cil.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-oauth</artifactId>
-            <version>${cil.version}</version>
         </dependency>
 
         <dependency>
@@ -207,7 +216,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -232,19 +240,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

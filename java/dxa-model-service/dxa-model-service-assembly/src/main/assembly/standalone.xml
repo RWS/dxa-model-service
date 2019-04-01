@@ -14,6 +14,7 @@
             <outputDirectory>${standalone.path}</outputDirectory>
             <excludes>
                 <exclude>README.md</exclude>
+                <exclude>cloud-assembly</exclude>
             </excludes>
         </fileSet>
         <fileSet>
@@ -48,30 +49,128 @@
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
             <includes>
-                <include>*:jar:*</include>
+
+                <include>com.sdl.dxa:dxa-model-service-controller</include>
+                <include>com.sdl.dxa:dxa-model-service-odata</include>
+                <include>com.sdl.dxa:dxa-data-model</include>
+                <include>com.sdl.dxa:dxa-common</include>
+                <include>com.sdl.dxa:dxa-tridion-common</include>
+
+                <include>com.sdl.delivery:udp-adf-client</include>
+                <include>com.sdl.delivery:udp-adf-api</include>
+                <include>com.sdl.delivery:udp-adf-engine</include>
+                <!-- Needed?
+                                audiencemanager_common-8.6.0.jar
+                                audiencemanager_core-8.6.0.jar
+                                audiencemanager_odata_client-8.6.0.jar
+                                audiencemanager_odata_models-8.6.0.jar
+                                audiencemanager_profile_compatibility-8.6.0.jar
+                                audiencemanager_tracking_compatibility-8.6.0.jar
+                  -->
+                <include>javax.cache:cache-api</include>
+
+                <include>com.sdl.delivery:udp-common-config-legacy</include>
+                <include>com.sdl.delivery:udp-core</include>
+                <include>com.sdl.delivery:udp-model</include>
+
+                <include>com.sdl.delivery:udp-preview-cartridge	</include>
+                <include>com.sdl.delivery:udp-preview-cil</include>
+                <include>com.sdl.delivery:udp-preview-cis-common</include>
+                <include>com.sdl.delivery:udp-preview-cis-session-common</include>
+
+                <include>commons-beanutils:commons-beanutils</include>
+                <include>commons-collections:commons-collections</include>
+                <include>org.apache.commons:commons-lang3</include>
+                <include>commons-io:commons-io</include>
+                <include>commons-codec:commons-codec</include>
+                <include>org.apache.commons:commons-compress</include>
+                <include>org.apache.commons:commons-pool2</include>
+
+                <include>com.sdl.delivery:udp-cil-adf</include>
+                <include>com.sdl.delivery:udp-cis-adf-model</include>
+                <include>com.sdl.delivery:udp-cis-api</include>
+                <include>com.sdl.delivery:udp-cil-api-broker</include>
+                <include>com.sdl.delivery:udp-cil-api</include>
+                <include>com.sdl.delivery:udp-cil-api-compatible</include>
+                <include>com.sdl.delivery:udp-cis-core</include>
+                <include>com.sdl.delivery:udp-cil-api-dynamic</include>
+                <include>com.sdl.delivery:udp-cil-api-linking</include>
+                <include>com.sdl.delivery:udp-cis-model</include>
+                <include>com.sdl.delivery:udp-cil-tags</include>
+                <include>com.sdl.delivery:udp-oauth</include>
+                <include>com.sdl.delivery:udp-oauth-common</include>
+                <include>com.sdl.delivery:udp-discovery-registration-api</include>
+                <include>com.sdl.delivery:udp-discovery-client-lightweight</include>
+                <include>com.sdl.delivery:udp-discovery-common</include>
+
+                <include>com.sdl.delivery:udp-context-api</include>
+                <include>com.sdl.delivery:udp-context-client</include>
+                <include>com.sdl.delivery:udp-context-image-proxy</include>
+                <include>com.sdl.delivery:udp-context-service-common</include>
+
+                <include>org.dd4t:dd4t-*</include>
+
+
+                <include>net.sf.dozer:dozer</include>
+
+                <include>org.ehcache:ehcache</include>
+                <include>io.github.lukehutch:fast-classpath-scanner</include>
+                <include>de.ruedigermoeller:fst</include>
+                <include>com.google.code.gson:gson</include>
+
+                <include>org.apache.httpcomponents:httpclient</include>
+                <include>org.apache.httpcomponents:httpcore</include>
+
+                <include>com.fasterxml.jackson.module:jackson-module-afterburner</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-joda</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jdk8</include>
+
+                <include>org.fusesource.jansi:jansi</include>
+                <include>org.javassist:javassist</include>
+
+                <include>redis.clients:jedis</include>
+                <!-- TODO check what is needed here
+                javax.annotation-api-1.2.jar
+                javax.el-api-2.2.5.jar
+                javax.inject-2.5.0-b05.jar
+                javax.ws.rs-api-2.0.1.jar
+
+                jersey-client-2.23.2.jar
+                jersey-common-2.23.2.jar
+                jersey-guava-2.23.2.jar
+                -->
+
+                <include>org.codehaus.jettison:jettison</include>
+
+                <include>joda-time:joda-time</include>
+                <include>org.jsoup:jsoup</include>
+                <include>com.google.guava:guava</include>
+
+                <include>org.projectlombok:lombok</include>
+
+                <include>org.objenesis:objenesis</include>
+
+                <include>com.sdl:odata_api</include>
+                <include>com.sdl:odata_client_api</include>
+                <include>com.sdl:odata_client</include>
+                <include>com.sdl:odata_edm</include>
+                <include>com.sdl:odata_parser</include>
+                <include>com.sdl:odata_renderer</include>
+
+                <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
+                <include>org.scala-lang:scala-library</include>
+                <include>org.simpleframework:simple-xml</include>
+
+                <include>org.springframework:spring-context-support</include>
+                <include>org.springframework.boot:spring-boot-starter-cache</include>
+
+                <!--stax-1.2.0.jar - needed?-->
+                <include>stax:stax</include>
+                <include>javax.xml.stream:stax-api</include>
+                <include>javax.validation:validation-api</include>
+
+                <include>xpp3:xpp3</include>
             </includes>
-            <excludes>
-                <!-- Exclude service container artifacts -->
-                <exclude>com.tridion:cd_common_util</exclude>
-                <exclude>com.sdl.delivery:service-container-assembly</exclude>
-                <exclude>com.sdl.delivery:service-container-core</exclude>
-                <exclude>com.sdl.web:web-oauth</exclude>
-                <exclude>com.sdl.web:web-ambient-engine</exclude>
-                <exclude>com.sdl.web:discovery-registration-api</exclude>
-                <exclude>org.apache.deamon:apache-procrun:exe:procrun:1.0</exclude>
-                <exclude>org.aspectj:aspectjweaver</exclude>
-                <exclude>com.fasterxml:classmate</exclude>
-                <exclude>org.hibernate:hibernate-validator</exclude>
-                <exclude>org.jboss.logging:jboss-logging</exclude>
-                <exclude>org.slf4j:jcl-*</exclude>
-                <exclude>org.slf4j:jul-*</exclude>
-                <exclude>org.slf4j:log4j-*</exclude>
-                <exclude>org.slf4j:slf4j-*</exclude>
-                <exclude>ch.qos.logback:logback-*</exclude>
-                <exclude>org.yaml:snakeyaml</exclude>
-                <exclude>org.apache.tomcat.embed:tomcat-embed-*</exclude>
-                <exclude>javax.validation:validation-api</exclude>
-            </excludes>
             <outputDirectory>${standalone.path}/services/model-service</outputDirectory>
         </dependencySet>
     </dependencySets>
