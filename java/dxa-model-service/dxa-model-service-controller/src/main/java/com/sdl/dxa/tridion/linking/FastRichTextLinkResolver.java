@@ -2,7 +2,6 @@ package com.sdl.dxa.tridion.linking;
 
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -23,13 +22,13 @@ import java.util.regex.Pattern;
  */
 @Component
 @Slf4j
-public class RichTextLinkResolver {
+public class FastRichTextLinkResolver {
 
     /**
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
      */
     private static final Pattern XMLNS_FOR_REMOVAL =
-            Pattern.compile("(xlink:|xmlns:?[^\"]*\"[^\"]*\".*?)",
+            Pattern.compile("(xlink|xmlns):href=\"[^\"]*?\"",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern SPACES_FOR_REMOVAL =
@@ -37,47 +36,38 @@ public class RichTextLinkResolver {
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern XLINK_XLMNS_FOR_GENERATING_HREF =
-            Pattern.compile("(?<before>.*(xlink|xmlns):(?<tag>href=)(?<value>\"[^\"]*?\"))(?<after>.*)",
+            Pattern.compile("(?<before><a[^>]*?\\s)(?<prefix>(xlink|xmlns):)(?<tag>href=)(?<value>\"[^\"]*?\")(?<after>[^>]*?>)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern COLLECT_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
-            // Original, slow: ".*?<a[^>]*\\shref=\"(?<tcmUri>tcm:\\d+-\\d+)\"[^>]*>"
             Pattern.compile("href=\"(?<tcmUri>tcm:\\d++-\\d++)\"",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern START_LINK =
+    private static final Pattern FULL_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // beforeWithLink: <p>Text <a data="1" href=
             // before: <p>Text
             // tcmUri: tcm:1-2
             // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*?\\s++href=\")(?<tcmUri>tcm:\\d++-\\d++)(?<afterWithLink>\"[^>]*?>(?<after>.*))",
+            Pattern.compile("(?<openingTagStart><a[^>]*?\\s++href=\")(?<tcmUri>tcm:\\d++-\\d++)(?<openingTagEnd>\"[^>]*?>)(?<linkText>.*?)(?<closingTag></a>)<!--CompLink\\s++tcm:\\d++-\\d++-->",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-
-    private static final Pattern END_LINK =
-            // <p>Text <a data="1" href="resolved-link" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // beforeWithLink: <p>Text <a data="1" href="resolved-link" data2="2">link text</a>
-            // before: <p>Text <a data="1" href="resolved-link" data2="2">link text
-            // tcmUri: tcm:1-2
-            // after: after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)</a>)<!--CompLink\\s*+(?<tcmUri>tcm:\\d++-\\d++)-->(?<after>.*)",
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+    public static final int BUFFER_CAPACITY = 1024;
 
     private final LinkResolver linkResolver;
 
     private final ConfigService configService;
 
-    private final BatchLinkResolver batchLinkResolver;
+    private interface ResolveOrGetLink {
+        String getByTcmUri(String tcmUrl, int localizationId);
+    }
 
     @Autowired
-    public RichTextLinkResolver(@Qualifier("dxaLinkResolver") LinkResolver linkResolver, ConfigService configService,
-                                BatchLinkResolver batchLinkResolver) {
+    public FastRichTextLinkResolver(@Qualifier("dxaLinkResolver") LinkResolver linkResolver, ConfigService configService) {
         this.linkResolver = linkResolver;
         this.configService = configService;
-        this.batchLinkResolver = batchLinkResolver;
     }
 
     /**
@@ -122,9 +112,12 @@ public class RichTextLinkResolver {
             return fragment;
         }
 
-        final String _fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(fragment) : generateHref(fragment);
-
-        return processEndLinks(processStartLinks(_fragment, localizationId, notResolvedBuffer), notResolvedBuffer);
+        String fragmentToProcess = configService.getDefaults().isRichTextXmlnsRemove()
+                ? dropXlmns(fragment)
+                : generateHref(fragment);
+        String result = processLinks(fragmentToProcess, localizationId, notResolvedBuffer);
+        Matcher withoutExcessiveSpaces = SPACES_FOR_REMOVAL.matcher(result);
+        return withoutExcessiveSpaces.replaceAll("$1");
     }
 
     /**
@@ -135,14 +128,9 @@ public class RichTextLinkResolver {
      */
     String dropXlmns(String fragment) {
         Matcher matcher = XMLNS_FOR_REMOVAL.matcher(fragment);
-
-        if (matcher.find()) {
-            return matcher
-                    .replaceAll("")
-                    .replaceAll(SPACES_FOR_REMOVAL.pattern(), "$1$2");
-        }
-
-        return fragment;
+        return matcher
+                .replaceAll("")
+                .replaceAll(SPACES_FOR_REMOVAL.pattern(), "$1$2");
     }
 
     /**
@@ -152,17 +140,20 @@ public class RichTextLinkResolver {
      * @return the same fragment with href added
      */
     String generateHref(String fragment) {
-        String _fragment = fragment;
-        Matcher matcher = XLINK_XLMNS_FOR_GENERATING_HREF.matcher(_fragment);
+        Matcher matcher = XLINK_XLMNS_FOR_GENERATING_HREF.matcher(fragment);
 
-        if (matcher.matches()) {
-            Matcher hrefAlreadyThere = START_LINK.matcher(_fragment);
-            if (!hrefAlreadyThere.matches()) {
-                _fragment = matcher.group("before") + " " + matcher.group("tag") + matcher.group("value") + matcher.group("after");
+        StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
+        while (matcher.find()) {
+            String replacement = matcher.group("before") + matcher.group("prefix") + matcher.group("tag") + matcher.group("value") + " " + matcher.group("tag") + matcher.group("value") + matcher.group("after");
+            if (matcher.group(0).contains(" href=" + matcher.group("value"))) {
+                //already has 'xmlns:href' and 'ref', do not need to append 'href' at all
+                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(0)));
+            } else {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
             }
         }
-
-        return _fragment;
+        matcher.appendTail(result);
+        return result.toString();
     }
 
     /**
@@ -206,75 +197,34 @@ public class RichTextLinkResolver {
     }
 
     @NotNull
-    String processStartLinks(@NotNull String stringFragment, int localizationId, @NotNull Set<String> linksNotResolved) {
+    String processLinks(@NotNull String stringFragment, int localizationId, @NotNull Set<String> linksNotResolved, ResolveOrGetLink resolver) {
         String fragment = stringFragment;
-        Matcher startMatcher = START_LINK.matcher(fragment);
-
-        while (startMatcher.matches()) {
+        Matcher startMatcher = FULL_LINK.matcher(fragment);
+        StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
+        while (startMatcher.find()) {
             String tcmUri = startMatcher.group("tcmUri");
-            String link = linkResolver.resolveLink(tcmUri, String.valueOf(localizationId), true);
+            String link = resolver.getByTcmUri(tcmUri, localizationId);
             if (Strings.isNullOrEmpty(link)) {
                 log.info("Cannot resolve link to {}, suppressing link", tcmUri);
-                fragment = startMatcher.group("before") + startMatcher.group("after");
+                startMatcher.appendReplacement(result, Matcher.quoteReplacement(startMatcher.group("linkText")));
                 linksNotResolved.add(tcmUri);
             } else {
                 log.debug("Resolved link to {} as {}", tcmUri, link);
-                fragment = startMatcher.group("beforeWithLink") + link + startMatcher.group("afterWithLink");
+                String replacement = startMatcher.group("openingTagStart") + link + startMatcher.group("openingTagEnd") + startMatcher.group("linkText") + startMatcher.group("closingTag");
+                startMatcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
             }
-
-            startMatcher = START_LINK.matcher(fragment);
         }
+        startMatcher.appendTail(result);
+        return result.toString().replaceAll("<!--CompLink\\s++tcm:\\d++-\\d++-->", "");
+    }
 
-        return fragment;
+    @NotNull
+    String processLinks(@NotNull String stringFragment, int localizationId, @NotNull Set<String> linksNotResolved) {
+        return processLinks(stringFragment, localizationId, linksNotResolved, (tcmUri, localizationId1) -> linkResolver.resolveLink(tcmUri, String.valueOf(localizationId1), true));
     }
 
     @NotNull
     public String applyBatchOfLinksStart(@NotNull String stringFragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> linksNotResolved) {
-        String fragment = stringFragment;
-        Matcher startMatcher = START_LINK.matcher(fragment);
-
-        if (!configService.getDefaults().isRichTextResolve()) {
-            log.debug("RichText link resolving is turned off, don't do anything");
-            return fragment;
-        }
-
-        fragment = configService.getDefaults().isRichTextXmlnsRemove() ? dropXlmns(stringFragment) : generateHref(stringFragment);
-
-        while (startMatcher.matches()) {
-            String tcmUri = startMatcher.group("tcmUri");
-            String link = batchOfLinks.get(tcmUri);
-            if (Strings.isNullOrEmpty(link)) {
-                log.info("Link to {} has not been resolved, suppressing link", tcmUri);
-                fragment = startMatcher.group("before") + startMatcher.group("after");
-                linksNotResolved.add(tcmUri);
-            } else {
-                log.debug("Link to {} has been resolved as {}", tcmUri, link);
-                fragment = startMatcher.group("beforeWithLink") + link + startMatcher.group("afterWithLink");
-            }
-
-            startMatcher = START_LINK.matcher(fragment);
-        }
-
-        return processEndLinks(fragment, linksNotResolved);
-    }
-
-    @NotNull
-    private String processEndLinks(@NotNull String stringFragment, @NotNull Set<String> linksNotResolved) {
-        String fragment = stringFragment;
-        Matcher endMatcher = END_LINK.matcher(fragment);
-        while (endMatcher.matches()) {
-            String tcmUri = endMatcher.group("tcmUri");
-            if (linksNotResolved.contains(tcmUri)) {
-                log.trace("Tcm URI {} was not resolved, removing end </a> with marker", tcmUri);
-                fragment = endMatcher.group("before") + endMatcher.group("after");
-            } else {
-                log.trace("Tcm URI {} was resolved, removing only marker, leaving </a>", tcmUri);
-                fragment = endMatcher.group("beforeWithLink") + endMatcher.group("after");
-            }
-
-            endMatcher = END_LINK.matcher(fragment);
-        }
-
-        return fragment;
+        return processLinks(stringFragment, 0, linksNotResolved, (tcmUri, localizationId) -> batchOfLinks.get(tcmUri));
     }
 }

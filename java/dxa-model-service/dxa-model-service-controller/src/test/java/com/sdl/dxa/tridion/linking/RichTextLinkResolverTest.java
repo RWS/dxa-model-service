@@ -3,6 +3,7 @@ package com.sdl.dxa.tridion.linking;
 import com.google.common.collect.Lists;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.webapp.common.api.content.LinkResolver;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +12,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,7 +33,7 @@ public class RichTextLinkResolverTest {
     private ConfigService configService;
 
     @InjectMocks
-    private RichTextLinkResolver richTextLinkResolver;
+    private FastRichTextLinkResolver richTextLinkResolver;
 
     @Before
     public void init() {
@@ -214,7 +218,6 @@ public class RichTextLinkResolverTest {
         assertEquals("<p>\nText <a data-first=\"1\" href=\"resolved-link\" data-second=\"2\">\nlink text</a>\n</p>", result);
     }
 
-
     @Test
     public void testGetAllFragmentsThroughRegex() {
 
@@ -256,5 +259,48 @@ public class RichTextLinkResolverTest {
 
         assertEquals(0, links.size());
         System.out.println("Duration: " + end + " ms.");
+    }
+
+    @Test
+    public void testApplyBatchOfLinksStart() {
+        String fragment = getFragments();
+
+        Map<String, String> batchOfLinks = new LinkedHashMap<>();
+        batchOfLinks.put("tcm:15-980", "<link1/>");
+        batchOfLinks.put("tcm:17-982", "<link3/>");
+        when(linkResolver.resolveLink("tcm:15-980", "1", true)).thenReturn("<link1/>");
+        when(linkResolver.resolveLink("tcm:17-982", "1", true)).thenReturn("<link3/>");
+        Set<String> linksNotResolved = new LinkedHashSet<>();
+        long start = System.currentTimeMillis();
+
+        String droppedXmlns = richTextLinkResolver.dropXlmns("<a xmlns:href=\"tcm:4-29\">LINK1</a>"+
+                "<a xmlns:href=\"tcm:2-21\">LINK2</a>");
+        String generatedHref = richTextLinkResolver.generateHref("<a xmlns:href=\"tcm:4-29\">LINK1</a>"+
+                "<a xmlns:href=\"tcm:2-21\">LINK2</a>" +
+                "<a xmlns:href=\"tcm:3-2\" href=\"tcm:3-2\">LINK3</a>");
+        List<String> links = richTextLinkResolver.retrieveAllLinksFromFragment(fragment.toString());
+        String fragments = richTextLinkResolver.processFragment(fragment.toString(), 1, linksNotResolved);
+        String resolvedFragments = richTextLinkResolver.applyBatchOfLinksStart(fragment.toString(), batchOfLinks, linksNotResolved);
+
+        assertEquals(4, links.size());
+        assertEquals("<a>LINK1</a><a>LINK2</a>", droppedXmlns);
+        assertEquals("tcm:18-983", links.get(3));
+        assertEquals("<a xmlns:href=\"tcm:4-29\" href=\"tcm:4-29\">LINK1</a>" +
+                "<a xmlns:href=\"tcm:2-21\" href=\"tcm:2-21\">LINK2</a>" +
+                "<a xmlns:href=\"tcm:3-2\" href=\"tcm:3-2\">LINK3</a>", generatedHref);
+        assertEquals("<p>Text <a data=\"1\" href=\"resolved-link\" data2=\"2\">link text</a> after text</p><p><a title=\"Unused Component\" href=\"<link1/>\">UNRESOLVED LINK1</a> </p><p>UNRESOLVED LINK2 </p><p><a title=\"Unused Component\" href=\"<link3/>\">UNRESOLVED LINK3</a> </p><p>UNRESOLVED LINK4 </p>", fragments);
+        assertEquals("<p>Text <a data=\"1\" href=\"resolved-link\" data2=\"2\">link text</a> after text</p><p><a title=\"Unused Component\" href=\"<link1/>\">UNRESOLVED LINK1</a> </p><p>UNRESOLVED LINK2 </p><p><a title=\"Unused Component\" href=\"<link3/>\">UNRESOLVED LINK3</a> </p><p>UNRESOLVED LINK4 </p>", resolvedFragments);
+
+        System.out.println("Duration: " + (System.currentTimeMillis() - start) + " ms.");
+    }
+
+    @NotNull
+    private String getFragments() {
+        StringBuilder fragment = new StringBuilder("<p>Text <a data=\"1\" href=\"resolved-link\" data2=\"2\">link text</a><!--CompLink tcm:1-2--> after text</p>");
+        fragment.append("<p><a title=\"Unused Component\" href=\"tcm:15-980\">UNRESOLVED LINK1</a><!--CompLink tcm:15-980--> </p>" +
+        "<p><a title=\"Unused Component\" href=\"tcm:16-981\">UNRESOLVED LINK2</a><!--CompLink tcm:16-981--> </p>" +
+        "<p><a title=\"Unused Component\" href=\"tcm:17-982\">UNRESOLVED LINK3</a><!--CompLink tcm:17-982--> </p>" +
+        "<p><a title=\"Unused Component\" href=\"tcm:18-983\">UNRESOLVED LINK4</a><!--CompLink tcm:18-983--> </p>");
+        return fragment.toString();
     }
 }
