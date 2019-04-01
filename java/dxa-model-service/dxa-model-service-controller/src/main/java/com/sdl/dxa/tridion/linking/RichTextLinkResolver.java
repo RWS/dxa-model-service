@@ -44,7 +44,7 @@ public class RichTextLinkResolver {
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
             // Original, slow: ".*?<a[^>]*\\shref=\"(?<tcmUri>tcm:\\d+-\\d+)\"[^>]*>"
-            Pattern.compile("href=\"(?<tcmUri>tcm:\\d+-\\d+)\"",
+            Pattern.compile("href=\"(?<tcmUri>tcm:\\d++-\\d++)\"",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
@@ -54,7 +54,7 @@ public class RichTextLinkResolver {
             // tcmUri: tcm:1-2
             // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*\\shref=\")(?<tcmUri>tcm:\\d+-\\d+)(?<afterWithLink>\"[^>]*>(?<after>.*))",
+            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*?\\s++href=\")(?<tcmUri>tcm:\\d++-\\d++)(?<afterWithLink>\"[^>]*?>(?<after>.*))",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern END_LINK =
@@ -63,7 +63,7 @@ public class RichTextLinkResolver {
             // before: <p>Text <a data="1" href="resolved-link" data2="2">link text
             // tcmUri: tcm:1-2
             // after: after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)</a>)<!--CompLink\\s(?<tcmUri>tcm:\\d+-\\d+)-->(?<after>.*)",
+            Pattern.compile("(?<beforeWithLink>(?<before>.*?)</a>)<!--CompLink\\s*+(?<tcmUri>tcm:\\d++-\\d++)-->(?<after>.*)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private final LinkResolver linkResolver;
@@ -177,8 +177,6 @@ public class RichTextLinkResolver {
     public List<String> retrieveAllLinksFromFragment(@NotNull String fragmentString) {
         String fragment;
 
-
-
         List<String> links = new ArrayList<>();
 
         if (!configService.getDefaults().isRichTextResolve()) {
@@ -202,7 +200,7 @@ public class RichTextLinkResolver {
             links.add(startMatcher.group("tcmUri"));
         }
 
-        log.debug(">>> matching took: {} ms.", ((System.currentTimeMillis() - start)));
+        log.debug(">>> matching took: {} ms.", (System.currentTimeMillis() - start));
         log.debug(">>> Found {} links", links.size());
         return links;
     }

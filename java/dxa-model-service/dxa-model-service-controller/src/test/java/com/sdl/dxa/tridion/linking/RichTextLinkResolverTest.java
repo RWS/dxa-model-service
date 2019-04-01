@@ -251,7 +251,6 @@ public class RichTextLinkResolverTest {
                 " Ut sed nisi id velit egestas mollis.</p>";
 
         long start = System.currentTimeMillis();
-
         List<String> links = richTextLinkResolver.retrieveAllLinksFromFragment(fragment);
         long end = System.currentTimeMillis() - start;
 
