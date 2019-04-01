@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 @Component
 @Slf4j
-public class FastRichTextLinkResolver {
+public class FastRichTextLinkResolver implements IRichTextLinkResolver {
 
     /**
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.

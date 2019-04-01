@@ -8,11 +8,10 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
+import com.sdl.dxa.tridion.linking.FastRichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
-import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
-import com.sdl.webapp.common.util.TcmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
@@ -43,7 +42,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     private final ContentService contentService;
 
-    private final RichTextLinkResolver richTextLinkResolver;
+    private final FastRichTextLinkResolver richTextLinkResolver;
 
     private final ConfigService configService;
 
@@ -62,7 +61,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
                                      ContentService contentService,
                                      DataBinder dd4tDataBinder,
                                      RichTextResolver dd4tRichTextResolver,
-                                     RichTextLinkResolver richTextLinkResolver,
+                                     FastRichTextLinkResolver richTextLinkResolver,
                                      ConfigService configService) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;

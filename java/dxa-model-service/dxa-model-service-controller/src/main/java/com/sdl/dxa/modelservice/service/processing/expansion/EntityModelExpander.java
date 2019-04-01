@@ -10,7 +10,7 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.IRichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
@@ -42,7 +42,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     private EntityRequestDto entityRequest;
 
-    private RichTextLinkResolver richTextLinkResolver;
+    private IRichTextLinkResolver richTextLinkResolver;
 
     private LinkResolver linkResolver;
 
@@ -53,7 +53,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
     private boolean _resolveLinks = true;
 
     public EntityModelExpander(EntityRequestDto request,
-                               RichTextLinkResolver richTextLinkResolver,
+                               IRichTextLinkResolver richTextLinkResolver,
                                LinkResolver linkResolver,
                                ConfigService configService,
                                boolean resolveLinks,
