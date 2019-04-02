@@ -134,8 +134,16 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                     this.pageId,
                     new EntityLinkProcessor(entityModelData));
         } else {
-            ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(),
-                    this.pageId,new EntityLinkProcessor(entityModelData));
+
+            if (entityModelData.getContent() == null && entityModelData.getBinaryContent() != null) {
+                // Binary link
+                ld = new BinaryLinkDescriptor(pageRequest.getPublicationId(),
+                        this.pageId, new EntityLinkProcessor(entityModelData));
+            } else {
+
+                ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(),
+                        this.pageId, new EntityLinkProcessor(entityModelData));
+            }
         }
 
         this.batchLinkResolver.dispatchLinkResolution(ld);
