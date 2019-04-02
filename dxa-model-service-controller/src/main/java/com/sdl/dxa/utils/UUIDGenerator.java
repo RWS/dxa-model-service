@@ -15,8 +15,10 @@ import java.security.SecureRandom;
  *
  * <p>To provide backward-secrecy (i.e. a compromised generator reveals no information about UUIDs
  * which will be generated), the generator should be periodically re-seeded.
+ *
+ * NOTE: this implementation is ported from
+ * https://github.com/codahale/fast-uuid/blob/master/src/main/java/com/codahale/fastuuid/UUIDGenerator.java
  */
-
 public class UUIDGenerator {
 
     // four bytes selected for their relatively high Hamming distances
