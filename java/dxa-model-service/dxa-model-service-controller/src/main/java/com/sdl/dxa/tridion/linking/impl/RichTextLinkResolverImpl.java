@@ -30,7 +30,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
      */
     private static final Pattern XMLNS_FOR_REMOVAL =
-            Pattern.compile("\\s++x(link|mlns)(:href)?=\"[^\"]*?\"",
+            Pattern.compile("(xlink:|xmlns:?[^\"]*\"[^\"]*\".*?)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern SPACES_FOR_REMOVAL =
