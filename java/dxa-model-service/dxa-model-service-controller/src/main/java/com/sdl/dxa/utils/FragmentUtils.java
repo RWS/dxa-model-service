@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
@@ -15,7 +14,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class FragmentUtils {
 
-    private static FastUUID generator = new FastUUID(new SecureRandom());
+    private static UUIDGenerator generator = new UUIDGenerator(new SecureRandom());
 
     private FragmentUtils() {
     }

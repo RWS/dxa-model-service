@@ -12,14 +12,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FastUUIDTest {
+public class UUIDGeneratorTest {
     @Test
     public void generating() {
         final SecureRandom random = mock(SecureRandom.class);
         when(random.nextLong())
                 .thenReturn(0xb8d59fd5bc12dbb4L, 0x31e9f344b73ee369L, 0xb8d59fd5bc12dbb4L, 0x31e9f344b73ee369L);
 
-        final FastUUID generator = new FastUUID(random);
+        final UUIDGenerator generator = new UUIDGenerator(random);
         assertThat(generator.generate().toString()).isEqualTo("88e6891a-3dbc-423c-b51a-127083468307");
         assertThat(generator.generate().toString()).isEqualTo("ad173908-cbe5-49a7-8a36-b516b033b4bd");
         assertThat(generator.generate().version()).isEqualTo(4);
@@ -33,7 +33,7 @@ public class FastUUIDTest {
     public void generateLong() {
         final SecureRandom random = new SecureRandom();
 
-        final FastUUID generator = new FastUUID(random);
+        final UUIDGenerator generator = new UUIDGenerator(random);
         generator.reseed();
 
         String uuid = generator.generate().toString();

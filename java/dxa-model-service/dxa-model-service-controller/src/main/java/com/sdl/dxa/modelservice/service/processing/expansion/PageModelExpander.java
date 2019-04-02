@@ -12,7 +12,7 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
-import com.sdl.dxa.tridion.linking.IRichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
@@ -50,7 +50,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private EntityModelService entityModelService;
 
-    private IRichTextLinkResolver richTextLinkResolver;
+    private RichTextLinkResolver richTextLinkResolver;
 
     private LinkResolver linkResolver;
 
@@ -60,7 +60,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     public PageModelExpander(PageRequestDto pageRequest,
                              EntityModelService entityModelService,
-                             IRichTextLinkResolver richTextLinkResolver,
+                             RichTextLinkResolver richTextLinkResolver,
                              LinkResolver linkResolver,
                              ConfigService configService,
                              BatchLinkResolver batchLinkResolver) {

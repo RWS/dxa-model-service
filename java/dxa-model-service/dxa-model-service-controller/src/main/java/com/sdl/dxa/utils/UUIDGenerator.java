@@ -17,7 +17,7 @@ import java.security.SecureRandom;
  * which will be generated), the generator should be periodically re-seeded.
  */
 
-public class FastUUID {
+public class UUIDGenerator {
 
     // four bytes selected for their relatively high Hamming distances
     private static final byte A = 0b00000110;
@@ -32,16 +32,16 @@ public class FastUUID {
     private long v0, v1, v2, v3;
 
     /**
-     * Creates a new {@link FastUUID} seeded from the given PRNG.
+     * Creates a new {@link UUIDGenerator} seeded from the given PRNG.
      *
      * @param random a PRNG to use for a seed
      */
-    public FastUUID(SecureRandom random) {
+    public UUIDGenerator(SecureRandom random) {
         this.random = random;
         reseed();
     }
 
-    /** Re-seeds the {@link FastUUID}. */
+    /** Re-seeds the {@link UUIDGenerator}. */
     public void reseed() {
         reseed(random.nextLong(), random.nextLong());
     }

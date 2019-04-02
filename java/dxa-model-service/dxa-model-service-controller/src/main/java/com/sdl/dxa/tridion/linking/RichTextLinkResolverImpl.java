@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  */
 @Component
 @Slf4j
-public class FastRichTextLinkResolver implements IRichTextLinkResolver {
+public class RichTextLinkResolverImpl implements RichTextLinkResolver {
 
     /**
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
@@ -65,7 +65,7 @@ public class FastRichTextLinkResolver implements IRichTextLinkResolver {
     }
 
     @Autowired
-    public FastRichTextLinkResolver(@Qualifier("dxaLinkResolver") LinkResolver linkResolver, ConfigService configService) {
+    public RichTextLinkResolverImpl(@Qualifier("dxaLinkResolver") LinkResolver linkResolver, ConfigService configService) {
         this.linkResolver = linkResolver;
         this.configService = configService;
     }
@@ -83,9 +83,9 @@ public class FastRichTextLinkResolver implements IRichTextLinkResolver {
 
     /**
      * Processes a rich text fragment trying to resolve links from it. In case of non-resolvable link, puts it into buffer.
-     * <p>Reuse the same buffer if you have multiple fragments with possible links start/end parts in different fragments:</p>
+     * <p>Reuse the same buffer if you have multiple fragments with possible same links parts in different fragments:</p>
      * <pre><code>
-     *     RichTextLinkResolver resolver = new RichTextLinkResolver();
+     *     RichTextLinkResolver resolver = new RichTextLinkResolverImpl();
      *     Set&lt;String&gt; buffer = new HashSet&lt;&gt;();
      *     String[] fragments = new String[]{"&lt;a href="tcm:1-2"&gt;text", "&lt;/a&gt;&lt;!--CompLink tcm:1-2--&gt;"};
      *     String[] resolved = new String[2];

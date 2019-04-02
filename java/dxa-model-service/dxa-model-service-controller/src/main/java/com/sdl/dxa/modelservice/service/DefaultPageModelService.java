@@ -11,7 +11,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
-import com.sdl.dxa.tridion.linking.FastRichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
@@ -59,7 +59,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     private final ToR2Converter toR2Converter;
 
-    private final FastRichTextLinkResolver richTextLinkResolver;
+    private final RichTextLinkResolverImpl richTextLinkResolver;
 
     private final DataBinder dd4tDataBinder;
 
@@ -75,7 +75,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                    ContentService contentService,
                                    ToDd4tConverter toDd4tConverter,
                                    ToR2Converter toR2Converter,
-                                   FastRichTextLinkResolver richTextLinkResolver,
+                                   RichTextLinkResolverImpl richTextLinkResolver,
                                    DataBinder dd4tDataBinder,
                                    RichTextResolver dd4tRichTextResolver) {
         this.objectMapper = objectMapper;

@@ -33,7 +33,7 @@ public class RichTextLinkResolverTest {
     private ConfigService configService;
 
     @InjectMocks
-    private FastRichTextLinkResolver richTextLinkResolver;
+    private RichTextLinkResolverImpl richTextLinkResolver;
 
     @Before
     public void init() {
