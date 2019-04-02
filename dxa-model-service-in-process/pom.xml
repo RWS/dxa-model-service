@@ -12,20 +12,6 @@
     <artifactId>dxa-model-service-in-process</artifactId>
     <name>DXA Model Service In Process</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
