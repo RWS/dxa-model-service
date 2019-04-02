@@ -1,22 +1,23 @@
 package com.sdl.dxa.utils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.util.Assert;
 
 import java.security.SecureRandom;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UUIDGeneratorTest {
     @Test
     public void generating() {
-        final SecureRandom random = mock(SecureRandom.class);
-        when(random.nextLong())
+        final SecureRandom random = Mockito.mock(SecureRandom.class);
+        Mockito.when(random.nextLong())
                 .thenReturn(0xb8d59fd5bc12dbb4L, 0x31e9f344b73ee369L, 0xb8d59fd5bc12dbb4L, 0x31e9f344b73ee369L);
 
         final UUIDGenerator generator = new UUIDGenerator(random);
@@ -30,6 +31,7 @@ public class UUIDGeneratorTest {
     }
 
     @Test
+    @Ignore
     public void generateLong() {
         final SecureRandom random = new SecureRandom();
 
