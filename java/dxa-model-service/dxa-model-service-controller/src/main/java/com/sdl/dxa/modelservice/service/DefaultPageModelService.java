@@ -11,6 +11,7 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
+import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
@@ -59,7 +60,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     private final ToR2Converter toR2Converter;
 
-    private final RichTextLinkResolverImpl richTextLinkResolver;
+    private final RichTextLinkResolver richTextLinkResolver;
 
     private final DataBinder dd4tDataBinder;
 
