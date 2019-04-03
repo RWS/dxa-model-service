@@ -10,12 +10,15 @@ public class FragmentLinkListProcessor implements LinkListProcessor {
 
     private RichTextLinkResolver resolver;
 
-    private Map<String, String> model;
+    private Map<String, String> fragments;
     private String key;
     private String value;
 
-    public FragmentLinkListProcessor(Map<String, String> map, String key, String value, RichTextLinkResolver resolver) {
-        this.model = map;
+    public FragmentLinkListProcessor(Map<String, String> fragments,
+                                     String key,
+                                     String value,
+                                     RichTextLinkResolver resolver) {
+        this.fragments = fragments;
 
         this.key = key;
         this.value = value;
@@ -25,6 +28,7 @@ public class FragmentLinkListProcessor implements LinkListProcessor {
 
     @Override
     public void update(Map<String, String> links) {
-        this.model.replace(this.key, this.resolver.applyBatchOfLinksStart(this.value, links, new HashSet<>()));
+        String value = resolver.applyBatchOfLinksStart(this.value, links, new HashSet<>());
+        fragments.replace(key, value);
     }
 }
