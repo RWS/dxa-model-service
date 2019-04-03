@@ -1,7 +1,7 @@
 package com.sdl.dxa.tridion.linking.processors;
 
-import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
 
 import java.util.HashSet;
 import java.util.Map;

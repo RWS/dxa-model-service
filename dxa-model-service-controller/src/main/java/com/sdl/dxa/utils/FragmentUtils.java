@@ -2,9 +2,10 @@ package com.sdl.dxa.utils;
 
 import com.sdl.dxa.api.datamodel.model.RichTextData;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jetbrains.annotations.NotNull;
 
+import java.security.SecureRandom;
 import java.util.List;
-import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
 
@@ -13,8 +14,9 @@ import static java.util.stream.Collectors.toList;
  */
 public class FragmentUtils {
 
-    private FragmentUtils() {
+    private static UUIDGenerator generator = new UUIDGenerator(new SecureRandom());
 
+    private FragmentUtils() {
     }
 
     public static List<Object> assignUUIDsToRichTextFragments(RichTextData richTextData) {
@@ -22,12 +24,16 @@ public class FragmentUtils {
                 .stream()
                 .map(fragment -> {
                     if (fragment instanceof String) {
-                        String uuid = UUID.randomUUID().toString();
+                        String uuid = generateUuid();
                         String fragmentString = String.valueOf(fragment);
                         return new ImmutablePair<>(uuid, fragmentString);
-                    } else {
-                        return fragment;
                     }
+                    return fragment;
                 }).collect(toList());
+    }
+
+    @NotNull
+    private static String generateUuid() {
+        return generator.generate().toString();
     }
 }
