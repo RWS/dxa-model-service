@@ -84,23 +84,16 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
     protected void processEntityModel(EntityModelData entityModelData) {
         if (shouldResolveLinks()) {
             SingleLinkDescriptor ld;
-            if(entityModelData.getId().matches("\\d+-\\d+")) {
+            if (entityModelData.getId().matches("\\d+-\\d+")) {
                 ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(),
-                        this.entityRequest.getContextId(),
+                        entityRequest.getContextId(),
                         new EntityLinkProcessor(entityModelData));
             } else {
+                ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(),
+                        entityRequest.getContextId(),
+                        new EntityLinkProcessor(entityModelData));
 
-                if (entityModelData.getContent() == null && entityModelData.getBinaryContent() != null) {
-                    // Binary link
-                    ld = new BinaryLinkDescriptor(entityRequest.getPublicationId(),
-                            this.entityRequest.getContextId(), new EntityLinkProcessor(entityModelData));
-                } else {
-
-                    ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(),
-                            this.entityRequest.getContextId(), new EntityLinkProcessor(entityModelData));
-                }
             }
-
             this.batchLinkResolver.dispatchLinkResolution(ld);
         }
     }
