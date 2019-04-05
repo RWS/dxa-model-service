@@ -126,26 +126,16 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         if (_isEntityToExpand(entityModelData)) {
             _expandEntity(entityModelData, pageRequest);
         }
-
         SingleLinkDescriptor ld;
         if (entityModelData.getId().matches("\\d+-\\d+")) {
-            ld = new DynamicComponentLinkDescriptor(
-                    pageRequest.getPublicationId(),
-                    this.pageId,
+            ld = new DynamicComponentLinkDescriptor(pageRequest.getPublicationId(),
+                    pageId,
                     new EntityLinkProcessor(entityModelData));
         } else {
-
-            if (entityModelData.getContent() == null && entityModelData.getBinaryContent() != null) {
-                // Binary link
-                ld = new BinaryLinkDescriptor(pageRequest.getPublicationId(),
-                        this.pageId, new EntityLinkProcessor(entityModelData));
-            } else {
-
-                ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(),
-                        this.pageId, new EntityLinkProcessor(entityModelData));
-            }
+            ld = new ComponentLinkDescriptor(pageRequest.getPublicationId(),
+                    pageId,
+                    new EntityLinkProcessor(entityModelData));
         }
-
         this.batchLinkResolver.dispatchLinkResolution(ld);
     }
 
