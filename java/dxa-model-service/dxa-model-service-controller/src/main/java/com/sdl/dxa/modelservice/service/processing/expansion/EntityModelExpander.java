@@ -19,7 +19,6 @@ import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
@@ -45,8 +44,6 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     private RichTextLinkResolver richTextLinkResolver;
 
-    private LinkResolver linkResolver;
-
     private BatchLinkResolver batchLinkResolver;
 
     private ConfigService configService;
@@ -55,13 +52,11 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     public EntityModelExpander(EntityRequestDto request,
                                RichTextLinkResolver richTextLinkResolver,
-                               LinkResolver linkResolver,
                                ConfigService configService,
                                boolean resolveLinks,
                                BatchLinkResolver batchLinkResolver) {
         this.entityRequest = request;
         this.richTextLinkResolver = richTextLinkResolver;
-        this.linkResolver = linkResolver;
         this.configService = configService;
 
         this._resolveLinks = resolveLinks;
