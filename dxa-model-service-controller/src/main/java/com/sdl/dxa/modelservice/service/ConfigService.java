@@ -82,7 +82,7 @@ public class ConfigService {
          */
         @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result <= 0")
         public int getDynamicTemplateId(int publicationId) {
-                StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
+            StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
             try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
                 JsonNode jsonNode = objectMapper.readTree(allJson).get(configDcpUriField);
 
@@ -93,7 +93,7 @@ public class ConfigService {
 
                 return TcmUtils.getItemId(jsonNode.asText("tcm:0-0-0"));
             } catch (ContentProviderException | IOException e) {
-                log.warn("Exception happened while loading {}, cannot get dynamicTemplateId", configBootstrapPath, e);
+                log.error("Exception happened while loading {}, cannot get dynamicTemplateId", configBootstrapPath, e);
                 return -1;
             }
         }
