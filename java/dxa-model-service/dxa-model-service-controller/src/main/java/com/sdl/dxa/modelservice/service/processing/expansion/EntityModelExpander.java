@@ -12,13 +12,13 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
@@ -44,8 +44,6 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     private RichTextLinkResolver richTextLinkResolver;
 
-    private LinkResolver linkResolver;
-
     private BatchLinkResolver batchLinkResolver;
 
     private ConfigService configService;
@@ -54,13 +52,11 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     public EntityModelExpander(EntityRequestDto request,
                                RichTextLinkResolver richTextLinkResolver,
-                               LinkResolver linkResolver,
                                ConfigService configService,
                                boolean resolveLinks,
                                BatchLinkResolver batchLinkResolver) {
         this.entityRequest = request;
         this.richTextLinkResolver = richTextLinkResolver;
-        this.linkResolver = linkResolver;
         this.configService = configService;
 
         this._resolveLinks = resolveLinks;
@@ -88,15 +84,16 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
     protected void processEntityModel(EntityModelData entityModelData) {
         if (shouldResolveLinks()) {
             SingleLinkDescriptor ld;
-            if(entityModelData.getId().matches("\\d+-\\d+")) {
+            if (entityModelData.getId().matches("\\d+-\\d+")) {
                 ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(),
-                        this.entityRequest.getContextId(),
+                        entityRequest.getContextId(),
                         new EntityLinkProcessor(entityModelData));
             } else {
                 ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(),
-                 this.entityRequest.getContextId(), new EntityLinkProcessor(entityModelData));
-            }
+                        entityRequest.getContextId(),
+                        new EntityLinkProcessor(entityModelData));
 
+            }
             this.batchLinkResolver.dispatchLinkResolution(ld);
         }
     }

@@ -160,7 +160,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
         return new EntityModelExpander(
                 entityRequestDto,
                 richTextLinkResolver,
-                linkResolver, configService, resolveLinks, getBatchLinkResolver());
+                configService, resolveLinks, getBatchLinkResolver());
     }
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {

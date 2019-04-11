@@ -169,7 +169,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto, Integer pageId) {
         return new PageModelExpander(pageRequestDto,
-                entityModelService, richTextLinkResolver, linkResolver, configService, getBatchLinkResolver(), pageId);
+                entityModelService, richTextLinkResolver, configService, getBatchLinkResolver(), pageId);
     }
 
     @Contract("!null, _ -> !null")
