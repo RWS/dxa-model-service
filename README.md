@@ -21,7 +21,7 @@ Build
 
 You need Maven 3.2+ to build the Model Service from source. Maven should be available in the system `PATH`. 
     
-To build DXA Model Service run the following command for the parent `dxa-model-service` project:
+To build DXA Model Service run the following command:
 
     mvn install 
     
