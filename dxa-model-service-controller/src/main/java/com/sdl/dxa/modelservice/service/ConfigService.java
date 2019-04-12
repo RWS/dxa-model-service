@@ -75,7 +75,7 @@ public class ConfigService {
         }
 
         /**
-         * Returns the DCP template ID from CM settings file. Caches for future use.
+         * Returns the DCP template ID from CM settings file. Caches for future use if result is positive.
          *
          * @param publicationId publication id to load settings
          * @return DCP template ID
