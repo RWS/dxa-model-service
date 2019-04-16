@@ -11,8 +11,9 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                    ContentService contentService,
                                    ToDd4tConverter toDd4tConverter,
                                    ToR2Converter toR2Converter,
-                                   RichTextLinkResolver richTextLinkResolver,
+                                   RichTextLinkResolverImpl richTextLinkResolver,
                                    DataBinder dd4tDataBinder,
                                    RichTextResolver dd4tRichTextResolver) {
         this.objectMapper = objectMapper;
