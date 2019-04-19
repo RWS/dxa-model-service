@@ -30,6 +30,11 @@
     </build>
 
     <dependencies>
+        <!--
+        Note: Don't put in-process or CIL specific dependencies in here!
+        Those should go in dxa-model-service-in-process or dxa-model-service-odata.
+        -->
+
         <!-- DXA & SDL Web -->
         <dependency>
             <groupId>com.sdl.dxa</groupId>
@@ -42,40 +47,6 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-tridion-common</artifactId>
-            <!-- Exclusions to deal with content-compatible only -->
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sdl.delivery</groupId>
-                    <artifactId>cil</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>cil</artifactId>
-            <type>pom</type>
-            <scope>test</scope>
-            <!-- Exclusions to deal with content-compatible only -->
-            <exclusions>
-                <exclusion>
-                    <artifactId>udp-ugc-container</artifactId>
-                    <groupId>com.sdl.delivery</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>udp-ugc-taglib</artifactId>
-                    <groupId>com.sdl.delivery</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-api-broker</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-cil-api-compatible</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
@@ -83,82 +54,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-afterburner</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-jaxb-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-afterburner</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-api</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-jaxb-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-afterburner</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-providers</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-jaxb-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-afterburner</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-providers-common</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.dataformat</groupId>
-                    <artifactId>jackson-dataformat-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-jaxb-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-afterburner</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -193,7 +103,7 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator</artifactId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <dependency>
@@ -217,6 +127,8 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
