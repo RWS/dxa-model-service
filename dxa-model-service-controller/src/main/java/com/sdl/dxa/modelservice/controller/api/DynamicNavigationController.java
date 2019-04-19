@@ -39,7 +39,7 @@ public class DynamicNavigationController {
         this.localizationIdProvider = localizationIdProvider;
     }
 
-    @RequestMapping
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<TaxonomyNodeModelData> navigationModel(@PathVariable(value = "localizationId", required = false) Integer localizationId) {
         SitemapRequestDto requestDto = SitemapRequestDto.wholeTree(localizationId).build();
 

@@ -93,14 +93,14 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:
 
-                final PageLink pageLink = new PageLink(null, pubId, useRelativeUrls);
+                final PageLink pageLink = new PageLink(pubId);
                 updateDescriptor(descriptor, pageLink.getLink(pageId));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
 
                 final DynamicComponentLink dynamicComponentLink =
-                        new DynamicComponentLink(null, pubId, useRelativeUrls);
+                        new DynamicComponentLink(pubId);
                 updateDescriptor(descriptor, dynamicComponentLink
                         .getLink(pageId, componentId, descriptor.getTemplateId(), "",
                                 "", false));
@@ -125,7 +125,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     }
 
     private Link resolveBinaryLink(final Integer publicationId, final Integer componentId) {
-        final BinaryLink binaryLink = new BinaryLink(null, publicationId, useRelativeUrls);
+        final BinaryLink binaryLink = new BinaryLink(publicationId);
         return binaryLink.getLink(
                 TcmUtils.buildTcmUri(publicationId, componentId),
                 "",
@@ -137,7 +137,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     }
 
     private Link resolveComponentLink(final Integer publicationId, final Integer pageId, final Integer componentId) {
-        final ComponentLink componentLink = new ComponentLink(null, publicationId, useRelativeUrls);
+        final ComponentLink componentLink = new ComponentLink(publicationId);
         return componentLink.getLink(
                 pageId,
                 componentId,
