@@ -13,6 +13,7 @@ import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
+import com.sdl.web.api.linking.Link;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +50,10 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
 
     private volatile ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
 
+    private volatile ConcurrentMap<String, List<SingleLinkDescriptor>> unresolvedSubscribers = new ConcurrentHashMap<>();
+
+    private volatile List<SingleLinkDescriptor> unresolvedDescriptors = new ArrayList<>();
+
     private volatile ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists
             = new ConcurrentLinkedQueue<>();
 
@@ -56,14 +61,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         this.retriever = new BatchLinkRetrieverImpl();
     }
 
-    @Override
-    public void dispatchLinkResolution(SingleLinkDescriptor descriptor) {
-
-        if(descriptor == null) {
-            return;
-        }
-
-        List<SingleLinkDescriptor> descriptors = this.subscribers.computeIfAbsent(descriptor.getLinkId(), k -> new ArrayList<>());
+    private void dispatchLinkResolution(SingleLinkDescriptor descriptor, ConcurrentMap<String, List<SingleLinkDescriptor>> target) {
+        List<SingleLinkDescriptor> descriptors = target.computeIfAbsent(descriptor.getLinkId(), k -> new ArrayList<>());
 
         // Plan link for resolution only once per unique ID
         if(descriptors.isEmpty()) {
@@ -72,6 +71,22 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             descriptor.subscribe(descriptors.get(0).getSubscription());
         }
         descriptors.add(descriptor);
+    }
+
+    public void dispatchLinkResolution(SingleLinkDescriptor descriptor) {
+        if(descriptor == null) {
+            return;
+        }
+
+        this.dispatchLinkResolution(descriptor, this.subscribers);
+    }
+
+    private void dispatchLinkResolutionAgain(SingleLinkDescriptor descriptor) {
+        if(descriptor == null) {
+            return;
+        }
+
+        this.dispatchLinkResolution(descriptor, this.unresolvedSubscribers);
     }
 
     @Override
@@ -92,16 +107,22 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Override
     public void resolveAndFlush() {
         this.resolve();
-        this.flush();
+        this.firstFlush();
     }
 
     private void resolve() {
         this.retriever.executeRequest();
-    }
-
-    private void flush() {
         this.updateRefs();
         this.updateLists();
+    }
+
+    private void firstFlush() {
+        this.flush();
+        this.subscribeUnresolved();
+        this.resolveUnresolved();
+        this.flush();
+    }
+    private void flush() {
         this.retriever.clearRequestData();
     }
 
@@ -114,30 +135,59 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         }
     }
 
-    private void updateRefs() {
-        ConcurrentMap<String, List<SingleLinkDescriptor>> oldDescriptors = this.subscribers;
-        subscribers = new ConcurrentHashMap<>();
-        for (List<SingleLinkDescriptor> descriptors : oldDescriptors.values()) {
+    private void subscribeUnresolved() {
+        if(!this.unresolvedDescriptors.isEmpty()) {
+            for(SingleLinkDescriptor descriptor : this.unresolvedDescriptors) {
+                this.dispatchLinkResolutionAgain(descriptor);
+            }
+
+            this.unresolvedDescriptors = new ArrayList<>();
+        }
+    }
+    private void resolveUnresolved() {
+        this.retriever.executeRequest();
+        if(!this.unresolvedSubscribers.isEmpty()) {
+            ConcurrentMap<String, List<SingleLinkDescriptor>> oldDescriptors = this.unresolvedSubscribers;
+            unresolvedSubscribers = new ConcurrentHashMap<>();
+            this.iterateDescriptors(oldDescriptors, false);
+        }
+    }
+
+    private void iterateDescriptors(ConcurrentMap<String, List<SingleLinkDescriptor>> descriptorsList, boolean hasLeftOvers) {
+        for (List<SingleLinkDescriptor> descriptors : descriptorsList.values()) {
             for (SingleLinkDescriptor descriptor : descriptors) {
                 if (descriptor == null || !descriptor.couldBeResolved()) {
                     continue;
                 }
-                String resolvedUrl = this.retriever.getLink(descriptor.getSubscription()).getURL();
-                if (Strings.isNullOrEmpty(resolvedUrl)) {
-                    descriptor.update("");
+                Link link = this.retriever.getLink(descriptor.getSubscription());
+                if (!link.isResolved() && hasLeftOvers) {
+                    descriptor.setType(LINK_TYPE_COMPONENT);
+                    this.unresolvedDescriptors.add(descriptor);
                     continue;
                 }
-                String resolvedLink = shouldStripIndexPath
-                        ? PathUtils.stripIndexPath(resolvedUrl)
-                        : resolvedUrl;
-                if (shouldKeepTrailingSlash && PathUtils.isIndexPath(resolvedUrl) && !resolvedLink.endsWith("/")) {
-                    resolvedLink = resolvedLink + "/";
-                }
-                descriptor.update(this.shouldRemoveExtension
-                        ? PathUtils.stripDefaultExtension(resolvedLink)
-                        : resolvedLink);
+
+                this.updateLink(descriptor, link);
             }
         }
+    }
+
+    private void updateRefs() {
+        ConcurrentMap<String, List<SingleLinkDescriptor>> oldDescriptors = this.subscribers;
+        subscribers = new ConcurrentHashMap<>();
+
+        this.iterateDescriptors(oldDescriptors, true);
+    }
+
+    private void updateLink(SingleLinkDescriptor descriptor, Link link) {
+        String resolvedLink = shouldStripIndexPath
+                ? PathUtils.stripIndexPath(link.getURL())
+                : link.getURL();
+        if (shouldKeepTrailingSlash && PathUtils.isIndexPath(link.getURL())) {
+            resolvedLink = resolvedLink + "/";
+        }
+        descriptor.update(this.shouldRemoveExtension
+                ? PathUtils.stripDefaultExtension(resolvedLink)
+                : resolvedLink);
     }
 
     private BatchLinkRequest createBatchLinkRequest(SingleLinkDescriptor descriptor) {
