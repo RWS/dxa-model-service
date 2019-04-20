@@ -48,6 +48,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
 
     private BatchLinkRetriever retriever;
 
+    private String DEFAULT_VARIANT_ID  = "[#def#]";
+
     private volatile ConcurrentMap<String, List<SingleLinkDescriptor>> subscribers = new ConcurrentHashMap<>();
 
     private volatile ConcurrentMap<String, List<SingleLinkDescriptor>> unresolvedSubscribers = new ConcurrentHashMap<>();
@@ -156,13 +158,12 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     private void iterateDescriptors(ConcurrentMap<String, List<SingleLinkDescriptor>> descriptorsList, boolean hasLeftOvers) {
         for (List<SingleLinkDescriptor> descriptors : descriptorsList.values()) {
             for (SingleLinkDescriptor descriptor : descriptors) {
-                if (descriptor == null || !descriptor.couldBeResolved()) {
+                if (descriptor == null || !descriptor.canBeResolved()) {
                     continue;
                 }
                 Link link = this.retriever.getLink(descriptor.getSubscription());
-                if (!link.isResolved() && hasLeftOvers) {
-                    descriptor.setType(LINK_TYPE_COMPONENT);
-                    this.unresolvedDescriptors.add(descriptor);
+                if (hasLeftOvers && descriptor.getType().equals(LINK_TYPE_BINARY) && !link.isResolved()) {
+                    this.unresolvedDescriptors.add(new ComponentLinkDescriptor(descriptor.getPublicationId(), descriptor.getPageId(), descriptor.getLinkProcessor()));
                     continue;
                 }
 
@@ -203,7 +204,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                 request = new BatchLinkRequestImpl.BinaryLinkRequestBuilder()
                         .withBinaryComponentId(descriptor.getComponentId())
                         .withPublicationId(descriptor.getPublicationId())
-                        .withVariantId("null")
+                        .withVariantId(DEFAULT_VARIANT_ID)
                         .build();
                 break;
             case LINK_TYPE_DYNAMIC_COMPONENT:

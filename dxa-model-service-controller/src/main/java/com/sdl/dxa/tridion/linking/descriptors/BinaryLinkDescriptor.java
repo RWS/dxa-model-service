@@ -6,35 +6,13 @@ import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 
 public class BinaryLinkDescriptor extends BaseLinkDescriptor {
 
-    private String type = LINK_TYPE_BINARY;
-
-    /**
-     * Note - required to resolve a component link in case no real binary URL can't be found
-     */
-    private Integer sourcePageId;
-
-    public BinaryLinkDescriptor(Integer publicationId, Integer sourcePageId,  LinkProcessor processor) {
-        super(publicationId, processor, LINK_TYPE_BINARY);
-        this.sourcePageId = sourcePageId;
+    public BinaryLinkDescriptor(Integer publicationId, Integer sourcePageId, LinkProcessor processor) {
+        super(publicationId, sourcePageId, processor, LINK_TYPE_BINARY);
     }
 
     @Override
     public String getLinkId() {
-        return String.format("%s-%s-%s", this.getPublicationId(), this.sourcePageId, this.getComponentId().toString());
-    }
-
-    @Override
-    public Integer getPageId() {
-        return this.sourcePageId;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    @Override
-    public void setType(String type) {
-        this.type = type;
+        return String.format("%s-%s-%s", this.getPublicationId(), this.getPageId(), this.getComponentId().toString());
     }
 }
 
