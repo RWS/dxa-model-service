@@ -15,8 +15,6 @@ public interface LinkDescriptor {
      */
     String getType();
 
-    void setType(String type);
-
     /**
      * @return ID of the publication the links are resolved in.
      */
