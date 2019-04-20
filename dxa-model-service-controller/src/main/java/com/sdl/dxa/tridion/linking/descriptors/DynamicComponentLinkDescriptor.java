@@ -11,8 +11,6 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
     private Integer templateId;
     private Integer componentId;
-    private Integer targetPageId;
-    private String type = LINK_TYPE_DYNAMIC_COMPONENT;
 
     private final Pattern SEPARATE_IDS =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
@@ -21,14 +19,13 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
 
-    public DynamicComponentLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
-        super(publicationId, linkProcessor, LINK_TYPE_DYNAMIC_COMPONENT);
+    public DynamicComponentLinkDescriptor(Integer publicationId, Integer sourcePageId, LinkProcessor linkProcessor) {
+        super(publicationId, sourcePageId, linkProcessor, LINK_TYPE_DYNAMIC_COMPONENT);
 
         String dynamicId = linkProcessor.getId();
 
         this.templateId = extractGroupFromId(dynamicId, "templateId");
         this.componentId = extractGroupFromId(dynamicId, "componentId");
-        this.targetPageId = targetPageId;
     }
 
     @Override
@@ -43,13 +40,8 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
     @Override
     public String getLinkId() {
-        return String.format("%s-%s-%s-%s", this.getPublicationId(), this.targetPageId,
-                this.getComponentId().toString(), this.getTemplateId().toString());
-    }
-
-    @Override
-    public Integer getPageId() {
-        return this.targetPageId;
+        return String.format("%s-%s-%s-%s", this.getPublicationId(), this.getPageId(),
+                this.getComponentId(), this.getTemplateId());
     }
 
     private int extractGroupFromId(String id, String group) {
@@ -64,16 +56,6 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
             return match != null ? Integer.parseInt(match) : -2;
         }
         return failed;
-    }
-
-    @Override
-    public String getType() {
-        return this.type;
-    }
-
-    @Override
-    public void setType(String type) {
-        this.type = type;
     }
 }
 
