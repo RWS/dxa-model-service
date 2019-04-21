@@ -89,9 +89,12 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
         if (shouldResolveLinks()) {
             SingleLinkDescriptor ld;
             if(entityModelData.getId().matches("\\d+-\\d+")) {
-                ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+                ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(),
+                        this.entityRequest.getContextId(),
+                        new EntityLinkProcessor(entityModelData));
             } else {
-                ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+                ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(),
+                 this.entityRequest.getContextId(), new EntityLinkProcessor(entityModelData));
             }
 
             this.batchLinkResolver.dispatchLinkResolution(ld);
@@ -138,7 +141,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
                     this.batchLinkResolver.dispatchMultipleLinksResolution(
                             new RichTextLinkDescriptor(
-                                    entityRequest.getPublicationId(),
+                                    entityRequest.getPublicationId(), this.entityRequest.getContextId(),
                                     richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight()),
                                     new FragmentListProcessor(
                                             richTextData, (ImmutablePair<String, String>) fragment,

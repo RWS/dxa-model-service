@@ -109,7 +109,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Override
     public void resolveAndFlush() {
         this.resolve();
-        this.firstFlush();
+        this.flush();
+        this.resolveLeftovers();
     }
 
     private void resolve() {
@@ -118,8 +119,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         this.updateLists();
     }
 
-    private void firstFlush() {
-        this.flush();
+    private void resolveLeftovers() {
         this.subscribeUnresolved();
         this.resolveUnresolved();
         this.flush();
