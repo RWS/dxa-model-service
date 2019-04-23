@@ -14,16 +14,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-	            <plugin>
+	     <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
@@ -40,11 +31,20 @@
                 </executions>
             </plugin>
         </plugins>
-
-
     </build>
 
     <dependencies>
+        <dependency>
+            <artifactId>udp-common-maven</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <version>11.0.0-1028</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.dxa</groupId>
+            <artifactId>dxa-model-service-controller</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-controller</artifactId>
