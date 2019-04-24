@@ -10,6 +10,7 @@ import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_DYNAMIC_CO
 public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
     private Integer templateId;
+
     private Integer componentId;
 
     private static final Pattern SEPARATE_IDS =

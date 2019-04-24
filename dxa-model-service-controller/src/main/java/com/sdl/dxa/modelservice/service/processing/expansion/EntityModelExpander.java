@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
+import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
 /**
  * Expands {@link PageModelData} using an instance of {@link PageRequestDto}.
@@ -89,12 +90,18 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
         if (shouldResolveLinks()) {
             SingleLinkDescriptor ld;
             if(entityModelData.getId().matches("\\d+-\\d+")) {
-                ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(),
+                ld = new DynamicComponentLinkDescriptor(
+                        entityRequest.getPublicationId(),
                         this.entityRequest.getContextId(),
-                        new EntityLinkProcessor(entityModelData));
+                        new EntityLinkProcessor(entityModelData)
+                );
             } else {
-                ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(),
-                 this.entityRequest.getContextId(), new EntityLinkProcessor(entityModelData));
+                ld = new ComponentLinkDescriptor(
+                        entityRequest.getPublicationId(),
+                        this.entityRequest.getContextId(),
+                        new EntityLinkProcessor(entityModelData),
+                        LINK_TYPE_COMPONENT
+                );
             }
 
             this.batchLinkResolver.dispatchLinkResolution(ld);
