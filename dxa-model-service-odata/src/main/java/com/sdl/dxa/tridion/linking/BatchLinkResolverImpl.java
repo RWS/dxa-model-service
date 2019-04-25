@@ -1,13 +1,12 @@
 package com.sdl.dxa.tridion.linking;
 
-import com.google.common.base.Strings;
+
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
-import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
-import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
+import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.MultipleEntryLinkProcessor;
 import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
@@ -95,12 +94,12 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor) {
         Map<String, String> links = descriptor.getLinks();
         Integer pubId = descriptor.getPublicationId();
+        Integer contextId = descriptor.getPageId();
+
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
             LinkProcessor processor = new MultipleEntryLinkProcessor(links, linkEntry.getKey());
-            if (LINK_TYPE_BINARY.equals(descriptor.getType())) {
-                dispatchLinkResolution(new BinaryLinkDescriptor(pubId, processor));
-            } else if (LINK_TYPE_COMPONENT.equals(descriptor.getType())) {
-                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, processor));
+            if (LINK_TYPE_BINARY.equals(descriptor.getType()) || LINK_TYPE_COMPONENT.equals(descriptor.getType())) {
+                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, contextId, processor, descriptor.getType()));
             }
         }
         this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
@@ -109,26 +108,31 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     @Override
     public void resolveAndFlush() {
         this.resolve();
-        this.flush();
         this.resolveLeftovers();
+        this.flush();
     }
 
     private void resolve() {
         this.retriever.executeRequest();
         this.updateRefs();
-        this.updateLists();
+        this.flushRetriever();
     }
 
     private void resolveLeftovers() {
         this.subscribeUnresolved();
         this.resolveUnresolved();
-        this.flush();
-    }
-    private void flush() {
-        this.retriever.clearRequestData();
+        this.flushRetriever();
     }
 
-    private void updateLists() {
+    private void flushRetriever() {
+        this.retriever.clearRequestData();
+    }
+    private void flush() {
+        this.flushDescriptors();
+        this.flushLists();
+    }
+
+    private void flushLists() {
         ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> oldSubscribers = subscriberLists;
         subscriberLists = new ConcurrentLinkedQueue<>();
         for (ImmutablePair<MultipleLinksDescriptor, Map<String, String>> entry : oldSubscribers) {
@@ -146,6 +150,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             this.unresolvedDescriptors = new ArrayList<>();
         }
     }
+
     private void resolveUnresolved() {
         this.retriever.executeRequest();
         if(!this.unresolvedSubscribers.isEmpty()) {
@@ -161,9 +166,12 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                 if (descriptor == null || !descriptor.canBeResolved()) {
                     continue;
                 }
+
                 Link link = this.retriever.getLink(descriptor.getSubscription());
+
                 if (hasLeftOvers && descriptor.getType().equals(LINK_TYPE_BINARY) && !link.isResolved()) {
-                    this.unresolvedDescriptors.add(new ComponentLinkDescriptor(descriptor.getPublicationId(), descriptor.getPageId(), descriptor.getLinkProcessor()));
+                    descriptor.setType(LINK_TYPE_COMPONENT);
+                    this.unresolvedDescriptors.add(descriptor);
                     continue;
                 }
 
@@ -172,11 +180,19 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         }
     }
 
-    private void updateRefs() {
-        ConcurrentMap<String, List<SingleLinkDescriptor>> oldDescriptors = this.subscribers;
-        subscribers = new ConcurrentHashMap<>();
+    private void flushDescriptors() {
+        for (List<SingleLinkDescriptor> descriptors : subscribers.values()) {
+            for (SingleLinkDescriptor descriptor : descriptors) {
+                if (descriptor == null || !descriptor.isResolved()) {
+                    continue;
+                }
+                descriptor.update();
+            }
+        }
+    }
 
-        this.iterateDescriptors(oldDescriptors, true);
+    private void updateRefs() {
+        this.iterateDescriptors(this.subscribers, true);
     }
 
     private void updateLink(SingleLinkDescriptor descriptor, Link link) {
@@ -186,7 +202,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         if (shouldKeepTrailingSlash && PathUtils.isIndexPath(link.getURL())) {
             resolvedLink = resolvedLink + "/";
         }
-        descriptor.update(this.shouldRemoveExtension
+
+        descriptor.setResolvedLink(this.shouldRemoveExtension
                 ? PathUtils.stripDefaultExtension(resolvedLink)
                 : resolvedLink);
     }

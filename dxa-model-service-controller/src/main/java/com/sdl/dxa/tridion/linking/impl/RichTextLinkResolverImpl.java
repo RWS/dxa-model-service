@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,7 +104,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
      * @param notResolvedBuffer buffer to put non resolvable links to, make sure it's modifiable
      * @return modified fragment
      */
-    public String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer) {
+    public String processFragment(@NotNull String fragment, int localizationId, int contextId, @NotNull Set<String> notResolvedBuffer) {
 
         log.trace("RichTextResolver, resolve = {}, remove = {}, input fragment: '{}'",
                 configService.getDefaults().isRichTextResolve(), configService.getDefaults().isRichTextXmlnsRemove(), fragment);

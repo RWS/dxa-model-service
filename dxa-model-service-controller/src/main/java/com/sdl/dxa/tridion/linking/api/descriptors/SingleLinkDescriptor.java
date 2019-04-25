@@ -6,7 +6,7 @@ public interface SingleLinkDescriptor extends LinkDescriptor {
 
     void subscribe(String subscriptionId);
 
-    void update(String url);
+    void update();
 
     boolean canBeResolved();
 
@@ -28,4 +28,12 @@ public interface SingleLinkDescriptor extends LinkDescriptor {
     String getSubscription();
 
     String getType();
+
+    void setType(String type);
+
+    String getResolvedLink();
+
+    void setResolvedLink(String link);
+
+    boolean isResolved();
 }

@@ -18,15 +18,15 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
 
     private String type;
 
-    protected BaseLinkDescriptor(Integer publicationId, Integer sourcePageId, @NotNull LinkProcessor linkProcessor, String type) {
+    private String resolvedLink;
+
+    private boolean resolved = false;
+
+    BaseLinkDescriptor(Integer publicationId, Integer sourcePageId, @NotNull LinkProcessor linkProcessor, String type) {
         this.publicationId = publicationId;
         this.sourcePageId = sourcePageId;
         this.linkProcessor = linkProcessor;
         this.type = type;
-    }
-
-    BaseLinkDescriptor(Integer publicationId, int sourcePageId, LinkProcessor linkProcessor) {
-        this(publicationId, sourcePageId, linkProcessor, LINK_TYPE_COMPONENT);
     }
 
     @Override
@@ -35,8 +35,8 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     }
 
     @Override
-    public void update(String url) {
-        this.linkProcessor.update(url);
+    public void update() {
+        this.linkProcessor.update(this.getResolvedLink());
     }
 
     @Override
@@ -75,7 +75,22 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     }
 
     @Override
-    public String getType() {
-        return this.type;
+    public String getType() { return this.type; }
+
+    @Override
+    public void setType(String type) { this.type = type; }
+
+    @Override
+    public String getResolvedLink() { return this.resolvedLink; }
+
+    @Override
+    public void setResolvedLink(String link) {
+        this.resolvedLink = link;
+        this.resolved = true;
+    }
+
+    @Override
+    public boolean isResolved() {
+        return this.resolved;
     }
 }
