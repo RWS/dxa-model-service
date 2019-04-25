@@ -1,5 +1,5 @@
 SDL Digital Experience Accelerator Model Service
-===
+================================================
 
 About
 -----
@@ -28,7 +28,7 @@ To build DXA Model Service run the following command:
 Note, if you intend to just use the Model Service and not to make changes, you do not need to build it.  
 
 Support
----------------
+-------
 At SDL we take your investment in Digital Experience very seriously, and will do our best to support you throughout this journey. 
 If you encounter any issues with the Digital Experience Accelerator, please reach out to us via one of the following channels:
 

@@ -15,20 +15,6 @@
     <name>DXA Model Service Controller</name>
     <description>DXA Model Service</description>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <!--
         Note: Don't put in-process or CIL specific dependencies in here!
