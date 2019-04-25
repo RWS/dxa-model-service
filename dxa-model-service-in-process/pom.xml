@@ -37,7 +37,7 @@
         <dependency>
             <artifactId>udp-common-maven</artifactId>
             <groupId>com.sdl.delivery</groupId>
-	    <version>${api.version}</version>
+            <version>${api.version}</version>
             <type>pom</type>
         </dependency>
 

@@ -36,7 +36,7 @@ pipeline {
                     script {
                         //Build on JDK8
                         jdk8BuilderImage.inside {
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -B clean verify"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -B clean verify"
                         }
                     }
                 }
@@ -50,7 +50,7 @@ pipeline {
                     script {
                         //Build on JDK8 and deploy it to local repository:
                         jdk8BuilderImage.inside {
-                            sh "mvn -B -s $MAVEN_SETTINGS_PATH -Plocal-repository clean source:jar deploy"
+                            sh "mvn -B -s $MAVEN_SETTINGS_PATH -Pin-process -Plocal-repository clean source:jar deploy"
                         }
                     }
                 }
