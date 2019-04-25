@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,10 +38,10 @@ public class RichTextLinkResolverTest {
 
     @Before
     public void init() {
-        when(linkResolver.resolveLink(eq("tcm:1-2"), eq("1"), eq(true), eq("-1"))).thenReturn("");
-        when(linkResolver.resolveLink(eq("tcm:1-3"), eq("1"), eq(true), eq("-1"))).thenReturn("");
-        when(linkResolver.resolveLink(eq("tcm:1-11"), eq("1"), eq(true), eq("-1"))).thenReturn("resolved-link");
-        when(linkResolver.resolveLink(eq("tcm:1-12"), eq("1"), eq(true), eq("-1"))).thenReturn("resolved-link.html");
+        when(linkResolver.resolveLink("tcm:1-2", "1", true, "-1")).thenReturn("");
+        when(linkResolver.resolveLink("tcm:1-3", "1", true, "-1")).thenReturn("");
+        when(linkResolver.resolveLink("tcm:1-11", "1", true, "-1")).thenReturn("resolved-link");
+        when(linkResolver.resolveLink("tcm:1-12", "1", true, "-1")).thenReturn("resolved-link.html");
 
         ConfigService.Defaults defaults = new ConfigService.Defaults(null, null);
         defaults.setRichTextXmlnsRemove(true);
