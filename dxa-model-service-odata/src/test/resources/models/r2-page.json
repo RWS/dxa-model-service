@@ -1,0 +1,105 @@
+{
+    "Id": "9786",
+    "Namespace": "tcm",
+    "StructureGroupId": "3",
+    "Meta": {
+        "twitter:card": "summary",
+        "og:type": "article",
+        "og:title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+        "description": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
+    },
+    "PageTemplate": {
+        "Id": "108",
+        "Namespace": "tcm",
+        "Title": "Content Page Without Navigation",
+        "FileExtension": "html",
+        "Metadata": {
+            "view": "GeneralPage",
+            "includes": {
+                "$type": "String[]",
+                "$values": [
+                    "system/include/header",
+                    "system/include/footer"
+                ]
+            }
+        }
+    },
+    "Title": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)",
+    "Regions": [
+        {
+            "MvcData": {
+                "ViewName": "Main"
+            },
+            "Name": "Main",
+            "Entities": [
+                {
+                    "SchemaId": "80",
+                    "XpmMetadata": {
+                        "ComponentID": "tcm:1065-9712",
+                        "ComponentTemplateID": "tcm:1065-83-32",
+                        "IsRepositoryPublished": false
+                    },
+                    "MvcData": {
+                        "ViewName": "Article"
+                    },
+                    "Id": "9712",
+                    "Namespace": "tcm",
+                    "ComponentTemplate": {
+                        "Id": "83",
+                        "Namespace": "tcm",
+                        "Title": "Article",
+                        "OutputFormat": "HTML Fragment",
+                        "Metadata": {
+                            "view": "Article"
+                        }
+                    },
+                    "Content": {
+                        "articleBody": {
+                            "$type": "ContentModelData",
+                            "subheading": "Subheading 1",
+                            "content": {
+                                "$type": "RichTextData",
+                                "Fragments": [
+                                    "RichTextData"
+                                ]
+                            }
+                        },
+                        "headline": "Test Article used for Automated Testing (Sdl.Web.Tridion.Tests)"
+                    }
+                }
+            ]
+        },
+        {
+            "XpmMetadata": {
+                "IncludedFromPageID": "tcm:1065-1480-64",
+                "IncludedFromPageTitle": "Header",
+                "IncludedFromPageFileName": "header"
+            },
+            "MvcData": {
+                "ViewName": "Header"
+            },
+            "Name": "Header",
+            "IncludePageId": "1480"
+        },
+        {
+            "XpmMetadata": {
+                "IncludedFromPageID": "tcm:1065-1489-64",
+                "IncludedFromPageTitle": "Footer",
+                "IncludedFromPageFileName": "footer"
+            },
+            "MvcData": {
+                "ViewName": "Footer"
+            },
+            "Name": "Footer",
+            "IncludePageId": "1489"
+        }
+    ],
+    "UrlPath": "/autotest-parent/test_article_page",
+    "XpmMetadata": {
+        "PageID": "tcm:1065-9786-64",
+        "PageTemplateID": "tcm:1065-108-128"
+    },
+    "MvcData": {
+        "ViewName": "GeneralPage"
+    }
+}
