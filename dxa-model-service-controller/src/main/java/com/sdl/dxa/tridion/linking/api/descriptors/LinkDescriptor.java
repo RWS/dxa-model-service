@@ -2,7 +2,7 @@ package com.sdl.dxa.tridion.linking.api.descriptors;
 
 public interface LinkDescriptor {
     /**
-     * @return ID of the publication the links are resolved in.
+     * @return ID of the page the links are resolved in.
      */
     default Integer getPageId() {
         return -1;

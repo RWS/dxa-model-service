@@ -3,25 +3,30 @@ package com.sdl.dxa.tridion.linking.descriptors;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
 import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
+import javax.validation.constraints.NotNull;
+
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
 public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
-    private String type;
-
     private LinkProcessor linkProcessor;
 
     private Integer publicationId;
 
+    private Integer sourcePageId;
+
     private String subscriptionId;
 
-    protected BaseLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor, String type) {
-        this.linkProcessor = linkProcessor;
-        this.publicationId = publicationId;
-        this.type = type;
-    }
+    private String type;
 
-    BaseLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
-        this(publicationId, linkProcessor, LINK_TYPE_COMPONENT);
+    private String resolvedLink;
+
+    private boolean resolved = false;
+
+    BaseLinkDescriptor(Integer publicationId, Integer sourcePageId, @NotNull LinkProcessor linkProcessor, String type) {
+        this.publicationId = publicationId;
+        this.sourcePageId = sourcePageId;
+        this.linkProcessor = linkProcessor;
+        this.type = type;
     }
 
     @Override
@@ -30,12 +35,12 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     }
 
     @Override
-    public void update(String url) {
-        this.linkProcessor.update(url);
+    public void update() {
+        this.linkProcessor.update(this.getResolvedLink());
     }
 
     @Override
-    public boolean couldBeResolved() {
+    public boolean canBeResolved() {
         return this.getSubscription() != null && !this.getSubscription().isEmpty();
     }
 
@@ -60,12 +65,32 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     }
 
     @Override
-    public String getType() {
-        return this.type;
+    public Integer getPageId() {
+        return this.sourcePageId;
     }
 
     @Override
     public LinkProcessor getLinkProcessor() {
         return this.linkProcessor;
+    }
+
+    @Override
+    public String getType() { return this.type; }
+
+    @Override
+    public void setType(String type) { this.type = type; }
+
+    @Override
+    public String getResolvedLink() { return this.resolvedLink; }
+
+    @Override
+    public void setResolvedLink(String link) {
+        this.resolvedLink = link;
+        this.resolved = true;
+    }
+
+    @Override
+    public boolean isResolved() {
+        return this.resolved;
     }
 }

@@ -6,13 +6,15 @@ public interface SingleLinkDescriptor extends LinkDescriptor {
 
     void subscribe(String subscriptionId);
 
-    void update(String url);
+    void update();
 
-    boolean couldBeResolved();
+    boolean canBeResolved();
 
     String getLinkId();
 
     Integer getComponentId();
+
+    Integer getPageId();
 
     LinkProcessor getLinkProcessor();
 
@@ -24,4 +26,14 @@ public interface SingleLinkDescriptor extends LinkDescriptor {
     };
 
     String getSubscription();
+
+    String getType();
+
+    void setType(String type);
+
+    String getResolvedLink();
+
+    void setResolvedLink(String link);
+
+    boolean isResolved();
 }

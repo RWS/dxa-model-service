@@ -10,17 +10,18 @@ import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_DYNAMIC_CO
 public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
     private Integer templateId;
+
     private Integer componentId;
 
-    private final Pattern SEPARATE_IDS =
+    private static final Pattern SEPARATE_IDS =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
             Pattern.compile("(?<componentId>\\d+)-(?<templateId>\\d+)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
 
-    public DynamicComponentLinkDescriptor(Integer publicationId, LinkProcessor linkProcessor) {
-        super(publicationId, linkProcessor, LINK_TYPE_DYNAMIC_COMPONENT);
+    public DynamicComponentLinkDescriptor(Integer publicationId, Integer sourcePageId, LinkProcessor linkProcessor) {
+        super(publicationId, sourcePageId, linkProcessor, LINK_TYPE_DYNAMIC_COMPONENT);
 
         String dynamicId = linkProcessor.getId();
 
@@ -40,7 +41,8 @@ public class DynamicComponentLinkDescriptor extends BaseLinkDescriptor {
 
     @Override
     public String getLinkId() {
-        return String.format("%s-%s-%s", this.getPublicationId(), this.getComponentId().toString(), this.getTemplateId().toString());
+        return String.format("%s-%s-%s-%s", this.getPublicationId(), this.getPageId(),
+                this.getComponentId(), this.getTemplateId());
     }
 
     private int extractGroupFromId(String id, String group) {
