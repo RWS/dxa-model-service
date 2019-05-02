@@ -11,10 +11,10 @@ import com.sdl.dxa.tridion.linking.processors.MultipleEntryLinkProcessor;
 import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
-import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
 import com.sdl.web.api.linking.Link;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -58,8 +58,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     private volatile ConcurrentLinkedQueue<ImmutablePair<MultipleLinksDescriptor, Map<String, String>>> subscriberLists
             = new ConcurrentLinkedQueue<>();
 
-    public BatchLinkResolverImpl() {
-        this.retriever = new BatchLinkRetrieverImpl();
+    public BatchLinkResolverImpl(@Autowired BatchLinkRetriever retriever) {
+        this.retriever = retriever;
     }
 
     private void dispatchLinkResolution(SingleLinkDescriptor descriptor, ConcurrentMap<String, List<SingleLinkDescriptor>> target) {
@@ -82,14 +82,6 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         this.dispatchLinkResolution(descriptor, this.subscribers);
     }
 
-    private void dispatchLinkResolutionAgain(SingleLinkDescriptor descriptor) {
-        if(descriptor == null) {
-            return;
-        }
-
-        this.dispatchLinkResolution(descriptor, this.unresolvedSubscribers);
-    }
-
     @Override
     public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor) {
         Map<String, String> links = descriptor.getLinks();
@@ -103,6 +95,14 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
             }
         }
         this.subscriberLists.add(new ImmutablePair<>(descriptor, links));
+    }
+
+    private void dispatchLinkResolutionAgain(SingleLinkDescriptor descriptor) {
+        if(descriptor == null) {
+            return;
+        }
+
+        this.dispatchLinkResolution(descriptor, this.unresolvedSubscribers);
     }
 
     @Override
@@ -127,6 +127,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     private void flushRetriever() {
         this.retriever.clearRequestData();
     }
+
     private void flush() {
         this.flushDescriptors();
         this.flushLists();
@@ -199,7 +200,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         String resolvedLink = shouldStripIndexPath
                 ? PathUtils.stripIndexPath(link.getURL())
                 : link.getURL();
-        if (shouldKeepTrailingSlash && PathUtils.isIndexPath(link.getURL())) {
+        if (shouldKeepTrailingSlash && !PathUtils.isIndexPath(resolvedLink)) {
             resolvedLink = resolvedLink + "/";
         }
 

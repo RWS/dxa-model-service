@@ -88,6 +88,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         log.info("Expansion of the page with id {} has started!", page.getId());
 
         traverseObject(page);
+
+        // Resolve all links and update the model after page has been traversed and expanded
         this.batchLinkResolver.resolveAndFlush();
 
         log.info("Expansion of the page with id {} has taken {} ms.", page.getId(),
@@ -108,7 +110,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     protected void processPageModel(PageModelData pageModelData) {
 
         // Note: we get the page ID here in case we're inside an include page.
-        int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
+        int pageId = NumberUtils.toInt(pageModelData.getId(), -1);
 
         Map<String, String> meta = pageModelData.getMeta();
         for (Map.Entry<String, String> entry : meta.entrySet()) {
@@ -121,9 +123,18 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             } else {
                 List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
                 this.batchLinkResolver.dispatchMultipleLinksResolution(
-                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), pageId, links,
-                                new FragmentLinkListProcessor(meta, entry.getKey(), entry.getValue(),
-                                        this.richTextLinkResolver)));
+                        new RichTextLinkDescriptor(
+                                pageRequest.getPublicationId(),
+                                pageId,
+                                links,
+                                new FragmentLinkListProcessor(
+                                        meta,
+                                        entry.getKey(),
+                                        entry.getValue(),
+                                        this.richTextLinkResolver
+                                )
+                        )
+                );
 
             }
         }

@@ -10,6 +10,8 @@ import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
 import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
+import com.sdl.web.api.linking.BatchLinkRetriever;
+import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -166,7 +168,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
         return new EntityModelExpander(
                 entityRequestDto,
                 richTextLinkResolver,
-                linkResolver, configService, resolveLinks, getBatchLinkResolver());
+                linkResolver, configService, resolveLinks, getBatchLinkResolver(new BatchLinkRetrieverImpl()));
     }
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
@@ -178,7 +180,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
     }
 
     @Lookup
-    public BatchLinkResolver getBatchLinkResolver() {
+    public BatchLinkResolver getBatchLinkResolver(BatchLinkRetriever retriever) {
         return null;
     }
 

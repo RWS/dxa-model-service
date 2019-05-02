@@ -14,6 +14,8 @@ import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
+import com.sdl.web.api.linking.BatchLinkRetriever;
+import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -198,7 +200,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto, Integer pageId) {
         return new PageModelExpander(pageRequestDto,
-                entityModelService, richTextLinkResolver, linkResolver, configService, getBatchLinkResolver(), pageId);
+                entityModelService, richTextLinkResolver, linkResolver, configService, getBatchLinkResolver(new BatchLinkRetrieverImpl()), pageId);
     }
 
     @Contract("!null, _ -> !null")
@@ -241,7 +243,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     }
 
     @Lookup
-    public BatchLinkResolver getBatchLinkResolver() {
+    public BatchLinkResolver getBatchLinkResolver(BatchLinkRetriever retriever) {
         return null;
     }
 }
