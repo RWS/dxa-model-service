@@ -118,6 +118,9 @@ public class BatchLinkResolverImplTest {
 
     @Test
     public void shouldDispatchMultipleLinkForResolutionWhenProcessingPageMeta() {
+        BatchLinkRetriever retriever = mock(BatchLinkRetrieverImpl.class);
+        BatchLinkResolver resolver = new BatchLinkResolverImpl(retriever);
+
         Map<String, String> meta = new HashMap<String, String>(){
             { put("summary", "<p>Does life on Mars <a href=\"tcm:1-2\">exist</a>? Are we alone in<!--CompLink tcm:1-3--><a href=\"tcm:1-3\">space</a>?<!--CompLink tcm:1-3--></p>"); }
             {
@@ -140,9 +143,9 @@ public class BatchLinkResolverImplTest {
 
             MultipleLinksDescriptor descriptor = new RichTextLinkDescriptor(1, 12, links, processor);
 
-            this.mockedBatchLinkResolver.dispatchMultipleLinksResolution(descriptor);
+            resolver.dispatchMultipleLinksResolution(descriptor);
             count +=  descriptor.getLinks().size();
-            verify(this.mockedLinkRetriever, times(count)).addLinkRequest(any());
+            verify(retriever, times(count)).addLinkRequest(any());
         }
     }
 
