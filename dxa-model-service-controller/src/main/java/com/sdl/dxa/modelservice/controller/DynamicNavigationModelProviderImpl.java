@@ -26,6 +26,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -419,7 +420,7 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
                 .setTitle(page.getTitle())
                 .setUrl(stripDefaultExtension(page.getURLPath()))
                 .setVisible(isVisibleItem(page.getTitle(), page.getURLPath()))
-                .setPublishedDate(new DateTime(page.getLastPublicationDate()));
+                .setPublishedDate(new DateTime(page.getLastPublicationDate()).withZone(DateTimeZone.UTC));
     }
 
     protected TaxonomyNodeModelData createTaxonomyNodeFromKeyword(@NotNull Keyword keyword, String taxonomyId, String taxonomyNodeUrl, SortedSet<SitemapItemModelData> children) {
