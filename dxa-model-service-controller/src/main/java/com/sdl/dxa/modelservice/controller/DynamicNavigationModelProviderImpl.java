@@ -420,7 +420,8 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
                 .setTitle(page.getTitle())
                 .setUrl(stripDefaultExtension(page.getURLPath()))
                 .setVisible(isVisibleItem(page.getTitle(), page.getURLPath()))
-                .setPublishedDate(new DateTime(page.getLastPublicationDate()).withZone(DateTimeZone.UTC));
+                .setPublishedDate(new DateTime(page.getLastPublicationDate())
+                        .withZone(DateTimeZone.getDefault()));
     }
 
     protected TaxonomyNodeModelData createTaxonomyNodeFromKeyword(@NotNull Keyword keyword, String taxonomyId, String taxonomyNodeUrl, SortedSet<SitemapItemModelData> children) {
