@@ -48,7 +48,15 @@ public class DynamicNavigationController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping(value = {"/subtree", "/subtree/{sitemapItemId}"}, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = "/subtree", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<SitemapItemModelData>> subtree(
+            @PathVariable(value = "localizationId", required = false) Integer localizationId,
+            @RequestParam(value = "includeAncestors", required = false, defaultValue = "false") Boolean includeAncestors,
+            @RequestParam(value = "descendantLevels", required = false, defaultValue = "1") Integer descendantLevels) {
+        return subtree(localizationId, null, includeAncestors, descendantLevels);
+    }
+
+    @GetMapping(value = "/subtree/{sitemapItemId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Collection<SitemapItemModelData>> subtree(
             @PathVariable(value = "localizationId", required = false) Integer localizationId,
             @PathVariable(value = "sitemapItemId", required = false) String sitemapItemId,

@@ -7,16 +7,12 @@ import com.tridion.taxonomies.TaxonomyRelationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 /**
  * TridionConfiguration.
  */
 @Configuration
 public class TridionConfiguration {
-
-    @Autowired
-    Environment environment;
 
     @Bean
     public AmbientClientFilter ambientClientFilter() {
