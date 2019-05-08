@@ -10,8 +10,6 @@ import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
 import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
-import com.sdl.web.api.linking.BatchLinkRetriever;
-import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,6 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -48,6 +45,8 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     private final ConfigService configService;
 
+    private final BatchLinkResolver batchLinkResolver;
+
     private DataBinder dd4tDataBinder;
 
     private RichTextResolver dd4tRichTextResolver;
@@ -64,7 +63,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
                                      DataBinder dd4tDataBinder,
                                      RichTextResolver dd4tRichTextResolver,
                                      RichTextLinkResolverImpl richTextLinkResolver,
-                                     ConfigService configService) {
+                                     ConfigService configService, BatchLinkResolver batchLinkResolver) {
         this.objectMapper = objectMapper;
         this.linkResolver = linkResolver;
         this.contentService = contentService;
@@ -73,6 +72,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
         this.dd4tDataBinder = dd4tDataBinder;
         this.dd4tRichTextResolver = dd4tRichTextResolver;
+        this.batchLinkResolver = batchLinkResolver;
     }
 
     public void setToDd4tConverter(ToDd4tConverter toDd4tConverter) {
@@ -168,7 +168,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
         return new EntityModelExpander(
                 entityRequestDto,
                 richTextLinkResolver,
-                linkResolver, configService, resolveLinks, getBatchLinkResolver(new BatchLinkRetrieverImpl()));
+                linkResolver, configService, resolveLinks, batchLinkResolver);
     }
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
@@ -178,10 +178,4 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }
-
-    @Lookup
-    public BatchLinkResolver getBatchLinkResolver(BatchLinkRetriever retriever) {
-        return null;
-    }
-
 }

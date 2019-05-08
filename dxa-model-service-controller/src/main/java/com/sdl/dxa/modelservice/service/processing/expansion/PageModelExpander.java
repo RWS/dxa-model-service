@@ -23,7 +23,6 @@ import com.sdl.dxa.tridion.linking.processors.EntryLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
 import com.sdl.webapp.common.api.content.ContentProviderException;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
@@ -54,8 +53,6 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
     private RichTextLinkResolver richTextLinkResolver;
 
-    private LinkResolver linkResolver;
-
     private BatchLinkResolver batchLinkResolver;
 
     private ConfigService configService;
@@ -65,14 +62,12 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
     public PageModelExpander(PageRequestDto pageRequest,
                              EntityModelService entityModelService,
                              RichTextLinkResolver richTextLinkResolver,
-                             LinkResolver linkResolver,
                              ConfigService configService,
                              BatchLinkResolver batchLinkResolver,
                              Integer pageId) {
         this.pageRequest = pageRequest;
         this.entityModelService = entityModelService;
         this.richTextLinkResolver = richTextLinkResolver;
-        this.linkResolver = linkResolver;
         this.configService = configService;
         this.batchLinkResolver = batchLinkResolver;
         this.pageId = pageId;
@@ -160,6 +155,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                     LINK_TYPE_COMPONENT);
         }
 
+        //Odata -> BatchLinkResolverImpl
+        //In-process -> TridionBatchLinkResolver
         this.batchLinkResolver.dispatchLinkResolution(ld);
     }
 

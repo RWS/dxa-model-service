@@ -4,6 +4,7 @@ import com.sdl.dxa.DxaModelServiceApplication;
 import com.sdl.dxa.common.dto.ContentType;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
+import com.sdl.dxa.modelservice.TestTridionConfiguration;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = DxaModelServiceApplication.class)
+@SpringBootTest(classes = {DxaModelServiceApplication.class, TestTridionConfiguration.class} )
 @AutoConfigureMockMvc(addFilters = false)
 public class PageModelControllerTest {
 
