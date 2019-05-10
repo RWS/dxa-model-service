@@ -34,7 +34,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -210,26 +213,65 @@ public class DynamicNavigationModelProviderTest {
     }
 
     private ArgumentMatcher<TaxonomyFilter> depthFilterMatcher(int direction, int depth) {
-        String directionAsString;
-        switch(direction) {
-            case 0:
-                directionAsString = "0";
-                break;
-            case 1:
-                directionAsString = "1";
-                break;
-            default:
-                directionAsString = "-1";
-        }
         return new ArgumentMatcher<TaxonomyFilter>() {
             @Override
             public boolean matches(Object argument) {
-                String toMatch = ((DepthFilter) argument).toTaxonomyFilterUriRepresentation();
-                Pattern pattern = Pattern.compile(
-                        "DepthFilter\\((?<depth>-?\\d+),\\s*(?<direction>\\d+)\\)");
+                DepthFilter depthFilter = (DepthFilter) argument;
+                depthFilter.getFilterName();
+
+                Method method = ReflectionUtils.findMethod(DepthFilter.class, "toTaxonomyFilterUriRepresentation");
+
+                depthFilter.filterTaxonomyContext();
+                String toMatch = "";
+                Pattern pattern;
+                String directionAsString;
+                if (method != null) {
+                    //We're building CIL version of model service
+
+                    //For CIL it looks like this:
+                    //DepthFilter (MaxDepth: 1, Direction: Down)
+                    pattern = Pattern.compile(
+                            "DepthFilter\\((?<depth>-?\\d+),\\s*(?<direction>\\d+)\\)");
+                    switch(direction) {
+                        case 0:
+                            directionAsString = "0";
+                            break;
+                        case 1:
+                            directionAsString = "1";
+                            break;
+                        default:
+                            directionAsString = "-1";
+                    }
+                    try {
+                        //invoke depthFilter.toTaxonomyFilterUriRepresentation():
+                        toMatch = (String) method.invoke(depthFilter, new Object[] {});
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //The in-process build has a handy-dandy toString method that is usable:
+                    toMatch = depthFilter.toString();
+
+                    switch(direction) {
+                        case 0:
+                            directionAsString = "Up";
+                            break;
+                        case 1:
+                            directionAsString = "Down";
+                            break;
+                        default:
+                            directionAsString = "-1";
+                    }
+                    //For in process it looks like this:
+                    //DepthFilter (MaxDepth: -1, Direction: Down)
+                    pattern = Pattern.compile("DepthFilter \\(MaxDepth: (-?\\d+), Direction: ([a-zA-Z]+)\\)");
+                }
+
                 Matcher matcher = pattern.matcher(toMatch);
-                return matcher.matches() && matcher.group("direction").equals(directionAsString)
-                        && (depth == 666 || matcher.group("depth").equals(String.valueOf(depth)));
+                return matcher.matches() && matcher.group(2).equals(directionAsString)
+                        && (depth == 666 || matcher.group(1).equals(String.valueOf(depth)));
             }
         };
     }

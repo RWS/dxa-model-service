@@ -170,6 +170,10 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
 
                 Link link = this.retriever.getLink(descriptor.getSubscription());
 
+                if (link == null) {
+                    continue;
+                }
+
                 if (hasLeftOvers && descriptor.getType().equals(LINK_TYPE_BINARY) && !link.isResolved()) {
                     descriptor.setType(LINK_TYPE_COMPONENT);
                     this.unresolvedDescriptors.add(descriptor);

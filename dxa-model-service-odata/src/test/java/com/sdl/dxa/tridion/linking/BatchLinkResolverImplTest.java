@@ -1,7 +1,7 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sdl.dxa.api.datamodel.DataModelSpringConfiguration;
+import com.sdl.springconfig.BatchLinkResolverSpringConfig;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.modelservice.service.ConfigService;
@@ -29,13 +29,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
@@ -44,17 +40,17 @@ import java.util.Map;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_PAGE;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyString;
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = BatchLinkResolverImplTest.SpringConfigurationContext.class)
+@ContextConfiguration(classes = BatchLinkResolverSpringConfig.class)
 public class BatchLinkResolverImplTest {
 
     @Autowired
@@ -232,32 +228,4 @@ public class BatchLinkResolverImplTest {
         assertEquals(expectedUrl, descriptor.getResolvedLink());
     }
 
-    @Configuration
-    @PropertySource("classpath:dxa.properties")
-    public static class SpringConfigurationContext {
-        @Bean
-        public BatchLinkRetriever linkRetriever() {
-            return new BatchLinkRetrieverImpl();
-        }
-
-        @Bean
-        public BatchLinkResolver batchLinkResolver() {
-            return new BatchLinkResolverImpl(this.linkRetriever());
-        }
-
-        @Bean
-        public BatchLinkRetriever mockedLinkRetriever() {
-            return mock(BatchLinkRetrieverImpl.class);
-        }
-
-        @Bean
-        public BatchLinkResolver mockedBatchLinkResolver() {
-            return new BatchLinkResolverImpl(this.mockedLinkRetriever());
-        }
-
-        @Bean
-        public ObjectMapper objectMapper() {
-            return new DataModelSpringConfiguration().dxaR2ObjectMapper();
-        }
-    }
 }

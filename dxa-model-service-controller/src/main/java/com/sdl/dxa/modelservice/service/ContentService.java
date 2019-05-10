@@ -1,6 +1,5 @@
 package com.sdl.dxa.modelservice.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
@@ -43,17 +42,13 @@ public class ContentService {
 
     private final ConfigService configService;
 
-    private final ObjectMapper objectMapper;
-
-    private ApplicationContext applicationContext;
+    private final TridionQueryLoader queryLoader;
 
     @Autowired
     public ContentService(ConfigService configService,
-                          ObjectMapper objectMapper,
-                          ApplicationContext appContext) {
+                          TridionQueryLoader queryLoader) {
         this.configService = configService;
-        this.objectMapper = objectMapper;
-        this.applicationContext = appContext;
+        this.queryLoader = queryLoader;
     }
 
     /**
@@ -88,9 +83,6 @@ public class ContentService {
                 new OrCriteria(new PageURLCriteria(normalizePathToDefaults(path)), new PageURLCriteria(normalizePathToDefaults(path + "/")));
 
         // Use a wrapper to make it work on CIL and In Process
-
-        final TridionQueryLoader queryLoader = applicationContext.getBean(TridionQueryLoader.class);
-
         try {
             String[] result =
                     queryLoader.constructQueryAndSetResultFilter(
