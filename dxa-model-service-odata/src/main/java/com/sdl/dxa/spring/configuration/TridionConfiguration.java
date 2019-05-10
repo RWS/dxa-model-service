@@ -1,12 +1,15 @@
 package com.sdl.dxa.spring.configuration;
 
+import com.sdl.dxa.tridion.linking.BatchLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.web.ambient.client.AmbientClientFilter;
-import com.tridion.taxonomies.TaxonomyFactory;
+import com.sdl.web.api.linking.BatchLinkRetriever;
+import com.sdl.webapp.common.api.content.LinkResolver;
 import com.tridion.taxonomies.TaxonomyRelationManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * TridionConfiguration.
@@ -15,13 +18,14 @@ import org.springframework.context.annotation.Configuration;
 public class TridionConfiguration {
 
     @Bean
-    public AmbientClientFilter ambientClientFilter() {
-        return new AmbientClientFilter();
+    @Primary
+    public BatchLinkResolver batchLinkResolver(BatchLinkRetriever retreiver) {
+        return new BatchLinkResolverImpl(retreiver);
     }
 
     @Bean
-    public TaxonomyFactory taxonomyFactory() {
-        return new TaxonomyFactory();
+    public AmbientClientFilter ambientClientFilter() {
+        return new AmbientClientFilter();
     }
 
     @Bean
@@ -30,7 +34,7 @@ public class TridionConfiguration {
     }
 
     @Bean(name = "dxaLinkResolver")
-    public TridionLinkResolver linkResolver() {
+    public LinkResolver linkResolver() {
         return new TridionLinkResolver();
     }
 

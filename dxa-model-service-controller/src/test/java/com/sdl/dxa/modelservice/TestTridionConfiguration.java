@@ -1,4 +1,4 @@
-package com.sdl.dxa.spring.configuration;
+package com.sdl.dxa.modelservice;
 
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;

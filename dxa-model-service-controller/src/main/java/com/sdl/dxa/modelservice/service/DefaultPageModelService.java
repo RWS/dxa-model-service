@@ -53,8 +53,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     private final ObjectMapper objectMapper;
 
-    private final LinkResolver linkResolver;
-
     private final ConfigService configService;
 
     private final ContentService contentService;
@@ -71,9 +69,10 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     private final EntityModelService entityModelService;
 
+    private final BatchLinkResolver batchLinkResolver;
+
     @Autowired
     public DefaultPageModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                                   @Qualifier("dxaLinkResolver") LinkResolver linkResolver,
                                    ConfigService configService,
                                    EntityModelService entityModelService,
                                    ContentService contentService,
@@ -81,9 +80,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                    ToR2Converter toR2Converter,
                                    RichTextLinkResolverImpl richTextLinkResolver,
                                    DataBinder dd4tDataBinder,
-                                   RichTextResolver dd4tRichTextResolver) {
+                                   RichTextResolver dd4tRichTextResolver, BatchLinkResolver batchLinkResolver) {
         this.objectMapper = objectMapper;
-        this.linkResolver = linkResolver;
         this.configService = configService;
         this.entityModelService = entityModelService;
         this.contentService = contentService;
@@ -92,6 +90,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         this.richTextLinkResolver = richTextLinkResolver;
         this.dd4tDataBinder = dd4tDataBinder;
         this.dd4tRichTextResolver = dd4tRichTextResolver;
+        this.batchLinkResolver = batchLinkResolver;
     }
 
     @Override
@@ -200,7 +199,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto, Integer pageId) {
         return new PageModelExpander(pageRequestDto,
-                entityModelService, richTextLinkResolver, linkResolver, configService, getBatchLinkResolver(new BatchLinkRetrieverImpl()), pageId);
+                entityModelService, richTextLinkResolver, configService, batchLinkResolver, pageId);
     }
 
     @Contract("!null, _ -> !null")
@@ -240,10 +239,5 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         } catch (IOException e) {
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
-    }
-
-    @Lookup
-    public BatchLinkResolver getBatchLinkResolver(BatchLinkRetriever retriever) {
-        return null;
     }
 }
