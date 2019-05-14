@@ -22,7 +22,7 @@ public class BatchLinkResolverSpringConfig {
 
     @Bean
     public BatchLinkResolver batchLinkResolver() {
-        return new BatchLinkResolverImpl(this.linkRetriever());
+        return new BatchLinkResolverImpl(true, true, true, this.linkRetriever());
     }
 
     @Bean
@@ -32,7 +32,7 @@ public class BatchLinkResolverSpringConfig {
 
     @Bean
     public BatchLinkResolver mockedBatchLinkResolver() {
-        return new BatchLinkResolverImpl(this.mockedLinkRetriever());
+        return new BatchLinkResolverImpl(true, true, true, this.mockedLinkRetriever());
     }
 
     @Bean

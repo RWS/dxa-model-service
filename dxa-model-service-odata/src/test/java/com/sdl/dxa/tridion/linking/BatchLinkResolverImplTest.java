@@ -103,19 +103,20 @@ public class BatchLinkResolverImplTest {
         SingleLinkDescriptor binaryLinkDescriptor = new ComponentLinkDescriptor(8, 18, entityLinkProcessor, LINK_TYPE_BINARY);
 
         this.batchLinkResolver.dispatchLinkResolution(pageLinkDescriptor);
-        assertNotNull(pageLinkDescriptor.getSubscription());
-
         this.batchLinkResolver.dispatchLinkResolution(componentLinkDescriptor);
-        assertNotNull(componentLinkDescriptor.getSubscription());
-
         this.batchLinkResolver.dispatchLinkResolution(binaryLinkDescriptor);
+
+        this.batchLinkResolver.resolveAndFlush();
+
+        assertNotNull(pageLinkDescriptor.getSubscription());
+        assertNotNull(componentLinkDescriptor.getSubscription());
         assertNotNull(binaryLinkDescriptor.getSubscription());
     }
 
     @Test
     public void shouldDispatchMultipleLinkForResolutionWhenProcessingPageMeta() {
         BatchLinkRetriever retriever = mock(BatchLinkRetrieverImpl.class);
-        BatchLinkResolver resolver = new BatchLinkResolverImpl(retriever);
+        BatchLinkResolver resolver = new BatchLinkResolverImpl(true, true, true, retriever);
 
         Map<String, String> meta = new HashMap<String, String>(){
             { put("summary", "<p>Does life on Mars <a href=\"tcm:1-2\">exist</a>? Are we alone in<!--CompLink tcm:1-3--><a href=\"tcm:1-3\">space</a>?<!--CompLink tcm:1-3--></p>"); }
@@ -141,6 +142,7 @@ public class BatchLinkResolverImplTest {
 
             resolver.dispatchMultipleLinksResolution(descriptor);
             count +=  descriptor.getLinks().size();
+            resolver.resolveAndFlush();
             verify(retriever, times(count)).addLinkRequest(any());
         }
     }
@@ -156,10 +158,13 @@ public class BatchLinkResolverImplTest {
         SingleLinkDescriptor descriptor_2 = new ComponentLinkDescriptor(8, 18, processor, LINK_TYPE_PAGE);
 
         this.batchLinkResolver.dispatchLinkResolution(descriptor_1);
+        this.batchLinkResolver.dispatchLinkResolution(descriptor_2);
+
+        this.batchLinkResolver.resolveAndFlush();
+
         String subscriptionId_1 = descriptor_1.getSubscription();
         assertNotNull(subscriptionId_1);
 
-        this.batchLinkResolver.dispatchLinkResolution(descriptor_2);
         String subscriptionId_2 = descriptor_2.getSubscription();
         assertNotNull(subscriptionId_2);
 

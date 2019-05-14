@@ -3,7 +3,6 @@ package com.sdl.dxa.tridion.linking.processors;
 import com.sdl.dxa.api.datamodel.model.RichTextData;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashSet;
 import java.util.List;
@@ -21,13 +20,10 @@ public class FragmentListProcessor implements LinkListProcessor {
     private String fragment;
 
     public FragmentListProcessor(RichTextData model,
-                                 ImmutablePair<String, String> uuidAndFragmentPair,
+                                 String fragment,
                                  RichTextLinkResolver resolver) {
         this.model = model;
-
-        this.uuid = uuidAndFragmentPair.getLeft();
-        this.fragment = uuidAndFragmentPair.getRight();
-
+        this.fragment = fragment;
         this.resolver = resolver;
     }
 
@@ -35,12 +31,7 @@ public class FragmentListProcessor implements LinkListProcessor {
     public void update(Map<String, String> links) {
         List<Object> fragmentList = this.model
                 .getValues().stream()
-                .map(fragment -> {
-                    if (fragment instanceof ImmutablePair && ((ImmutablePair) fragment).getLeft().equals(this.uuid)) {
-                        return this.resolver.applyBatchOfLinksStart(this.fragment, links, new HashSet<>());
-                    }
-                    return fragment;
-                }).collect(Collectors.toList());
+                .map(fragment -> this.resolver.applyBatchOfLinksStart(this.fragment, links, new HashSet<>())).collect(Collectors.toList());
 
         this.model.setFragments(fragmentList);
     }

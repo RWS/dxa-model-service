@@ -8,10 +8,9 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolverFactory;
 import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
@@ -37,15 +36,13 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     private final ObjectMapper objectMapper;
 
-    private final LinkResolver linkResolver;
-
     private final ContentService contentService;
 
     private final RichTextLinkResolverImpl richTextLinkResolver;
 
     private final ConfigService configService;
 
-    private final BatchLinkResolver batchLinkResolver;
+    private final BatchLinkResolverFactory batchLinkResolverFactory;
 
     private DataBinder dd4tDataBinder;
 
@@ -58,21 +55,19 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     @Autowired
     public DefaultEntityModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
-                                     @Qualifier("dxaLinkResolver") LinkResolver linkResolver,
                                      ContentService contentService,
                                      DataBinder dd4tDataBinder,
                                      RichTextResolver dd4tRichTextResolver,
                                      RichTextLinkResolverImpl richTextLinkResolver,
-                                     ConfigService configService, BatchLinkResolver batchLinkResolver) {
+                                     ConfigService configService, BatchLinkResolverFactory batchLinkResolverFactory) {
         this.objectMapper = objectMapper;
-        this.linkResolver = linkResolver;
         this.contentService = contentService;
         this.richTextLinkResolver = richTextLinkResolver;
         this.configService = configService;
 
         this.dd4tDataBinder = dd4tDataBinder;
         this.dd4tRichTextResolver = dd4tRichTextResolver;
-        this.batchLinkResolver = batchLinkResolver;
+        this.batchLinkResolverFactory = batchLinkResolverFactory;
     }
 
     public void setToDd4tConverter(ToDd4tConverter toDd4tConverter) {
@@ -168,7 +163,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
         return new EntityModelExpander(
                 entityRequestDto,
                 richTextLinkResolver,
-                linkResolver, configService, resolveLinks, batchLinkResolver);
+                configService, resolveLinks, batchLinkResolverFactory.getBatchLinkResolver());
     }
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {

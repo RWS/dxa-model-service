@@ -6,18 +6,15 @@ import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.api.datamodel.model.RegionModelData;
 import com.sdl.dxa.api.datamodel.model.ViewModelData;
 import com.sdl.dxa.common.dto.DataModelType;
-import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.EntityRequestDto;
+import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolverFactory;
 import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
-import com.sdl.web.api.linking.BatchLinkRetriever;
-import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dd4t.contentmodel.Page;
@@ -30,7 +27,6 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -69,7 +65,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     private final EntityModelService entityModelService;
 
-    private final BatchLinkResolver batchLinkResolver;
+    private final BatchLinkResolverFactory batchLinkResolverFactory;
 
     @Autowired
     public DefaultPageModelService(@Qualifier("dxaR2ObjectMapper") ObjectMapper objectMapper,
@@ -80,7 +76,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                    ToR2Converter toR2Converter,
                                    RichTextLinkResolverImpl richTextLinkResolver,
                                    DataBinder dd4tDataBinder,
-                                   RichTextResolver dd4tRichTextResolver, BatchLinkResolver batchLinkResolver) {
+                                   RichTextResolver dd4tRichTextResolver, BatchLinkResolverFactory batchLinkResolverFactory) {
         this.objectMapper = objectMapper;
         this.configService = configService;
         this.entityModelService = entityModelService;
@@ -90,7 +86,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         this.richTextLinkResolver = richTextLinkResolver;
         this.dd4tDataBinder = dd4tDataBinder;
         this.dd4tRichTextResolver = dd4tRichTextResolver;
-        this.batchLinkResolver = batchLinkResolver;
+        this.batchLinkResolverFactory = batchLinkResolverFactory;
     }
 
     @Override
@@ -187,8 +183,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         PageModelData pageModelData = _expandIncludePages(pageModel, pageRequest);
         log.trace("expanded include pages for {}", pageRequest);
 
-        // let's check every leaf here if we need to expand it
-
+	// let's check every leaf here if we need to expand it
         int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
         _getModelExpander(pageRequest, pageId).expandPage(pageModelData);
         log.trace("expanded the whole model for {}", pageRequest);
@@ -199,7 +194,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto, Integer pageId) {
         return new PageModelExpander(pageRequestDto,
-                entityModelService, richTextLinkResolver, configService, batchLinkResolver, pageId);
+                entityModelService, richTextLinkResolver, configService, batchLinkResolverFactory.getBatchLinkResolver(), pageId);
     }
 
     @Contract("!null, _ -> !null")
