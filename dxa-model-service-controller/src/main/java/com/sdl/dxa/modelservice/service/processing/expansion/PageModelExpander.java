@@ -29,7 +29,6 @@ import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
@@ -187,29 +185,30 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         long start = System.currentTimeMillis();
 
-        final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
+        final List<Object> fragments = richTextData.getFragments();
 
         log.debug("Processing {} fragments.", fragments.size());
 
         richTextData.setFragments(fragments);
 
         for (Object fragment : fragments) {
-            if (fragment instanceof ImmutablePair) {
+            if (fragment instanceof String) {
+                String fragmentString = (String) fragment;
                 List<String> links = this.richTextLinkResolver
-                        .retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight());
+                        .retrieveAllLinksFromFragment(fragmentString);
 
                     this.batchLinkResolver.dispatchMultipleLinksResolution(
                             new RichTextLinkDescriptor(
                                     pageRequest.getPublicationId(),
                                     this.pageId,
                                     links,
-                                    new FragmentListProcessor(richTextData, (ImmutablePair<String, String>) fragment,
+                                    new FragmentListProcessor(richTextData, fragmentString,
                                             this.richTextLinkResolver)));
 
             }
         }
 
-        log.info("Page Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
+        log.debug("Page Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
 
     @NotNull

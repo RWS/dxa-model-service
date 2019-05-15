@@ -14,9 +14,7 @@
 
     <modules>
         <module>dxa-model-service-controller</module>
-        <module>dxa-model-service-assembly</module>
         <module>dxa-model-service-container</module>
-        <module>dxa-model-service-odata</module>
     </modules>
 
 
@@ -109,11 +107,6 @@
             <dependency>
                 <groupId>com.sdl.dxa</groupId>
                 <artifactId>dxa-common</artifactId>
-                <version>${dxa.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.dxa</groupId>
-                <artifactId>dxa-tridion-common</artifactId>
                 <version>${dxa.version}</version>
             </dependency>
 
@@ -214,6 +207,11 @@
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-api-linking</artifactId>
+                <version>${api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.delivery</groupId>
+                <artifactId>udp-api-broker</artifactId>
                 <version>${api.version}</version>
             </dependency>
             <dependency>
@@ -547,11 +545,46 @@
     </build>
     <profiles>
         <profile>
+            <id>cil</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>dxa-model-service-odata</module>
+                <module>dxa-model-service-assembly</module>
+            </modules>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sdl.dxa</groupId>
+                        <artifactId>dxa-tridion-common</artifactId>
+                        <version>${dxa.version}</version>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+        <profile>
             <id>in-process</id>
             <modules>
                 <module>dxa-model-service-in-process</module>
                 <module>dxa-model-service-assembly-in-process</module>
             </modules>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sdl.dxa</groupId>
+                        <artifactId>dxa-tridion-common</artifactId>
+                        <version>${dxa.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <!-- This dependency conflicts with udp-api-linking -->
+                                <groupId>com.sdl.delivery</groupId>
+                                <artifactId>udp-cil-api-compatible</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
         </profile>
         <profile>
             <id>update-dependencies</id>

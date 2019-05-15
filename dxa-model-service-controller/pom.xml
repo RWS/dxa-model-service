@@ -33,6 +33,13 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-tridion-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <!--This dependency conflicts with udp-api-linking defined below   -->
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-cil-api-compatible</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sdl.delivery</groupId>
@@ -138,4 +145,35 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>cil</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-cil-api-compatible</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>in-process</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-linking</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-broker</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-dynamic</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

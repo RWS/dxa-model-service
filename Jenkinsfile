@@ -36,6 +36,10 @@ pipeline {
                     script {
                         //Build on JDK8
                         jdk8BuilderImage.inside {
+                            //Build CIL version:
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -B clean verify"
+
+                            //Build in-process version:
                             sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -B clean verify"
                         }
                     }
@@ -50,6 +54,10 @@ pipeline {
                     script {
                         //Build on JDK8 and deploy it to local repository:
                         jdk8BuilderImage.inside {
+                            //Build CIL version:
+                            sh "mvn -B -s $MAVEN_SETTINGS_PATH -Pcil -Plocal-repository clean source:jar deploy"
+
+                            //Build in-process version:
                             sh "mvn -B -s $MAVEN_SETTINGS_PATH -Pin-process -Plocal-repository clean source:jar deploy"
                         }
                     }
