@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,17 +73,6 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     }
 
     /**
-     * Processes the fragment as {@link #processFragment(String, int, int, Set)} just for single fragment.
-     *
-     * @param fragment       fragment of a rich text to process
-     * @param localizationId current localization ID
-     * @return modified fragment
-     */
-    public String processFragment(@NotNull String fragment, int localizationId, int contextId) {
-        return processFragment(fragment, localizationId, contextId, new HashSet<>());
-    }
-
-    /**
      * Processes a rich text fragment trying to resolve links from it. In case of non-resolvable link, puts it into buffer.
      * <p>Reuse the same buffer if you have multiple fragments with possible same links parts in different fragments:</p>
      * <pre><code>
@@ -101,12 +89,10 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
      *     //   resolved = {"text", ""};</code></pre>
      *
      * @param fragment          fragment of a rich text to process
-     * @param localizationId    current localization ID
-     * @param contextId         current page ID
      * @param notResolvedBuffer buffer to put non resolvable links to, make sure it's modifiable
      * @return modified fragment
      */
-    public String processFragment(@NotNull String fragment, int localizationId, int contextId, @NotNull Set<String> notResolvedBuffer) {
+    public String processFragment(@NotNull String fragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> notResolvedBuffer) {
 
         log.trace("RichTextResolver, resolve = {}, remove = {}, input fragment: '{}'",
                 configService.getDefaults().isRichTextResolve(), configService.getDefaults().isRichTextXmlnsRemove(), fragment);
@@ -119,7 +105,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
         String fragmentToProcess = configService.getDefaults().isRichTextXmlnsRemove()
                 ? dropXlmns(fragment)
                 : generateHref(fragment);
-        String result = processLinks(fragmentToProcess, localizationId, notResolvedBuffer, String.valueOf(contextId));
+        String result = processLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer);
         Matcher withoutExcessiveSpaces = SPACES_FOR_REMOVAL.matcher(result);
         return withoutExcessiveSpaces.replaceAll("$1");
     }
@@ -201,14 +187,14 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     }
 
     @NotNull
-    String processLinks(@NotNull String fragment, int localizationId, @NotNull Set<String> linksNotResolved, ResolveOrGetLink resolver) {
+    String processLinks(@NotNull String fragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> linksNotResolved) {
         if (fragment.isEmpty()) return "";
         fragment += "</a>";
         StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
         Matcher startMatcher = FULL_LINK.matcher(fragment);
         while (startMatcher.find()) {
             String tcmUri = startMatcher.group("tcmUri");
-            String link = resolver.getByTcmUri(tcmUri, localizationId);
+            String link = batchOfLinks.get(tcmUri);
             if (Strings.isNullOrEmpty(link)) {
                 log.info("Cannot resolve link to {}, suppressing link", tcmUri);
                 startMatcher.appendReplacement(result, Matcher.quoteReplacement(startMatcher.group("linkText") + "</a><!--CompLink " + tcmUri + "-->"));
@@ -222,20 +208,5 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
         startMatcher.appendTail(result);
         String finalResult = result.toString().replaceAll("</a>$","");
         return finalResult.replaceAll("</a><!--CompLink\\s++tcm:\\d++-\\d++-->", "");
-    }
-
-    @NotNull
-    String processLinks(@NotNull String stringFragment, int localizationId, @NotNull Set<String> linksNotResolved, String contextId) {
-        return processLinks(stringFragment, localizationId, linksNotResolved, new ResolveOrGetLink() {
-            @Override
-            public String getByTcmUri(String tcmUri, int localizationId1) {
-                return linkResolver.resolveLink(tcmUri, String.valueOf(localizationId1), true, contextId);
-            }
-        });
-    }
-
-    @NotNull
-    public String applyBatchOfLinksStart(@NotNull String stringFragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> linksNotResolved) {
-        return processLinks(stringFragment, 0, linksNotResolved, (String tcmUri, int localizationId) -> batchOfLinks.get(tcmUri));
     }
 }

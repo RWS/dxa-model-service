@@ -49,6 +49,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = BatchLinkResolverSpringConfig.class)
 public class BatchLinkResolverImplTest {
+    private static final int COMPONENTLINKID = 123;
 
     @Autowired
     private BatchLinkResolver batchLinkResolver;
@@ -90,11 +91,11 @@ public class BatchLinkResolverImplTest {
         when(entity.getId()).thenReturn(entityId);
 
         LinkProcessor pageLinkProcessor = new PageLinkProcessor(page);
-        SingleLinkDescriptor pageLinkDescriptor = new ComponentLinkDescriptor(8, 18, pageLinkProcessor, LINK_TYPE_PAGE);
+        SingleLinkDescriptor pageLinkDescriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, pageLinkProcessor, LINK_TYPE_PAGE);
 
         LinkProcessor entityLinkProcessor = new EntityLinkProcessor(entity);
-        SingleLinkDescriptor componentLinkDescriptor = new ComponentLinkDescriptor(8, 18, entityLinkProcessor, LINK_TYPE_COMPONENT);
-        SingleLinkDescriptor binaryLinkDescriptor = new ComponentLinkDescriptor(8, 18, entityLinkProcessor, LINK_TYPE_BINARY);
+        SingleLinkDescriptor componentLinkDescriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, entityLinkProcessor, LINK_TYPE_COMPONENT);
+        SingleLinkDescriptor binaryLinkDescriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, entityLinkProcessor, LINK_TYPE_BINARY);
 
         this.batchLinkResolver.dispatchLinkResolution(pageLinkDescriptor);
         this.batchLinkResolver.dispatchLinkResolution(componentLinkDescriptor);
@@ -148,8 +149,8 @@ public class BatchLinkResolverImplTest {
 
 
         LinkProcessor processor = new PageLinkProcessor(page);
-        SingleLinkDescriptor descriptor_1 = new ComponentLinkDescriptor(8, 18, processor, LINK_TYPE_PAGE);
-        SingleLinkDescriptor descriptor_2 = new ComponentLinkDescriptor(8, 18, processor, LINK_TYPE_PAGE);
+        SingleLinkDescriptor descriptor_1 = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
+        SingleLinkDescriptor descriptor_2 = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
 
         this.batchLinkResolver.dispatchLinkResolution(descriptor_1);
         this.batchLinkResolver.dispatchLinkResolution(descriptor_2);
@@ -170,7 +171,7 @@ public class BatchLinkResolverImplTest {
         PageModelData page = mock(PageModelData.class);
 
         LinkProcessor processor = new PageLinkProcessor(page);
-        SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, processor, LINK_TYPE_PAGE);
+        SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
         assertEquals(descriptor.getType(), LINK_TYPE_PAGE);
 
         descriptor.setType(LINK_TYPE_COMPONENT);
@@ -193,7 +194,7 @@ public class BatchLinkResolverImplTest {
         when(this.mockedLinkRetriever.getLink(subscriptionID)).thenReturn(resolvedLink);
 
         LinkProcessor processor = new PageLinkProcessor(page);
-        SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, processor, LINK_TYPE_PAGE);
+        SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
 
         this.mockedBatchLinkResolver.dispatchLinkResolution(descriptor);
         this.mockedBatchLinkResolver.resolveAndFlush();
@@ -218,7 +219,7 @@ public class BatchLinkResolverImplTest {
         when(this.mockedLinkRetriever.getLink(subscriptionID)).thenReturn(resolvedLink);
 
         LinkProcessor processor = new PageLinkProcessor(page);
-        SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, processor, LINK_TYPE_PAGE);
+        SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
 
         this.mockedBatchLinkResolver.dispatchLinkResolution(descriptor);
         this.mockedBatchLinkResolver.resolveAndFlush();

@@ -25,6 +25,6 @@ public class FragmentLinkListProcessor implements LinkListProcessor {
 
     @Override
     public void update(Map<String, String> links) {
-        this.model.replace(this.key, this.resolver.applyBatchOfLinksStart(this.value, links, new HashSet<>()));
+        this.model.replace(this.key, this.resolver.processFragment(this.value, links, new HashSet<>()));
     }
 }

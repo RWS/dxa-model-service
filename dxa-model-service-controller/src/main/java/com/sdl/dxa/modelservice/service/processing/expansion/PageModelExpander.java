@@ -107,14 +107,16 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         Map<String, String> meta = pageModelData.getMeta();
         for (Map.Entry<String, String> entry : meta.entrySet()) {
-            if (TcmUtils.isTcmUri(entry.getValue())) {
-                Integer pubId = TcmUtils.getPublicationId(entry.getValue());
+            String entryValue = entry.getValue();
+            if (TcmUtils.isTcmUri(entryValue)) {
+                Integer pubId = TcmUtils.getPublicationId(entryValue);
+                Integer componentId = TcmUtils.getItemId(entryValue);
 
-                SingleLinkDescriptor ld = new ComponentLinkDescriptor(pubId, pageId, new EntryLinkProcessor(meta,
+                SingleLinkDescriptor ld = new ComponentLinkDescriptor(pubId, pageId, componentId, new EntryLinkProcessor(meta,
                         entry.getKey()), LINK_TYPE_BINARY);
                 this.batchLinkResolver.dispatchLinkResolution(ld);
             } else {
-                List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entry.getValue());
+                List<String> links = this.richTextLinkResolver.retrieveAllLinksFromFragment(entryValue);
                 this.batchLinkResolver.dispatchMultipleLinksResolution(
                         new RichTextLinkDescriptor(
                                 pageRequest.getPublicationId(),
@@ -149,6 +151,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             ld = new ComponentLinkDescriptor(
                     pageRequest.getPublicationId(),
                     this.pageId,
+                    Integer.parseInt(entityModelData.getId()),
                     new EntityLinkProcessor(entityModelData),
                     LINK_TYPE_COMPONENT);
         }
@@ -191,22 +194,21 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         richTextData.setFragments(fragments);
 
+        List<String> links = new ArrayList<>();
         for (Object fragment : fragments) {
             if (fragment instanceof String) {
                 String fragmentString = (String) fragment;
-                List<String> links = this.richTextLinkResolver
-                        .retrieveAllLinksFromFragment(fragmentString);
-
-                    this.batchLinkResolver.dispatchMultipleLinksResolution(
-                            new RichTextLinkDescriptor(
-                                    pageRequest.getPublicationId(),
-                                    this.pageId,
-                                    links,
-                                    new FragmentListProcessor(richTextData, fragmentString,
-                                            this.richTextLinkResolver)));
-
+                links.addAll(this.richTextLinkResolver
+                        .retrieveAllLinksFromFragment(fragmentString));
             }
         }
+        this.batchLinkResolver.dispatchMultipleLinksResolution(
+                new RichTextLinkDescriptor(
+                        pageRequest.getPublicationId(),
+                        this.pageId,
+                        links,
+                        new FragmentListProcessor(richTextData,
+                                this.richTextLinkResolver)));
 
         log.debug("Page Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
