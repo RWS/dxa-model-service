@@ -15,14 +15,10 @@ import static org.mockito.Mockito.mock;
 @Configuration
 @PropertySource("classpath:dxa.properties")
 public class BatchLinkResolverSpringConfig {
-    @Bean
-    public BatchLinkRetriever linkRetriever() {
-        return new BatchLinkRetrieverImpl();
-    }
 
     @Bean
     public BatchLinkResolver batchLinkResolver() {
-        return new BatchLinkResolverImpl(true, true, true, this.linkRetriever());
+        return new BatchLinkResolverImpl(true, true, true, this.mockedLinkRetriever());
     }
 
     @Bean
