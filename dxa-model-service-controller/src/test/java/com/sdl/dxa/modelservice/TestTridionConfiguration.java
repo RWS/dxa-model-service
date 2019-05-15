@@ -1,9 +1,7 @@
 package com.sdl.dxa.modelservice;
 
 import com.sdl.dxa.tridion.linking.TridionLinkResolver;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
-import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
-import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolverFactory;
 import com.sdl.web.api.dynamic.taxonomies.WebTaxonomyFactory;
 import com.sdl.web.api.taxonomies.WebTaxonomyFactoryImpl;
 import com.tridion.ambientdata.web.AmbientDataServletFilter;
@@ -16,11 +14,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class TestTridionConfiguration {
-
-//    @Bean
-//    public AmbientClientFilter ambientClientFilter() {
-//        return new AmbientClientFilter();
-//    }
 
     @Bean
     public AmbientDataServletFilter ambientDataServletFilter() {
@@ -43,22 +36,7 @@ public class TestTridionConfiguration {
     }
 
     @Bean
-    public BatchLinkResolver batchLinkResolver() {
-        return new BatchLinkResolver() {
-            @Override
-            public void dispatchLinkResolution(final SingleLinkDescriptor descriptor) {
-
-            }
-
-            @Override
-            public void dispatchMultipleLinksResolution(final MultipleLinksDescriptor descriptor) {
-
-            }
-
-            @Override
-            public void resolveAndFlush() {
-
-            }
-        };
+    public BatchLinkResolverFactory batchLinkResolverFactory() {
+        return () -> null;
     }
 }
