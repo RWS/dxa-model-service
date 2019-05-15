@@ -141,7 +141,7 @@ public class BatchLinkResolverImplTest {
         assertEquals(count, resolver.nrDescriptors());
     }
 
-        @Test
+    @Test
     public void shouldNotDispatchDifferentRequestForEqualDescriptors() {
         PageModelData page = mock(PageModelData.class);
         when(page.getId()).thenReturn("101");
