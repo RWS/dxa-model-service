@@ -176,4 +176,8 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
 
         return request;
     }
+
+    public int nrDescriptors() {
+        return descriptors.size();
+    }
 }

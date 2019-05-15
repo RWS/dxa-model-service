@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
 /**
@@ -131,10 +130,8 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
         long start = System.currentTimeMillis();
 
         if (shouldResolveLinks()) {
-            final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
-
+            List<Object> fragments = richTextData.getFragments();
             log.debug("Processing {} fragments.", fragments.size());
-            richTextData.setFragments(fragments);
 
             for (Object fragment : fragments) {
                 if (fragment instanceof String) {

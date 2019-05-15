@@ -183,8 +183,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         PageModelData pageModelData = _expandIncludePages(pageModel, pageRequest);
         log.trace("expanded include pages for {}", pageRequest);
 
-	// let's check every leaf here if we need to expand it
-        int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
+        // let's check every leaf here if we need to expand it
+        int pageId = NumberUtils.toInt(pageModelData.getId(), -1);
         _getModelExpander(pageRequest, pageId).expandPage(pageModelData);
         log.trace("expanded the whole model for {}", pageRequest);
 

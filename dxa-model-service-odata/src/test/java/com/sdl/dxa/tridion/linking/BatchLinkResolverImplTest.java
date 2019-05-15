@@ -1,7 +1,6 @@
 package com.sdl.dxa.tridion.linking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sdl.springconfig.BatchLinkResolverSpringConfig;
 import com.sdl.dxa.api.datamodel.model.EntityModelData;
 import com.sdl.dxa.api.datamodel.model.PageModelData;
 import com.sdl.dxa.modelservice.service.ConfigService;
@@ -16,7 +15,7 @@ import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentLinkListProcessor;
 import com.sdl.dxa.tridion.linking.processors.PageLinkProcessor;
-import com.sdl.dxa.utils.UUIDGenerator;
+import com.sdl.springconfig.BatchLinkResolverSpringConfig;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.BatchLinkRetrieverImpl;
@@ -32,10 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
@@ -45,8 +44,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -62,14 +59,11 @@ public class BatchLinkResolverImplTest {
     @Autowired
     private BatchLinkRetriever mockedLinkRetriever;
 
-    private UUIDGenerator generator = new UUIDGenerator(new SecureRandom());
-
     @Mock
     private ConfigService configService;
 
     @InjectMocks
     private RichTextLinkResolverImpl richTextLinkResolver;
-
 
     @Autowired
     ObjectMapper objectMapper;
@@ -116,7 +110,7 @@ public class BatchLinkResolverImplTest {
     @Test
     public void shouldDispatchMultipleLinkForResolutionWhenProcessingPageMeta() {
         BatchLinkRetriever retriever = mock(BatchLinkRetrieverImpl.class);
-        BatchLinkResolver resolver = new BatchLinkResolverImpl(true, true, true, retriever);
+        BatchLinkResolverImpl resolver = new BatchLinkResolverImpl(true, true, true, retriever);
 
         Map<String, String> meta = new HashMap<String, String>(){
             { put("summary", "<p>Does life on Mars <a href=\"tcm:1-2\">exist</a>? Are we alone in<!--CompLink tcm:1-3--><a href=\"tcm:1-3\">space</a>?<!--CompLink tcm:1-3--></p>"); }
@@ -142,9 +136,9 @@ public class BatchLinkResolverImplTest {
 
             resolver.dispatchMultipleLinksResolution(descriptor);
             count +=  descriptor.getLinks().size();
-            resolver.resolveAndFlush();
-            verify(retriever, times(count)).addLinkRequest(any());
         }
+
+        assertEquals(count, resolver.nrDescriptors());
     }
 
         @Test
@@ -185,7 +179,7 @@ public class BatchLinkResolverImplTest {
 
     @Test
     public void shouldResolveLink() {
-        String subscriptionID = this.generator.generate().toString();
+        String subscriptionID = UUID.randomUUID().toString();
         String url = "/articles/simple-page/";
 
         PageModelData page = mock(PageModelData.class);
@@ -210,7 +204,7 @@ public class BatchLinkResolverImplTest {
 
     @Test
     public void shouldStripIndexAnKeepTrailingSlashInResolveLink() {
-        String subscriptionID = this.generator.generate().toString();
+        String subscriptionID = UUID.randomUUID().toString();
         String givenUrl = "/articles/simple-page/index.html";
         String expectedUrl = "/articles/simple-page/";
 

@@ -185,7 +185,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
 
         long start = System.currentTimeMillis();
 
-        final List<Object> fragments = richTextData.getFragments(); // assignUUIDsToRichTextFragments(richTextData);
+        final List<Object> fragments = richTextData.getFragments();
 
         log.debug("Processing {} fragments.", fragments.size());
 

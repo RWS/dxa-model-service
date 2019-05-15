@@ -577,7 +577,7 @@
                         <version>${dxa.version}</version>
                         <exclusions>
                             <exclusion>
-				<!-- This dependency conflicts with udp-api-linking -->
+                                <!-- This dependency conflicts with udp-api-linking -->
                                 <groupId>com.sdl.delivery</groupId>
                                 <artifactId>udp-cil-api-compatible</artifactId>
                             </exclusion>

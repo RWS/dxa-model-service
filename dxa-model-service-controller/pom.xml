@@ -35,7 +35,7 @@
             <artifactId>dxa-tridion-common</artifactId>
             <exclusions>
                 <exclusion>
-			<!--This dependency conflicts with udp-api-linking defined below   -->
+                    <!--This dependency conflicts with udp-api-linking defined below   -->
                     <groupId>com.sdl.delivery</groupId>
                     <artifactId>udp-cil-api-compatible</artifactId>
                 </exclusion>
