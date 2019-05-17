@@ -1,11 +1,10 @@
-package com.sdl.dxa.tridion.navigation.dynamic;
+package com.sdl.dxa.modelservice.controller;
 
 import com.google.common.collect.ImmutableMap;
 import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
-import com.sdl.dxa.modelservice.controller.DynamicNavigationModelProviderImpl;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
 import com.sdl.webapp.common.controller.exception.BadRequestException;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -29,10 +28,9 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -71,8 +69,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(DynamicNavigationModelProviderImpl.class)
+@RunWith(MockitoJUnitRunner.class)
 public class DynamicNavigationModelProviderTest {
 
     @Mock
@@ -85,6 +82,7 @@ public class DynamicNavigationModelProviderTest {
     private TaxonomyRelationManager relationManager;
 
     @InjectMocks
+    @Spy
     private DynamicNavigationModelProviderImpl navigationModelProvider;
 
     private ImmutableMap<String, Keyword> navigation;
@@ -101,7 +99,6 @@ public class DynamicNavigationModelProviderTest {
         ReflectionTestUtils.setField(navigationModelProvider, "sitemapItemTypePage", "Page");
         ReflectionTestUtils.setField(navigationModelProvider, "sitemapItemTypeTaxonomyNode", "TaxonomyNode");
         ReflectionTestUtils.setField(navigationModelProvider, "sitemapItemTypeStructureGroup", "StructureGroup");
-
 
         taxonomies = new String[]{"tcm:42-1-512", "tcm:42-22-512", "tcm:42-33-512"};
 
@@ -167,7 +164,7 @@ public class DynamicNavigationModelProviderTest {
             doReturn(navigation.get(taxonomy)).when(taxonomyFactory).getTaxonomyKeywords(eq(taxonomy), any(DepthFilter.class), Matchers.isNull(String.class));
         }
 
-        PowerMockito.whenNew(PageMetaFactory.class).withArguments(42).thenReturn(pageMetaFactory);
+        doReturn(pageMetaFactory).when(navigationModelProvider).getPageMetaFactory(any());
     }
 
     private void prepareDownstream(String... tcmUris) throws StorageException {

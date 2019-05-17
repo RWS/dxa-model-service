@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -41,14 +40,15 @@ import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 public class ContentService {
 
     private final ConfigService configService;
-
     private final TridionQueryLoader queryLoader;
+    private final PageContentFactory pageContentFactory;
 
     @Autowired
     public ContentService(ConfigService configService,
-                          TridionQueryLoader queryLoader) {
+                          TridionQueryLoader queryLoader, PageContentFactory pageContentFactory) {
         this.configService = configService;
         this.queryLoader = queryLoader;
+        this.pageContentFactory = pageContentFactory;
     }
 
     /**
@@ -115,7 +115,7 @@ public class ContentService {
     @NotNull
     @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
     public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) throws DxaItemNotFoundException {
-        ComponentPresentationAssembler assembler = new ComponentPresentationAssembler(publicationId);
+        ComponentPresentationAssembler assembler = getAssembler(publicationId);
 
         if (templateId <= 0) {
             templateId = configService.getDefaults().getDynamicTemplateId(publicationId);
@@ -142,7 +142,7 @@ public class ContentService {
         int componentId = entityRequest.getComponentId();
         int templateId = entityRequest.getTemplateId();
 
-        ComponentPresentationFactory componentPresentationFactory = new ComponentPresentationFactory(publicationId);
+        ComponentPresentationFactory componentPresentationFactory = getComponentPresentationFactory(publicationId);
 
         ComponentPresentation componentPresentation;
 
@@ -164,10 +164,11 @@ public class ContentService {
         return componentPresentation;
     }
 
+
     String loadPageContent(int publicationId, int pageId) throws ContentProviderException {
         try {
             log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
-            CharacterData data = new PageContentFactory().getPageContent(publicationId, pageId);
+            CharacterData data = pageContentFactory.getPageContent(publicationId, pageId);
             if (data == null) {
                 throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
             }
@@ -177,5 +178,13 @@ public class ContentService {
             log.warn("Failed to load page content", exception);
             throw exception;
         }
+    }
+
+    ComponentPresentationAssembler getAssembler(int publicationId) {
+        return new ComponentPresentationAssembler(publicationId);
+    }
+
+    ComponentPresentationFactory getComponentPresentationFactory(int publicationId) {
+        return new ComponentPresentationFactory(publicationId);
     }
 }
