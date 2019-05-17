@@ -60,16 +60,17 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
 
             Integer pubId = descriptor.getPublicationId();
             Integer pageId = descriptor.getPageId();
+            int component = TcmUtils.getItemId(linkEntry.getKey());
             SingleLinkDescriptor ld = null;
 
             if (descriptor.getType().equals(LINK_TYPE_BINARY) || descriptor.getType().equals(LINK_TYPE_COMPONENT)) {
-                ld = new ComponentLinkDescriptor(pubId, pageId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()), descriptor.getType());
+                ld = new ComponentLinkDescriptor(pubId, pageId, component, new MultipleEntryLinkProcessor(links, linkEntry.getKey()), descriptor.getType());
             }
 
             dispatchLinkResolution(ld);
         }
 
-        descriptor.update(links);
+        descriptor.update();
     }
 
     @Override

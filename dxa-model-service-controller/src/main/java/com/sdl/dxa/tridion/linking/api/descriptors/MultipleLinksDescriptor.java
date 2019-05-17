@@ -16,8 +16,6 @@ public interface MultipleLinksDescriptor extends LinkDescriptor {
 
     /**
      * Represents logic that updates source where the links has been retrieved from with the resolved urls.
-     *
-     * @param links map that holds pairs of resolved links { "tcm:1-16" -> /article/agreements.html }
      */
-    void update(Map<String, String> links);
+    void update();
 }

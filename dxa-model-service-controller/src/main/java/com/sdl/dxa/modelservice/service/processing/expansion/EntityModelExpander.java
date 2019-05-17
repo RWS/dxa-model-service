@@ -91,6 +91,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
                 ld = new ComponentLinkDescriptor(
                         entityRequest.getPublicationId(),
                         this.entityRequest.getContextId(),
+                        Integer.parseInt(entityModelData.getId()),
                         new EntityLinkProcessor(entityModelData),
                         LINK_TYPE_COMPONENT
                 );
@@ -133,20 +134,20 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
             List<Object> fragments = richTextData.getFragments();
             log.debug("Processing {} fragments.", fragments.size());
 
+            List<String> allLinks = new ArrayList<>();
             for (Object fragment : fragments) {
                 if (fragment instanceof String) {
 
                     String fragmentString = (String) fragment;
-                    this.batchLinkResolver.dispatchMultipleLinksResolution(
-                            new RichTextLinkDescriptor(
-                                    entityRequest.getPublicationId(), this.entityRequest.getContextId(),
-                                    richTextLinkResolver.retrieveAllLinksFromFragment(fragmentString),
-                                    new FragmentListProcessor(richTextData, fragmentString, this.richTextLinkResolver)
-                            )
-                    );
-
+                    allLinks.addAll(richTextLinkResolver.retrieveAllLinksFromFragment(fragmentString));
                 }
             }
+            this.batchLinkResolver.dispatchMultipleLinksResolution(
+                    new RichTextLinkDescriptor(
+                            entityRequest.getPublicationId(), this.entityRequest.getContextId(),
+                            allLinks, new FragmentListProcessor(richTextData, this.richTextLinkResolver)
+                    )
+            );
         } else {
             log.debug(">>> Did not resolve links.");
         }

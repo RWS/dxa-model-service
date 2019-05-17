@@ -12,6 +12,7 @@ import com.sdl.web.api.linking.BatchLinkRequest;
 import com.sdl.web.api.linking.BatchLinkRequestImpl;
 import com.sdl.web.api.linking.BatchLinkRetriever;
 import com.sdl.web.api.linking.Link;
+import com.sdl.webapp.common.util.TcmUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     private BatchLinkRetriever retriever;
 
     private List<SingleLinkDescriptor> descriptors = new ArrayList<>();
+    private List<MultipleLinksDescriptor> multipleLinksDescriptors = new ArrayList<>();
 
     public BatchLinkResolverImpl(boolean shouldRemoveExtension, boolean shouldStripIndexPath, boolean shouldKeepTrailingSlash, BatchLinkRetriever retriever) {
         this.shouldRemoveExtension = shouldRemoveExtension;
@@ -60,9 +62,11 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
             if (LINK_TYPE_BINARY.equals(descriptor.getType()) || LINK_TYPE_COMPONENT.equals(descriptor.getType())) {
                 LinkProcessor processor = new EntryLinkProcessor(links, linkEntry.getKey());
-                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, contextId, processor, descriptor.getType()));
+                int component = TcmUtils.getItemId(linkEntry.getKey());
+                dispatchLinkResolution(new ComponentLinkDescriptor(pubId, contextId, component, processor, descriptor.getType()));
             }
         }
+        multipleLinksDescriptors.add(descriptor);
     }
 
     @Override
@@ -70,6 +74,10 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         resolveAndFlush(this.descriptors);
 
         for (SingleLinkDescriptor descriptor : descriptors) {
+            descriptor.update();
+        }
+
+        for (MultipleLinksDescriptor descriptor : multipleLinksDescriptors) {
             descriptor.update();
         }
 
@@ -115,6 +123,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
                 retryBinaryLink.add(descriptor);
             }
         }
+
         this.retriever.clearRequestData();
 
         //Retry any binary links that failed:

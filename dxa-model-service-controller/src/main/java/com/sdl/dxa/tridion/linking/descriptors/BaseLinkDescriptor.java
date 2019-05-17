@@ -5,8 +5,6 @@ import com.sdl.dxa.tridion.linking.api.processors.LinkProcessor;
 
 import javax.validation.constraints.NotNull;
 
-import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
-
 public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     private LinkProcessor linkProcessor;
 
@@ -52,11 +50,6 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     @Override
     public String getSubscription() {
         return this.subscriptionId;
-    }
-
-    @Override
-    public Integer getComponentId() {
-        return Integer.parseInt(this.linkProcessor.getId());
     }
 
     @Override

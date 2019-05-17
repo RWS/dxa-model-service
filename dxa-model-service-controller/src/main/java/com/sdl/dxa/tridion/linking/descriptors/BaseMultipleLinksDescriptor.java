@@ -56,7 +56,7 @@ public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescri
     }
 
     @Override
-    public void update(Map<String, String> links) {
+    public void update() {
         this.linkProcessor.update(links);
     }
 
