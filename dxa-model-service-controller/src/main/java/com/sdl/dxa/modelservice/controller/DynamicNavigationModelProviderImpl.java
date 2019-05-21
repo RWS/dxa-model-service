@@ -392,9 +392,8 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
     private List<SitemapItemModelData> getChildrenPages(@NotNull Keyword keyword, @NotNull String taxonomyId, @NotNull SitemapRequestDto requestDto) {
         log.trace("Getting SitemapItems for all classified Pages (ordered by Page Title, including sequence prefix if any), " +
                 "keyword {}, taxonomyId {}, localization {}", keyword, taxonomyId, requestDto.getLocalizationId());
-        List<SitemapItemModelData> items = new ArrayList<>();
         try {
-            PageMetaFactory pageMetaFactory = new PageMetaFactory(requestDto.getLocalizationId());
+            PageMetaFactory pageMetaFactory = getPageMetaFactory(requestDto);
             PageMeta[] taxonomyPages = pageMetaFactory.getTaxonomyPages(keyword, false);
             return Arrays.stream(taxonomyPages)
                     .map(page -> createSitemapItemFromPage(page, taxonomyId))
@@ -403,6 +402,10 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
             String message = "Error loading taxonomy pages for taxonomyId = " + taxonomyId + ", localizationId = " + requestDto.getLocalizationId() + " and keyword = " + keyword;
             throw new DxaTridionCommonException(message, e);
         }
+    }
+
+    PageMetaFactory getPageMetaFactory(SitemapRequestDto requestDto) {
+        return new PageMetaFactory(requestDto.getLocalizationId());
     }
 
     private Optional<String> findIndexPageUrl(@NonNull List<SitemapItemModelData> pageSitemapItems) {

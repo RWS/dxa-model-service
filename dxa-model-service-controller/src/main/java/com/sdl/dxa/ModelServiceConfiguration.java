@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sdl.dxa.caching.LocalizationIdProvider;
 import com.sdl.dxa.modelservice.ModelServiceLocalizationIdProvider;
 import com.tridion.ambientdata.web.AmbientDataServletFilter;
+import com.tridion.content.PageContentFactory;
 import com.tridion.taxonomies.TaxonomyFactory;
 import com.tridion.taxonomies.TaxonomyRelationManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -40,6 +41,11 @@ public class ModelServiceConfiguration {
     @Bean
     public AmbientDataServletFilter ambientDataServletFilter() {
         return new AmbientDataServletFilter();
+    }
+
+    @Bean
+    public PageContentFactory pageContentFactory() {
+        return new PageContentFactory();
     }
 
     @Bean
