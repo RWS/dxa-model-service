@@ -46,21 +46,21 @@
             <artifactId>dxa-model-service-controller</artifactId>
             <exclusions>
                 <exclusion>
-                    <!-- This dependency conflicts with udp-api-linking defined below -->
+                    <!-- This dependency conflicts with cd-linking defined below -->
                     <groupId>com.sdl.delivery</groupId>
                     <artifactId>udp-cil-api-compatible</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>com.tridion</groupId>
             <artifactId>cd_broker</artifactId>
-	    <version>${cd_version}</version>
+            <version>${cd_version}</version>
         </dependency>
         <dependency>
             <groupId>com.tridion</groupId>
             <artifactId>cd_linking</artifactId>
-	    <version>${cd_version}</version>
+            <version>${cd_version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
