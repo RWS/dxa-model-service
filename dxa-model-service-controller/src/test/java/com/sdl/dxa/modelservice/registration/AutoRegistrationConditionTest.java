@@ -49,7 +49,10 @@ public class AutoRegistrationConditionTest {
 
         Environment environment = mock(Environment.class);
         when(conditionContext.getEnvironment()).thenReturn(environment);
-        when(environment.containsProperty("register")).thenReturn(propertyExists);
+        if (propertyExists) {
+            when(environment.getProperty("register")).thenReturn("yes");
+            when(environment.containsProperty("register")).thenReturn(propertyExists);
+        }
 
         return conditionContext;
     }
