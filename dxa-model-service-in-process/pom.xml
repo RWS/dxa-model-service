@@ -52,21 +52,15 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-api-linking</artifactId>
+	<dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_broker</artifactId>
+	    <version>${cd_version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-api-broker</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-api-dynamic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-cis-model</artifactId>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_linking</artifactId>
+	    <version>${cd_version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
