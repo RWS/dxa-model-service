@@ -166,17 +166,17 @@
         <profile>
             <id>in-process</id>
             <dependencies>
-                <dependency>
-                    <groupId>com.sdl.delivery</groupId>
-                    <artifactId>udp-api-linking</artifactId>
+               <dependency>
+                    <groupId>com.tridion</groupId>
+                    <artifactId>cd_broker</artifactId>
                 </dependency>
                 <dependency>
-                    <groupId>com.sdl.delivery</groupId>
-                    <artifactId>udp-api-broker</artifactId>
+                    <groupId>com.tridion</groupId>
+                    <artifactId>cd_linking</artifactId>
                 </dependency>
                 <dependency>
-                    <groupId>com.sdl.delivery</groupId>
-                    <artifactId>udp-api-dynamic</artifactId>
+                    <groupId>com.tridion</groupId>
+                    <artifactId>cd_dynamic</artifactId>
                 </dependency>
             </dependencies>
         </profile>
