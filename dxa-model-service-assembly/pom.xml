@@ -25,64 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
-            <artifactId>dxa-model-service-controller</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sdl.delivery</groupId>
-                    <artifactId>udp-api-broker</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-odata</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl</groupId>
-            <artifactId>odata_api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl</groupId>
-            <artifactId>odata_client_api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl</groupId>
-            <artifactId>odata_client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl</groupId>
-            <artifactId>odata_edm</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl</groupId>
-            <artifactId>odata_parser</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl</groupId>
-            <artifactId>odata_renderer</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.stream</groupId>
-            <artifactId>stax-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>20.0</version>
         </dependency>
     </dependencies>
 

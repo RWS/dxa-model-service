@@ -72,6 +72,14 @@ pipeline {
                 always {
                     junit '**/target/surefire-reports/*.xml'
                 }
+                publishers {
+                    archiveArtifacts {
+                        pattern('dxa-model-service-assembly/target/dxa-model-service/standalone-build/**')
+                        pattern('dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**')
+                        onlyIfSuccessful()
+                    }
+                    mailer('mborysenko@sdl.com wwinkelhorst@sdl.com', true, true)
+                }
             }
         }
     }

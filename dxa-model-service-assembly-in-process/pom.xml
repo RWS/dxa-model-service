@@ -17,7 +17,7 @@
     <description>DXA Model In Process Service Assembly</description>
 
     <properties>
-        <standalone.path>standalone</standalone.path>
+        <standalone.path>standalone-in-process</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone</standalone.build.dir>
