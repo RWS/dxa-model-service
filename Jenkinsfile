@@ -75,9 +75,6 @@ pipeline {
                 success {
                     archiveArtifacts artifacts: "dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**,dxa-model-service-assembly/target/dxa-model-service/standalone-build/**"
                 }
-                publishers {
-                    mailer('mborysenko@sdl.com wwinkelhorst@sdl.com', true, true)
-                }
             }
         }
     }
