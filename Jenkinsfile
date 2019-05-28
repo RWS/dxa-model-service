@@ -75,12 +75,13 @@ pipeline {
                 success {
                     publishers {
                         archiveArtifacts {
-                            pattern('dxa-model-service-assembly/target/dxa-model-service/standalone-build/**')
                             pattern('dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**')
-                            onlyIfSuccessful()
+                            pattern('dxa-model-service-assembly/target/dxa-model-service/standalone-build/**')
                         }
-                        mailer('mborysenko@sdl.com wwinkelhorst@sdl.com', true, true)
                     }
+                }
+                publishers {
+                    mailer('mborysenko@sdl.com wwinkelhorst@sdl.com', true, true)
                 }
             }
         }
