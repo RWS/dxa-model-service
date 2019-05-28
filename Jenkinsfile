@@ -73,12 +73,7 @@ pipeline {
                     junit '**/target/surefire-reports/*.xml'
                 }
                 success {
-                    publishers {
-                        archiveArtifacts {
-                            pattern('dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**')
-                            pattern('dxa-model-service-assembly/target/dxa-model-service/standalone-build/**')
-                        }
-                    }
+                    archiveArtifacts artifacts: "dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**,dxa-model-service-assembly/target/dxa-model-service/standalone-build/**"
                 }
                 publishers {
                     mailer('mborysenko@sdl.com wwinkelhorst@sdl.com', true, true)
