@@ -38,6 +38,10 @@
                 <include>${project.build.finalName}.${project.packaging}</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>${spring-boot.build.dir}/BOOT-INF/lib/</directory>
+            <outputDirectory>${standalone.path}/lib</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>

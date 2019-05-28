@@ -42,6 +42,10 @@
                 <include>${project.build.finalName}.${project.packaging}</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>${spring-boot.build.dir}/BOOT-INF/lib/</directory>
+            <outputDirectory>${standalone.path}/lib</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
@@ -49,7 +53,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
             <includes>
-
                 <include>com.sdl.dxa:dxa-model-service-odata</include>
             </includes>
             <outputDirectory>${standalone.path}/services/model-service</outputDirectory>
