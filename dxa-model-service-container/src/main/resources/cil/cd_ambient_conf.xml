@@ -9,7 +9,7 @@
         Built-in authentication server's configuration.
         -->
         <AuthenticationServer>
-            <SharedSecret>sample_passphrase</SharedSecret>
+            <SharedSecret>${oauthsharedsecret:-sample_passphrase}</SharedSecret>
         </AuthenticationServer>
     </Security>
 

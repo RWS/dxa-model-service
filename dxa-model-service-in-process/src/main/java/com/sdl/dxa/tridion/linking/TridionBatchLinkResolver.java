@@ -4,7 +4,6 @@ import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.api.descriptors.MultipleLinksDescriptor;
 import com.sdl.dxa.tridion.linking.api.descriptors.SingleLinkDescriptor;
-import com.sdl.dxa.tridion.linking.descriptors.BinaryLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.ComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.MultipleEntryLinkProcessor;
 import com.sdl.webapp.common.util.TcmUtils;
@@ -60,20 +59,18 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         for (Map.Entry<String, String> linkEntry : links.entrySet()) {
 
             Integer pubId = descriptor.getPublicationId();
+            Integer pageId = descriptor.getPageId();
+            int component = TcmUtils.getItemId(linkEntry.getKey());
             SingleLinkDescriptor ld = null;
 
-            if (descriptor.getType().equals(LINK_TYPE_BINARY)) {
-                ld = new BinaryLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
-            }
-
-            if (descriptor.getType().equals(LINK_TYPE_COMPONENT)) {
-                ld = new ComponentLinkDescriptor(pubId, new MultipleEntryLinkProcessor(links, linkEntry.getKey()));
+            if (descriptor.getType().equals(LINK_TYPE_BINARY) || descriptor.getType().equals(LINK_TYPE_COMPONENT)) {
+                ld = new ComponentLinkDescriptor(pubId, pageId, component, new MultipleEntryLinkProcessor(links, linkEntry.getKey()), descriptor.getType());
             }
 
             dispatchLinkResolution(ld);
         }
 
-        descriptor.update(links);
+        descriptor.update();
     }
 
     @Override
@@ -93,14 +90,14 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
         switch (descriptor.getType()) {
             case LINK_TYPE_PAGE:
 
-                final PageLink pageLink = new PageLink(null, pubId, useRelativeUrls);
+                final PageLink pageLink = new PageLink(pubId);
                 updateDescriptor(descriptor, pageLink.getLink(pageId));
                 break;
 
             case LINK_TYPE_DYNAMIC_COMPONENT:
 
                 final DynamicComponentLink dynamicComponentLink =
-                        new DynamicComponentLink(null, pubId, useRelativeUrls);
+                        new DynamicComponentLink(pubId);
                 updateDescriptor(descriptor, dynamicComponentLink
                         .getLink(pageId, componentId, descriptor.getTemplateId(), "",
                                 "", false));
@@ -125,7 +122,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     }
 
     private Link resolveBinaryLink(final Integer publicationId, final Integer componentId) {
-        final BinaryLink binaryLink = new BinaryLink(null, publicationId, useRelativeUrls);
+        final BinaryLink binaryLink = new BinaryLink(publicationId);
         return binaryLink.getLink(
                 TcmUtils.buildTcmUri(publicationId, componentId),
                 "",
@@ -137,7 +134,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     }
 
     private Link resolveComponentLink(final Integer publicationId, final Integer pageId, final Integer componentId) {
-        final ComponentLink componentLink = new ComponentLink(null, publicationId, useRelativeUrls);
+        final ComponentLink componentLink = new ComponentLink(publicationId);
         return componentLink.getLink(
                 pageId,
                 componentId,
@@ -158,11 +155,13 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
                 resolvedUrl = resolvedUrl + "/";
             }
 
-            descriptor.update(
+            descriptor.setResolvedLink(
                     this.shouldRemoveExtension ? PathUtils.stripDefaultExtension(resolvedUrl) :
                     resolvedUrl);
         } else {
-            descriptor.update("");
+            descriptor.setResolvedLink("");
         }
+
+        descriptor.update();
     }
 }

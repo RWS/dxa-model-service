@@ -2,7 +2,6 @@ package com.sdl.dxa.tridion.linking.impl;
 
 import com.google.common.collect.Lists;
 import com.sdl.dxa.modelservice.service.ConfigService;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,11 +11,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,32 +25,33 @@ import static org.junit.Assert.assertTrue;
 public class RichTextLinkResolverTest {
 
     @Mock
-    private LinkResolver linkResolver;
-
-    @Mock
     private ConfigService configService;
 
     @InjectMocks
     private RichTextLinkResolverImpl richTextLinkResolver;
 
+    private HashMap<String, String> batchOfLinks;
+
     @Before
     public void init() {
-        Mockito.when(linkResolver.resolveLink("tcm:1-2", "1", true)).thenReturn("");
-        Mockito.when(linkResolver.resolveLink("tcm:1-3", "1", true)).thenReturn("");
-        Mockito.when(linkResolver.resolveLink("tcm:1-11", "1", true)).thenReturn("resolved-link");
-        Mockito.when(linkResolver.resolveLink("tcm:1-12", "1", true)).thenReturn("resolved-link.html");
+        batchOfLinks = new HashMap<>();
+        batchOfLinks.put("tcm:1-2", "");
+        batchOfLinks.put("tcm:1-3", "");
+        batchOfLinks.put("tcm:1-11", "resolved-link");
+        batchOfLinks.put("tcm:1-12", "resolved-link.html");
+        batchOfLinks.put("tcm:15-980", "<link1/>");
+        batchOfLinks.put("tcm:17-982", "<link3/>");
 
         ConfigService.Defaults defaults = new ConfigService.Defaults(null, null);
         defaults.setRichTextXmlnsRemove(true);
         defaults.setRichTextResolve(true);
         Mockito.when(configService.getDefaults()).thenReturn(defaults);
-        Mockito.when(linkResolver.resolveLink("tcm:15-980", "1", true)).thenReturn("<link1/>");
-        Mockito.when(linkResolver.resolveLink("tcm:17-982", "1", true)).thenReturn("<link3/>");
     }
 
     @Test
     public void shouldSuppressBrokenLinks() {
-        Mockito.when(linkResolver.resolveLink("tcm:1-3", "1", true)).thenReturn("resolved_link_url");
+        batchOfLinks.put("tcm:1-3", "resolved_link_url");
+
         //given
         List<String> values = Lists.newArrayList("<p>Text1 <a href=\"tcm:1-2\">(link text)1</a><!--CompLink tcm:1-2--> text2 ",
                 "<a href=\"tcm:1-2\">(link",
@@ -65,7 +64,7 @@ public class RichTextLinkResolverTest {
         Set<String> notResolvedBuffer = new HashSet<>();
         String result = values.stream()
                 .map(String.class::cast)
-                .map(fragment -> richTextLinkResolver.processFragment(fragment, 1, notResolvedBuffer))
+                .map(fragment -> richTextLinkResolver.processFragment(fragment, batchOfLinks, notResolvedBuffer))
                 .collect(Collectors.joining());
 
         //then
@@ -79,7 +78,7 @@ public class RichTextLinkResolverTest {
                 "<a href=\"tcm:1-2\">link text</a><!--CompLink tcm:1-2--> text </p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(string, 1);
+        String result = richTextLinkResolver.processFragment(string, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>Text link text link text text </p>", result);
@@ -91,7 +90,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>Text <a href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>Text <a href=\"resolved-link\">link text</a></p>", result);
@@ -103,7 +102,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>Text <a href=\"tcm:1-12\">link text</a><!--CompLink tcm:1-12--></p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>Text <a href=\"resolved-link.html\">link text</a></p>", result);
@@ -115,7 +114,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>\nText <a href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>\nText <a href=\"resolved-link\">\nlink text</a>\n</p>", result);
@@ -132,7 +131,7 @@ public class RichTextLinkResolverTest {
                 "xlink:href=\"tcm:1-11\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>\nText <a xlink=\"X link\" data-id=\"ID\" title=\"link title\" href=\"resolved-link\">\nlink text</a>\n</p>", result);
@@ -144,7 +143,7 @@ public class RichTextLinkResolverTest {
         configService.getDefaults().setRichTextXmlnsRemove(false);
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>\n" +
@@ -160,7 +159,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>Text <a xlink:href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals(fragment, result);
@@ -173,7 +172,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>Text <a xlink:href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals(fragment, result);
@@ -186,7 +185,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>Text <a xlink:href=\"tcm:1-11\" xmlns:title=\"title\">link text</a><!--CompLink tcm:1-11--></p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>Text <a xlink:href=\"tcm:1-11\" href=\"resolved-link\" xmlns:title=\"title\">link text</a></p>", result);
@@ -199,7 +198,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>Text <a xlink:href=\"tcm:1-11\" href=\"tcm:1-11\">link text</a><!--CompLink tcm:1-11--></p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>Text <a xlink:href=\"tcm:1-11\" href=\"resolved-link\">link text</a></p>", result);
@@ -210,7 +209,7 @@ public class RichTextLinkResolverTest {
         //given
         String fragment = "<p xmlns=\"http://www.w3.org/1999/xhtml\">And some content with a <a href=\"tcm:1-11\" title=\"Copy of My article\">link</a> in it!</p>";
 
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>And some content with a <a href=\"resolved-link\" title=\"Copy of My article\">link</a> in it!</p>", result);
@@ -222,7 +221,7 @@ public class RichTextLinkResolverTest {
         String fragment = "<p>\nText <a data-first=\"1\" href=\"tcm:1-11\" data-second=\"2\">\nlink text</a><!--CompLink tcm:1-11-->\n</p>";
 
         //when
-        String result = richTextLinkResolver.processFragment(fragment, 1);
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
 
         //then
         assertEquals("<p>\nText <a data-first=\"1\" href=\"resolved-link\" data-second=\"2\">\nlink text</a>\n</p>", result);
@@ -300,30 +299,19 @@ public class RichTextLinkResolverTest {
     public void testApplyBatchOfLinksStartVerifyResolvedFrahments() {
         String fragment = getFragments();
 
-        Map<String, String> batchOfLinks = getResolvedLinksMap();
         Set<String> linksNotResolved = new LinkedHashSet<>();
 
         long start = System.currentTimeMillis();
 
-        String fragments = richTextLinkResolver.processFragment(fragment, 1, linksNotResolved);
-        String resolvedFragments = richTextLinkResolver.applyBatchOfLinksStart(fragment, batchOfLinks, linksNotResolved);
+        String fragments = richTextLinkResolver.processFragment(fragment, batchOfLinks, linksNotResolved);
 
         String expected = "<p>Text <a data=\"1\" href=\"resolved-link\" data2=\"2\">link text</a> after text</p><p><a title=\"Unused Component\" href=\"<link1/>\">UNRESOLVED LINK1</a> </p><p>UNRESOLVED LINK2 </p><p><a title=\"Unused Component\" href=\"<link3/>\">UNRESOLVED LINK3</a> </p><p>UNRESOLVED LINK4 </p>";
         assertEquals(expected, fragments);
-        assertEquals(expected, resolvedFragments);
         assertEquals(2, linksNotResolved.size());
         assertEquals("tcm:16-981", linksNotResolved.toArray()[0]);
         assertEquals("tcm:18-983", linksNotResolved.toArray()[1]);
 
         System.out.println("Duration: " + (System.currentTimeMillis() - start) + " ms.");
-    }
-
-    @NotNull
-    private Map<String, String> getResolvedLinksMap() {
-        Map<String, String> batchOfLinks = new LinkedHashMap<>();
-        batchOfLinks.put("tcm:15-980", "<link1/>");
-        batchOfLinks.put("tcm:17-982", "<link3/>");
-        return batchOfLinks;
     }
 
     @NotNull

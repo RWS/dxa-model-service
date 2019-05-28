@@ -14,40 +14,60 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/**</exclude>
-                    </excludes>
-                </configuration>
+	     <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.sdl.dxa.DxaModelServiceApplication</mainClass>
+                            <classifier>spring-boot</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 
     <dependencies>
         <dependency>
+            <artifactId>udp-common-maven</artifactId>
+            <groupId>com.sdl.delivery</groupId>
+            <version>${api.version}</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-controller</artifactId>
             <exclusions>
                 <exclusion>
+                    <!-- This dependency conflicts with cd-linking defined below -->
                     <groupId>com.sdl.delivery</groupId>
                     <artifactId>udp-cil-api-compatible</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-api-broker</artifactId>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_broker</artifactId>
+            <version>${cd_version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-api-linking</artifactId>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_linking</artifactId>
+            <version>${cd_version}</version>
         </dependency>
+
+        <!-- Test Dependencies -->
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-cis-model</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

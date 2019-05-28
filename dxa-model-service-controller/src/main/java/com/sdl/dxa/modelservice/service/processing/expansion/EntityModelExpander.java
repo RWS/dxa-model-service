@@ -18,13 +18,11 @@ import com.sdl.dxa.tridion.linking.descriptors.DynamicComponentLinkDescriptor;
 import com.sdl.dxa.tridion.linking.descriptors.RichTextLinkDescriptor;
 import com.sdl.dxa.tridion.linking.processors.EntityLinkProcessor;
 import com.sdl.dxa.tridion.linking.processors.FragmentListProcessor;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.util.TcmUtils;
 import com.tridion.meta.NameValuePair;
 import com.tridion.taxonomies.Keyword;
 import com.tridion.taxonomies.TaxonomyFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.sdl.dxa.utils.FragmentUtils.assignUUIDsToRichTextFragments;
+import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
 /**
  * Expands {@link PageModelData} using an instance of {@link PageRequestDto}.
@@ -44,25 +42,20 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
 
     private RichTextLinkResolver richTextLinkResolver;
 
-    private LinkResolver linkResolver;
-
     private BatchLinkResolver batchLinkResolver;
 
     private ConfigService configService;
 
-    private boolean _resolveLinks = true;
+    private boolean _resolveLinks;
 
     public EntityModelExpander(EntityRequestDto request,
                                RichTextLinkResolver richTextLinkResolver,
-                               LinkResolver linkResolver,
                                ConfigService configService,
                                boolean resolveLinks,
                                BatchLinkResolver batchLinkResolver) {
         this.entityRequest = request;
         this.richTextLinkResolver = richTextLinkResolver;
-        this.linkResolver = linkResolver;
         this.configService = configService;
-
         this._resolveLinks = resolveLinks;
         this.batchLinkResolver = batchLinkResolver;
 
@@ -89,9 +82,19 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
         if (shouldResolveLinks()) {
             SingleLinkDescriptor ld;
             if(entityModelData.getId().matches("\\d+-\\d+")) {
-                ld = new DynamicComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+                ld = new DynamicComponentLinkDescriptor(
+                        entityRequest.getPublicationId(),
+                        this.entityRequest.getContextId(),
+                        new EntityLinkProcessor(entityModelData)
+                );
             } else {
-                ld = new ComponentLinkDescriptor(entityRequest.getPublicationId(), new EntityLinkProcessor(entityModelData));
+                ld = new ComponentLinkDescriptor(
+                        entityRequest.getPublicationId(),
+                        this.entityRequest.getContextId(),
+                        Integer.parseInt(entityModelData.getId()),
+                        new EntityLinkProcessor(entityModelData),
+                        LINK_TYPE_COMPONENT
+                );
             }
 
             this.batchLinkResolver.dispatchLinkResolution(ld);
@@ -128,31 +131,28 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
         long start = System.currentTimeMillis();
 
         if (shouldResolveLinks()) {
-            final List<Object> fragments = assignUUIDsToRichTextFragments(richTextData);
+            List<Object> fragments = richTextData.getFragments();
+            log.debug("Processing {} fragments.", fragments.size());
 
-            log.info("Processing {} fragments.", fragments.size());
-            richTextData.setFragments(fragments);
-
+            List<String> allLinks = new ArrayList<>();
             for (Object fragment : fragments) {
-                if (fragment instanceof ImmutablePair) {
+                if (fragment instanceof String) {
 
-                    this.batchLinkResolver.dispatchMultipleLinksResolution(
-                            new RichTextLinkDescriptor(
-                                    entityRequest.getPublicationId(),
-                                    richTextLinkResolver.retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight()),
-                                    new FragmentListProcessor(
-                                            richTextData, (ImmutablePair<String, String>) fragment,
-                                            this.richTextLinkResolver)
-                            )
-                    );
-
+                    String fragmentString = (String) fragment;
+                    allLinks.addAll(richTextLinkResolver.retrieveAllLinksFromFragment(fragmentString));
                 }
             }
+            this.batchLinkResolver.dispatchMultipleLinksResolution(
+                    new RichTextLinkDescriptor(
+                            entityRequest.getPublicationId(), this.entityRequest.getContextId(),
+                            allLinks, new FragmentListProcessor(richTextData, this.richTextLinkResolver)
+                    )
+            );
         } else {
             log.debug(">>> Did not resolve links.");
         }
 
-        log.info("Entity Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
+        log.debug("Entity Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }
 
     @NotNull

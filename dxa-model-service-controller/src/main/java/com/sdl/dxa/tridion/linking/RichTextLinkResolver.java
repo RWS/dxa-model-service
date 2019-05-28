@@ -7,14 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface RichTextLinkResolver {
-    /**
-     * Processes the fragment as {@link #processFragment(String, int, Set)} just for single fragment.
-     *
-     * @param fragment       fragment of a rich text to process
-     * @param localizationId current localization ID
-     * @return modified fragment
-     */
-    String processFragment(@NotNull String fragment, int localizationId);
 
     /**
      * Processes a rich text fragment trying to resolve links from it. In case of non-resolvable link, puts it into buffer.
@@ -33,11 +25,10 @@ public interface RichTextLinkResolver {
      *     //   resolved = {"text", ""};</code></pre>
      *
      * @param fragment          fragment of a rich text to process
-     * @param localizationId    current localization ID
      * @param notResolvedBuffer buffer to put non resolvable links to, make sure it's modifiable
      * @return modified fragment
      */
-    String processFragment(@NotNull String fragment, int localizationId, @NotNull Set<String> notResolvedBuffer);
+    String processFragment(@NotNull String fragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> notResolvedBuffer);
+
     List<String> retrieveAllLinksFromFragment(@NotNull String fragmentString);
-    String applyBatchOfLinksStart(@NotNull String stringFragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> linksNotResolved);
 }

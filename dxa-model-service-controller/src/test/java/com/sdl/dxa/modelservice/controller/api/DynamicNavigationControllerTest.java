@@ -5,6 +5,7 @@ import com.sdl.dxa.api.datamodel.model.SitemapItemModelData;
 import com.sdl.dxa.api.datamodel.model.TaxonomyNodeModelData;
 import com.sdl.dxa.common.dto.DepthCounter;
 import com.sdl.dxa.common.dto.SitemapRequestDto;
+import com.sdl.dxa.tridion.compatibility.TridionQueryLoader;
 import com.sdl.dxa.tridion.navigation.dynamic.NavigationModelProvider;
 import com.sdl.dxa.tridion.navigation.dynamic.OnDemandNavigationModelProvider;
 import com.sdl.webapp.common.api.navigation.NavigationFilter;
@@ -43,6 +44,9 @@ public class DynamicNavigationControllerTest {
 
     @MockBean
     private OnDemandNavigationModelProvider onDemandNavigationModelProvider;
+
+    @MockBean
+    private TridionQueryLoader tridionQueryLoader;
 
     @Test
     public void shouldBeCompatible_WithOnDemandNavigationSpec_WithoutSiteMapId() throws Exception {

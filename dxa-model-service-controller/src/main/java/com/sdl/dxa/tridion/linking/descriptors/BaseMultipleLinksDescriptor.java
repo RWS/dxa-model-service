@@ -19,15 +19,21 @@ public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescri
 
     private Integer publicationId;
 
-    BaseMultipleLinksDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor, String type) {
+    private Integer sourcePageId;
+
+    BaseMultipleLinksDescriptor(Integer publicationId, Integer sourcePageId, List<String> links,
+                                LinkListProcessor linkProcessor,
+                                String type) {
         this.publicationId = publicationId;
         this.links = this.prepareLinks(links);
         this.linkProcessor = linkProcessor;
         this.type = type;
+        this.sourcePageId = sourcePageId;
     }
 
-    BaseMultipleLinksDescriptor(Integer publicationId, List<String> links, LinkListProcessor linkProcessor) {
-        this(publicationId, links, linkProcessor, LINK_TYPE_COMPONENT);
+    BaseMultipleLinksDescriptor(Integer publicationId, Integer sourcePageId, List<String> links,
+                                LinkListProcessor linkProcessor) {
+        this(publicationId, sourcePageId, links, linkProcessor, LINK_TYPE_COMPONENT);
     }
 
     @Override
@@ -49,12 +55,19 @@ public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescri
         return this.links;
     }
 
-    public void update(Map<String, String> links) {
+    @Override
+    public void update() {
         this.linkProcessor.update(links);
     }
 
     @Override
     public String getType() {
         return this.type;
+    }
+
+
+    @Override
+    public Integer getPageId() {
+        return this.sourcePageId;
     }
 }
