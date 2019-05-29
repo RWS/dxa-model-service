@@ -73,7 +73,7 @@ pipeline {
                     junit '**/target/surefire-reports/*.xml'
                 }
                 success {
-                    archiveArtifacts artifacts: "dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**,dxa-model-service-assembly/target/dxa-model-service/standalone-build/**"
+                    archiveArtifacts artifacts: "dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**,dxa-model-service-assembly/target/dxa-model-service/standalone/**"
                 }
             }
         }
