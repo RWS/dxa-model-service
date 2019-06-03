@@ -44,20 +44,23 @@
         <service-container.version>11.0.0-1027</service-container.version>
         <tcdl.version>11.0.0-1031</tcdl.version>
 
-        <odata.version>2.6.2</odata.version>
-        <spring-boot.version>1.5.16.RELEASE</spring-boot.version>
-        <ehcache.version>3.5.2</ehcache.version>
-        <jackson.version>2.9.6</jackson.version>
+        <odata.version>2.7.3</odata.version>
+        <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
+        <ehcache.version>3.7.1</ehcache.version>
+        <jackson.version>2.9.9</jackson.version>
         <stax.api.version>1.0-2</stax.api.version>
-        <javax-cache.version>1.0.0</javax-cache.version>
+        <javax-cache.version>1.1.1</javax-cache.version>
         <javax.activation.version>1.2.0</javax.activation.version>
         <jaxb.api.version>2.3.0</jaxb.api.version>
-        <httpcomponents.version>4.5.6</httpcomponents.version>
+        <jaxb.impl.version>2.3.2</jaxb.impl.version>
+        <jaxb.core.version>2.3.0.1</jaxb.core.version>
+        <httpcomponents.version>4.5.8</httpcomponents.version>
 
         <!-- Third party dependency versions -->
         <dd4t.version>2.1.5</dd4t.version>
-        <scala-parser-combinators.version>1.1.1</scala-parser-combinators.version>
-	<aspectj.version>1.9.1</aspectj.version>
+        <aspectj.version>1.9.4</aspectj.version>
+        <jansi.version>1.18</jansi.version>
+        <spring.mockmvc.version>1.2.6.RELEASE</spring.mockmvc.version>
     </properties>
 
     <distributionManagement>
@@ -91,12 +94,6 @@
                 <groupId>com.sdl.dxa</groupId>
                 <artifactId>dxa-model-service-in-process</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.scala-lang.modules</groupId>
-                <artifactId>scala-parser-combinators_2.12</artifactId>
-                <version>${scala-parser-combinators.version}</version>
             </dependency>
 
             <!-- DXA  -->
@@ -464,12 +461,12 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-core</artifactId>
-                <version>${jaxb.api.version}</version>
+                <version>${jaxb.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb.api.version}</version>
+                <version>${jaxb.impl.version}</version>
             </dependency>
 
             <dependency>
@@ -499,14 +496,7 @@
             <dependency>
                 <groupId>org.fusesource.jansi</groupId>
                 <artifactId>jansi</artifactId>
-                <version>1.11</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.16.22</version>
-                <optional>true</optional>
+                <version>${jansi.version}</version>
             </dependency>
 
             <dependency>
@@ -518,7 +508,7 @@
             <dependency>
                 <groupId>org.springframework.restdocs</groupId>
                 <artifactId>spring-restdocs-mockmvc</artifactId>
-                <version>1.1.2.RELEASE</version>
+                <version>${spring.mockmvc.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
