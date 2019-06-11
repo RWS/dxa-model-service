@@ -25,6 +25,13 @@ public class LightSitemapItem {
     @JsonDeserialize(as = LinkedHashSet.class)
     private Set<LightSitemapItem> items;
 
+    public LightSitemapItem() {
+        //Default constructor, so this class can be deserialized by Jackson.
+        id = null;
+        title = null;
+        items = null;
+    }
+
     @NotNull
     public Optional<LightSitemapItem> findWithId(@NotNull String id) {
         if (id.matches(this.id + "/?")) {
