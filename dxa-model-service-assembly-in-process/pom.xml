@@ -17,10 +17,11 @@
     <description>DXA Model In Process Service Assembly</description>
 
     <properties>
-        <standalone.path>standalone</standalone.path>
+        <standalone.path>standalone-in-process</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
         <installer.dir>${project.basedir}/src/main/installer</installer.dir>
         <standalone.build.dir>${project.build.directory}/standalone</standalone.build.dir>
+        <spring-boot.build.dir>${project.build.directory}/spring-boot</spring-boot.build.dir>
     </properties>
 
     <build>
@@ -30,6 +31,25 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>unpack-springboot</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.sdl.dxa</groupId>
+                                    <artifactId>dxa-model-service-in-process</artifactId>
+                                    <classifier>spring-boot</classifier>
+                                    <version>${project.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${spring-boot.build.dir}</outputDirectory>
+                            <silent>true</silent>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>unpack-assembly</id>
                         <phase>prepare-package</phase>

@@ -3,8 +3,8 @@ FROM 176207018055.dkr.ecr.eu-west-1.amazonaws.com/content-delivery/java8-awscli:
 RUN apt-get update && apt-get clean all && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /dxa-model-service && chmod 755 /dxa-model-service
-COPY target/dxa-model-service/standalone /dxa-model-service
-COPY target/dxa-model-service/standalone/cloud-assembly/bin /dxa-model-service/bin
+COPY target/dxa-model-service/standalone-in-process /dxa-model-service
+COPY target/dxa-model-service/standalone-in-process/cloud-assembly/bin /dxa-model-service/bin
 
 WORKDIR /dxa-model-service
 
