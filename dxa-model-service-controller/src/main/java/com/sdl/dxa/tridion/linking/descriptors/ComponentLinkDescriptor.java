@@ -13,7 +13,7 @@ public class ComponentLinkDescriptor extends BaseLinkDescriptor {
 
     @Override
     public String getLinkId() {
-        return String.format("%s-%s-%s", this.getPublicationId(), this.getPageId(), this.getComponentId().toString());
+        return String.format("%s:%s-%s-%s", this.getIdPrefix(), this.getPublicationId(), this.getPageId(), this.getComponentId().toString());
     }
 
     @Override

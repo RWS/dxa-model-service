@@ -44,7 +44,7 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
 
     @Override
     public String getLinkId() {
-        return String.format("%s-%s", this.getPublicationId(), this.getComponentId().toString());
+        return String.format("%s:%s-%s", this.getIdPrefix(), this.getPublicationId(), this.getComponentId().toString());
     }
 
     @Override
@@ -85,5 +85,9 @@ public abstract class BaseLinkDescriptor implements SingleLinkDescriptor {
     @Override
     public boolean isResolved() {
         return this.resolved;
+    }
+
+    String getIdPrefix() {
+        return this.getType().toLowerCase();
     }
 }
