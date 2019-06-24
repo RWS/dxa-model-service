@@ -66,6 +66,12 @@
             <groupId>com.tridion</groupId>
             <artifactId>cd_linking</artifactId>
             <version>${cd_version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sdl.web</groupId>
+                    <artifactId>discovery-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Test Dependencies -->
