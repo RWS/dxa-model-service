@@ -163,10 +163,16 @@
                <dependency>
                     <groupId>com.tridion</groupId>
                     <artifactId>cd_broker</artifactId>
-                </dependency>
+               </dependency>
                 <dependency>
                     <groupId>com.tridion</groupId>
                     <artifactId>cd_linking</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>com.sdl.web</groupId>
+                            <artifactId>discovery-common</artifactId>
+                        </exclusion>
+                    </exclusions>
                 </dependency>
                 <dependency>
                     <groupId>com.tridion</groupId>

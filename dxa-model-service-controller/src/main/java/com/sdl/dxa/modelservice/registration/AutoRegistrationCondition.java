@@ -16,7 +16,7 @@ public class AutoRegistrationCondition implements Condition {
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         String register = context.getEnvironment().getProperty("register");
         boolean matches = context.getResourceLoader().getResource(ModelServiceRegisterer.CONFIG_FILE_NAME).exists()
-                && StringUtils.isNotEmpty(register);
+                && (context.getEnvironment().containsProperty("register") || StringUtils.isNotEmpty(register));
         log.debug("Auto registration of MS: {}", matches);
         return matches;
     }
