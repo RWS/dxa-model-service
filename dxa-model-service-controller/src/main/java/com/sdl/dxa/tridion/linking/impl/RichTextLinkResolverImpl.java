@@ -94,15 +94,17 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
      */
     public String processFragment(@NotNull String fragment, @NotNull Map<String, String> batchOfLinks, @NotNull Set<String> notResolvedBuffer) {
 
-        log.trace("RichTextResolver, resolve = {}, remove = {}, input fragment: '{}'",
-                configService.getDefaults().isRichTextResolve(), configService.getDefaults().isRichTextXmlnsRemove(), fragment);
+        boolean richTextResolve = configService.getDefaults().isRichTextResolve();
+        boolean richTextXmlnsRemove = configService.getDefaults().isRichTextXmlnsRemove();
+        log.debug("RichTextResolver, dxa.defaults.rich-text-resolve = {}, dxa.web.link-resolver.remove-extension = {}", richTextResolve, richTextXmlnsRemove);
+        if (log.isTraceEnabled()) log.trace("RichTextResolver, input fragment: '{}'", fragment);
 
-        if (!configService.getDefaults().isRichTextResolve()) {
-            log.debug("RichText link resolving is turned off, don't do anything");
+        if (!richTextResolve) {
+            log.info("RichText link resolving is turned off, don't do anything");
             return fragment;
         }
 
-        String fragmentToProcess = configService.getDefaults().isRichTextXmlnsRemove()
+        String fragmentToProcess = richTextXmlnsRemove
                 ? dropXlmns(fragment)
                 : generateHref(fragment);
         String result = processLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer);
