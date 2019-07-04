@@ -33,6 +33,6 @@ public class BatchLinkResolverFactoryImpl implements BatchLinkResolverFactory, I
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LOG.debug(new ValueAnnotationLogger().fetchAllValues(this));
+        LOG.info(new ValueAnnotationLogger().fetchAllValues(this));
     }
 }
