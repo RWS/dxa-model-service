@@ -22,13 +22,15 @@ buildscript {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.9'
+wrapper() {
+    gradleVersion = '5.4.1'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
-task loadDependencies(dependsOn: wrapper) << {
-    println "Dependencies loaded"
+task loadDependencies(dependsOn: wrapper) {
+    doLast {
+        println "Dependencies loaded"
+    }
 }
 
 defaultTasks 'run'
@@ -267,9 +269,10 @@ def configuration = [
         ]
 ]
 
-task help << {
-    def execFile = "prepare${isWindows ? '.bat' : '.sh'}"
-    println """
+help {
+    doLast {
+        def execFile = "prepare${isWindows ? '.bat' : '.sh'}"
+        println """
 Model Service configuration tool
 ==========================
 This tool is an interactive script to configure Model Service CD container for the SDL Digital Experience Accelerator (DXA).
@@ -309,28 +312,30 @@ A: Just this tool and Java 8+. Since you are viewing this help, you have everyth
 
 Q: What do I get as a result?
 A: All the configuration values that you enter here are modified in appropriate folders in /config folder."""
+    }
 }
 
-task params << {
-    println """
+task params {
+    doLast {
+        println """
 List of possible properties in the following format:
 
     Name of the properties: Way it may be configured from CLI
     Validation rules
     """
-    def printProperty
-    printProperty = { k, v ->
-        if (v instanceof Parameter) {
-            println ''
-            println "${v.description}: -P${k}=VALUE"
-            v.validator?.describe()
-        } else {
-            //noinspection GroovyAssignabilityCheck
-            v.each printProperty
+        def printProperty
+        printProperty = { k, v ->
+            if (v instanceof Parameter) {
+                println ''
+                println "${v.description}: -P${k}=VALUE"
+                v.validator?.describe()
+            } else {
+                //noinspection GroovyAssignabilityCheck
+                v.each printProperty
+            }
         }
+        configuration.each printProperty
     }
-    configuration.each printProperty
-
 }
 
 def introduce = { String text ->
@@ -377,7 +382,6 @@ task configureService {
 }
 
 // happens after all parameters requested, here for reference:
-// registerDiscovery.enabled = ...
 def runScript = { processDefinition ->
     ProcessBuilder pb = new ProcessBuilder(processDefinition)
 
@@ -419,182 +423,193 @@ task run {
     dependsOn runScriptCallback
 }
 
-finishAssembly << {
-    def location = (configuration.cdLayoutLocation as Parameter).request(properties, version, isBatch, configuration)
-    def mavenInstallConfiguration = []
+finishAssembly {
+    doLast {
+        def location = (configuration.cdLayoutLocation as Parameter).request(properties, version, isBatch, configuration)
+        def mavenInstallConfiguration = []
 
-    println "Location of CD Layout is: $location";
+        println "Location of CD Layout is: $location";
 
-    [
-            [
-                    path     : [
-                            "template/standalone/services/model-service",
-                            "template/standalone/services/discovery-client"
-                    ],
-                    groupId  : "com.sdl.web",
-                    id       : "discovery-registration-api",
-                    version  : "10.1.0-1017",
-                    packaging: 'jar',
-                    copyTo   : "../services/model-service",
-                    install  : true
-            ],
-            [
-                    path     : [
-                            "template/standalone/services/model-service",
-                            "template/standalone/services/discovery-client"
-                    ],
-                    groupId  : "com.sdl.delivery",
-                    id       : "adf-engine",
-                    version  : "10.1.0-1011",
-                    packaging: 'jar',
-                    copyTo   : "../services/model-service",
-                    install  : true
-            ],
-            [
-                    path     : [
-                            "template/standalone/services/model-service",
-                            "template/standalone/services/discovery-client"
-                    ],
-                    groupId  : "com.sdl.delivery",
-                    id       : "oauth",
-                    version  : "10.1.0-1011",
-                    packaging: 'jar',
-                    copyTo   : "../services/model-service",
-                    install  : true
-            ],
-            [
-                    path    : ["template/standalone"],
-                    filename: "bin",
-                    copyTo  : ".."
-            ],
-            [
-                    path    : ["template/standalone"],
-                    filename: "lib",
-                    copyTo  : "..",
-                    exclude : ['xercesImpl', 'xml-apis', 'jackson', 'spring-']
-            ]
-    ].each { artifact ->
-        def copyFile
-        copyFile = { filename ->
-            def filepath = "${artifact.path.find { new File("$location/$it/$filename").exists() }}"
-            if (filepath == null) {
-                throw new IllegalArgumentException("File $filename cannot be found. Check that you use a correct version of UDP layout")
+        [
+                [
+                        path     : [
+                                "template/standalone/services/model-service",
+                                "template/standalone/services/discovery-client"
+                        ],
+                        groupId  : "com.sdl.web",
+                        id       : "discovery-registration-api",
+                        version  : "10.1.0-1017",
+                        packaging: 'jar',
+                        copyTo   : "../services/model-service",
+                        install  : true
+                ],
+                [
+                        path     : [
+                                "template/standalone/services/model-service",
+                                "template/standalone/services/discovery-client"
+                        ],
+                        groupId  : "com.sdl.delivery",
+                        id       : "adf-engine",
+                        version  : "10.1.0-1011",
+                        packaging: 'jar',
+                        copyTo   : "../services/model-service",
+                        install  : true
+                ],
+                [
+                        path     : [
+                                "template/standalone/services/model-service",
+                                "template/standalone/services/discovery-client"
+                        ],
+                        groupId  : "com.sdl.delivery",
+                        id       : "oauth",
+                        version  : "10.1.0-1011",
+                        packaging: 'jar',
+                        copyTo   : "../services/model-service",
+                        install  : true
+                ],
+                [
+                        path    : ["template/standalone"],
+                        filename: "bin",
+                        copyTo  : ".."
+                ],
+                [
+                        path    : ["template/standalone"],
+                        filename: "lib",
+                        copyTo  : "..",
+                        exclude : ['xercesImpl', 'xml-apis', 'jackson', 'spring-']
+                ]
+        ].each { artifact ->
+            def copyFile
+            copyFile = { filename ->
+                def filepath = "${artifact.path.find { new File("$location/$it/$filename").exists() }}"
+                if (filepath == null) {
+                    throw new IllegalArgumentException("File $filename cannot be found. Check that you use a correct version of UDP layout")
+                }
+                def fileFrom = new File("$location/$filepath/$filename")
+                def fileTo = new File("${artifact.copyTo}/$filename")
+
+                if (fileFrom.directory) {
+                    fileTo.mkdir()
+                    println "Created $fileTo directory"
+                    fileFrom.listFiles()
+                            .findAll { file -> !artifact.exclude?.any { file.name.contains(it) } }
+                            .each { copyFile("${fileFrom.name}/${it.name}") }
+                } else {
+                    fileTo << fileFrom.bytes
+                    println "Copied $fileFrom to $fileTo"
+                }
+                fileTo.absolutePath
             }
-            def fileFrom = new File("$location/$filepath/$filename")
-            def fileTo = new File("${artifact.copyTo}/$filename")
 
-            if (fileFrom.directory) {
-                fileTo.mkdir()
-                println "Created $fileTo directory"
-                fileFrom.listFiles()
-                        .findAll { file -> !artifact.exclude?.any { file.name.contains(it) } }
-                        .each { copyFile("${fileFrom.name}/${it.name}") }
+            if (artifact.install) {
+                def path = copyFile("${artifact.id}-${artifact.version}.${artifact.packaging}")
+
+                mavenInstallConfiguration << ">> org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file " +
+                        "-Dfile=$path -DgroupId=${artifact.groupId} -DartifactId=${artifact.id} " +
+                        "-Dversion=${artifact.version} -Dpackaging=${artifact.packaging}"
             } else {
-                fileTo << fileFrom.bytes
-                println "Copied $fileFrom to $fileTo"
-            }
-            fileTo.absolutePath
-        }
-
-        if (artifact.install) {
-            def path = copyFile("${artifact.id}-${artifact.version}.${artifact.packaging}")
-
-            mavenInstallConfiguration << ">> org.apache.maven.plugins:maven-install-plugin:2.5.2:install-file " +
-                    "-Dfile=$path -DgroupId=${artifact.groupId} -DartifactId=${artifact.id} " +
-                    "-Dversion=${artifact.version} -Dpackaging=${artifact.packaging}"
-        } else {
-            copyFile("${artifact.filename}")
-        }
-    }
-
-    mavenInstall {
-        configurations = [mavenInstallConfiguration]
-    }
-
-    def setDisplayName = { Parameter parameter, String value ->
-        parameter.properties.each { property ->
-            property.files.each {
-                property.processProperty(it, value)
+                copyFile("${artifact.filename}")
             }
         }
+
+        mavenInstall {
+            configurations = [mavenInstallConfiguration]
+        }
+
+        def setDisplayName = { Parameter parameter, String value ->
+            parameter.properties.each { property ->
+                property.files.each {
+                    property.processProperty(it, value)
+                }
+            }
+        }
+        setDisplayName((configuration.extras['runScript.install'].serviceName as Parameter), 'SDLDXAModelService')
+        setDisplayName((configuration.extras['runScript.install'].serviceDisplayName as Parameter), 'SDL DXA Model Service')
     }
-    setDisplayName((configuration.extras['runScript.install'].serviceName as Parameter), 'SDLDXAModelService')
-    setDisplayName((configuration.extras['runScript.install'].serviceDisplayName as Parameter), 'SDL DXA Model Service')
 }
 
-requestParameters << {
-    def scriptRunMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
-    if (scriptRunMode == 'no') {
-        runScriptCallback.enabled = false
-        runScriptCallbackWindows.enabled = false
-        runScriptCallbackLinux.enabled = false
-        run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
-    } else {
-        run.doFirst introduce("I have run the scripts from /bin folder")
+requestParameters {
+    doLast {
+        def scriptRunMode = (configuration.runScript as Parameter).request(properties, version, isBatch, configuration)
+        if (scriptRunMode == 'no') {
+            runScriptCallback.enabled = false
+            runScriptCallbackWindows.enabled = false
+            runScriptCallbackLinux.enabled = false
+            run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
+        } else {
+            run.doFirst introduce("I have run the scripts from /bin folder")
 
-        if (isWindows) {
-            runScriptCallbackWindows.addShutdownHook {
-                processes?.each { it?.destroy() }
-            }
-        }
-
-        if (scriptRunMode == 'run') {
             if (isWindows) {
-                runScriptCallbackWindows << {
-                    processes << runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")])
-                }
-            } else {
-                runScript(["chmod", "u+x", "../bin/start.sh"])
-                runScript(["chmod", "u+x", "../bin/stop.sh"])
-                runScriptCallbackLinux.addShutdownHook {
-                    runScript(["bash", "-c", "../bin/stop.sh"])
+                runScriptCallbackWindows.addShutdownHook {
+                    processes?.each { it?.destroy() }
                 }
             }
-        } else if (scriptRunMode == 'install' || scriptRunMode == 'uninstall') {
 
-            runScriptCallbackWindows << {
-                println "Uninstalling Windows Service..."
-                processes << runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")])
-            }
-
-            if (scriptRunMode == 'uninstall') {
-                configureService.enabled = false
-                //registerDiscovery.enabled = false
-                return
-            } else {
-                runScriptCallbackWindows << {
-                    println "Installing Windows Service..."
-                    processes << runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")])
+            if (scriptRunMode == 'run') {
+                if (isWindows) {
+                    runScriptCallbackWindows {
+                        doLast {
+                            processes << runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")])
+                        }
+                    }
+                } else {
+                    runScript(["chmod", "u+x", "../bin/start.sh"])
+                    runScript(["chmod", "u+x", "../bin/stop.sh"])
+                    runScriptCallbackLinux.addShutdownHook {
+                        runScript(["bash", "-c", "../bin/stop.sh"])
+                    }
                 }
-                configuration.parameters += configuration.extras['runScript.install']
+            } else if (scriptRunMode == 'install' || scriptRunMode == 'uninstall') {
+
+                runScriptCallbackWindows {
+                    doLast {
+                        println "Uninstalling Windows Service..."
+                        processes.add(runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")]))
+                    }
+                }
+
+                if (scriptRunMode == 'uninstall') {
+                    configureService.enabled = false
+                    return
+                } else {
+                    runScriptCallbackWindows {
+                        doLast {
+                            println "Installing Windows Service..."
+                            processes.add(runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")]))
+                        }
+                    }
+                    configuration.parameters += configuration.extras['runScript.install']
+                }
             }
         }
-    }
 
-    Map<Property, String> properties = [:]
+        Map<Property, String> properties = [:]
 
-    configuration.parameters.each {
-        def parameter = (it.value as Parameter).request(properties, version, isBatch, configuration)
-        if (parameter) {
-            def normalizedAnswer = parameter.toString()
-                    .replaceAll(/[^a-zA-Z0-9.-]/, '')
-                    .replaceAll(/^yes$/, 'true')
-                    .replaceAll(/^no$/, 'false')
+        configuration.parameters.each {
+            def parameter = (it.value as Parameter).request(properties, version, isBatch, configuration)
+            if (parameter) {
+                def normalizedAnswer = parameter.toString()
+                        .replaceAll(/[^a-zA-Z0-9.-]/, '')
+                        .replaceAll(/^yes$/, 'true')
+                        .replaceAll(/^no$/, 'false')
 
-            def extra = configuration.extras["${it.key}.${normalizedAnswer}"]
-            (extra as Map)?.each {
-                (it.value as Parameter).request(properties, version, isBatch, configuration)
+                def extra = configuration.extras["${it.key}.${normalizedAnswer}"]
+                (extra as Map)?.each {
+                    (it.value as Parameter).request(properties, version, isBatch, configuration)
+                }
             }
         }
-    }
 
-    properties.each {
-        def property = it.key as Property
-        def value = property.deriveValue(it.value)
+        properties.each {
+            def property = it.key as Property
+            def value = property.deriveValue(it.value)
 
-        configureService << {
-            property.files.each { String filename ->
-                property.processProperty(filename, value)
+            configureService {
+                doLast {
+                    property.files.each { String filename ->
+                        property.processProperty(filename, value)
+                    }
+                }
             }
         }
     }
