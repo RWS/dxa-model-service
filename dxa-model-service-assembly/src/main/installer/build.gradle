@@ -382,15 +382,18 @@ task configureService {
 }
 
 // happens after all parameters requested, here for reference:
-def runScript = { processDefinition ->
+def runScript = { processDefinition, File dir ->
     ProcessBuilder pb = new ProcessBuilder(processDefinition)
 
+    // Since gradle 5 current directory is different, so you have to explicitly set it 
+    pb.directory(dir)
     pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
     pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
     pb.redirectErrorStream(true)
 
     Process proc = pb.start()
     proc.waitFor()
+
     proc
 }
 
@@ -398,7 +401,7 @@ def getEnvVar = { String name ->
     System.getProperty(name) ?: (System.getenv(name) ?: '')
 }
 
-def processes = [];
+def processes = []
 
 task runScriptCallbackWindows {
     dependsOn configureService
@@ -549,14 +552,14 @@ requestParameters {
                 if (isWindows) {
                     runScriptCallbackWindows {
                         doLast {
-                            processes << runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")])
+                            processes.add(runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")], project.projectDir))
                         }
                     }
                 } else {
-                    runScript(["chmod", "u+x", "../bin/start.sh"])
-                    runScript(["chmod", "u+x", "../bin/stop.sh"])
+                    runScript(["chmod", "u+x", "../bin/start.sh"], project.projectDir)
+                    runScript(["chmod", "u+x", "../bin/stop.sh"], project.projectDir)
                     runScriptCallbackLinux.addShutdownHook {
-                        runScript(["bash", "-c", "../bin/stop.sh"])
+                        runScript(["bash", "-c", "../bin/stop.sh"], project.projectDir)
                     }
                 }
             } else if (scriptRunMode == 'install' || scriptRunMode == 'uninstall') {
@@ -564,7 +567,7 @@ requestParameters {
                 runScriptCallbackWindows {
                     doLast {
                         println "Uninstalling Windows Service..."
-                        processes.add(runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")]))
+                        processes.add(runScript(["powershell", '& "../bin/uninstallService.ps1"', getEnvVar("startparameters")], project.projectDir))
                     }
                 }
 
@@ -575,7 +578,7 @@ requestParameters {
                     runScriptCallbackWindows {
                         doLast {
                             println "Installing Windows Service..."
-                            processes.add(runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")]))
+                            processes.add(runScript(["powershell", '& "../bin/installService.ps1"', getEnvVar("startparameters")], project.projectDir))
                         }
                     }
                     configuration.parameters += configuration.extras['runScript.install']
