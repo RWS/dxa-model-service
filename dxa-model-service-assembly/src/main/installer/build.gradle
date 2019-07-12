@@ -44,9 +44,9 @@ boolean isVerbose = project.hasProperty('verbose')
 def configuration = [
         cdLayoutLocation: new Parameter()
                 .withDescription("Where is Content Delivery roles/ folder of the SDL Web layout?\n" +
-                "For reference: the tool will need template/ role in that folder" +
-                "Typically for releases: ...\\SDL Web\\Tridion\\Content Delivery\\roles\n" +
-                "For hotfixes may be: ...\\CD_HotFix\\release")
+                        "For reference: the tool will need template/ role in that folder" +
+                        "Typically for releases: ...\\SDL Web\\Tridion\\Content Delivery\\roles\n" +
+                        "For hotfixes may be: ...\\CD_HotFix\\release")
                 .withDefaultValue(project, 'cdLayoutLocation', null)
                 .withSystemEnv('CD_LAYOUT_LOCATION')
                 .withCaseSensitiveValue()
@@ -62,58 +62,58 @@ def configuration = [
                         .withSystemEnv('MS_PORT')
                         .withValidator(intNumber())
                         .withProperties(
-                        new PropertiesFileProperty()
-                                .withName("server.port")
-                                .inFile("$configFolder/application.properties"),
-                        new ReplaceRegExpProperty()
-                                .thatReplaces('SERVER_PORT=--server.port=', '\\d+', '')
-                                .inFile("../bin/start.sh"),
-                        new ReplaceRegExpProperty()
-                                .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
-                                .inFile("../bin/start.ps1"),
-                        new ReplaceRegExpProperty()
-                                .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
-                                .inFile("../bin/installService.ps1")
-                ),
+                                new PropertiesFileProperty()
+                                        .withName("server.port")
+                                        .inFile("$configFolder/application.properties"),
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('SERVER_PORT=--server.port=', '\\d+', '')
+                                        .inFile("../bin/start.sh"),
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
+                                        .inFile("../bin/start.ps1"),
+                                new ReplaceRegExpProperty()
+                                        .thatReplaces('\\$serverPort\\s?=\\s?\"--server\\.port=', '\\d+', '"')
+                                        .inFile("../bin/installService.ps1")
+                        ),
                 discoveryUrl      : new Parameter()
                         .withDescription('What is the Discovery Service URL?')
                         .withDefaultValue(project, 'discoveryUrl', "http://localhost:8082/discovery.svc")
                         .withSystemEnv('DISCOVERY_URL')
                         .withValidator(or(url(), ip()))
                         .withProperties(
-                        new XmlProperty()
-                                .thatModifiesXml("/ServiceConfig/DiscoveryService/@ServiceUri")
-                                .inFile("$configFolder/cd_client_conf.xml")
-                                .wrappedWith('${DISCOVERY_URL:-', '}'),
-                        new XmlProperty()
-                                .thatModifiesXml("/Configuration/ConfigRepository/@ServiceUri")
-                                .inFile("$configFolder/cd_storage_conf.xml")
-                                .wrappedWith('${DISCOVERY_URL:-', '}')
-                ),
+                                new XmlProperty()
+                                        .thatModifiesXml("/ServiceConfig/DiscoveryService/@ServiceUri")
+                                        .inFile("$configFolder/cd_client_conf.xml")
+                                        .wrappedWith('${DISCOVERY_URL:-', '}'),
+                                new XmlProperty()
+                                        .thatModifiesXml("/Configuration/ConfigRepository/@ServiceUri")
+                                        .inFile("$configFolder/cd_storage_conf.xml")
+                                        .wrappedWith('${DISCOVERY_URL:-', '}')
+                        ),
                 tokenUrl          : new Parameter()
                         .withDescription('What is the Token Service URL?')
                         .withSystemEnv('TOKEN_URL')
                         .withValidator(or(url(), ip()))
                         .withProperties(
-                        new XmlProperty()
-                                .thatModifiesXml("/Configuration/ConfigRepository/@TokenServiceUrl")
-                                .inFile("$configFolder/cd_storage_conf.xml")
-                                .wrappedWith('${TOKEN_URL:-', '}'))
+                                new XmlProperty()
+                                        .thatModifiesXml("/Configuration/ConfigRepository/@TokenServiceUrl")
+                                        .inFile("$configFolder/cd_storage_conf.xml")
+                                        .wrappedWith('${TOKEN_URL:-', '}'))
                         .withDynamicDefault(
-                        { configuration ->
-                            (project.hasProperty('tokenUrl') ? project['tokenUrl'] :
-                                    configuration.parameters.discoveryUrl.get().replace("discovery.svc", "token.svc")) as String
-                        }),
+                                { configuration ->
+                                    (project.hasProperty('tokenUrl') ? project['tokenUrl'] :
+                                            configuration.parameters.discoveryUrl.get().replace("discovery.svc", "token.svc")) as String
+                                }),
                 register          : new Parameter()
                         .withDescription("Do you want to register Model Service now in Discovery Service?")
                         .withDefaultValue(project, 'register', 'no')
                         .withSystemEnv('MS_AUTO_REGISTER')
                         .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
-                            new PropertiesFileProperty()
-                                .inFile("$configFolder/dxa.properties")
-                                .withMapping('yes -> true; no -> false; $self$')
-                                .withName("register")
+                                new PropertiesFileProperty()
+                                        .inFile("$configFolder/dxa.properties")
+                                        .withMapping('yes -> true; no -> false; $self$')
+                                        .withName("register")
                         ),
                 secured           : new Parameter()
                         .withDescription("Is Model Service OAuth-secured?")
@@ -121,16 +121,16 @@ def configuration = [
                         .withSystemEnv('MS_SECURITY_ENABLED')
                         .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
-                        new XmlProperty()
-                                .thatModifiesXml("/Configuration/Security/@OAuthEnabled")
-                                .inFile("$configFolder/cd_ambient_conf.xml")
-                                .withMapping('yes -> true; no -> false; $self$')
-                                .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
-                ),
+                                new XmlProperty()
+                                        .thatModifiesXml("/Configuration/Security/@OAuthEnabled")
+                                        .inFile("$configFolder/cd_ambient_conf.xml")
+                                        .withMapping('yes -> true; no -> false; $self$')
+                                        .wrappedWith('${MS_SECURITY_ENABLED:-', '}')
+                        ),
                 'credentialsCheck': new Parameter()
                         .withDescription("Please go to $configFolder/cd_client.conf.xml and check that credentials in " +
-                        "/ServiceConfig/TokenService are set correctly. Don't forget to save the file, it will be modified by the tool." +
-                        "Type 'done' when ready")
+                                "/ServiceConfig/TokenService are set correctly. Don't forget to save the file, it will be modified by the tool." +
+                                "Type 'done' when ready")
                         .withValidator(valueInList('done'))
                         .withDefaultValue(project, 'credentialsCheck', 'done'),
                 deployType        : new Parameter()
@@ -143,24 +143,24 @@ def configuration = [
                         .withSystemEnv('CIL_CACHE_ENABLED')
                         .withValidator(valueInList('yes', 'no', 'true', 'false'))
                         .withProperties(
-                        new PropertiesFileProperty()
-                                .withName("spring.cache.type")
-                                .withMapping('yes -> jcache; no -> none; $self$')
-                                .inFile("$configFolder/application.properties"),
-                        new XmlProperty()
-                                .thatModifiesXml("/ServiceConfig/@CacheEnabled")
-                                .inFile("$configFolder/cd_client_conf.xml")
-                                .withMapping('yes -> true; no -> false; $self$')
-                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}'),
-                        new XmlProperty()
-                                .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
-                                .inFile("$configFolder/cd_storage_conf.xml")
-                                .withMapping('yes -> true; no -> false; $self$')
-                                .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
+                                new PropertiesFileProperty()
+                                        .withName("spring.cache.type")
+                                        .withMapping('yes -> jcache; no -> none; $self$')
+                                        .inFile("$configFolder/application.properties"),
+                                new XmlProperty()
+                                        .thatModifiesXml("/ServiceConfig/@CacheEnabled")
+                                        .inFile("$configFolder/cd_client_conf.xml")
+                                        .withMapping('yes -> true; no -> false; $self$')
+                                        .wrappedWith('${CIL_CACHE_ENABLED:-', '}'),
+                                new XmlProperty()
+                                        .thatModifiesXml("/Configuration/ConfigRepository/@CacheEnabled")
+                                        .inFile("$configFolder/cd_storage_conf.xml")
+                                        .withMapping('yes -> true; no -> false; $self$')
+                                        .wrappedWith('${CIL_CACHE_ENABLED:-', '}'))
                         .withDynamicDefault(
-                        { configuration ->
-                            (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? 'no' : 'yes')
-                        }),
+                                { configuration ->
+                                    (project.hasProperty('cacheEnabled') ? project['cacheEnabled'] : (configuration.parameters.deployType.get()) as String == 'staging' ? 'no' : 'yes')
+                                }),
                 logLevel          : new Parameter()
                         .withDescription("What log level do you want?")
                         .withDefaultValue(project, 'logLevel', 'INFO')
@@ -168,24 +168,24 @@ def configuration = [
                         .withSystemEnv('MS_LOG_LEVEL')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
                         .withProperties(
-                        new XmlProperty()
-                                .thatModifiesXml("/configuration/property[@name='log.level']/@value")
-                                .wrappedWith('${MS_LOG_LEVEL:-', '}')
-                                .inFile("$configFolder/logback.xml")),
+                                new XmlProperty()
+                                        .thatModifiesXml("/configuration/property[@name='log.level']/@value")
+                                        .wrappedWith('${MS_LOG_LEVEL:-', '}')
+                                        .inFile("$configFolder/logback.xml")),
                 cilLogLevel       : new Parameter()
                         .withDescription('What log level do you want for CIL?')
                         .withValidator(valueInList('TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR'))
                         .withCaseSensitiveValue()
                         .withSystemEnv('CIL_LOG_LEVEL')
                         .withProperties(
-                        new XmlProperty()
-                                .thatModifiesXml("/configuration/property[@name='cil.log.level']/@value")
-                                .wrappedWith('${CIL_LOG_LEVEL:-', '}')
-                                .inFile("$configFolder/logback.xml"))
+                                new XmlProperty()
+                                        .thatModifiesXml("/configuration/property[@name='cil.log.level']/@value")
+                                        .wrappedWith('${CIL_LOG_LEVEL:-', '}')
+                                        .inFile("$configFolder/logback.xml"))
                         .withDynamicDefault(
-                        { configuration ->
-                            (project.hasProperty('cilLogLevel') ? project['cilLogLevel'] : configuration.parameters.logLevel.get()) as String
-                        }),
+                                { configuration ->
+                                    (project.hasProperty('cilLogLevel') ? project['cilLogLevel'] : configuration.parameters.logLevel.get()) as String
+                                }),
                 logFolder         : new Parameter()
                         .withDescription("What would be the location of the log folder?")
                         .withDefaultValue(project, 'logFolder', isWindows ? 'C:/SDLWeb/log' : '${user.home}/SDLWeb/log')
@@ -193,10 +193,10 @@ def configuration = [
                         .withSystemEnv('MS_LOG_FOLDER')
                         .withValidator(notEmpty())
                         .withProperties(
-                        new XmlProperty()
-                                .thatModifiesXml("/configuration/property[@name='log.folder']/@value")
-                                .wrappedWith('${MS_LOG_FOLDER:-', '}')
-                                .inFile("$configFolder/logback.xml"))
+                                new XmlProperty()
+                                        .thatModifiesXml("/configuration/property[@name='log.folder']/@value")
+                                        .wrappedWith('${MS_LOG_FOLDER:-', '}')
+                                        .inFile("$configFolder/logback.xml"))
         ],
         extras          : [
                 'runScript.install': [
@@ -206,42 +206,42 @@ def configuration = [
                                 .withCaseSensitiveValue()
                                 .withValidator(notEmpty())
                                 .withProperties(
-                                new ReplaceRegExpProperty()
-                                        .thatReplaces('\\$name\\s?=\\s?\"', '[^\"]+', '"')
-                                        .inFile("../bin/installService.ps1"),
-                                new ReplaceRegExpProperty()
-                                        .thatReplaces('\\$defaultServiceName\\s?=\\s?\"', '[^\"]+', '"')
-                                        .inFile("../bin/uninstallService.ps1")),
+                                        new ReplaceRegExpProperty()
+                                                .thatReplaces('\\$name\\s?=\\s?\"', '[^\"]+', '"')
+                                                .inFile("../bin/installService.ps1"),
+                                        new ReplaceRegExpProperty()
+                                                .thatReplaces('\\$defaultServiceName\\s?=\\s?\"', '[^\"]+', '"')
+                                                .inFile("../bin/uninstallService.ps1")),
                         'serviceDisplayName': new Parameter()
                                 .withDescription("What is the display name of the Windows Service?")
                                 .withDefaultValue(project, 'serviceDisplayName', 'SDL DXA Model Service')
                                 .withCaseSensitiveValue()
                                 .withValidator(notEmpty())
                                 .withProperties(
-                                new ReplaceRegExpProperty()
-                                        .thatReplaces('\\$displayName\\s?=\\s?\"', '[^\"]+', '"')
-                                        .inFile("../bin/installService.ps1"),
-                                new ReplaceRegExpProperty()
-                                        .thatReplaces('\\$description\\s?=\\s?\"', '[^\"]+', '"')
-                                        .inFile("../bin/installService.ps1")),
+                                        new ReplaceRegExpProperty()
+                                                .thatReplaces('\\$displayName\\s?=\\s?\"', '[^\"]+', '"')
+                                                .inFile("../bin/installService.ps1"),
+                                        new ReplaceRegExpProperty()
+                                                .thatReplaces('\\$description\\s?=\\s?\"', '[^\"]+', '"')
+                                                .inFile("../bin/installService.ps1")),
                 ],
                 'cacheEnabled.true' : [
                         cacheDuration: new Parameter()
                                 .withDescription('What is Cache Expiration Duration in seconds?')
                                 .withDynamicDefault(
-                                { configuration ->
-                                    (project.hasProperty('cacheDuration') ? project['cacheDuration'] : (configuration.parameters.deployType.get()) as String == 'staging' ? '5' : '3600')
-                                })
+                                        { configuration ->
+                                            (project.hasProperty('cacheDuration') ? project['cacheDuration'] : (configuration.parameters.deployType.get()) as String == 'staging' ? '5' : '3600')
+                                        })
                                 .withSystemEnv('MS_CACHE_DURATION')
                                 .withValidator(intNumber())
                                 .withProperties(
-                                new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
-                                        "/v3:config/v3:cache-template/v3:expiry/v3:ttl/text()")
-                                        .inFile("$configFolder/ehcache.xml"),
-                                new XmlProperty().thatModifiesXml("/ServiceConfig/@CacheExpirationDuration")
-                                        .inFile("$configFolder/cd_client_conf.xml"),
-                                new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
-                                        .inFile("$configFolder/cd_storage_conf.xml"))
+                                        new XmlProperty().thatModifiesXml(Namespace.getNamespace("v3", "http://www.ehcache.org/v3"),
+                                                "/v3:config/v3:cache-template/v3:expiry/v3:ttl/text()")
+                                                .inFile("$configFolder/ehcache.xml"),
+                                        new XmlProperty().thatModifiesXml("/ServiceConfig/@CacheExpirationDuration")
+                                                .inFile("$configFolder/cd_client_conf.xml"),
+                                        new XmlProperty().thatModifiesXml("/Configuration/ConfigRepository/@CacheExpirationDuration")
+                                                .inFile("$configFolder/cd_storage_conf.xml"))
                 ],
                 'register.true'     : [
                         modelServiceUrl   : new Parameter()
@@ -249,20 +249,20 @@ def configuration = [
                                 .withSystemEnv('MS_URL')
                                 .withValidator(or(url(), ip()))
                                 .withDynamicDefault(
-                                { configuration ->
-                                    (project.hasProperty('modelServiceUrl') ? project['modelServiceUrl'] :
-                                            ("${configuration.parameters.discoveryUrl.get().replaceAll(":\\d+\\/discovery\\.svc\$", '')}" +
-                                                    ":${configuration.parameters.port.get()}")) as String
-                                })
+                                        { configuration ->
+                                            (project.hasProperty('modelServiceUrl') ? project['modelServiceUrl'] :
+                                                    ("${configuration.parameters.discoveryUrl.get().replaceAll(":\\d+\\/discovery\\.svc\$", '')}" +
+                                                            ":${configuration.parameters.port.get()}")) as String
+                                        })
                                 .withProperties(
-                                new XmlProperty()
-                                        .thatModifiesXml("/Configuration/ConfigRepository/Roles/Role/Property[@Name='dxa-model-service']/@Value")
-                                        .inFile("$configFolder/cd_storage_conf.xml")
-                                        .wrappedWith('${MS_URL:-', '}')),
+                                        new XmlProperty()
+                                                .thatModifiesXml("/Configuration/ConfigRepository/Roles/Role/Property[@Name='dxa-model-service']/@Value")
+                                                .inFile("$configFolder/cd_storage_conf.xml")
+                                                .wrappedWith('${MS_URL:-', '}')),
                         'credentialsCheck': new Parameter()
                                 .withDescription("Please go to $configFolder/cd_storage.conf.xml and check that /Configuration/ConfigRepository/@ClientId " +
-                                "and /Configuration/ConfigRepository/@ClientSecret are set correctly. Don't forget to save the file, it will be modified by the tool." +
-                                "Type 'done' when ready")
+                                        "and /Configuration/ConfigRepository/@ClientSecret are set correctly. Don't forget to save the file, it will be modified by the tool." +
+                                        "Type 'done' when ready")
                                 .withValidator(valueInList('done'))
                                 .withDefaultValue(project, 'credentialsCheck', 'done')
                 ]
@@ -385,7 +385,7 @@ task configureService {
 def runScript = { processDefinition, File dir ->
     ProcessBuilder pb = new ProcessBuilder(processDefinition)
 
-    // Since gradle 5 current directory is different, so you have to explicitly set it 
+    // Since gradle 5 current directory is different, so you have to explicitly set it
     pb.directory(dir)
     pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
     pb.redirectInput(ProcessBuilder.Redirect.INHERIT)
@@ -403,6 +403,18 @@ def getEnvVar = { String name ->
 
 def processes = []
 
+task runModelServiceWindows (type:Exec) {
+    dependsOn configureService
+    workingDir project.projectDir
+    executable "powershell"
+    args '& ../bin/start.ps1', getEnvVar("startparameters")
+    enabled = isWindows
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
 task runScriptCallbackWindows {
     dependsOn configureService
     enabled = isWindows
@@ -419,7 +431,7 @@ task runScriptCallbackLinux(type: Exec) {
 }
 
 task runScriptCallback {
-    dependsOn runScriptCallbackWindows, runScriptCallbackLinux
+    dependsOn runModelServiceWindows, runScriptCallbackWindows, runScriptCallbackLinux
 }
 
 task run {
@@ -538,6 +550,8 @@ requestParameters {
             runScriptCallback.enabled = false
             runScriptCallbackWindows.enabled = false
             runScriptCallbackLinux.enabled = false
+            runModelServiceWindows.enabled = false
+            
             run.doFirst introduce("All the configuration properties have been changed. Now it's time for you to run the Service as usual")
         } else {
             run.doFirst introduce("I have run the scripts from /bin folder")
@@ -550,12 +564,9 @@ requestParameters {
 
             if (scriptRunMode == 'run') {
                 if (isWindows) {
-                    runScriptCallbackWindows {
-                        doLast {
-                            processes.add(runScript(["powershell", '& "../bin/start.ps1"', getEnvVar("startparameters")], project.projectDir))
-                        }
-                    }
+                    runScriptCallbackWindows.enabled = false
                 } else {
+                    runModelServiceWindows.enabled = false
                     runScript(["chmod", "u+x", "../bin/start.sh"], project.projectDir)
                     runScript(["chmod", "u+x", "../bin/stop.sh"], project.projectDir)
                     runScriptCallbackLinux.addShutdownHook {
@@ -563,7 +574,7 @@ requestParameters {
                     }
                 }
             } else if (scriptRunMode == 'install' || scriptRunMode == 'uninstall') {
-
+                runModelServiceWindows.enabled = false
                 runScriptCallbackWindows {
                     doLast {
                         println "Uninstalling Windows Service..."
