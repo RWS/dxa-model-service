@@ -409,12 +409,7 @@ task runModelServiceWindows (type:Exec) {
     executable "powershell"
     args '& ../bin/start.ps1', getEnvVar("startparameters")
     enabled = isWindows
-    standardOutput = new ByteArrayOutputStream()
-    ext.output = {
-        return standardOutput.toString()
-    }
 }
-
 task runScriptCallbackWindows {
     dependsOn configureService
     enabled = isWindows
