@@ -22,10 +22,10 @@ pipeline {
                         //Build on JDK8
                         jdk8BuilderImage.inside {
                             //Build CIL version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -B clean install"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -Psonatype-repository -B clean install"
 
                             //Build in-process version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -B clean install"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -Psonatype-repository -B clean install"
                         }
                     }
                 }
