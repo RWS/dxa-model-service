@@ -42,12 +42,20 @@ pipeline {
                         //Build on JDK8
                         jdk8BuilderImage.inside {
                             //Build CIL version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -B clean verify"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -Plocal-repository -B clean install"
 
                             //Build in-process version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -B clean verify"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -Plocal-repository -B clean install"
                         }
                     }
+                }
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+                success {
+                    archiveArtifacts artifacts: "dxa-model-service-assembly-in-process/target/dxa-model-service/standalone-in-process/**,dxa-model-service-assembly/target/dxa-model-service/standalone/**"
                 }
             }
         }
