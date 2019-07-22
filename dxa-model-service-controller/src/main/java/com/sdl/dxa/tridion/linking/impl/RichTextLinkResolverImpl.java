@@ -32,7 +32,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern SPACES_FOR_REMOVAL =
-            Pattern.compile("\\s+(\\s)|\\s(>)",
+            Pattern.compile("\\s+(\\s)|\\s+(?=>)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern XLINK_XLMNS_FOR_GENERATING_HREF =
@@ -122,7 +122,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
         Matcher matcher = XMLNS_FOR_REMOVAL.matcher(fragment);
         return matcher
                 .replaceAll("")
-                .replaceAll(SPACES_FOR_REMOVAL.pattern(), "$1$2");
+                .replaceAll(SPACES_FOR_REMOVAL.pattern(), "$1");
     }
 
     /**

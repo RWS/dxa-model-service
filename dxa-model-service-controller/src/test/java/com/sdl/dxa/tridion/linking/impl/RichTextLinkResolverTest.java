@@ -228,6 +228,18 @@ public class RichTextLinkResolverTest {
     }
 
     @Test
+    public void rick1() {
+        //given
+        String fragment = "<p>\nText <a data-first=\"1\" href=\"tcm:1-11\"    \n>\nlink text\n</a>\n</p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
+
+        //then
+        assertEquals("<p>\nText <a data-first=\"1\" href=\"resolved-link\">\nlink text\n</a>\n</p>", result);
+    }
+
+    @Test
     public void testGetAllFragmentsThroughRegex() {
 
         String fragment = "<p><a title=\"Unused Component\" href=\"tcm:15-980\">UNRESOLVED " +
