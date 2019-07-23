@@ -26,7 +26,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
      * Matches {@code xmlns:xlink} TDD and {@code xlink:} and namespace text fragment.
      */
     private static final Pattern XMLNS_FOR_REMOVAL =
-            Pattern.compile("(?!<\\s)x(link:|mlns(\\s*=\\s*\"[^\"]*\"|:[^\"]*\"[^\"]*\"))",
+            Pattern.compile("(?!<\\s)x(link:|mlns(?>\\s*=\\s*\"[^\"]*?\"|:[^\"]*\"[^\"]*\"))",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern SPACES_FOR_REMOVAL =
@@ -40,7 +40,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     private static final Pattern COLLECT_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // tcmUri: tcm:1-2
-            Pattern.compile("href=\"(?<tcmUri>tcm:\\d++-\\d++)\"",
+            Pattern.compile("href\\s*=\\s*\"(?<tcmUri>tcm:\\d++-\\d++)\"",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
@@ -56,12 +56,8 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
 
     public static final int BUFFER_CAPACITY = 128;
 
-    private final ConfigService configService;
-
     @Autowired
-    public RichTextLinkResolverImpl(ConfigService configService) {
-        this.configService = configService;
-    }
+    private ConfigService configService;
 
     /**
      * Processes a rich text fragment trying to resolve links from it. In case of non-resolvable link, puts it into buffer.
