@@ -45,17 +45,6 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
             Pattern.compile("href=\"(?<tcmUri>tcm:\\d++-\\d++)\"",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    private static final Pattern FULL_LINK =
-            // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // beforeWithLink: <p>Text <a data="1" href=
-            // before: <p>Text
-            // tcmUri: tcm:1-2
-            // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            //                                       <a           href= "           tcm:1    -3                       "      >          link2                </a>
-            Pattern.compile("(?<openingTagStart><a[^>]*?\\s++href\\s*=\\s*\")(?<tcmUri>tcm:\\d++-\\d++)(?<openingTagEnd>\"[^>]*?>)(?<linkText>.*?)(?<closingTag></a>)(<!--CompLink\\s++\\2-->)?",
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
-
     private static final Pattern START_LINK =
             // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // beforeWithLink: <p>Text <a data="1" href=
@@ -63,7 +52,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
             // tcmUri: tcm:1-2
             // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
             // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)<a[^>]*?\\shref\\s*=\\s*\")(?<tcmUri>tcm:\\d++-\\d++)(?<afterWithLink>\"[^>]*>(?<after>.*))",
+            Pattern.compile("(?<beforeLink><a[^>]*?\\shref\\s*=\\s*\")(?<tcmUri>tcm:\\d++-\\d++)(?<afterLink>\"[^>]*?>)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern END_LINK =
@@ -221,22 +210,24 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
                                      @NotNull Map<String, String> batchOfLinks,
                                      @NotNull Set<String> linksNotResolved) {
         Matcher startMatcher = START_LINK.matcher(fragment);
+        StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
 
-        while (startMatcher.matches()) {
+        while (startMatcher.find()) {
             String tcmUri = startMatcher.group("tcmUri");
             String link = batchOfLinks.get(tcmUri);
             if (Strings.isNullOrEmpty(link)) {
-                fragment = startMatcher.group("before") + startMatcher.group("after");
+                startMatcher.appendReplacement(result, "");
                 if (linksNotResolved.add(tcmUri)) {
                     log.warn("Cannot resolve link to {}, suppressing link in fragment [{}]", tcmUri, fragment);
                 }
             } else {
                 log.debug("Resolved link to {} as {}", tcmUri, link);
-                fragment = startMatcher.group("beforeWithLink") + link + startMatcher.group("afterWithLink");
+                String replacement = startMatcher.group("beforeLink") + link + startMatcher.group("afterLink");
+                startMatcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
             }
-            startMatcher = START_LINK.matcher(fragment);
         }
-        return fragment;
+        startMatcher.appendTail(result);
+        return result.toString();
     }
 
     @NotNull

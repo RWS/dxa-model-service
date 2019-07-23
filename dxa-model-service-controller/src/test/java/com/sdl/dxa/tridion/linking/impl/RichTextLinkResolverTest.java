@@ -74,14 +74,14 @@ public class RichTextLinkResolverTest {
     @Test
     public void shouldResolveLinks_IfSameTcmUri_IsDoubledInSameFragment() {
         //given
-        String string = "<p>Text <a href=\"tcm:1-2\">link text</a><!--CompLink tcm:1-2--> " +
-                "<a href=\"tcm:1-2\">link text</a><!--CompLink tcm:1-2--> text </p>";
+        String string = "<p>Text_before <a href=\"tcm:1-2\">(link text 1)</a><!--CompLink tcm:1-2--> text_between " +
+                "<a href=\"tcm:1-2\">(link text 2)</a><!--CompLink tcm:1-2--> text_after </p>";
 
         //when
         String result = richTextLinkResolver.processFragment(string, batchOfLinks, new HashSet<>());
 
         //then
-        assertEquals("<p>Text link text link text text </p>", result);
+        assertEquals("<p>Text_before (link text 1) text_between (link text 2) text_after </p>", result);
     }
 
     @Test
