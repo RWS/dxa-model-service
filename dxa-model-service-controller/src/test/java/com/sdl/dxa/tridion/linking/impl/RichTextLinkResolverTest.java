@@ -270,7 +270,7 @@ public class RichTextLinkResolverTest {
         long start = System.currentTimeMillis();
         List<String> links = richTextLinkResolver.retrieveAllLinksFromFragment(fragment);
 
-        System.out.println("Duration: " + (System.currentTimeMillis() - start) + " ms.");
+        System.out.println("1 Duration: " + (System.currentTimeMillis() - start) + " ms.");
         assertEquals(2, links.size());
         assertEquals("tcm:15-980", links.get(0));
         assertEquals("tcm:15-564", links.get(1));
@@ -294,7 +294,7 @@ public class RichTextLinkResolverTest {
         long end = System.currentTimeMillis() - start;
 
         assertTrue(links.isEmpty());
-        System.out.println("Duration: " + end + " ms.");
+        System.out.println("2 Duration: " + end + " ms.");
     }
 
     @Test
@@ -325,20 +325,17 @@ public class RichTextLinkResolverTest {
     @Test
     public void testApplyBatchOfLinksStartVerifyResolvedFrahments() {
         String fragment = getFragments();
-
         Set<String> linksNotResolved = new LinkedHashSet<>();
-
         long start = System.currentTimeMillis();
 
         String fragments = richTextLinkResolver.processFragment(fragment, batchOfLinks, linksNotResolved);
 
+        System.out.println("3 Duration: " + (System.currentTimeMillis() - start) + " ms.");
         String expected = "<p>Text <a data=\"1\" href=\"resolved-link\" data2=\"2\">link text</a> after text</p><p><a title=\"Unused Component\" href=\"<link1/>\">UNRESOLVED LINK1</a> </p><p>UNRESOLVED LINK2 </p><p><a title=\"Unused Component\" href=\"<link3/>\">UNRESOLVED LINK3</a> </p><p>UNRESOLVED LINK4 </p>";
         assertEquals(expected, fragments);
         assertEquals(2, linksNotResolved.size());
         assertEquals("tcm:16-981", linksNotResolved.toArray()[0]);
         assertEquals("tcm:18-983", linksNotResolved.toArray()[1]);
-
-        System.out.println("Duration: " + (System.currentTimeMillis() - start) + " ms.");
     }
 
     @NotNull

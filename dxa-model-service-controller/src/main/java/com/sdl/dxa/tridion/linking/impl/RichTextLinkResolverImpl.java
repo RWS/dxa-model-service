@@ -3,11 +3,9 @@ package com.sdl.dxa.tridion.linking.impl;
 import com.google.common.base.Strings;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
-import com.sdl.webapp.common.api.content.LinkResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -46,37 +44,22 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern START_LINK =
-            // <p>Text <a data="1" href="tcm:1-2" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // beforeWithLink: <p>Text <a data="1" href=
-            // before: <p>Text
+            // beforeLink: <p>Text <a data="1" href=
             // tcmUri: tcm:1-2
-            // afterWithLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // after: link text</a><!--CompLink tcm:1-2--> after text</p>
-            Pattern.compile("(?<beforeLink><a[^>]*?\\shref\\s*=\\s*\")(?<tcmUri>tcm:\\d++-\\d++)(?<afterLink>\"[^>]*?>)",
+            // afterLink: " data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
+            Pattern.compile("(?<beforeLink><a[^>]*?\\shref\\s*=\\s*\")(?<tcmUri>tcm:\\d++-\\d++)(?<afterLink>\"[^>]*+>)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern END_LINK =
-            // <p>Text <a data="1" href="resolved-link" data2="2">link text</a><!--CompLink tcm:1-2--> after text</p>
-            // beforeWithLink: <p>Text <a data="1" href="resolved-link" data2="2">link text</a>
-            // before: <p>Text <a data="1" href="resolved-link" data2="2">link text
-            // tcmUri: tcm:1-2
-            // after: after text</p>
-            Pattern.compile("(?<beforeWithLink>(?<before>.*?)</a>)<!--CompLink\\s(?<tcmUri>tcm:\\d++-\\d++)-->(?<after>.*)",
+            Pattern.compile("(?<closingTag></a>)<!--CompLink\\s(?<tcmUri>tcm:\\d++-\\d++)-->",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
-    public static final int BUFFER_CAPACITY = 1024;
-
-    private final LinkResolver linkResolver;
+    public static final int BUFFER_CAPACITY = 128;
 
     private final ConfigService configService;
 
-    private interface ResolveOrGetLink {
-        String getByTcmUri(String tcmUrl, int localizationId);
-    }
-
     @Autowired
-    public RichTextLinkResolverImpl(@Qualifier("dxaLinkResolver") LinkResolver linkResolver, ConfigService configService) {
-        this.linkResolver = linkResolver;
+    public RichTextLinkResolverImpl(ConfigService configService) {
         this.configService = configService;
     }
 
@@ -111,12 +94,12 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
             log.info("RichText link resolving is turned off, don't do anything");
             return fragment;
         }
-
         String fragmentToProcess = richTextXmlnsRemove
                 ? dropXlmns(fragment)
                 : generateHref(fragment);
-        String result = processEndLinks(processStartLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer), notResolvedBuffer);
-//        String result = processLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer);
+
+        String processedStartLinks = processStartLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer);
+        String result = processEndLinks(processedStartLinks, notResolvedBuffer);
         Matcher withoutExcessiveSpaces = SPACES_FOR_REMOVAL.matcher(result);
         return withoutExcessiveSpaces.replaceAll("$1$2");
     }
@@ -231,22 +214,20 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     }
 
     @NotNull
-    private String processEndLinks(@NotNull String stringFragment, @NotNull Set<String> linksNotResolved) {
-        String fragment = stringFragment;
+    private String processEndLinks(@NotNull String fragment, @NotNull Set<String> linksNotResolved) {
         Matcher endMatcher = END_LINK.matcher(fragment);
-        while (endMatcher.matches()) {
+        StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
+        while (endMatcher.find()) {
             String tcmUri = endMatcher.group("tcmUri");
             if (linksNotResolved.contains(tcmUri)) {
-                log.trace("Tcm URI {} was not resolved, removing end </a> with marker", tcmUri);
-                fragment = endMatcher.group("before") + endMatcher.group("after");
+                if (log.isTraceEnabled()) log.trace("link {} could not be resolved, removing closing anchor tag '</a>' with marker", tcmUri);
+                endMatcher.appendReplacement(result, "");
             } else {
-                log.trace("Tcm URI {} was resolved, removing only marker, leaving </a>", tcmUri);
-                fragment = endMatcher.group("beforeWithLink") + endMatcher.group("after");
+                if (log.isTraceEnabled()) log.trace("link {} resolved, removing only marker, leaving closing anchor tag '</a>'", tcmUri);
+                endMatcher.appendReplacement(result, Matcher.quoteReplacement(endMatcher.group("closingTag")));
             }
-
-            endMatcher = END_LINK.matcher(fragment);
         }
-
-        return fragment;
+        endMatcher.appendTail(result);
+        return result.toString();
     }
 }
