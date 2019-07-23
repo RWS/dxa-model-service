@@ -53,10 +53,10 @@ public class RichTextLinkResolverTest {
         batchOfLinks.put("tcm:1-3", "resolved_link_url");
 
         //given
-        List<String> values = Lists.newArrayList("<p>Text1 <a href=\"tcm:1-2\">(link text)1</a><!--CompLink tcm:1-2--> text2 ",
-                "<a href=\"tcm:1-2\">(link",
-                " text)2",
-                "</a><!--CompLink tcm:1-2--></p>",
+        List<String> values = Lists.newArrayList("<p>Text1-2 <a href=\"tcm:1-2\">(link text)1-2</a><!--CompLink tcm:1-2--> text1-2 ",
+                "<a href =  \"tcm:1-3\">",
+                "(link text)3 bad</a><!--CompLink tcm:1-3-->",
+                "</p>",
                 "<a href=\"tcm:1-3\">(link text)3</a><!--CompLink tcm:1-3-->",
                 " text2");
 
@@ -68,7 +68,7 @@ public class RichTextLinkResolverTest {
                 .collect(Collectors.joining());
 
         //then
-        assertEquals("<p>Text1 (link text)1 text2 (link text)2</p><a href=\"resolved_link_url\">(link text)3</a> text2", result);
+        assertEquals("<p>Text1-2 (link text)1-2 text1-2 <a href = \"resolved_link_url\">(link text)3 bad</a></p><a href=\"resolved_link_url\">(link text)3</a> text2", result);
     }
 
     @Test
@@ -237,6 +237,21 @@ public class RichTextLinkResolverTest {
 
         //then
         assertEquals("<p>\nText <a data-first=\"1\" href=\"resolved-link\">link text\n</a>\n</p>", result);
+    }
+
+    @Test
+    public void spaceBeforeClosingCharacterLeadsToDisappearingItWhenTwoLinks() {
+        //given '     >'
+        String fragment = "<p>\nXREF1 <a data-first=\"1\" href       =  \"tcm:1-11\"  >link text1\n</a>\n" +
+                "XREF2 <a href=\"tcm:1-11\">link text2\n</a></p>";
+
+        //when
+        String result = richTextLinkResolver.processFragment(fragment, batchOfLinks, new HashSet<>());
+
+        //then
+        assertEquals("<p>\nXREF1 <a data-first=\"1\" href = \"resolved-link\">link text1\n</a>\n" +
+                "XREF2 <a href=\"resolved-link\">link text2\n" +
+                "</a></p>", result);
     }
 
     @Test
