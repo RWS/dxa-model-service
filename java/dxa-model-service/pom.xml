@@ -38,6 +38,7 @@
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
         <adf.version>11.0.0-1027</adf.version>
         <api.version>11.0.0-1033</api.version>
+        <api.linking.version>11.0.0-1033</api.linking.version>
         <cache.version>11.0.0-1027</cache.version>
         <cil.version>11.0.0-1037</cil.version>
         <cis-api.version>11.0.0-1036</cis-api.version>
@@ -206,7 +207,7 @@
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-api-linking</artifactId>
-                <version>${api.version}</version>
+                <version>11.0.0-1046</version>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
