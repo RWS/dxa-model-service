@@ -26,9 +26,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.sdl.web.client.configuration.ClientConstants.Security.CLIENT_ID;
-import static com.sdl.web.client.configuration.ClientConstants.Security.CLIENT_SECRET;
-import static java.time.Instant.now;
 
 /**
  * This bean reads a configuration and tries to register the service as an extension property of ContentServiceCapability.
