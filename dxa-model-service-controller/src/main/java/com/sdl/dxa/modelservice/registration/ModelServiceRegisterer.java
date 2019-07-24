@@ -5,16 +5,15 @@ import com.sdl.delivery.configuration.ConfigurationException;
 import com.sdl.delivery.configuration.XPathConfigurationPath;
 import com.sdl.delivery.configuration.xml.XMLConfigurationReaderImpl;
 import com.sdl.odata.client.BasicODataClientQuery;
+import com.sdl.web.client.impl.OAuthTokenProvider;
 import com.sdl.web.discovery.datalayer.model.ContentServiceCapability;
 import com.sdl.web.discovery.datalayer.model.Environment;
 import com.sdl.web.discovery.datalayer.model.KeyValuePair;
 import com.sdl.web.discovery.registration.ODataClientProvider;
-import com.sdl.web.discovery.registration.SecuredODataClient;
 import com.sdl.web.discovery.registration.capability.ContentServiceCapabilityBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,9 +21,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.sdl.web.client.configuration.ClientConstants.Security.CLIENT_ID;
+import static com.sdl.web.client.configuration.ClientConstants.Security.CLIENT_SECRET;
+import static java.time.Instant.now;
 
 /**
  * This bean reads a configuration and tries to register the service as an extension property of ContentServiceCapability.
@@ -49,7 +53,23 @@ public class ModelServiceRegisterer {
 
     public ModelServiceRegisterer() throws ConfigurationException {
         configuration = readConfiguration();
-        dataClientProvider = new ODataClientProvider(configuration);
+        dataClientProvider = new ODataClientProvider(configuration) {
+            protected OAuthTokenProvider createDefaultOAuthTokenProvider(Properties properties) {
+                return new OAuthTokenProvider(properties) {
+                    public synchronized boolean isTokenExpired() {
+                        boolean tokenExpired = super.isTokenExpired();
+                        if (tokenExpired) {
+                            log.info("OAuth token expired! Taking another one...");
+                        }
+                        return tokenExpired;
+                    }
+                    public synchronized String getToken() {
+                        return super.getToken();
+                    }
+
+                };
+            }
+        };
     }
 
     public static void main(String[] args) throws ConfigurationException {
@@ -57,7 +77,12 @@ public class ModelServiceRegisterer {
     }
 
     private Configuration readConfiguration() throws ConfigurationException {
-        return new XMLConfigurationReaderImpl().readConfiguration(CONFIG_FILE_NAME).getConfiguration("ConfigRepository");
+        Configuration configuration = new XMLConfigurationReaderImpl().readConfiguration(CONFIG_FILE_NAME);
+        Configuration repository = configuration.getConfiguration("ConfigRepository");
+        log.info("Configuration read from " + CONFIG_FILE_NAME + ". " + repository.getName() + "=>" + repository.getValues());
+        log.info("OAuth configuration:\nClientId: " + configuration.getValue("ClientId") +
+                ",\nClientSecret: " + configuration.getValue("ClientSecret") + ",\nTokenServiceUrl: " + configuration.getValue("TokenServiceUrl"));
+        return repository;
     }
 
     @PostConstruct
@@ -80,7 +105,7 @@ public class ModelServiceRegisterer {
         newCapability.getExtensionProperties().add(registeredFrom);
 
         List<KeyValuePair> mergedProperties = mergeExtensionProperties(newCapability, storedCapability);
-        log.debug("Merged properties: {}", mergedProperties);
+        log.info("Merged properties: {}", mergedProperties);
 
         findRegistrationProperty(mergedProperties).ifPresent(kv -> this.knownPropertyValue = kv.getValue());
 
@@ -116,8 +141,10 @@ public class ModelServiceRegisterer {
     }
 
     private ContentServiceCapability loadStoredCapability() throws ConfigurationException {
-        return dataClientProvider.provideClient().<ContentServiceCapability>getEntities(new BasicODataClientQuery.Builder().withEntityType(ContentServiceCapability.class).build())
-                .stream()
+        BasicODataClientQuery build = new BasicODataClientQuery.Builder().withEntityType(ContentServiceCapability.class).build();
+        return dataClientProvider
+                .provideClient()
+                .<ContentServiceCapability>getEntities(build).stream()
                 .filter(ContentServiceCapability.class::isInstance)
                 .map(ContentServiceCapability.class::cast)
                 .findFirst()
