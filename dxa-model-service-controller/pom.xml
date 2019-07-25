@@ -25,6 +25,13 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-data-model</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
@@ -72,11 +79,23 @@
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-adf-engine</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>com.sdl.delivery</groupId>
             <artifactId>udp-oauth</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
