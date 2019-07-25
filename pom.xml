@@ -101,6 +101,12 @@
                 <groupId>com.sdl.dxa</groupId>
                 <artifactId>dxa-data-model</artifactId>
                 <version>${dxa.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.dxa</groupId>
@@ -145,6 +151,12 @@
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-common-config-api</artifactId>
                 <version>${common.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
@@ -229,12 +241,24 @@
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cis-api</artifactId>
                 <version>${cis-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cis-model</artifactId>
                 <version>${cis-model.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -257,12 +281,24 @@
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cil-api-compatible</artifactId>
                 <version>${cil.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-discovery-registration-api</artifactId>
                 <version>${discovery-service.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
@@ -273,11 +309,23 @@
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-discovery-client-lightweight</artifactId>
                 <version>${discovery-service.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-discovery-common</artifactId>
                 <version>${discovery-service.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -289,16 +337,46 @@
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-adf-engine</artifactId>
                 <version>${adf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-web</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-oauth</artifactId>
                 <version>${adf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-oauth-common</artifactId>
                 <version>${adf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
@@ -337,7 +415,6 @@
                 <version>${udp.version.range}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>cil</artifactId>
@@ -351,6 +428,10 @@
                     <exclusion>
                         <artifactId>ugc-taglib</artifactId>
                         <groupId>com.sdl.delivery</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -437,6 +518,12 @@
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
@@ -536,6 +623,7 @@
                     <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
     <profiles>
@@ -554,6 +642,29 @@
                         <groupId>com.sdl.dxa</groupId>
                         <artifactId>dxa-tridion-common</artifactId>
                         <version>${dxa.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <!-- This dependency conflicts with udp-api-linking -->
+                                <groupId>com.sdl.delivery</groupId>
+                                <artifactId>udp-cil-api-compatible</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-context-support</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-context</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-starter-web</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-api</artifactId>
+                            </exclusion>
+                        </exclusions>
                     </dependency>
                     <dependency>
                         <groupId>com.sdl.delivery</groupId>
@@ -583,6 +694,10 @@
                                 <!-- This dependency conflicts with udp-api-linking -->
                                 <groupId>com.sdl.delivery</groupId>
                                 <artifactId>udp-cil-api-compatible</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-context-support</artifactId>
                             </exclusion>
                         </exclusions>
                     </dependency>
