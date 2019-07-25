@@ -5,19 +5,26 @@ import com.sdl.delivery.configuration.ConfigurationException;
 import com.sdl.delivery.configuration.XPathConfigurationPath;
 import com.sdl.delivery.configuration.xml.XMLConfigurationReaderImpl;
 import com.sdl.odata.client.BasicODataClientQuery;
+import com.sdl.odata.client.api.caller.EndpointCaller;
+import com.sdl.web.client.impl.DefaultOAuthClient;
 import com.sdl.web.client.impl.OAuthTokenProvider;
 import com.sdl.web.discovery.datalayer.model.ContentServiceCapability;
 import com.sdl.web.discovery.datalayer.model.Environment;
 import com.sdl.web.discovery.datalayer.model.KeyValuePair;
 import com.sdl.web.discovery.registration.ODataClientProvider;
 import com.sdl.web.discovery.registration.capability.ContentServiceCapabilityBuilder;
+import com.sdl.web.oauth.common.OAuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +32,11 @@ import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.sdl.odata.api.service.MediaType.JSON;
+import static com.sdl.odata.client.property.PropertyUtils.getStringProperty;
+import static com.sdl.web.client.configuration.ClientConstants.Security.CLIENT_ID;
+import static com.sdl.web.client.configuration.ClientConstants.Security.CLIENT_SECRET;
 
 
 /**
@@ -56,12 +68,41 @@ public class ModelServiceRegisterer {
                     public synchronized boolean isTokenExpired() {
                         boolean tokenExpired = super.isTokenExpired();
                         if (tokenExpired) {
-                            log.info("OAuth token expired! Taking another one...");
+                            log.debug("OAuth token expired! Taking another one...");
                         }
                         return tokenExpired;
                     }
                     public synchronized String getToken() {
-                        return super.getToken();
+                        DefaultOAuthClient shadowedClient = new DefaultOAuthClient(properties){
+                            protected OAuthToken doFetchOAuthToken(String urlString, String requestBody) {
+                                URL url;
+                                try {
+                                    log.info("ShadowedClient: URL to be used: {}.", urlString);
+                                    url = new URL(urlString);
+                                    Class<?> tracingEndpointCallerClass = Class.forName("com.sdl.odata.client.caller.TracingEndpointCaller");
+                                    Constructor<?> tracingEndpointCallerConstructor = tracingEndpointCallerClass.getConstructor(Properties.class);
+                                    EndpointCaller ec = (EndpointCaller) tracingEndpointCallerConstructor.newInstance(properties);
+                                    log.info("ShadowedClient: Trying establish connection...");
+                                    URLConnection connection = url.openConnection();
+                                    log.info("ShadowedClient: Connecting...");
+                                    connection.connect();
+                                    log.info("ShadowedClient: Sending request...");
+                                    String response = ec.doPostEntity(null, url, requestBody, JSON, JSON);
+                                    log.info("ShadowedClient: got response: {}.", response);
+                                } catch (Exception ex) {
+                                    log.error("ShadowedClient: error", ex);
+                                }
+                                return super.doFetchOAuthToken(urlString, requestBody);
+                            }
+                        };
+                        String clientId = getStringProperty(properties, CLIENT_ID);
+                        String clientSecret = getStringProperty(properties, CLIENT_SECRET);
+                        log.error("ShadowedClient: credentials: {}/{}", clientId, clientSecret);
+                        OAuthToken newToken = shadowedClient.getToken(clientId, clientSecret);
+                        log.info("ShadowedClient got new OAuth token: " + newToken.getToken() + ", will expire at: " + new Date(newToken.getExpiresOn()));
+                        String token = super.getToken();
+                        log.info("OriginalClient got OAuth token: " + token);
+                        return token;
                     }
 
                 };
@@ -76,9 +117,9 @@ public class ModelServiceRegisterer {
     private Configuration readConfiguration() throws ConfigurationException {
         Configuration configuration = new XMLConfigurationReaderImpl().readConfiguration(CONFIG_FILE_NAME);
         Configuration repository = configuration.getConfiguration("ConfigRepository");
-        log.info("Configuration read from " + CONFIG_FILE_NAME + ". " + repository.getName() + "=>" + repository.getValues());
-        log.info("OAuth configuration:\nClientId: " + configuration.getValue("ClientId") +
-                ",\nClientSecret: " + configuration.getValue("ClientSecret") + ",\nTokenServiceUrl: " + configuration.getValue("TokenServiceUrl"));
+        log.info("Configuration read from " + CONFIG_FILE_NAME + ".");
+        log.info("OAuth configuration values:\nClientId: " + configuration.getValue("ClientId") +
+                ",\nTokenServiceUrl: " + configuration.getValue("TokenServiceUrl"));
         return repository;
     }
 
@@ -89,11 +130,11 @@ public class ModelServiceRegisterer {
         Configuration role = this.configuration.getConfiguration(CONTENT_SERVICE_CAPABILITY_ROLE_XPATH);
 
         Environment environment = loadEnvironment();
+        if (log.isTraceEnabled()) log.trace("Loading an existing capability");
         ContentServiceCapability storedCapability = loadStoredCapability();
-        log.trace("Loaded an existing capability {}", storedCapability);
 
+        if (log.isTraceEnabled()) log.trace("Loading a capability from local configuration file {}", CONFIG_FILE_NAME);
         ContentServiceCapability newCapability = loadNewCapability(role, environment);
-        log.trace("Loaded a capability from local configuration file {}, {}", CONFIG_FILE_NAME, storedCapability);
 
         KeyValuePair registeredFrom = new KeyValuePair();
         registeredFrom.setKey("last-registered-by");
@@ -102,7 +143,7 @@ public class ModelServiceRegisterer {
         newCapability.getExtensionProperties().add(registeredFrom);
 
         List<KeyValuePair> mergedProperties = mergeExtensionProperties(newCapability, storedCapability);
-        log.info("Merged properties: {}", mergedProperties);
+        log.info("Merged capabilities: {}", mergedProperties);
 
         findRegistrationProperty(mergedProperties).ifPresent(kv -> this.knownPropertyValue = kv.getValue());
 
@@ -120,7 +161,7 @@ public class ModelServiceRegisterer {
 
         if (this.knownPropertyValue == null ||
                 !property.isPresent() || !this.knownPropertyValue.equals(property.get().getValue())) {
-            log.warn("Detected that Model Service is not registered against Discovery Service (or we don't know that it is), registering again");
+            log.warn("Model Service is not registered against Discovery Service (or we don't know that it is), registering again");
             register(); // no limit on how many times we try, try as long as service is up
         }
     }
