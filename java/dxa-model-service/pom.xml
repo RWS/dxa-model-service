@@ -4,7 +4,7 @@
     <parent>
         <artifactId>udp-common-maven</artifactId>
         <groupId>com.sdl.delivery</groupId>
-        <version>11.0.0-1028</version>
+        <version>11.0.0-1038</version>
     </parent>
 
     <!-- Note that this project inherits from udp-common-maven, which defines many dependencies, properties and
@@ -36,23 +36,23 @@
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
-        <adf.version>11.0.0-1027</adf.version>
-        <api.version>11.0.0-1033</api.version>
-        <api.linking.version>11.0.0-1033</api.linking.version>
-        <cache.version>11.0.0-1027</cache.version>
-        <cil.version>11.0.0-1037</cil.version>
-        <cis-api.version>11.0.0-1036</cis-api.version>
-        <cis-model.version>11.0.0-1036</cis-model.version>
-        <common.version>11.0.0-1028</common.version>
-        <core.version>11.0.0-1027</core.version>
-        <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1040</discovery-service.version>
-        <discovery.version>11.0.0-1030</discovery.version>
-        <model.version>11.0.0-1027</model.version>
-        <preview.version>11.0.0-1038</preview.version>
-        <publish-web.version>11.0.0-1035</publish-web.version>
-        <service-container.version>11.0.0-1027</service-container.version>
-        <tcdl.version>11.0.0-1031</tcdl.version>
+        <adf.version>11.0.0-1042</adf.version>
+        <api.version>11.0.0-1047</api.version>
+        <api.linking.version>11.0.0-1046</api.linking.version>
+        <cache.version>11.0.0-1040</cache.version>
+        <cil.version>11.0.0-1053</cil.version>
+        <cis-api.version>11.0.0-1049</cis-api.version>
+        <cis-model.version>11.0.0-1050</cis-model.version>
+        <common.version>11.0.0-1038</common.version>
+        <core.version>11.0.0-1037</core.version>
+        <datalayer.version>11.0.0-1045</datalayer.version>
+        <discovery-service.version>11.0.0-1054</discovery-service.version>
+        <discovery.version>11.0.0-1045</discovery.version>
+        <model.version>11.0.0-1040</model.version>
+        <preview.version>11.0.0-1052</preview.version>
+        <publish-web.version>11.0.0-1049</publish-web.version>
+        <service-container.version>11.0.0-1039</service-container.version>
+        <tcdl.version>11.0.0-1045</tcdl.version>
 
         <odata.version>2.6.2</odata.version>
 
@@ -207,7 +207,7 @@
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-api-linking</artifactId>
-                <version>11.0.0-1046</version>
+                <version>${api.linking.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
