@@ -33,8 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
@@ -83,7 +85,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         traverseObject(page);
 
         // Resolve all links and update the model after page has been traversed and expanded
-        this.batchLinkResolver.resolveAndFlush();
+        this.batchLinkResolver.resolveAndFlush(null);
 
         log.info("Expansion of the page with id {} has taken {} ms.", page.getId(),
                 System.currentTimeMillis() - startTime);
@@ -106,6 +108,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         int pageId = NumberUtils.toInt(pageModelData.getId(), -1);
 
         Map<String, String> meta = pageModelData.getMeta();
+        Set<String> notResolvedLinks = new HashSet<>();
         for (Map.Entry<String, String> entry : meta.entrySet()) {
             String entryValue = entry.getValue();
             if (TcmUtils.isTcmUri(entryValue)) {
@@ -128,8 +131,8 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                                         entry.getValue(),
                                         this.richTextLinkResolver
                                 )
-                        )
-                );
+                        ),
+                        notResolvedLinks);
 
             }
         }
@@ -195,6 +198,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         richTextData.setFragments(fragments);
 
         List<String> links = new ArrayList<>();
+        Set<String> notResolvedLinks = new HashSet<>();
         for (Object fragment : fragments) {
             if (fragment instanceof String) {
                 String fragmentString = (String) fragment;
@@ -208,7 +212,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                         this.pageId,
                         links,
                         new FragmentListProcessor(richTextData,
-                                this.richTextLinkResolver)));
+                                this.richTextLinkResolver)), notResolvedLinks);
 
         log.debug("Page Model RTF resolving took: {} ms.", ((System.currentTimeMillis() - start)));
     }

@@ -32,6 +32,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -101,7 +102,7 @@ public class BatchLinkResolverImplTest {
         this.batchLinkResolver.dispatchLinkResolution(componentLinkDescriptor);
         this.batchLinkResolver.dispatchLinkResolution(binaryLinkDescriptor);
 
-        this.batchLinkResolver.resolveAndFlush();
+        this.batchLinkResolver.resolveAndFlush(null);
 
         assertNotNull(pageLinkDescriptor.getSubscription());
         assertNotNull(componentLinkDescriptor.getSubscription());
@@ -135,7 +136,7 @@ public class BatchLinkResolverImplTest {
 
             MultipleLinksDescriptor descriptor = new RichTextLinkDescriptor(1, 12, links, processor);
 
-            resolver.dispatchMultipleLinksResolution(descriptor);
+            resolver.dispatchMultipleLinksResolution(descriptor, new HashSet<>());
             count +=  descriptor.getLinks().size();
         }
 
@@ -155,7 +156,7 @@ public class BatchLinkResolverImplTest {
         this.batchLinkResolver.dispatchLinkResolution(descriptor_1);
         this.batchLinkResolver.dispatchLinkResolution(descriptor_2);
 
-        this.batchLinkResolver.resolveAndFlush();
+        this.batchLinkResolver.resolveAndFlush(null);
 
         String subscriptionId_1 = descriptor_1.getSubscription();
         assertNotNull(subscriptionId_1);
@@ -197,7 +198,7 @@ public class BatchLinkResolverImplTest {
         SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
 
         this.mockedBatchLinkResolver.dispatchLinkResolution(descriptor);
-        this.mockedBatchLinkResolver.resolveAndFlush();
+        this.mockedBatchLinkResolver.resolveAndFlush(null);
 
         assertEquals(LINK_TYPE_PAGE, descriptor.getType());
         assertEquals(url, descriptor.getResolvedLink());
@@ -222,7 +223,7 @@ public class BatchLinkResolverImplTest {
         SingleLinkDescriptor descriptor = new ComponentLinkDescriptor(8, 18, COMPONENTLINKID, processor, LINK_TYPE_PAGE);
 
         this.mockedBatchLinkResolver.dispatchLinkResolution(descriptor);
-        this.mockedBatchLinkResolver.resolveAndFlush();
+        this.mockedBatchLinkResolver.resolveAndFlush(null);
 
         assertEquals(LINK_TYPE_PAGE, descriptor.getType());
         assertEquals(expectedUrl, descriptor.getResolvedLink());

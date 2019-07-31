@@ -6,6 +6,7 @@ import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
@@ -56,8 +57,8 @@ public abstract class BaseMultipleLinksDescriptor implements MultipleLinksDescri
     }
 
     @Override
-    public void update() {
-        this.linkProcessor.update(links);
+    public void update(Set<String> notResolvedLinks) {
+        this.linkProcessor.update(links, notResolvedLinks);
     }
 
     @Override
