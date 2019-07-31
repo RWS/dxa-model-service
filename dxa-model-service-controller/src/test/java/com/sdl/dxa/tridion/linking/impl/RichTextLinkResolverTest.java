@@ -378,6 +378,10 @@ public class RichTextLinkResolverTest {
 
         resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(2), batchOfLinks, linksNotResolved);
         assertEquals(" link (suppressed).</p>", resolvedFragment);
+
+        //demonstrating issue CRQ-15566
+        resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(2), batchOfLinks, new HashSet<>());
+        assertEquals(" link</a> (suppressed).</p>", resolvedFragment);
     }
 
     private Map<String, String> getResolvedLinksMap() {
