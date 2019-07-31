@@ -85,7 +85,7 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
         traverseObject(page);
 
         // Resolve all links and update the model after page has been traversed and expanded
-        this.batchLinkResolver.resolveAndFlush(null);
+        this.batchLinkResolver.resolveAndFlush(new HashSet<>());
 
         log.info("Expansion of the page with id {} has taken {} ms.", page.getId(),
                 System.currentTimeMillis() - startTime);

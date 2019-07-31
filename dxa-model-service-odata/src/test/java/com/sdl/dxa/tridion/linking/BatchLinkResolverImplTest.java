@@ -156,7 +156,7 @@ public class BatchLinkResolverImplTest {
         this.batchLinkResolver.dispatchLinkResolution(descriptor_1);
         this.batchLinkResolver.dispatchLinkResolution(descriptor_2);
 
-        this.batchLinkResolver.resolveAndFlush(null);
+        this.batchLinkResolver.resolveAndFlush(new HashSet<>());
 
         String subscriptionId_1 = descriptor_1.getSubscription();
         assertNotNull(subscriptionId_1);

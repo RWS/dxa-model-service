@@ -71,7 +71,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
     public void expandEntity(@Nullable EntityModelData entity) {
         traverseObject(entity);
         if (shouldResolveLinks()) {
-            this.batchLinkResolver.resolveAndFlush(null);
+            this.batchLinkResolver.resolveAndFlush(new HashSet<>());
         }
     }
 
