@@ -11,10 +11,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -346,5 +348,46 @@ public class RichTextLinkResolverTest {
                 "<p><a title=\"Unused Component\" href=\"tcm:17-982\">UNRESOLVED LINK3</a><!--CompLink tcm:17-982--> </p>" +
                 "<p><a title=\"Unused Component\" href=\"tcm:18-983\">UNRESOLVED LINK4</a><!--CompLink tcm:18-983--> </p>");
         return fragment.toString();
+    }
+
+    @NotNull
+    private List<String> getFragmentsWithSplittedLinks() {
+        List<String> result = new ArrayList<>();
+        result.add("<p>Link to <a title='entire link in a fragment' href=\"tcm:1-11\"> not published;</a><!--CompLink tcm:1-11--> (suppressed).</p>" +
+                "<p>Link to <a title='entire link in a fragment' href=\"tcm:15-980\">   published;</a><!--CompLink tcm:15-980--> (resolved).</p>" +
+                "<p>Link to <a title='splitted link in fragments' href=\"tcm:15-980\"> (image as a ");
+        result.add(" link </a><!--CompLink tcm:17-982--> (resolved).</p>" +
+                "<p><a title='splitted link in fragments' href=\"tcm:1-11\"> (image as a ");
+        result.add(" link</a><!--CompLink tcm:1-11--> (suppressed).</p>");
+        return result;
+    }
+
+    @Test
+    public void testFragmentsSplitted() {
+
+        Map<String, String> batchOfLinks = getResolvedLinksMap();
+        Set<String> linksNotResolved = new LinkedHashSet<>();
+
+        String resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(0), batchOfLinks, linksNotResolved);
+        assertEquals("<p>Link to not published; (suppressed).</p>" +
+                "<p>Link to <a title='entire link in a fragment' href=\"/resolved/link/1\"> published;</a> (resolved).</p>" +
+                "<p>Link to <a title='splitted link in fragments' href=\"/resolved/link/1\"> (image as a ", resolvedFragment);
+
+        resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(1), batchOfLinks, linksNotResolved);
+        assertEquals(" link </a> (resolved).</p><p> (image as a ", resolvedFragment);
+
+        resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(2), batchOfLinks, linksNotResolved);
+        assertEquals(" link (suppressed).</p>", resolvedFragment);
+
+        //demonstrating issue CRQ-15566
+        resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(2), batchOfLinks, new HashSet<>());
+        assertEquals(" link</a> (suppressed).</p>", resolvedFragment);
+    }
+
+    private Map<String, String> getResolvedLinksMap() {
+        Map<String, String> result = new HashMap<>();
+        result.put("tcm:15-980", "/resolved/link/1");
+        result.put("tcm:17-982", "/resolved/link/2");
+        return result;
     }
 }
