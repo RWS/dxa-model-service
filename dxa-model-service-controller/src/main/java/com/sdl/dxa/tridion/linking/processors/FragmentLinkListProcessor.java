@@ -5,6 +5,7 @@ import com.sdl.dxa.tridion.linking.api.processors.LinkListProcessor;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class FragmentLinkListProcessor implements LinkListProcessor {
 
@@ -24,7 +25,7 @@ public class FragmentLinkListProcessor implements LinkListProcessor {
     }
 
     @Override
-    public void update(Map<String, String> links) {
-        this.model.replace(this.key, this.resolver.processFragment(this.value, links, new HashSet<>()));
+    public void update(Map<String, String> links, Set<String> notResolvedLinks) {
+        this.model.replace(this.key, this.resolver.processFragment(this.value, links, notResolvedLinks));
     }
 }

@@ -27,8 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
 
@@ -69,7 +71,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
     public void expandEntity(@Nullable EntityModelData entity) {
         traverseObject(entity);
         if (shouldResolveLinks()) {
-            this.batchLinkResolver.resolveAndFlush();
+            this.batchLinkResolver.resolveAndFlush(new HashSet<>());
         }
     }
 
@@ -135,6 +137,7 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
             log.debug("Processing {} fragments.", fragments.size());
 
             List<String> allLinks = new ArrayList<>();
+            Set<String> notResolvedLinks = new HashSet<>();
             for (Object fragment : fragments) {
                 if (fragment instanceof String) {
 
@@ -146,8 +149,8 @@ public class EntityModelExpander extends DataModelDeepFirstSearcher {
                     new RichTextLinkDescriptor(
                             entityRequest.getPublicationId(), this.entityRequest.getContextId(),
                             allLinks, new FragmentListProcessor(richTextData, this.richTextLinkResolver)
-                    )
-            );
+                    ),
+                    notResolvedLinks);
         } else {
             log.debug(">>> Did not resolve links.");
         }

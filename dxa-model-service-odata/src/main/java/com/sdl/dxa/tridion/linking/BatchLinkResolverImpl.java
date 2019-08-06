@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
@@ -54,7 +55,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     }
 
     @Override
-    public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor) {
+    public void dispatchMultipleLinksResolution(MultipleLinksDescriptor descriptor, Set<String> notResolvedLinks) {
         Map<String, String> links = descriptor.getLinks();
         Integer pubId = descriptor.getPublicationId();
         Integer contextId = descriptor.getPageId();
@@ -70,7 +71,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
     }
 
     @Override
-    public void resolveAndFlush() {
+    public void resolveAndFlush(Set<String> notResolvedLinks) {
         resolveAndFlush(this.descriptors);
 
         for (SingleLinkDescriptor descriptor : descriptors) {
@@ -78,7 +79,7 @@ public class BatchLinkResolverImpl implements BatchLinkResolver {
         }
 
         for (MultipleLinksDescriptor descriptor : multipleLinksDescriptors) {
-            descriptor.update();
+            descriptor.update(notResolvedLinks);
         }
 
         this.descriptors.clear();

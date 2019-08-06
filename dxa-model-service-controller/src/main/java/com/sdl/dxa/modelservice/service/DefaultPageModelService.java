@@ -10,11 +10,13 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
+import com.sdl.dxa.modelservice.service.processing.expansion.DataModelExpansionException;
 import com.sdl.dxa.modelservice.service.processing.expansion.PageModelExpander;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolverFactory;
 import com.sdl.dxa.tridion.linking.impl.RichTextLinkResolverImpl;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.tridion.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dd4t.contentmodel.Page;
@@ -215,17 +217,32 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                         break;
                     case INCLUDE:
                     default:
-                        String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
-                        // maybe it has inner regions which we need to include?
-                        PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
+                        try {
+                            String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
+                            if (StringUtils.isNotEmpty(includePageContent)) {
+                                // maybe it has inner regions which we need to include?
+                                PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
 
-                        if (includePage.getRegions() != null) {
-                            includePage.getRegions().forEach(region::addRegion);
+                                if (includePage.getRegions() != null) {
+                                    includePage.getRegions().forEach(region::addRegion);
+                                }
+                            }
+                        } catch (ContentProviderException e){
+                            _suppressIfNeeded(String.format("Include Page '%s' not found.",
+                                    region.getIncludePageId()),
+                                    configService.getErrors().isMissingIncludePageSuppress(), e);
                         }
                 }
             }
         }
         return pageModel;
+    }
+
+    private void _suppressIfNeeded(String message, boolean suppressingFlag, ContentProviderException e) {
+        log.warn(message, e);
+        if (!suppressingFlag) {
+            throw new DataModelExpansionException(message, e);
+        }
     }
 
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {

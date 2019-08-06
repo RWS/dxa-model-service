@@ -44,10 +44,11 @@ public class ConfigService {
 
     @Data
     public static class Errors {
-
         private boolean missingKeywordSuppress;
 
         private boolean missingEntitySuppress;
+
+        private boolean missingIncludePageSuppress;
     }
 
     @Data
@@ -83,7 +84,7 @@ public class ConfigService {
         @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result <= 0")
         public int getDynamicTemplateId(int publicationId) {
             StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
-            try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
+            try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent()) {
                 JsonNode jsonNode = objectMapper.readTree(allJson).get(configDcpUriField);
 
                 if (jsonNode == null) {
