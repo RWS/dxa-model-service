@@ -88,13 +88,13 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     @Override
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }", sync = true)
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         return loadEntity(entityRequest, true);
     }
 
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }", sync = true)
     public org.dd4t.contentmodel.ComponentPresentation loadLegacyEntityModel(EntityRequestDto entityRequest) throws ContentProviderException {
         String content = contentService.loadRenderedComponentPresentation(entityRequest.getPublicationId(), entityRequest.getComponentId(), entityRequest.getTemplateId());
         log.trace("Loaded entity content for {}", entityRequest);
@@ -112,24 +112,21 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
             if(r2entity.isDynamic()) {
                 r2entity = this.loadEntity(entityRequest);
             }
-
             return toDd4tConverter.convertToDd4t(r2entity, entityRequest);
-        } else {
-            try {
-                log.trace("parsing entity content {}", content);
-                ComponentPresentation componentPresentation = dd4tDataBinder.buildComponentPresentation(content, ComponentPresentationImpl.class);
+        }
+        try {
+            if (log.isTraceEnabled()) log.trace("parsing entity content {}", content);
+            ComponentPresentation componentPresentation = dd4tDataBinder.buildComponentPresentation(content, ComponentPresentationImpl.class);
 
-                // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
-                if (entityRequest.getDataModelType() == DataModelType.DD4T) {
-                    dd4tRichTextResolver.execute(componentPresentation.getComponent(), new HttpRequestContext());
-                }
-
-                return componentPresentation;
-            } catch (SerializationException e) {
-                throw new ContentProviderException("Couldn't deserialize DD4T content for request " + entityRequest, e);
-            } catch (ProcessorException e) {
-                throw new ContentProviderException("Couldn't process DD4T content for request " + entityRequest, e);
+            // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
+            if (entityRequest.getDataModelType() == DataModelType.DD4T) {
+                dd4tRichTextResolver.execute(componentPresentation.getComponent(), new HttpRequestContext());
             }
+            return componentPresentation;
+        } catch (SerializationException e) {
+            throw new ContentProviderException("Couldn't deserialize DD4T content for request " + entityRequest, e);
+        } catch (ProcessorException e) {
+            throw new ContentProviderException("Couldn't process DD4T content for request " + entityRequest, e);
         }
     }
 
@@ -143,26 +140,18 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
             log.info("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", entityRequest);
             modelData = toR2Converter.convertToR2(_processDd4tEntityModel(entityContent, entityRequest), entityRequest);
         } else {
-            log.trace("Parsing entity content {}", entityContent);
+            if (log.isTraceEnabled()) log.trace("Parsing entity content {}", entityContent);
             modelData = _parseR2Content(entityContent, EntityModelData.class);
         }
-
-        log.trace("Parsed entity content to entity model {}", modelData);
-
-        log.trace("processing entity model {} for entity request {}", modelData, entityRequest);
-
+        if (log.isTraceEnabled()) log.trace("processing entity model {} for entity request {}", modelData, entityRequest);
         _getModelExpander(entityRequest, resolveLinks).expandEntity(modelData);
-
-        log.trace("expanded the whole model for {}", entityRequest);
-
+        if (log.isTraceEnabled()) log.trace("expanded the whole model for {}", entityRequest);
         return modelData;
     }
 
     @NotNull
     private EntityModelExpander _getModelExpander(EntityRequestDto entityRequestDto, boolean resolveLinks) {
-        return new EntityModelExpander(
-                entityRequestDto,
-                richTextLinkResolver,
+        return new EntityModelExpander(entityRequestDto, richTextLinkResolver,
                 configService, resolveLinks, batchLinkResolverFactory.getBatchLinkResolver());
     }
 

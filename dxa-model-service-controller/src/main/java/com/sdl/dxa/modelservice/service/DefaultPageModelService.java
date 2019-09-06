@@ -93,7 +93,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Override
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }", sync = true)
     public Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
@@ -102,24 +102,21 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Override
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }", sync = true)
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
 
-        final PageModelData pageModelData = _processR2PageModel(pageContent, pageRequest);
-        return pageModelData;
+        return _processR2PageModel(pageContent, pageRequest);
     }
 
     private List<EntityModelData> _expandDynamicEntities(@NotNull RegionModelData region, int publicationId) throws ContentProviderException {
-
         List<EntityModelData> entities = new ArrayList<>();
         if (region.getRegions() != null) {
             for (RegionModelData nested : region.getRegions()) {
                 entities.addAll(_expandDynamicEntities(nested, publicationId));
             }
         }
-
         if (region.getEntities() != null) {
             for (EntityModelData entity : region.getEntities()) {
                 if(entity.isDynamic()) {
@@ -128,13 +125,11 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                 entities.add(entity);
             }
         }
-
         return entities;
     }
 
     @Contract("!null, _ -> !null")
     private Page _processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
-        Page page;
         DataModelType publishedModelType = getModelType(pageContent);
         if (publishedModelType == DataModelType.R2) {
             log.info("Found R2 model while requested DD4T, need to process R2 and convert, request {}", pageRequest);
@@ -145,25 +140,23 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                     region.setEntities(_expandDynamicEntities(region, pageRequest.getPublicationId()));
                 }
             }
-            page = toDd4tConverter.convertToDd4t(r2page, pageRequest);
-        } else {
-            try {
-                page = dd4tDataBinder.buildPage(pageContent, PageImpl.class);
-
-                // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
-                if (pageRequest.getDataModelType() == DataModelType.DD4T) {
-                    dd4tRichTextResolver.execute(page, new HttpRequestContext());
-                }
-
-                log.trace("Parsed page content to page model {}", page);
-                return page;
-            } catch (SerializationException e) {
-                throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
-            } catch (ProcessorException e) {
-                throw new ContentProviderException("Couldn't process DD4T content for request " + pageRequest, e);
-            }
+            return toDd4tConverter.convertToDd4t(r2page, pageRequest);
         }
-        return page;
+        try {
+            Page page = dd4tDataBinder.buildPage(pageContent, PageImpl.class);
+
+            // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
+            if (pageRequest.getDataModelType() == DataModelType.DD4T) {
+                dd4tRichTextResolver.execute(page, new HttpRequestContext());
+            }
+
+            log.trace("Parsed page content to page model {}", page);
+            return page;
+        } catch (SerializationException e) {
+            throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
+        } catch (ProcessorException e) {
+            throw new ContentProviderException("Couldn't process DD4T content for request " + pageRequest, e);
+        }
     }
 
     @Contract("!null, _ -> !null")
@@ -177,18 +170,14 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         } else {
             pageModel = _parseR2Content(pageContent, PageModelData.class);
         }
-
-        log.trace("Parsed page content to page model {}", pageModel);
-
-        log.trace("processing page model {} for page request {}", pageModel, pageRequest);
-
+        if (log.isTraceEnabled()) log.trace("processing page model {} for page request {}", pageModel, pageRequest);
         PageModelData pageModelData = _expandIncludePages(pageModel, pageRequest);
-        log.trace("expanded include pages for {}", pageRequest);
+        if (log.isTraceEnabled()) log.trace("expanded include pages for {}", pageRequest);
 
         // let's check every leaf here if we need to expand it
         int pageId = NumberUtils.toInt(pageModelData.getId(), -1);
         _getModelExpander(pageRequest, pageId).expandPage(pageModelData);
-        log.trace("expanded the whole model for {}", pageRequest);
+        if (log.isTraceEnabled()) log.trace("expanded the whole model for {}", pageRequest);
 
         return pageModelData;
     }
@@ -201,38 +190,39 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
-        if (pageModel.getRegions() != null) {
-            Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
-            while (iterator.hasNext()) {
-                RegionModelData region = iterator.next();
-                if (region.getIncludePageId() == null) {
-                    continue;
-                }
+        if (pageModel.getRegions() == null) {
+            return pageModel;
+        }
+        Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
+        while (iterator.hasNext()) {
+            RegionModelData region = iterator.next();
+            if (region.getIncludePageId() == null) {
+                continue;
+            }
 
-                log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
+            log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
 
-                switch (pageRequest.getIncludePages()) {
-                    case EXCLUDE:
-                        iterator.remove();
-                        break;
-                    case INCLUDE:
-                    default:
-                        try {
-                            String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
-                            if (StringUtils.isNotEmpty(includePageContent)) {
-                                // maybe it has inner regions which we need to include?
-                                PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
+            switch (pageRequest.getIncludePages()) {
+                case EXCLUDE:
+                    iterator.remove();
+                    break;
+                case INCLUDE:
+                default:
+                    try {
+                        String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
+                        if (StringUtils.isNotEmpty(includePageContent)) {
+                            // maybe it has inner regions which we need to include?
+                            PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
 
-                                if (includePage.getRegions() != null) {
-                                    includePage.getRegions().forEach(region::addRegion);
-                                }
+                            if (includePage.getRegions() != null) {
+                                includePage.getRegions().forEach(region::addRegion);
                             }
-                        } catch (ContentProviderException e){
-                            _suppressIfNeeded(String.format("Include Page '%s' not found.",
-                                    region.getIncludePageId()),
-                                    configService.getErrors().isMissingIncludePageSuppress(), e);
                         }
-                }
+                    } catch (ContentProviderException e){
+                        _suppressIfNeeded(String.format("Include Page '%s' not found.",
+                                region.getIncludePageId()),
+                                configService.getErrors().isMissingIncludePageSuppress(), e);
+                    }
             }
         }
         return pageModel;
