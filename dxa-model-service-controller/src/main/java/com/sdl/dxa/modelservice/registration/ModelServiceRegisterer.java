@@ -51,25 +51,7 @@ public class ModelServiceRegisterer {
 
     public ModelServiceRegisterer() throws ConfigurationException {
         configuration = readConfiguration();
-        dataClientProvider = new ODataClientProvider(configuration) {
-            public synchronized SecuredODataClient provideClient(){
-                return super.provideClient();
-            }
-            protected OAuthTokenProvider createDefaultOAuthTokenProvider(Properties properties) {
-                return new OAuthTokenProvider(properties) {
-                    public synchronized boolean isTokenExpired() {
-                        boolean tokenExpired = super.isTokenExpired();
-                        if (tokenExpired) {
-                            log.info("OAuth token expired! Taking another one...");
-                        }
-                        return tokenExpired;
-                    }
-                    public synchronized String getToken() {
-                        return super.getToken();
-                    }
-                };
-            }
-        };
+        dataClientProvider = new ODataClientProvider(configuration);
     }
 
     public static void main(String[] args) throws ConfigurationException {
@@ -116,7 +98,8 @@ public class ModelServiceRegisterer {
         Optional<KeyValuePair> property = findRegistrationProperty(capability.getExtensionProperties());
 
         if (this.knownPropertyValue == null ||
-                !property.isPresent() || !this.knownPropertyValue.equals(property.get().getValue())) {
+            !property.isPresent() ||
+            !this.knownPropertyValue.equals(property.get().getValue())) {
             log.warn("Model Service is not registered against Discovery Service (or we don't know that it is), registering again");
             register(); // no limit on how many times we try, try as long as service is up
         }
