@@ -19,7 +19,7 @@ buildscript {
     }
     dependencies {
         // DXA Builder has not been changed 
-        classpath group: 'com.sdl.dxa', name: 'dxa-builder', version: '2.2.0-SNAPSHOT', changing: true
+        classpath group: 'com.sdl.dxa', name: 'dxa-builder', version: '2.2.0', changing: true
     }
 }
 
