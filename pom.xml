@@ -19,7 +19,7 @@
 
 
     <properties>
-        <dxa.version>2.2.0</dxa.version>
+        <dxa.version>2.2.1</dxa.version>
         <java.version>1.8</java.version>
 
         <!-- This should match the next patch version -->
