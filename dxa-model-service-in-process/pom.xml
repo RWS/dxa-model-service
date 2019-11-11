@@ -40,9 +40,9 @@
 
     <dependencies>
         <dependency>
-            <artifactId>udp-common-maven</artifactId>
-            <groupId>com.sdl.delivery</groupId>
-            <version>${api.version}</version>
+            <artifactId>cd_common_maven</artifactId>
+            <groupId>com.tridion</groupId>
+            <version>${common.version}</version>
             <type>pom</type>
         </dependency>
 
@@ -52,7 +52,7 @@
             <exclusions>
                 <exclusion>
                     <!-- This dependency conflicts with cd-linking defined below -->
-                    <groupId>com.sdl.delivery</groupId>
+                    <groupId>com.sdl.web</groupId>
                     <artifactId>udp-cil-api-compatible</artifactId>
                 </exclusion>
             </exclusions>

@@ -45,7 +45,7 @@
             <artifactId>dxa-model-service-controller</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
+            <groupId>com.sdl.web</groupId>
             <artifactId>cil</artifactId>
             <type>pom</type>
             <exclusions>
@@ -55,14 +55,33 @@
                 </exclusion>
                 <exclusion>
                     <artifactId>udp-ugc-container</artifactId>
-                    <groupId>com.sdl.delivery</groupId>
+                    <groupId>com.sdl.web</groupId>
                 </exclusion>
                 <exclusion>
                     <artifactId>ugc-taglib</artifactId>
-                    <groupId>com.sdl.delivery</groupId>
+                    <groupId>com.sdl.web</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-compatible</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -110,24 +129,6 @@
             <artifactId>dd4t-caching</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-adf-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-adf-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-adf-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-cil-api-compatible</artifactId>
-        </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
