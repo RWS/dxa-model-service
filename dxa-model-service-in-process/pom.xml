@@ -55,6 +55,10 @@
                     <groupId>com.sdl.web</groupId>
                     <artifactId>udp-cil-api-compatible</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.sdl.web</groupId>
+                    <artifactId>content-compatible</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -72,6 +76,10 @@
                     <artifactId>discovery-common</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-client-api</artifactId>
         </dependency>
 
         <!-- Test Dependencies -->

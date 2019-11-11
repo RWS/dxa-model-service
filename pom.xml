@@ -46,7 +46,7 @@
         <model.version>(,8.5.1)</model.version>
         <preview.version>(,8.5.1)</preview.version>
         <publish-web.version>(,8.5.1)</publish-web.version>
-        <service-container.version>8.5.0-1093</service-container.version>
+        <service-container.version>8.5.0-1092</service-container.version>
         <tcdl.version>(,8.5.1)</tcdl.version>
 
         <udp11.version>(,11.1.0)</udp11.version>

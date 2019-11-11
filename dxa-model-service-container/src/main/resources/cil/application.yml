@@ -1,0 +1,20 @@
+https:
+  enabled: false
+  port: 8443
+  keystore-path: config/keystore.jks
+  key-alias: tomcat
+  keystore-passwd:  encrypted:Kd33CtvnSQoxkA1DJRkU1A==
+  truststore-passwd: encrypted:Kd33CtvnSQoxkA1DJRkU1A==
+max-postsize: 33554432
+endpoints:
+  health:
+    enabled: true
+    sensitive: true
+service:
+  security:
+    enabled: false
+management:
+  security:
+    enabled: false
+security:
+  ignored: /**

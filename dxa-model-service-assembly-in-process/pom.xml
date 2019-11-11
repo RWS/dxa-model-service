@@ -121,6 +121,12 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-in-process</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sdl.web</groupId>
+                    <artifactId>content-compatible</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
