@@ -122,16 +122,18 @@
                 <include>com.tridion:cd_session</include>
                 <include>com.tridion:cd_wrapper</include>
                 <include>com.tridion:cd_preview_web</include>
+
+                <!--
                 <include>com.sdl.web:content-v2-odata-types</include>
                 <include>com.sdl.web:content-v2-odata</include>
                 <include>com.sdl.web:content-common</include>
                 <include>com.sdl.web:content-model</include>
                 <include>com.sdl.web:content-core</include>
-
+                -->
 
                 <include>commons-dbcp:commons-dbcp</include>
                 <include>commons-pool:commons-pool</include>
-                <include>dom4j:dom4j</include>
+                <include>org.dom4j:dom4j</include>
                 <include>com.vs.ezlicrun:easylicense</include>
                 <include>org.hibernate.common:hibernate-commons-annotations</include>
                 <include>org.hibernate:hibernate-core</include>
@@ -142,9 +144,10 @@
                 <include>net.bytebuddy:byte-buddy</include>
                 <include>javax.persistence:javax.persistence-api</include>
                 <include>javax.xml.bind:jaxb-api</include>
+                <include>com.sun.xml.bind:jaxb-core</include>
                 <include>com.sun.xml.bind:jaxb-impl</include>
                 <include>org.jboss.spec.javax.transaction:jboss-transaction-api_*</include>
-                <include>org.jboss.logging:jboss-logging-annotations</include>
+                <include>org.jboss.logging:jboss-logging</include>
                 <include>org.jboss:jandex</include>
                 <include>org.codehaus.jettison:jettison</include>
                 <include>org.springframework:spring-jdbc</include>
