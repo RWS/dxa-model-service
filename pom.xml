@@ -49,8 +49,6 @@
         <service-container.version>8.5.0-1092</service-container.version>
         <tcdl.version>(,8.5.1)</tcdl.version>
 
-        <udp11.version>(,11.1.0)</udp11.version>
-
         <!--
         <adf.version>11.0.0-1039</adf.version>
         <api.version>11.0.0-1033</api.version>
@@ -390,47 +388,49 @@
                 <version>${dd4t.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-autoconfigure</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-cache</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-aop</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-autoconfigure</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-cache</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-aop</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-web</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-actuator</artifactId>-->
+<!--                <version>${spring-boot.version}</version>-->
+<!--            </dependency>-->
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-actuator</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>javax.xml.stream</groupId>
                 <artifactId>stax-api</artifactId>
@@ -617,7 +617,7 @@
                     <dependency>
                         <groupId>com.sdl.delivery</groupId>
                         <artifactId>udp-cil-api-compatible</artifactId>
-                        <version>${udp11.version}</version>
+                        <version>${cil.version}</version>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
