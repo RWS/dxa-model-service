@@ -122,7 +122,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.build.finalName}</finalName>
+                            <finalName>${project.build.finalName}-${project.version}-8.5.0</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/standalone.xml</descriptor>
                             </descriptors>
