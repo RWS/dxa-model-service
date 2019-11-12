@@ -25,49 +25,29 @@
         <dxa.version>2.2.0</dxa.version>
         <java.version>1.8</java.version>
 
-        <!-- This should match the next patch version
-            <parent.version.range>(,11.0.1)</parent.version.range>
-        -->
-        <parent.version.range>(,8.5.1)</parent.version.range>
+        <udp-version-range>(,8.5.0-10000)</udp-version-range>
+
+        <parent.version.range>${udp-version-range}</parent.version.range>
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
-        <adf.version>(,8.5.1)</adf.version>
-        <api.version>(,8.5.1)</api.version>
-        <cache.version>(,8.5.1)</cache.version>
-        <cil.version>(,8.5.1)</cil.version>
-        <cis-api.version>(,8.5.1)</cis-api.version>
-        <content-model.version>(,8.5.1)</content-model.version>
-        <common.version>(,8.5.1)</common.version>
-        <core.version>(,8.5.1)</core.version>
-        <datalayer.version>(,8.5.1)</datalayer.version>
-        <discovery-service.version>(,8.5.1)</discovery-service.version>
-        <discovery.version>(,8.5.1)</discovery.version>
-        <model.version>(,8.5.1)</model.version>
-        <preview.version>(,8.5.1)</preview.version>
-        <publish-web.version>(,8.5.1)</publish-web.version>
+        <adf.version>${udp-version-range}</adf.version>
+        <api.version>${udp-version-range}</api.version>
+        <cache.version>${udp-version-range}</cache.version>
+        <cil.version>${udp-version-range}</cil.version>
+        <cis-api.version>${udp-version-range}</cis-api.version>
+        <content-model.version>${udp-version-range}</content-model.version>
+        <common.version>${udp-version-range}</common.version>
+        <core.version>${udp-version-range}</core.version>
+        <datalayer.version>${udp-version-range}</datalayer.version>
+        <discovery-service.version>${udp-version-range}</discovery-service.version>
+        <discovery.version>${udp-version-range}</discovery.version>
+        <model.version>${udp-version-range}</model.version>
+        <preview.version>${udp-version-range}</preview.version>
+        <publish-web.version>${udp-version-range}</publish-web.version>
         <service-container.version>8.5.0-1092</service-container.version>
-        <tcdl.version>(,8.5.1)</tcdl.version>
-
-        <!--
-        <adf.version>11.0.0-1039</adf.version>
-        <api.version>11.0.0-1033</api.version>
-        <cache.version>11.0.0-1027</cache.version>
-        <cil.version>11.0.0-1048</cil.version>
-        <cis-api.version>11.0.0-1036</cis-api.version>
-        <cis-model.version>11.0.0-1046</cis-model.version>
-        <common.version>11.0.0-1028</common.version>
-        <core.version>11.0.0-1027</core.version>
-        <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1050</discovery-service.version>
-        <discovery.version>11.0.0-1030</discovery.version>
-        <model.version>11.0.0-1027</model.version>
-        <preview.version>11.0.0-1038</preview.version>
-        <publish-web.version>11.0.0-1042</publish-web.version>
-        <service-container.version>11.0.0-1027</service-container.version>
-        <tcdl.version>11.0.0-1031</tcdl.version>
-        -->
-
+        <tcdl.version>${udp-version-range}</tcdl.version>
+        <cd_version>(,8.5.0-10000)</cd_version>
         <odata.version>2.6.2</odata.version>
         <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
         <ehcache.version>3.7.1</ehcache.version>
@@ -332,6 +312,11 @@
             </dependency>
             <dependency>
                 <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_content_client</artifactId>
+                <version>${preview.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tridion</groupId>
                 <artifactId>cd_preview_content_common</artifactId>
                 <version>${preview.version}</version>
             </dependency>
@@ -586,9 +571,6 @@
         </profile>
         <profile>
             <id>in-process</id>
-            <properties>
-                <cd_version>8.5.0-1095</cd_version>
-	    </properties>
             <modules>
                 <module>dxa-model-service-in-process</module>
                 <module>dxa-model-service-assembly-in-process</module>
