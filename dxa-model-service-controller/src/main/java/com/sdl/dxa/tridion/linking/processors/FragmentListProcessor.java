@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FragmentListProcessor implements LinkListProcessor {
 
@@ -22,12 +23,13 @@ public class FragmentListProcessor implements LinkListProcessor {
     }
 
     @Override
-    public void update(Map<String, String> links) {
+    public void update(Map<String, String> links, Set<String> notResolvedLinks) {
+        if (notResolvedLinks == null) notResolvedLinks = new HashSet<>();
         List<Object> resolvedFragments = new ArrayList<>();
         for (Object fragment : model.getFragments()) {
             if (fragment instanceof String) {
                 String fragmentString = (String) fragment;
-                String resolvedFragment = this.resolver.processFragment(fragmentString, links, new HashSet<>());
+                String resolvedFragment = this.resolver.processFragment(fragmentString, links, notResolvedLinks);
                 resolvedFragments.add(resolvedFragment);
             } else {
                 resolvedFragments.add(fragment);

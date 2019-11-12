@@ -65,7 +65,7 @@ public class ContentService {
     }
 
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }", sync = true)
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
         log.info("Page: {}, request: {} - CACHE NOT USED", pageRequest.getPublicationId(), pageRequest.getPath());
         int publicationId = pageRequest.getPublicationId();
@@ -113,7 +113,7 @@ public class ContentService {
      * @return rendered component presentation content of an entity based on a request
      */
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #publicationId, #componentId, #templateId}", sync = true)
     public String loadRenderedComponentPresentation(int publicationId, int componentId, int templateId) throws DxaItemNotFoundException {
         ComponentPresentationAssembler assembler = getAssembler(publicationId);
 
@@ -136,7 +136,7 @@ public class ContentService {
      * @throws DxaItemNotFoundException in case there nothing was found for this request
      */
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}", sync = true)
     public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
         int publicationId = entityRequest.getPublicationId();
         int componentId = entityRequest.getComponentId();

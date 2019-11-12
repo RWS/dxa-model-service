@@ -44,10 +44,11 @@ public class ConfigService {
 
     @Data
     public static class Errors {
-
         private boolean missingKeywordSuppress;
 
         private boolean missingEntitySuppress;
+
+        private boolean missingIncludePageSuppress;
     }
 
     @Data
@@ -80,10 +81,10 @@ public class ConfigService {
          * @param publicationId publication id to load settings
          * @return DCP template ID
          */
-        @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result <= 0")
+        @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", unless = "#result <= 0", sync = true)
         public int getDynamicTemplateId(int publicationId) {
             StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(configBootstrapPath, String.valueOf(publicationId)).build();
-            try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
+            try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent()) {
                 JsonNode jsonNode = objectMapper.readTree(allJson).get(configDcpUriField);
 
                 if (jsonNode == null) {
@@ -104,7 +105,7 @@ public class ConfigService {
          * @param publicationId publication id to load {@code schemas.json}
          * @return map of schemas indexed by ID representing schemas for this publication
          */
-        @Cacheable(value = "config", key = "{#root.methodName, #publicationId}")
+        @Cacheable(value = "config", key = "{#root.methodName, #publicationId}", sync = true)
         public Map<String, JsonSchema> getSchemasJson(int publicationId) throws ContentProviderException {
             StaticContentRequestDto staticContentRequestDto = StaticContentRequestDto.builder(mappingsSchemas, String.valueOf(publicationId)).build();
             try (InputStream allJson = staticContentResolver.getStaticContent(staticContentRequestDto).getContent();) {
