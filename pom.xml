@@ -6,7 +6,7 @@
 
     <groupId>com.sdl.dxa</groupId>
     <artifactId>dxa-model-service</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.2</version>
     <packaging>pom</packaging>
 
     <name>DXA Model Service Parent</name>
@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <dxa.version>2.2.0</dxa.version>
+        <dxa.version>2.2.2</dxa.version>
         <java.version>1.8</java.version>
 
         <udp-version-range>(,8.5.0-10000)</udp-version-range>
@@ -45,13 +45,13 @@
         <model.version>${udp-version-range}</model.version>
         <preview.version>${udp-version-range}</preview.version>
         <publish-web.version>${udp-version-range}</publish-web.version>
-        <service-container.version>8.5.0-1092</service-container.version>
+        <service-container.version>8.5.0-1094</service-container.version>
         <tcdl.version>${udp-version-range}</tcdl.version>
         <cd_version>(,8.5.0-10000)</cd_version>
         <odata.version>2.6.2</odata.version>
-        <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
+        <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
         <ehcache.version>3.7.1</ehcache.version>
-        <jackson.version>2.9.9</jackson.version>
+        <jackson.version>2.10.0</jackson.version>
         <stax.api.version>1.0-2</stax.api.version>
         <javax-cache.version>1.1.1</javax-cache.version>
         <javax.activation.version>1.1.1</javax.activation.version>
@@ -162,6 +162,12 @@
                 <groupId>com.tridion</groupId>
                 <artifactId>cd_common_config_api</artifactId>
                 <version>${common.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.tridion</groupId>
@@ -246,12 +252,24 @@
                 <groupId>com.sdl.web</groupId>
                 <artifactId>content-api</artifactId>
                 <version>${cis-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.web</groupId>
                 <artifactId>content-model</artifactId>
                 <version>${cis-model.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -268,12 +286,24 @@
                 <groupId>com.sdl.web</groupId>
                 <artifactId>content-compatible</artifactId>
                 <version>${cil.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>com.sdl.web</groupId>
                 <artifactId>discovery-registration-api</artifactId>
                 <version>${discovery-service.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.web</groupId>
@@ -287,6 +317,12 @@
                 <groupId>com.sdl.web</groupId>
                 <artifactId>discovery-client-lightweight</artifactId>
                 <version>${discovery-service.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.web</groupId>
@@ -335,7 +371,6 @@
                 <artifactId>cd_preview_web</artifactId>
                 <version>${preview.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>com.sdl.web</groupId>
@@ -483,6 +518,21 @@
             </dependency>
 
             <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-afterburner</artifactId>
                 <version>${jackson.version}</version>
@@ -490,6 +540,16 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
 
@@ -537,6 +597,7 @@
                     <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
     <profiles>

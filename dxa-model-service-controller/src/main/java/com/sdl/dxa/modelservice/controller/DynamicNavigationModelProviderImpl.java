@@ -95,7 +95,7 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
     }
 
     @Override
-    @Cacheable(value = "sitemaps", key = "{ #root.methodName, #requestDto }")
+    @Cacheable(value = "sitemaps", key = "{ #root.methodName, #requestDto }", sync = true)
     public Optional<TaxonomyNodeModelData> getNavigationModel(@NotNull SitemapRequestDto requestDto) {
         List<Keyword> roots = getTaxonomyRoots(requestDto, keyword -> keyword.getKeywordName().contains(taxonomyNavigationMarker));
         if (roots.isEmpty()) {
@@ -112,9 +112,9 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
 
     @Override
     @NotNull
-    @Cacheable(value = "sitemaps", key = "{ #root.methodName, #requestDto }")
+    @Cacheable(value = "sitemaps", key = "{ #root.methodName, #requestDto }", sync = true)
     public Optional<Collection<SitemapItemModelData>> getNavigationSubtree(@NotNull SitemapRequestDto requestDto) {
-        log.trace("Original sitemapRequestDto {}", requestDto);
+        if (log.isTraceEnabled()) log.trace("Original sitemapRequestDto {}", requestDto);
 
         SitemapRequestDto request = requestDto.toBuilder()
                 .expandLevels(new DepthCounter(requestDto.getNavigationFilter().getDescendantLevels()))
@@ -124,7 +124,7 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
 
         if (isNullOrEmpty(request.getSitemapId())) {
             if (request.getNavigationFilter().getDescendantLevels() != 0) {
-                log.trace("Sitemap ID is empty, expanding all taxonomy roots");
+                if (log.isTraceEnabled()) log.trace("Sitemap ID is empty, expanding all taxonomy roots");
 
                 // normally expand level is equal to requested descendants level, but when we load categories (=roots) instead
                 // top-level keywords, we add extra level and need to decrease expand level then by one
@@ -146,17 +146,17 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
         log.debug("Sitemap ID is known: {}", info);
 
         if (request.getNavigationFilter().isWithAncestors()) {
-            log.trace("Filter with ancestors, expanding ancestors");
+            if (log.isTraceEnabled()) log.trace("Filter with ancestors, expanding ancestors");
             Optional<SitemapItemModelData> taxonomy = taxonomyWithAncestors(info, request);
             return taxonomy.map(Collections::singletonList);
         }
 
         if (request.getNavigationFilter().getDescendantLevels() != 0 && !info.isPage()) {
-            log.trace("Filter with descendants, expanding descendants");
+            if (log.isTraceEnabled()) log.trace("Filter with descendants, expanding descendants");
             return expandDescendants(info, request);
         }
 
-        log.trace("Filter is not specific, doing nothing");
+        if (log.isTraceEnabled()) log.trace("Filter is not specific, doing nothing");
         throw new BadRequestException(String.format("Request %s is not specific, doing nothing", request));
     }
 
@@ -175,8 +175,9 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
 
         // since we load categories here, we have to decrease depth by one because the first level is categories level
         // and we want top-level keywords
-        final int maximumDepth = navigationFilter.getDescendantLevels() > 0 ?
-                navigationFilter.getDescendantLevels() - 1 : navigationFilter.getDescendantLevels();
+        final int maximumDepth = navigationFilter.getDescendantLevels() > 0
+                ? navigationFilter.getDescendantLevels() - 1
+                : navigationFilter.getDescendantLevels();
         TaxonomyFilter depthFilter = new DepthFilter(maximumDepth, DepthFilter.FILTER_DOWN);
 
         return Arrays.stream(taxonomyFactory.getTaxonomies(TcmUtils.buildPublicationTcmUri(requestDto.getLocalizationId())))
@@ -207,17 +208,16 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
             throw new BadRequestException(message);
         }
 
-        Optional<SitemapItemModelData> taxonomy = uris.isPage() ?
-                expandAncestorsForPage(uris, requestDto) : expandAncestorsForKeyword(uris, requestDto);
+        Optional<SitemapItemModelData> taxonomy = uris.isPage()
+                ? expandAncestorsForPage(uris, requestDto)
+                : expandAncestorsForKeyword(uris, requestDto);
 
         if (taxonomy.isPresent()) {
             if (requestDto.getNavigationFilter().getDescendantLevels() != 0) {
                 addDescendantsToTaxonomy(taxonomy.get(), requestDto);
             }
-
             return taxonomy;
         }
-
         log.debug("Taxonomy was not found, uris {}, request {}", uris, requestDto);
         return Optional.empty();
     }
@@ -324,10 +324,8 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
 
     private Keyword[] getRelationTaxonomyKeywords(@NotNull final TaxonomyUrisHolder uris,
                                                   final TaxonomyFilter depthFilter) {
-        return relationManager
-                .getTaxonomyKeywords(
-                        uris.getTaxonomyUri(), uris.getPageUri(), null, depthFilter,
-                        ItemTypes.PAGE);
+        return relationManager.getTaxonomyKeywords(uris.getTaxonomyUri(), uris.getPageUri(),
+                null, depthFilter, ItemTypes.PAGE);
     }
 
     /**
@@ -366,7 +364,7 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
         }
 
         String taxonomyNodeUrl = getKeywordMetaUri(taxonomyId, requestDto, children, keyword, needsToAddChildren(keyword, requestDto));
-        log.trace("taxonomyNodeUrl = {} found for taxonomyId = {}", taxonomyNodeUrl, taxonomyId);
+        if (log.isTraceEnabled()) log.trace("taxonomyNodeUrl = {} found for taxonomyId = {}", taxonomyNodeUrl, taxonomyId);
 
         children.forEach(child -> child.setTitle(removeSequenceFromPageTitle(child.getTitle())));
 
@@ -380,13 +378,10 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
     }
 
     protected String getKeywordMetaUri(String taxonomyId, SitemapRequestDto requestDto, List<SitemapItemModelData> children, Keyword keyword, boolean needsToAddChildren) {
-        if (keyword == null) return "";
-        if (needsToAddChildren) {
-            List<SitemapItemModelData> pageSitemapItems = getChildrenPages(keyword, taxonomyId, requestDto);
-            children.addAll(pageSitemapItems);
-            return findIndexPageUrl(pageSitemapItems).orElse(null);
-        }
-        return "";
+        if (keyword == null || !needsToAddChildren)  return "";
+        List<SitemapItemModelData> pageSitemapItems = getChildrenPages(keyword, taxonomyId, requestDto);
+        children.addAll(pageSitemapItems);
+        return findIndexPageUrl(pageSitemapItems).orElse(null);
     }
 
     private List<SitemapItemModelData> getChildrenPages(@NotNull Keyword keyword, @NotNull String taxonomyId, @NotNull SitemapRequestDto requestDto) {
@@ -454,5 +449,4 @@ public class DynamicNavigationModelProviderImpl implements NavigationModelProvid
     private boolean isVisibleItem(String pageName, String pageUrl) {
         return isWithSequenceDigits(pageName) && !isNullOrEmpty(pageUrl);
     }
-
 }

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MetadataService {
 
-    @Cacheable("conversion")
+    @Cacheable(value = "conversion", sync = true)
     public PublicationMeta getPublicationMeta(int publicationId) throws ContentProviderException {
         try {
             return new PublicationMetaFactory().getMeta(publicationId);
@@ -24,14 +24,13 @@ public class MetadataService {
         }
     }
 
-    @Cacheable("conversion")
+    @Cacheable(value = "conversion", sync = true)
     public PageMeta getPageMeta(int publicationId, String pageTcmUri) {
         return new PageMetaFactory(publicationId).getMeta(pageTcmUri);
     }
 
-    @Cacheable("conversion")
+    @Cacheable(value = "conversion", sync = true)
     public ComponentMeta getComponentMeta(int publicationId, int componentId) {
         return new ComponentMetaFactory(publicationId).getMeta(TcmUtils.buildTcmUri(publicationId, componentId));
     }
-
 }

@@ -15,6 +15,7 @@ import com.tridion.linking.PageLink;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Map;
+import java.util.Set;
 
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_BINARY;
 import static com.sdl.web.util.ContentServiceQueryConstants.LINK_TYPE_COMPONENT;
@@ -49,7 +50,7 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
     }
 
     @Override
-    public void dispatchMultipleLinksResolution(final MultipleLinksDescriptor descriptor) {
+    public void dispatchMultipleLinksResolution(final MultipleLinksDescriptor descriptor, Set<String> notResolvedLinks) {
 
         if (descriptor == null) {
             return;
@@ -70,11 +71,11 @@ public class TridionBatchLinkResolver implements BatchLinkResolver {
             dispatchLinkResolution(ld);
         }
 
-        descriptor.update();
+        descriptor.update(notResolvedLinks);
     }
 
     @Override
-    public void resolveAndFlush() {
+    public void resolveAndFlush(Set<String> notResolvedLinks) {
     }
 
     private void resolveLink(SingleLinkDescriptor descriptor) {

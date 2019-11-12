@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking.api.descriptors;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * MultipleLinksDescriptor holds list of the links of particular type and exposes interface for .
@@ -16,6 +17,7 @@ public interface MultipleLinksDescriptor extends LinkDescriptor {
 
     /**
      * Represents logic that updates source where the links has been retrieved from with the resolved urls.
+     * @param notResolvedLinks
      */
-    void update();
+    void update(Set<String> notResolvedLinks);
 }
