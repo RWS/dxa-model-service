@@ -206,7 +206,8 @@
 
             <Storage Type="persistence" Id="defaultdb" dialect="${dbtype}"
                      Class="com.tridion.storage.persistence.JPADAOFactory">
-                <Pool Type="jdbc" Size="5" MonitorInterval="60" IdleTimeout="120" CheckoutTimeout="120"/>
+                <Pool Type="jdbc" Size="${dbpoolsize:-15}" MonitorInterval="60" IdleTimeout="120" CheckoutTimeout="120"
+                      AcquireRetryAttempts="${dbretryattempts:-1}" />
                 <DataSource Class="${dbclass}">
                     <Property Name="serverName" Value="${dbhost}"/>
                     <Property Name="portNumber" Value="${dbport}"/>
