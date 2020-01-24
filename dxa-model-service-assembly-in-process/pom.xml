@@ -60,13 +60,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>udp-service-container-assembly</artifactId>
-                                    <type>zip</type>
-                                    <version>${service-container.version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>udp-service-container-cloud-assembly</artifactId>
+                                    <artifactId>service-container-assembly</artifactId>
                                     <type>zip</type>
                                     <version>${service-container.version}</version>
                                 </artifactItem>
@@ -87,7 +81,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.build.finalName}</finalName>
+                            <finalName>${project.build.finalName}-${project.version}-in-process-8.5.0</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/standalone-inprocess.xml</descriptor>
                             </descriptors>
@@ -127,6 +121,12 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-in-process</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sdl.web</groupId>
+                    <artifactId>content-compatible</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

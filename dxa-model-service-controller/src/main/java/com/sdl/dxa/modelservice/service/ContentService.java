@@ -59,7 +59,9 @@ public class ContentService {
      */
     public static DataModelType getModelType(String jsonContent) {
         boolean isR2Page = jsonContent.contains("UrlPath") && !jsonContent.contains("ComponentPresentations");
-        boolean isR2Entity = jsonContent.contains("Content") && jsonContent.contains("SchemaId") && !jsonContent.contains("ComponentType");
+        boolean isR2Entity =
+                jsonContent.contains("Content") && jsonContent.contains("SchemaId") && !jsonContent.contains(
+                        "\"ComponentType\"");
 
         return isR2Page || isR2Entity ? DataModelType.R2 : DataModelType.DD4T;
     }

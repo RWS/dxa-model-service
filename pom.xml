@@ -19,38 +19,43 @@
 
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
         <dxa.version>2.2.2</dxa.version>
         <java.version>1.8</java.version>
 
-        <!-- This should match the next patch version -->
-        <parent.version.range>(,11.0.1)</parent.version.range>
+        <udp-version-range>(,8.5.0-10000)</udp-version-range>
+
+        <parent.version.range>${udp-version-range}</parent.version.range>
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
-        <adf.version>11.0.0-1039</adf.version>
-        <api.version>11.0.0-1033</api.version>
-        <cache.version>11.0.0-1027</cache.version>
-        <cil.version>11.0.0-1048</cil.version>
-        <cis-api.version>11.0.0-1036</cis-api.version>
-        <cis-model.version>11.0.0-1046</cis-model.version>
-        <common.version>11.0.0-1028</common.version>
-        <core.version>11.0.0-1027</core.version>
-        <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1050</discovery-service.version>
-        <discovery.version>11.0.0-1030</discovery.version>
-        <model.version>11.0.0-1027</model.version>
-        <preview.version>11.0.0-1038</preview.version>
-        <publish-web.version>11.0.0-1042</publish-web.version>
-        <service-container.version>11.0.0-1027</service-container.version>
-        <tcdl.version>11.0.0-1031</tcdl.version>
-
-        <odata.version>2.7.3</odata.version>
-        <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
+        <adf.version>${udp-version-range}</adf.version>
+        <api.version>${udp-version-range}</api.version>
+        <cache.version>${udp-version-range}</cache.version>
+        <cil.version>${udp-version-range}</cil.version>
+        <cis-api.version>${udp-version-range}</cis-api.version>
+        <content-model.version>${udp-version-range}</content-model.version>
+        <common.version>${udp-version-range}</common.version>
+        <core.version>${udp-version-range}</core.version>
+        <datalayer.version>${udp-version-range}</datalayer.version>
+        <discovery-service.version>${udp-version-range}</discovery-service.version>
+        <discovery.version>${udp-version-range}</discovery.version>
+        <model.version>${udp-version-range}</model.version>
+        <preview.version>${udp-version-range}</preview.version>
+        <publish-web.version>${udp-version-range}</publish-web.version>
+        <service-container.version>8.5.0-1094</service-container.version>
+        <tcdl.version>${udp-version-range}</tcdl.version>
+        <cd_version>(,8.5.0-10000)</cd_version>
+        <odata.version>2.6.2</odata.version>
+        <spring-boot.version>1.4.1.RELEASE</spring-boot.version>
+        <spring.version>4.3.3.RELEASE</spring.version>
         <ehcache.version>3.7.1</ehcache.version>
         <jackson.version>2.10.0</jackson.version>
         <stax.api.version>1.0-2</stax.api.version>
         <javax-cache.version>1.1.1</javax-cache.version>
-        <javax.activation.version>1.2.0</javax.activation.version>
+        <javax.activation.version>1.1.1</javax.activation.version>
         <jaxb.api.version>2.3.0</jaxb.api.version>
         <jaxb.impl.version>2.3.2</jaxb.impl.version>
         <jaxb.core.version>2.3.0.1</jaxb.core.version>
@@ -61,6 +66,19 @@
         <aspectj.version>1.9.4</aspectj.version>
         <jansi.version>1.18</jansi.version>
         <spring.mockmvc.version>1.2.6.RELEASE</spring.mockmvc.version>
+
+        <!-- in proc dependencies -->
+        <activemq.version>5.15.8</activemq.version>
+        <dom4j.version>2.1.1</dom4j.version>
+        <geronimo-jms.version>1.1.1</geronimo-jms.version>
+        <geronimo-j2ee-management_11_spec.version>1.0.1</geronimo-j2ee-management_11_spec.version>
+        <hawtbuf.version>1.11</hawtbuf.version>
+        <javax.persistence-api.version>2.2</javax.persistence-api.version>
+        <javax-transaction.version>1.1</javax-transaction.version>
+        <jboss-logging.version>3.3.0.Final</jboss-logging.version>
+        <jettison.version>1.3.3</jettison.version>
+        <mysql-connector.version>5.1.35</mysql-connector.version>
+        <stax.api.version>1.0-2</stax.api.version>
     </properties>
 
     <distributionManagement>
@@ -101,12 +119,6 @@
                 <groupId>com.sdl.dxa</groupId>
                 <artifactId>dxa-data-model</artifactId>
                 <version>${dxa.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.sdl.dxa</groupId>
@@ -148,8 +160,8 @@
 
             <!-- CD Dependencies -->
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-common-config-api</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_common_config_api</artifactId>
                 <version>${common.version}</version>
                 <exclusions>
                     <exclusion>
@@ -159,87 +171,87 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-common-config-legacy</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_common_config_legacy</artifactId>
                 <version>${common.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-common-config</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_common_config</artifactId>
                 <version>${common.version}</version>
             </dependency>
 
             <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-ambient-engine</artifactId>
+                <version>${adf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-ambient-client</artifactId>
+                <version>${adf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-ambient-api</artifactId>
+                <version>${adf.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-service-container-assembly</artifactId>
+                <artifactId>service-container-assembly</artifactId>
                 <type>zip</type>
                 <version>${service-container.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-service-container-cloud-assembly</artifactId>
-                <type>zip</type>
-                <version>${service-container.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-service-container-filter</artifactId>
+                <artifactId>service-container-filter</artifactId>
                 <version>${service-container.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-core</artifactId>
-                <version>${core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-core-license</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_core</artifactId>
                 <version>${core.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-datalayer</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_datalayer</artifactId>
                 <version>${datalayer.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-discovery</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_discovery</artifactId>
                 <version>${discovery.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-api-dynamic</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_dynamic</artifactId>
                 <version>${api.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-api-broker</artifactId>
-                <version>${api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-api-wai</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_broker</artifactId>
                 <version>${api.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-tcdl</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_tcdl</artifactId>
                 <version>${tcdl.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-cache</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_cache</artifactId>
                 <version>${cache.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-cis-api</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-api</artifactId>
                 <version>${cis-api.version}</version>
                 <exclusions>
                     <exclusion>
@@ -250,8 +262,8 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-cis-model</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-model</artifactId>
                 <version>${cis-model.version}</version>
                 <exclusions>
                     <exclusion>
@@ -262,24 +274,18 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-model</artifactId>
-                <version>${model.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-cil-adf</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-ambient-client</artifactId>
                 <version>${cil.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-cil-api</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-client-api</artifactId>
                 <version>${cil.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-cil-api-compatible</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>content-compatible</artifactId>
                 <version>${cil.version}</version>
                 <exclusions>
                     <exclusion>
@@ -290,8 +296,8 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-discovery-registration-api</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-registration-api</artifactId>
                 <version>${discovery-service.version}</version>
                 <exclusions>
                     <exclusion>
@@ -301,13 +307,16 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
+                <groupId>com.sdl.web</groupId>
                 <artifactId>udp-discovery-client</artifactId>
                 <version>${discovery-service.version}</version>
             </dependency>
+
+
+
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-discovery-client-lightweight</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-client-lightweight</artifactId>
                 <version>${discovery-service.version}</version>
                 <exclusions>
                     <exclusion>
@@ -317,121 +326,66 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-discovery-common</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>discovery-common</artifactId>
                 <version>${discovery-service.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-adf-client</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-oauth</artifactId>
                 <version>${adf.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-adf-engine</artifactId>
-                <version>${adf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-context</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter-web</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-oauth</artifactId>
-                <version>${adf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-oauth-common</artifactId>
-                <version>${adf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-adf-api</artifactId>
+                <groupId>com.sdl.web</groupId>
+                <artifactId>web-oauth-common</artifactId>
                 <version>${adf.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-preview-cartridge</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_ambient</artifactId>
                 <version>${preview.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-preview-cis-common</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_content_client</artifactId>
                 <version>${preview.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-preview-cis-session-common</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_content_common</artifactId>
                 <version>${preview.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-session</artifactId>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_session</artifactId>
                 <version>${preview.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-wrapper</artifactId>
-                <version>${udp.version.range}</version>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_wrapper</artifactId>
+                <version>${preview.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-preview-filter</artifactId>
-                <version>${udp.version.range}</version>
+                <groupId>com.tridion</groupId>
+                <artifactId>cd_preview_web</artifactId>
+                <version>${preview.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.sdl.delivery</groupId>
+                <groupId>com.sdl.web</groupId>
                 <artifactId>cil</artifactId>
                 <type>pom</type>
                 <version>${publish-web.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>udp-ugc-container</artifactId>
-                        <groupId>com.sdl.delivery</groupId>
+                        <groupId>com.sdl.web</groupId>
                     </exclusion>
                     <exclusion>
                         <artifactId>ugc-taglib</artifactId>
-                        <groupId>com.sdl.delivery</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
+                        <groupId>com.sdl.web</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -469,6 +423,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot</artifactId>
                 <version>${spring-boot.version}</version>
@@ -500,15 +461,23 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-actuator</artifactId>
-                <version>${spring-boot.version}</version>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>javax.xml.stream</groupId>
                 <artifactId>stax-api</artifactId>
@@ -518,12 +487,6 @@
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>${ehcache.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
@@ -536,8 +499,8 @@
                 <version>${javax-cache.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.activation</groupId>
-                <artifactId>javax.activation</artifactId>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
                 <version>${javax.activation.version}</version>
             </dependency>
             <dependency>
@@ -667,43 +630,22 @@
                         <groupId>com.sdl.dxa</groupId>
                         <artifactId>dxa-tridion-common</artifactId>
                         <version>${dxa.version}</version>
-                        <exclusions>
-                            <exclusion>
-                                <!-- This dependency conflicts with udp-api-linking -->
-                                <groupId>com.sdl.delivery</groupId>
-                                <artifactId>udp-cil-api-compatible</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-context-support</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-context</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.springframework.boot</groupId>
-                                <artifactId>spring-boot-starter-web</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.slf4j</groupId>
-                                <artifactId>slf4j-api</artifactId>
-                            </exclusion>
-                        </exclusions>
                     </dependency>
                     <dependency>
-                        <groupId>com.sdl.delivery</groupId>
+                        <groupId>com.sdl.web</groupId>
                         <artifactId>udp-api-linking</artifactId>
                         <version>${api.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sdl.web</groupId>
+                        <artifactId>content-model</artifactId>
+                        <version>${content-model.version}</version>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
         <profile>
             <id>in-process</id>
-            <properties>
-                <cd_version>8.5.0-1095</cd_version>
-	    </properties>
             <modules>
                 <module>dxa-model-service-in-process</module>
                 <module>dxa-model-service-assembly-in-process</module>
@@ -719,10 +661,6 @@
                                 <!-- This dependency conflicts with udp-api-linking -->
                                 <groupId>com.sdl.delivery</groupId>
                                 <artifactId>udp-cil-api-compatible</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.springframework</groupId>
-                                <artifactId>spring-context-support</artifactId>
                             </exclusion>
                         </exclusions>
                     </dependency>
@@ -741,6 +679,16 @@
                          <artifactId>cd_linking</artifactId>
                          <version>${cd_version}</version>
                      </dependency>
+                    <dependency>
+                        <groupId>com.sdl.web</groupId>
+                        <artifactId>content-model</artifactId>
+                        <version>${content-model.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sdl.delivery</groupId>
+                        <artifactId>udp-cil-api-compatible</artifactId>
+                        <version>${cil.version}</version>
+                    </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>

@@ -25,13 +25,6 @@
         <dependency>
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-data-model</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-
         </dependency>
         <dependency>
             <groupId>com.sdl.dxa</groupId>
@@ -43,16 +36,19 @@
             <exclusions>
                 <exclusion>
                     <!--This dependency conflicts with udp-api-linking defined below   -->
-                    <groupId>com.sdl.delivery</groupId>
+                    <groupId>com.sdl.web</groupId>
                     <artifactId>udp-cil-api-compatible</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>cil</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-cis-model</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.dd4t</groupId>
             <artifactId>dd4t-core</artifactId>
@@ -72,31 +68,26 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-discovery-registration-api</artifactId>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-ambient-engine</artifactId>
+            <version>${adf.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-adf-engine</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>discovery-registration-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-model</artifactId>
         </dependency>
 
+
         <dependency>
-            <groupId>com.sdl.delivery</groupId>
-            <artifactId>udp-oauth</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>web-oauth</artifactId>
         </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -117,14 +108,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>javax.activation</artifactId>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -139,7 +129,20 @@
             <artifactId>jaxb-impl</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
@@ -152,6 +155,11 @@
         </dependency>
 
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>com.sdl.web</groupId>
+            <artifactId>content-compatible</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -171,8 +179,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.sdl.delivery</groupId>
-                    <artifactId>udp-cil-api-compatible</artifactId>
+                    <groupId>com.sdl.web</groupId>
+                    <artifactId>content-compatible</artifactId>
                 </dependency>
             </dependencies>
         </profile>

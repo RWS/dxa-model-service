@@ -28,6 +28,41 @@
             <groupId>com.sdl.dxa</groupId>
             <artifactId>dxa-model-service-odata</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_ambient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_content_client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.tridion</groupId>
+            <artifactId>cd_preview_content_common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.dozer</groupId>
+            <artifactId>dozer</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <version>${jettison.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -66,13 +101,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>udp-service-container-assembly</artifactId>
-                                    <type>zip</type>
-                                    <version>${service-container.version}</version>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>udp-service-container-cloud-assembly</artifactId>
+                                    <artifactId>service-container-assembly</artifactId>
                                     <type>zip</type>
                                     <version>${service-container.version}</version>
                                 </artifactItem>
@@ -93,7 +122,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.build.finalName}</finalName>
+                            <finalName>${project.build.finalName}-${project.version}-8.5.0</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/standalone.xml</descriptor>
                             </descriptors>
@@ -105,6 +134,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
