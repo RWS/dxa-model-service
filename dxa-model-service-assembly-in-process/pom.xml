@@ -42,7 +42,7 @@
                                 <artifactItem>
                                     <groupId>com.sdl.dxa</groupId>
                                     <artifactId>dxa-model-service-in-process</artifactId>
-                                    <classifier>spring-boot</classifier>
+<!--                                    <classifier>spring-boot</classifier>-->
                                     <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
