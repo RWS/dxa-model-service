@@ -48,7 +48,6 @@
                                 <artifactItem>
                                     <groupId>com.sdl.dxa</groupId>
                                     <artifactId>dxa-model-service-odata</artifactId>
-<!--                                    <classifier>spring-boot</classifier>-->
                                     <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
