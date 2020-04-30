@@ -416,7 +416,7 @@ public class RichTextLinkResolverTest {
         assertEquals(" </a><!--CompLink tcm:15-980--></div>\n<h3>How much is insurance?</a></h3>", text);
         assertEquals(Lists.newArrayList(42), positionsWhereTagsRemoved);
         //closing tag for removed '<a href' also has to disappear
-        text = richTextLinkResolver.processEndLinks(text, linksNotResolved, positionsWhereTagsRemoved);
+        text = richTextLinkResolver.processEndLinks(text, positionsWhereTagsRemoved);
         assertEquals(" </a></div>\n<h3>How much is insurance?</h3>", text);
     }
 
@@ -436,7 +436,7 @@ public class RichTextLinkResolverTest {
                 "text1<a href=\"resolved.jpg\">map</a> text2[map] text3</a> text4", text);
         assertEquals(Lists.newArrayList(15, 93), positionsWhereTagsRemoved);
         //closing tag for removed '<a href' also has to disappear
-        text = richTextLinkResolver.processEndLinks(text, linksNotResolved, positionsWhereTagsRemoved);
+        text = richTextLinkResolver.processEndLinks(text, positionsWhereTagsRemoved);
         assertEquals(" </a></div><h3>How much is insurance?</h3>" +
                 "text1<a href=\"resolved.jpg\">map</a> text2[map] text3 text4", text);
     }

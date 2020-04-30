@@ -96,7 +96,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
                 : generateHref(fragment);
         List<Integer> positions = new ArrayList<>();
         String processedStartLinks = processStartLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer, positions);
-        String result = processEndLinks(processedStartLinks, notResolvedBuffer, positions);
+        String result = processEndLinks(processedStartLinks, positions);
         Matcher withoutExcessiveSpaces = SPACES_FOR_REMOVAL.matcher(result);
         return withoutExcessiveSpaces.replaceAll("$1$2");
     }
@@ -220,13 +220,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     }
 
     @NotNull
-    String processEndLinks(@NotNull String fragment, @NotNull Set<String> linksNotResolved) {
-        return processEndLinks(fragment, linksNotResolved, new ArrayList<>());
-    }
-
-    @NotNull
     String processEndLinks(@NotNull String fragment,
-                           @NotNull Set<String> linksNotResolved,
                            @NotNull List<Integer> positions) {
         StringBuffer result = new StringBuffer(fragment);
         List<Integer> reversedPositions = Lists.reverse(new ArrayList<>(positions));
