@@ -377,11 +377,68 @@ public class RichTextLinkResolverTest {
         assertEquals(" link </a> (resolved).</p><p> (image as a ", resolvedFragment);
 
         resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(2), batchOfLinks, linksNotResolved);
-        assertEquals(" link (suppressed).</p>", resolvedFragment);
+        assertEquals(" link</a> (suppressed).</p>", resolvedFragment);
 
-        //demonstrating issue CRQ-15566
+        //demonstrating issue CRQ-15566 (tag </a> following by 'link' left unremoved)
         resolvedFragment = richTextLinkResolver.processFragment(getFragmentsWithSplittedLinks().get(2), batchOfLinks, new HashSet<>());
         assertEquals(" link</a> (suppressed).</p>", resolvedFragment);
+    }
+
+    @Test
+    public void shouldResolveLinks_SRQ_13454() {
+        String[] fragments = new String[]{
+                "<div><a href=\"tcm:15-980\">",
+                "<img src=\"tcm:17-982\" alt=\"$$$ insurance costs?\"/>",
+                " </a><!--CompLink tcm:15-980--></div>\n<h3><a href=\"tcm:1-11\">How much is insurance?</a></h3>"};
+
+        Map<String, String> batchOfLinks = getResolvedLinksMap();
+        Set<String> linksNotResolved = new LinkedHashSet<>();
+
+        String resolvedFragment = richTextLinkResolver.processFragment(fragments[0], batchOfLinks, linksNotResolved);
+        assertEquals("<div><a href=\"/resolved/link/1\">", resolvedFragment);
+        resolvedFragment = richTextLinkResolver.processFragment(fragments[1], batchOfLinks, linksNotResolved);
+        assertEquals("<img src=\"tcm:17-982\" alt=\"$$$ insurance costs?\"/>", resolvedFragment);
+        resolvedFragment = richTextLinkResolver.processFragment(fragments[2], batchOfLinks, linksNotResolved);
+        assertEquals(" </a></div>\n<h3>How much is insurance?</h3>", resolvedFragment);
+    }
+
+    @Test
+    public void simpleTestEndLink() {
+        Map<String, String> batchOfLinks = getResolvedLinksMap();
+        Set<String> linksNotResolved = new LinkedHashSet<>();
+        String fragment = " </a><!--CompLink tcm:15-980--></div>\n<h3><a href=\"tcm:1-11\">How much is insurance?</a></h3>";
+        List<Integer> positionsWhereTagsRemoved = new ArrayList<>();
+        //tag a here cannot be resolved, so it should disappear
+        String text = richTextLinkResolver.processStartLinks(fragment,
+                batchOfLinks,
+                linksNotResolved,
+                positionsWhereTagsRemoved);
+        assertEquals(" </a><!--CompLink tcm:15-980--></div>\n<h3>How much is insurance?</a></h3>", text);
+        assertEquals(Lists.newArrayList(42), positionsWhereTagsRemoved);
+        //closing tag for removed '<a href' also has to disappear
+        text = richTextLinkResolver.processEndLinks(text, positionsWhereTagsRemoved);
+        assertEquals(" </a></div>\n<h3>How much is insurance?</h3>", text);
+    }
+
+    @Test
+    public void simpleTestSeveralLinks() {
+        Map<String, String> batchOfLinks = getResolvedLinksMap();
+        Set<String> linksNotResolved = new LinkedHashSet<>();
+        String fragment = " </a></div><h3><a href=\"tcm:1-11\">How much is insurance?</a></h3>text1" +
+                "<a href=\"resolved.jpg\">map</a> text2[map] <a href=\"tcm:1-11\">text3</a> text4";
+        List<Integer> positionsWhereTagsRemoved = new ArrayList<>();
+        //tag a here cannot be resolved, so it should disappear
+        String text = richTextLinkResolver.processStartLinks(fragment,
+                batchOfLinks,
+                linksNotResolved,
+                positionsWhereTagsRemoved);
+        assertEquals(" </a></div><h3>How much is insurance?</a></h3>" +
+                "text1<a href=\"resolved.jpg\">map</a> text2[map] text3</a> text4", text);
+        assertEquals(Lists.newArrayList(15, 93), positionsWhereTagsRemoved);
+        //closing tag for removed '<a href' also has to disappear
+        text = richTextLinkResolver.processEndLinks(text, positionsWhereTagsRemoved);
+        assertEquals(" </a></div><h3>How much is insurance?</h3>" +
+                "text1<a href=\"resolved.jpg\">map</a> text2[map] text3 text4", text);
     }
 
     private Map<String, String> getResolvedLinksMap() {

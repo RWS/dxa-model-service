@@ -1,6 +1,7 @@
 package com.sdl.dxa.tridion.linking.impl;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private static final Pattern END_LINK =
-            Pattern.compile("(?<closingTag></a>)<!--CompLink\\s(?<tcmUri>tcm:\\d++-\\d++)-->",
+            Pattern.compile("(?<closingTag></a>)(<!--CompLink\\s(?<tcmUri>tcm:\\d++-\\d++)-->)?",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     public static final int BUFFER_CAPACITY = 128;
@@ -93,9 +94,9 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
         String fragmentToProcess = richTextXmlnsRemove
                 ? dropXlmns(fragment)
                 : generateHref(fragment);
-
-        String processedStartLinks = processStartLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer);
-        String result = processEndLinks(processedStartLinks, notResolvedBuffer);
+        List<Integer> positions = new ArrayList<>();
+        String processedStartLinks = processStartLinks(fragmentToProcess, batchOfLinks, notResolvedBuffer, positions);
+        String result = processEndLinks(processedStartLinks, positions);
         Matcher withoutExcessiveSpaces = SPACES_FOR_REMOVAL.matcher(result);
         return withoutExcessiveSpaces.replaceAll("$1$2");
     }
@@ -185,9 +186,17 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     }
 
     @NotNull
-    private String processStartLinks(@NotNull String fragment,
-                                     @NotNull Map<String, String> batchOfLinks,
-                                     @NotNull Set<String> linksNotResolved) {
+    String processStartLinks(@NotNull String fragment,
+                             @NotNull Map<String, String> batchOfLinks,
+                             @NotNull Set<String> linksNotResolved) {
+        return processStartLinks(fragment, batchOfLinks, linksNotResolved, new ArrayList<>());
+    }
+
+    @NotNull
+    String processStartLinks(@NotNull String fragment,
+                             @NotNull Map<String, String> batchOfLinks,
+                             @NotNull Set<String> linksNotResolved,
+                             @NotNull List<Integer> positions) {
         Matcher startMatcher = START_LINK.matcher(fragment);
         StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
 
@@ -196,6 +205,7 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
             String link = batchOfLinks.get(tcmUri);
             if (Strings.isNullOrEmpty(link)) {
                 startMatcher.appendReplacement(result, "");
+                positions.add(result.length());
                 if (linksNotResolved.add(tcmUri)) {
                     log.warn("Cannot resolve link to {}, suppressing link in fragment [{}]", tcmUri, fragment);
                 }
@@ -210,20 +220,24 @@ public class RichTextLinkResolverImpl implements RichTextLinkResolver {
     }
 
     @NotNull
-    private String processEndLinks(@NotNull String fragment, @NotNull Set<String> linksNotResolved) {
-        Matcher endMatcher = END_LINK.matcher(fragment);
-        StringBuffer result = new StringBuffer(BUFFER_CAPACITY);
-        while (endMatcher.find()) {
-            String tcmUri = endMatcher.group("tcmUri");
-            if (linksNotResolved.contains(tcmUri)) {
-                if (log.isTraceEnabled()) log.trace("link {} could not be resolved, removing closing anchor tag '</a>' with marker", tcmUri);
-                endMatcher.appendReplacement(result, "");
-            } else {
-                if (log.isTraceEnabled()) log.trace("link {} resolved, removing only marker, leaving closing anchor tag '</a>'", tcmUri);
-                endMatcher.appendReplacement(result, Matcher.quoteReplacement(endMatcher.group("closingTag")));
+    String processEndLinks(@NotNull String fragment,
+                           @NotNull List<Integer> positions) {
+        StringBuffer result = new StringBuffer(fragment);
+        List<Integer> reversedPositions = Lists.reverse(new ArrayList<>(positions));
+        while (!reversedPositions.isEmpty()) {
+            int pos = reversedPositions.remove(0);
+            int positionToRemove = fragment.indexOf("</a>", pos);
+            if (positionToRemove < 0) {
+                // this fragment does not contain closing tag </a>, we need to process that in next one
+                log.trace("Could not find closing tag from offset '" + pos + "' in fragment: " + result.toString());
+                break;
             }
+            result.replace(positionToRemove, positionToRemove + "</a>".length(), "");
         }
-        endMatcher.appendTail(result);
-        return result.toString();
+        if (log.isTraceEnabled()) {
+            log.trace("Result after processing fragment: " + result.toString());
+        }
+        //replace all tails like <!--CompLink\s(?<tcmUri>tcm:\d++-\d++)-->
+        return result.toString().replaceAll("<!--CompLink\\stcm:\\d++-\\d++-->", "");
     }
 }
