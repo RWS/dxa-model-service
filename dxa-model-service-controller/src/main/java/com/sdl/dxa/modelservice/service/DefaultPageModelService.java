@@ -93,7 +93,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Override
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }", sync = true)
     public Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
@@ -102,7 +101,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
     @Override
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }", sync = true)
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         String pageContent = contentService.loadPageContent(pageRequest);
         log.trace("Loaded page content for {}", pageRequest);
