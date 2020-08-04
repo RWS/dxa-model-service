@@ -88,13 +88,11 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     @Override
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }", sync = true)
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         return loadEntity(entityRequest, true);
     }
 
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }", sync = true)
     public org.dd4t.contentmodel.ComponentPresentation loadLegacyEntityModel(EntityRequestDto entityRequest) throws ContentProviderException {
         String content = contentService.loadRenderedComponentPresentation(entityRequest.getPublicationId(), entityRequest.getComponentId(), entityRequest.getTemplateId());
         log.trace("Loaded entity content for {}", entityRequest);
