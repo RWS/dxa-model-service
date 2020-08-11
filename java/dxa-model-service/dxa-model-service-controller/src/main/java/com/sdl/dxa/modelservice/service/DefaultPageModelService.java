@@ -14,25 +14,22 @@ import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.tridion.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.impl.PageImpl;
 import org.dd4t.core.databind.DataBinder;
-import org.dd4t.core.exceptions.ProcessorException;
 import org.dd4t.core.exceptions.SerializationException;
 import org.dd4t.core.processors.impl.RichTextResolver;
 import org.dd4t.core.util.HttpRequestContext;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
@@ -90,26 +87,30 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     }
 
     @Override
-    @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException {
-        String pageContent = contentService.loadPageContent(pageRequest);
-        log.trace("Loaded page content for {}", pageRequest);
-        return _processDd4tPageModel(pageContent, pageRequest);
+        try {
+            String pageContent = contentService.loadPageContent(pageRequest);
+            log.trace("Loaded page content for {}", pageRequest);
+            return _processDd4tPageModel(pageContent, pageRequest);
+        } catch (ContentProviderException ex) {
+            log.error("Could not load legacy page model for {}", pageRequest, ex);
+            throw new PageNotFoundException(ex);
+        }
     }
 
     @Override
-    @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
+        try {
+            String pageContent = contentService.loadPageContent(pageRequest);
+            log.trace("Loaded page content for {}", pageRequest);
 
-        String pageContent = contentService.loadPageContent(pageRequest);
-        log.trace("Loaded page content for {}", pageRequest);
-
-        return _processR2PageModel(pageContent, pageRequest);
+            return _processR2PageModel(pageContent, pageRequest);
+        } catch (ContentProviderException ex) {
+            log.error("Could not load page model for {}", pageRequest, ex);
+            throw new PageNotFoundException(ex);
+        }
     }
 
-    @Contract("!null, _ -> !null")
     private Page _processDd4tPageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
         Page page;
         DataModelType publishedModelType = getModelType(pageContent);
@@ -130,49 +131,44 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                 return page;
             } catch (SerializationException e) {
                 throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
-            } catch (ProcessorException e) {
+            } catch (Exception e) {
                 throw new ContentProviderException("Couldn't process DD4T content for request " + pageRequest, e);
             }
         }
         return page;
     }
 
-    @Contract("!null, _ -> !null")
     private PageModelData _processR2PageModel(String pageContent, PageRequestDto pageRequest) throws ContentProviderException {
 
         DataModelType publishedModelType = getModelType(pageContent);
         PageModelData pageModel;
         if (publishedModelType == DataModelType.DD4T) {
-            log.info("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", pageRequest);
+            log.debug("Found DD4T model while requested R2, need to convert, no expansion needed, request {}", pageRequest);
             Page page = _processDd4tPageModel(pageContent, pageRequest);
             pageModel = toR2Converter.convertToR2(page, pageRequest);
         } else {
             pageModel = _parseR2Content(pageContent, PageModelData.class);
         }
 
-        log.trace("Parsed page content to page model {}", pageModel);
-
-        log.trace("processing page model {} for page request {}", pageModel, pageRequest);
+        log.trace("Processing page model {} for page request {}", pageModel, pageRequest);
 
         PageModelData pageModelData = _expandIncludePages(pageModel, pageRequest);
-        log.trace("expanded include pages for {}", pageRequest);
+        log.trace("Expanded include pages for {}", pageRequest);
 
         // let's check every leaf here if we need to expand it
 
         int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
         _getModelExpander(pageRequest, pageId).expandPage(pageModelData);
-        log.trace("expanded the whole model for {}", pageRequest);
+        log.trace("Expanded the whole model for {}", pageRequest);
 
         return pageModelData;
     }
 
-    @NotNull
     private PageModelExpander _getModelExpander(PageRequestDto pageRequestDto, Integer pageId) {
         return new PageModelExpander(pageRequestDto,
                 entityModelService, richTextLinkResolver, configService, getBatchLinkResolver(), pageId);
     }
 
-    @Contract("!null, _ -> !null")
     private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
 
         if (pageModel.getRegions() != null) {
@@ -213,7 +209,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
         try {
             return objectMapper.readValue(content, expectedClass);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }

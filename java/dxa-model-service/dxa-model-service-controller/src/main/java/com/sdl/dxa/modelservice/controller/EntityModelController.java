@@ -8,10 +8,14 @@ import com.sdl.dxa.common.dto.EntityRequestDto.DcpType;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/EntityModel/{uriType}/{localizationId}")
 public class EntityModelController {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityModelController.class);
 
     private final ContentService contentService;
 
@@ -64,4 +69,9 @@ public class EntityModelController {
                 entityModelService.loadEntity(entityRequest));
     }
 
+    @ExceptionHandler({ Exception.class })
+    public void handleException(Exception ex) throws PageNotFoundException {
+        LOG.error("Could not load entity model", ex);
+        throw new PageNotFoundException(ex);
+    }
 }
