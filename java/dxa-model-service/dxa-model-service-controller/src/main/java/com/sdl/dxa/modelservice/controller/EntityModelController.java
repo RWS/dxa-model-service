@@ -9,6 +9,7 @@ import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,14 +65,20 @@ public class EntityModelController {
                 .contentType(isRawContent ? ContentType.RAW : ContentType.MODEL)
                 .build();
 
-        return ResponseEntity.ok(isRawContent ?
-                contentService.loadComponentPresentation(entityRequest) :
-                entityModelService.loadEntity(entityRequest));
+        return ResponseEntity.ok(isRawContent
+                ? contentService.loadComponentPresentation(entityRequest)
+                : entityModelService.loadEntity(entityRequest));
+    }
+
+    @ExceptionHandler({ DxaItemNotFoundException.class })
+    public void handleNotFoundException(Exception ex) throws PageNotFoundException {
+        LOG.error("Could not load page model", ex);
+        throw new PageNotFoundException(ex);
     }
 
     @ExceptionHandler({ Exception.class })
-    public void handleException(Exception ex) throws PageNotFoundException {
-        LOG.error("Could not load entity model", ex);
-        throw new PageNotFoundException(ex);
+    public void handleAnyException(Exception ex) throws RuntimeException {
+        LOG.error("Could not load page model", ex);
+        throw new RuntimeException(ex);
     }
 }

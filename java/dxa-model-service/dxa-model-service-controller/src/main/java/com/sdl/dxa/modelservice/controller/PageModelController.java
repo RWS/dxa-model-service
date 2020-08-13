@@ -10,6 +10,7 @@ import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class PageModelController {
                                   @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                   @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                   @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
-                                  HttpServletRequest request) throws ContentProviderException, JsonProcessingException {
+                                  HttpServletRequest request) throws ContentProviderException {
         localizationIdProvider.setCurrentId(localizationId);
 
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
@@ -92,12 +93,9 @@ public class PageModelController {
         Object result;
         if (isRawContent) {
             result = contentService.loadPageContent(pageRequestDto);
-
             // We must always return the raw String.
             return new ResponseEntity<>((String) result, HttpStatus.OK);
-
         } else {
-
             result = dataModelType == DataModelType.R2 ?
                     pageModelService.loadPageModel(pageRequestDto) :
                     legacyPageModelService.loadLegacyPageModel(pageRequestDto);
@@ -156,9 +154,15 @@ public class PageModelController {
         return Optional.empty();
     }
 
-    @ExceptionHandler({ Exception.class })
-    public void handleException(Exception ex) throws PageNotFoundException {
+    @ExceptionHandler({ DxaItemNotFoundException.class })
+    public void handleNotFoundException(Exception ex) throws PageNotFoundException {
         LOG.error("Could not load page model", ex);
         throw new PageNotFoundException(ex);
+    }
+
+    @ExceptionHandler({ Exception.class })
+    public void handleAnyException(Exception ex) throws RuntimeException {
+        LOG.error("Could not load page model", ex);
+        throw new RuntimeException(ex);
     }
 }

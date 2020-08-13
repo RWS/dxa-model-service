@@ -14,20 +14,18 @@ import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
-import com.sdl.webapp.common.api.content.PageNotFoundException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.tridion.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.contentmodel.impl.PageImpl;
 import org.dd4t.core.databind.DataBinder;
-import org.dd4t.core.exceptions.SerializationException;
 import org.dd4t.core.processors.impl.RichTextResolver;
 import org.dd4t.core.util.HttpRequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
@@ -44,8 +42,6 @@ import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 public class DefaultPageModelService implements PageModelService, LegacyPageModelService {
 
     private final ObjectMapper objectMapper;
-
-    private final LinkResolver linkResolver;
 
     private final ConfigService configService;
 
@@ -75,7 +71,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                    DataBinder dd4tDataBinder,
                                    RichTextResolver dd4tRichTextResolver) {
         this.objectMapper = objectMapper;
-        this.linkResolver = linkResolver;
         this.configService = configService;
         this.entityModelService = entityModelService;
         this.contentService = contentService;
@@ -92,9 +87,11 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
             String pageContent = contentService.loadPageContent(pageRequest);
             log.trace("Loaded page content for {}", pageRequest);
             return _processDd4tPageModel(pageContent, pageRequest);
-        } catch (ContentProviderException ex) {
+        } catch (DxaItemNotFoundException ex) {
+            throw ex;
+        } catch (Exception ex) {
             log.error("Could not load legacy page model for {}", pageRequest, ex);
-            throw new PageNotFoundException(ex);
+            throw new ContentProviderException(ex);
         }
     }
 
@@ -103,11 +100,12 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         try {
             String pageContent = contentService.loadPageContent(pageRequest);
             log.trace("Loaded page content for {}", pageRequest);
-
             return _processR2PageModel(pageContent, pageRequest);
-        } catch (ContentProviderException ex) {
+        } catch (DxaItemNotFoundException ex) {
+            throw ex;
+        } catch (Exception ex) {
             log.error("Could not load page model for {}", pageRequest, ex);
-            throw new PageNotFoundException(ex);
+            throw new ContentProviderException(ex);
         }
     }
 
@@ -121,16 +119,12 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
         } else {
             try {
                 page = dd4tDataBinder.buildPage(pageContent, PageImpl.class);
-
                 // we only resolve links using DD4T if we request content also in DD4T, otherwise our resolver is used
                 if (pageRequest.getDataModelType() == DataModelType.DD4T) {
                     dd4tRichTextResolver.execute(page, new HttpRequestContext());
                 }
-
                 log.trace("Parsed page content to page model {}", page);
                 return page;
-            } catch (SerializationException e) {
-                throw new ContentProviderException("Couldn't deserialize DD4T content for request " + pageRequest, e);
             } catch (Exception e) {
                 throw new ContentProviderException("Couldn't process DD4T content for request " + pageRequest, e);
             }
@@ -169,38 +163,39 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                 entityModelService, richTextLinkResolver, configService, getBatchLinkResolver(), pageId);
     }
 
-    private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) throws ContentProviderException {
+    private PageModelData _expandIncludePages(PageModelData pageModel, PageRequestDto pageRequest) {
 
-        if (pageModel.getRegions() != null) {
-            Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
-            while (iterator.hasNext()) {
-                RegionModelData region = iterator.next();
-                if (region.getIncludePageId() == null) {
-                    continue;
-                }
+        if (pageModel.getRegions() == null) {
+            return pageModel;
+        }
+        Iterator<RegionModelData> iterator = pageModel.getRegions().iterator();
+        while (iterator.hasNext()) {
+            RegionModelData region = iterator.next();
+            if (region.getIncludePageId() == null) {
+                continue;
+            }
 
-                log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
+            log.trace("Found include region include id = {}, we {} this page", region.getIncludePageId(), pageRequest.getIncludePages());
 
-                switch (pageRequest.getIncludePages()) {
-                    case EXCLUDE:
-                        iterator.remove();
-                        break;
-                    case INCLUDE:
-                    default:
-                        try {
-                            String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
-                            if (StringUtils.isNotEmpty(includePageContent)) {
-                                // maybe it has inner regions which we need to include?
-                                PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
+            switch (pageRequest.getIncludePages()) {
+                case EXCLUDE:
+                    iterator.remove();
+                    break;
+                case INCLUDE:
+                default:
+                    try {
+                        String includePageContent = contentService.loadPageContent(pageRequest.getPublicationId(), Integer.parseInt(region.getIncludePageId()));
+                        if (StringUtils.isNotEmpty(includePageContent)) {
+                            // maybe it has inner regions which we need to include?
+                            PageModelData includePage = _expandIncludePages(_processR2PageModel(includePageContent, pageRequest), pageRequest);
 
-                                if (includePage.getRegions() != null) {
-                                    includePage.getRegions().forEach(region::addRegion);
-                                }
+                            if (includePage.getRegions() != null) {
+                                includePage.getRegions().forEach(region::addRegion);
                             }
-                        } catch (ContentProviderException e){
-                            _suppressIfNeeded(String.format("Include Page '%s' not found.", region.getIncludePageId()), configService.getErrors().isMissingIncludePageSuppress(),e);
                         }
-                }
+                    } catch (ContentProviderException e){
+                        _suppressIfNeeded(String.format("Include Page '%s' not found.", region.getIncludePageId()), configService.getErrors().isMissingIncludePageSuppress(),e);
+                    }
             }
         }
         return pageModel;
@@ -220,7 +215,6 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
             throw new DataModelExpansionException(message, e);
         }
     }
-
 
     @Lookup
     public BatchLinkResolver getBatchLinkResolver() {

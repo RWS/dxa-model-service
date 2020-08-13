@@ -99,7 +99,9 @@ public class ContentService {
             }
 
             return loadPageContent(publicationId, TcmUtils.getItemId(result[0]));
-        } catch (StorageException e) {
+        } catch (DxaItemNotFoundException ex) {
+            throw ex;
+        } catch (Exception e) {
             ContentProviderException exception = new ContentProviderException("Couldn't communicate to CD broker DB while loading a page " +
                     "with localization ID '" + publicationId + "' and page URL '" + path + "'", e);
             log.warn("Issues communicating with CD", exception);
@@ -150,11 +152,13 @@ public class ContentService {
             log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
             CharacterData data = new PageContentFactory().getPageContent(publicationId, pageId);
             if (data == null) {
-                throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
+                throw new PageNotFoundException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
             }
 
             return data.getString();
-        } catch (IOException e) {
+        } catch (DxaItemNotFoundException ex) {
+            throw ex;
+        } catch (Exception e) {
             ContentProviderException exception = new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);
             log.warn("Failed to load page content", exception);
             throw exception;
