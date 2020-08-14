@@ -12,23 +12,19 @@ import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.impl.ComponentPresentationImpl;
 import org.dd4t.core.databind.DataBinder;
-import org.dd4t.core.exceptions.ProcessorException;
 import org.dd4t.core.exceptions.SerializationException;
 import org.dd4t.core.processors.impl.RichTextResolver;
 import org.dd4t.core.util.HttpRequestContext;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
@@ -82,29 +78,37 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
         this.toR2Converter = toR2Converter;
     }
 
-    @NotNull
     public EntityModelData loadEntity(EntityRequestDto entityRequest, boolean resolveLinks) throws ContentProviderException {
-        String content = contentService.loadComponentPresentation(entityRequest).getContent();
-        log.trace("Loaded entity content for {}", entityRequest);
-        return _processR2EntityModel(content, entityRequest, resolveLinks);
+        try {
+            String content = contentService.loadComponentPresentation(entityRequest).getContent();
+            log.trace("Loaded entity content for {}", entityRequest);
+            return _processR2EntityModel(content, entityRequest, resolveLinks);
+        } catch (PageNotFoundException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Could not load entity model for {}", entityRequest, ex);
+            throw new PageNotFoundException(ex);
+        }
     }
 
     @Override
-    @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         return loadEntity(entityRequest, true);
     }
 
-    @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }")
     public org.dd4t.contentmodel.ComponentPresentation loadLegacyEntityModel(EntityRequestDto entityRequest) throws ContentProviderException {
-        String content = contentService.loadComponentPresentation(entityRequest).getContent();
-        log.trace("Loaded entity content for {}", entityRequest);
-        return _processDd4tEntityModel(content, entityRequest);
+        try {
+            String content = contentService.loadComponentPresentation(entityRequest).getContent();
+            log.trace("Loaded entity content for {}", entityRequest);
+            return _processDd4tEntityModel(content, entityRequest);
+        } catch (PageNotFoundException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Could not load legacy entity model for {}", entityRequest, ex);
+            throw new PageNotFoundException(ex);
+        }
     }
 
-    @Contract("!null, _ -> !null")
     private ComponentPresentation _processDd4tEntityModel(String content, EntityRequestDto entityRequest) throws ContentProviderException {
         DataModelType publishedModelType = getModelType(content);
         if (publishedModelType == DataModelType.R2) {
@@ -124,13 +128,12 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
                 return componentPresentation;
             } catch (SerializationException e) {
                 throw new ContentProviderException("Couldn't deserialize DD4T content for request " + entityRequest, e);
-            } catch (ProcessorException e) {
+            } catch (Exception e) {
                 throw new ContentProviderException("Couldn't process DD4T content for request " + entityRequest, e);
             }
         }
     }
 
-    @Contract("!null, _ -> !null")
     private EntityModelData _processR2EntityModel(String entityContent, EntityRequestDto entityRequest, boolean resolveLinks) throws ContentProviderException {
         log.trace("processing entity model for entity request {}", entityRequest);
 
@@ -143,19 +146,12 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
             log.trace("Parsing entity content {}", entityContent);
             modelData = _parseR2Content(entityContent, EntityModelData.class);
         }
-
-        log.trace("Parsed entity content to entity model {}", modelData);
-
         log.trace("processing entity model {} for entity request {}", modelData, entityRequest);
-
         _getModelExpander(entityRequest, resolveLinks).expandEntity(modelData);
-
         log.trace("expanded the whole model for {}", entityRequest);
-
         return modelData;
     }
 
-    @NotNull
     private EntityModelExpander _getModelExpander(EntityRequestDto entityRequestDto, boolean resolveLinks) {
         return new EntityModelExpander(
                 entityRequestDto,
@@ -166,7 +162,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
     private <T extends ViewModelData> T _parseR2Content(String content, Class<T> expectedClass) throws ContentProviderException {
         try {
             return objectMapper.readValue(content, expectedClass);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ContentProviderException("Couldn't deserialize content '" + content + "' for " + expectedClass, e);
         }
     }

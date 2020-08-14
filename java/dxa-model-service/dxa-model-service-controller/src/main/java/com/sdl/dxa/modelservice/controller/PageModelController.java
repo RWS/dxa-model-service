@@ -9,11 +9,16 @@ import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.LegacyPageModelService;
 import com.sdl.dxa.modelservice.service.PageModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +36,7 @@ import static com.sdl.dxa.common.dto.ContentType.RAW;
 @RestController
 @RequestMapping(value = "/PageModel/{uriType}/{localizationId}/**")
 public class PageModelController {
+    private static final Logger LOG = LoggerFactory.getLogger(PageModelController.class);
 
     /**
      * {@code /PageModel/tcm/42/example/path/to/site}<br/>
@@ -74,7 +80,7 @@ public class PageModelController {
                                   @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
                                   @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
                                   @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
-                                  HttpServletRequest request) throws ContentProviderException, JsonProcessingException {
+                                  HttpServletRequest request) throws ContentProviderException {
         localizationIdProvider.setCurrentId(localizationId);
 
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
@@ -87,12 +93,9 @@ public class PageModelController {
         Object result;
         if (isRawContent) {
             result = contentService.loadPageContent(pageRequestDto);
-
             // We must always return the raw String.
             return new ResponseEntity<>((String) result, HttpStatus.OK);
-
         } else {
-
             result = dataModelType == DataModelType.R2 ?
                     pageModelService.loadPageModel(pageRequestDto) :
                     legacyPageModelService.loadLegacyPageModel(pageRequestDto);
@@ -110,12 +113,35 @@ public class PageModelController {
             return null;
         }
 
-        return PageRequestDto.builder(localizationId, pageUrl.get())
+        PageRequestDto.PageRequestDtoBuilder builder = PageRequestDto.builder(localizationId, pageUrl.get())
                 .uriType(uriType)
                 .dataModelType(dataModelType)
                 .includePages(pageInclusion)
-                .contentType(isRawContent ? RAW : MODEL)
-                .build();
+                .contentType(isRawContent ? RAW : MODEL);
+        int expansionDepth = getDepth(localizationId);
+        if (expansionDepth > 0) {
+            log.info("For publication {} will be used expansion depth {}", localizationId, expansionDepth);
+            return builder.expansionDepth(expansionDepth).build();
+        }
+        return builder.build();
+    }
+
+    private int getDepth(int localizationId) {
+        try {
+            String depthForPub = System.getProperty("dxa.expansion.depth." + localizationId);
+            if (depthForPub != null && !depthForPub.isEmpty() && depthForPub.matches("^\\d++$")) {
+                int result = Integer.parseInt(depthForPub);
+                return Math.max(result, 0);
+            }
+            String defaultDepth = System.getProperty("dxa.expansion.depth.default");
+            if (defaultDepth != null && !defaultDepth.isEmpty() && defaultDepth.matches("^\\d++$")) {
+                int result = Integer.parseInt(defaultDepth);
+                return Math.max(result, 0);
+            }
+        } catch (Exception ex) {
+            log.warn("Could not read depth from 'dxa.expansion.depth.default' system variable", ex);
+        }
+        return 0;
     }
 
     private Optional<String> getPageUrl(HttpServletRequest request) {
@@ -126,5 +152,17 @@ public class PageModelController {
         }
 
         return Optional.empty();
+    }
+
+    @ExceptionHandler({ DxaItemNotFoundException.class })
+    public void handleNotFoundException(Exception ex) throws PageNotFoundException {
+        LOG.error("Could not load page model", ex);
+        throw new PageNotFoundException(ex);
+    }
+
+    @ExceptionHandler({ Exception.class })
+    public void handleAnyException(Exception ex) throws RuntimeException {
+        LOG.error("Could not load page model", ex);
+        throw new RuntimeException(ex);
     }
 }
