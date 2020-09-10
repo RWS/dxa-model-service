@@ -91,7 +91,7 @@ public class PageModelController {
         log.trace("requesting pageSource with {}", pageRequestDto);
         Object result;
         if (isRawContent) {
-            result = contentService.loadPageContent(pageRequestDto, true);
+            result = contentService.loadPageContent(pageRequestDto);
             // We must always return the raw String.
             return new ResponseEntity<>((String) result, HttpStatus.OK);
         } else {

@@ -66,6 +66,11 @@ public class ContentService {
     }
 
     @NotNull
+    public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
+        return loadPageContent(pageRequest, true);
+    }
+
+    @NotNull
     @Cacheable(condition = "#shouldCache", value = "pageContents", key = "{ #root.methodName, #pageRequest }")
     public String loadPageContent(PageRequestDto pageRequest, boolean shouldCache) throws ContentProviderException {
         log.info("Page: {}, request: {}", pageRequest.getPublicationId(), pageRequest.getPath());
