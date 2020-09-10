@@ -103,7 +103,7 @@ public class ContentServiceTest {
         doReturn(expected).when(pageContentMock).getString();
 
         //when
-        String pageContent = contentService.loadPageContent(pageRequestDto);
+        String pageContent = contentService.loadPageContent(pageRequestDto, false);
 
         //then
         assertEquals(expected, pageContent);
@@ -118,7 +118,7 @@ public class ContentServiceTest {
         doReturn(new String[]{"tcm:1-2"}).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
-        String content = contentService.loadPageContent(pageRequestDto);
+        String content = contentService.loadPageContent(pageRequestDto, false);
 
         //then
         assertEquals("characterData", content);
@@ -132,7 +132,7 @@ public class ContentServiceTest {
         doReturn(new String[0]).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
-        contentService.loadPageContent(pageRequestDto);
+        contentService.loadPageContent(pageRequestDto, false);
 
         //then
         //exception

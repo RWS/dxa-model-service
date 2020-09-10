@@ -94,7 +94,8 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?modelType=DD4T&raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.DD4T, ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.DD4T, ContentType.RAW, "/"),
+                true);
     }
 
     @Test
@@ -116,7 +117,8 @@ public class PageModelControllerTest {
         mvc.perform(get("/PageModel/tcm/42//?raw=true")).andExpect(status().isOk());
 
         //then
-        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW, "/"));
+        verify(this.contentService, atLeastOnce()).loadPageContent(matcherFor(DataModelType.R2, ContentType.RAW, "/"),
+                true);
     }
 
 

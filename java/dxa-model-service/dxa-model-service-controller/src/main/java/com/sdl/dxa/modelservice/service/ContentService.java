@@ -10,7 +10,6 @@ import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.util.TcmUtils;
-import com.tridion.broker.StorageException;
 import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.broker.querying.criteria.content.PublicationCriteria;
 import com.tridion.broker.querying.criteria.operators.AndCriteria;
@@ -26,14 +25,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 /**
  * The service to load raw content stored in Broker database completely without or with light processing.
  * See details in Javadoc of a concrete method.
- *
+ * <p>
  * Will work both in-process and over OData.
  */
 @Slf4j
@@ -69,9 +66,9 @@ public class ContentService {
     }
 
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
-    public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
-        log.info("Page: {}, request: {} - CACHE NOT USED", pageRequest.getPublicationId(), pageRequest.getPath());
+    @Cacheable(condition = "#shouldCache", value = "pageContents", key = "{ #root.methodName, #pageRequest }")
+    public String loadPageContent(PageRequestDto pageRequest, boolean shouldCache) throws ContentProviderException {
+        log.info("Page: {}, request: {}", pageRequest.getPublicationId(), pageRequest.getPath());
         int publicationId = pageRequest.getPublicationId();
         String path = pageRequest.getPath();
 
@@ -90,7 +87,7 @@ public class ContentService {
             String[] result =
                     queryLoader.constructQueryAndSetResultFilter(
                             new AndCriteria(urlCriteria,
-                                new PublicationCriteria(publicationId)), pageRequest);
+                                    new PublicationCriteria(publicationId)), pageRequest);
 
             log.debug("Requested publication '{}', path '{}', result is '{}'", publicationId, path, result);
             if (result.length == 0) {

@@ -1,6 +1,5 @@
 package com.sdl.dxa.modelservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
@@ -76,11 +75,11 @@ public class PageModelController {
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> getPage(@PathVariable String uriType,
-                                  @PathVariable int localizationId,
-                                  @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
-                                  @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
-                                  @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
-                                  HttpServletRequest request) throws ContentProviderException {
+                                     @PathVariable int localizationId,
+                                     @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
+                                     @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
+                                     @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
+                                     HttpServletRequest request) throws ContentProviderException {
         localizationIdProvider.setCurrentId(localizationId);
 
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
@@ -92,7 +91,7 @@ public class PageModelController {
         log.trace("requesting pageSource with {}", pageRequestDto);
         Object result;
         if (isRawContent) {
-            result = contentService.loadPageContent(pageRequestDto);
+            result = contentService.loadPageContent(pageRequestDto, true);
             // We must always return the raw String.
             return new ResponseEntity<>((String) result, HttpStatus.OK);
         } else {
@@ -154,13 +153,13 @@ public class PageModelController {
         return Optional.empty();
     }
 
-    @ExceptionHandler({ DxaItemNotFoundException.class })
+    @ExceptionHandler({DxaItemNotFoundException.class})
     public void handleNotFoundException(Exception ex) throws PageNotFoundException {
         LOG.error("Could not load page model", ex);
         throw new PageNotFoundException(ex);
     }
 
-    @ExceptionHandler({ Exception.class })
+    @ExceptionHandler({Exception.class})
     public void handleAnyException(Exception ex) throws RuntimeException {
         LOG.error("Could not load page model", ex);
         throw new RuntimeException(ex);

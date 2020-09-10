@@ -26,6 +26,7 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
@@ -34,7 +35,7 @@ import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
 /**
  * Service capable to load content and construct {@code models} out of it.
- *
+ * <p>
  * Note: for in process the LinkResolver is overridden to BrokerTridionLinkResolver.
  */
 @Slf4j
@@ -82,9 +83,10 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     }
 
     @Override
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         try {
-            String pageContent = contentService.loadPageContent(pageRequest);
+            String pageContent = contentService.loadPageContent(pageRequest, false);
             log.trace("Loaded page content for {}", pageRequest);
             return _processDd4tPageModel(pageContent, pageRequest);
         } catch (DxaItemNotFoundException ex) {
@@ -96,9 +98,10 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     }
 
     @Override
+    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         try {
-            String pageContent = contentService.loadPageContent(pageRequest);
+            String pageContent = contentService.loadPageContent(pageRequest, false);
             log.trace("Loaded page content for {}", pageRequest);
             return _processR2PageModel(pageContent, pageRequest);
         } catch (DxaItemNotFoundException ex) {
@@ -151,7 +154,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
 
         // let's check every leaf here if we need to expand it
 
-        int pageId = NumberUtils.toInt(pageModelData.getId(),-1);
+        int pageId = NumberUtils.toInt(pageModelData.getId(), -1);
         _getModelExpander(pageRequest, pageId).expandPage(pageModelData);
         log.trace("Expanded the whole model for {}", pageRequest);
 
@@ -193,8 +196,8 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
                                 includePage.getRegions().forEach(region::addRegion);
                             }
                         }
-                    } catch (ContentProviderException e){
-                        _suppressIfNeeded(String.format("Include Page '%s' not found.", region.getIncludePageId()), configService.getErrors().isMissingIncludePageSuppress(),e);
+                    } catch (ContentProviderException e) {
+                        _suppressIfNeeded(String.format("Include Page '%s' not found.", region.getIncludePageId()), configService.getErrors().isMissingIncludePageSuppress(), e);
                     }
             }
         }

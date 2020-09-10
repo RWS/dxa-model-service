@@ -177,7 +177,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                 .build();
         Optional<LightSitemapItem> sitemapItem;
         try {
-            String content = contentService.loadPageContent(navigationJsonRequest);
+            String content = contentService.loadPageContent(navigationJsonRequest, false);
             sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
                     pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
         } catch (IOException e) {
