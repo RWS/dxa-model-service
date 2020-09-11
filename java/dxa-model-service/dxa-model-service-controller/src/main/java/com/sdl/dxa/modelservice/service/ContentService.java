@@ -66,7 +66,7 @@ public class ContentService {
     }
 
     @NotNull
-    @Cacheable(value = "pageContents", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "pageContents", key = "{ #root.methodName, #pageRequest }", sync = true)
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
         return loadPageContentNotCached(pageRequest);
     }
@@ -119,7 +119,7 @@ public class ContentService {
      * @throws DxaItemNotFoundException in case there nothing was found for this request
      */
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}")
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}", sync = true)
     public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
         int publicationId = entityRequest.getPublicationId();
 
