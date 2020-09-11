@@ -111,6 +111,12 @@ public class ContentService {
         }
     }
 
+    @NotNull
+    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}", sync = true)
+    public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
+        return loadComponentPresentationNotCached(entityRequest);
+    }
+
     /**
      * Loads component presentation for an entity without any processing.
      *
@@ -119,8 +125,7 @@ public class ContentService {
      * @throws DxaItemNotFoundException in case there nothing was found for this request
      */
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}", sync = true)
-    public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
+    public ComponentPresentation loadComponentPresentationNotCached(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
         int publicationId = entityRequest.getPublicationId();
 
         String componentUri = TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId());
