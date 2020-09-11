@@ -117,30 +117,7 @@ public class PageModelController {
                 .dataModelType(dataModelType)
                 .includePages(pageInclusion)
                 .contentType(isRawContent ? RAW : MODEL);
-        int expansionDepth = getDepth(localizationId);
-        if (expansionDepth > 0) {
-            log.info("For publication {} will be used expansion depth {}", localizationId, expansionDepth);
-            return builder.expansionDepth(expansionDepth).build();
-        }
         return builder.build();
-    }
-
-    private int getDepth(int localizationId) {
-        try {
-            String depthForPub = System.getProperty("dxa.expansion.depth." + localizationId);
-            if (depthForPub != null && !depthForPub.isEmpty() && depthForPub.matches("^\\d++$")) {
-                int result = Integer.parseInt(depthForPub);
-                return Math.max(result, 0);
-            }
-            String defaultDepth = System.getProperty("dxa.expansion.depth.default");
-            if (defaultDepth != null && !defaultDepth.isEmpty() && defaultDepth.matches("^\\d++$")) {
-                int result = Integer.parseInt(defaultDepth);
-                return Math.max(result, 0);
-            }
-        } catch (Exception ex) {
-            log.warn("Could not read depth from 'dxa.expansion.depth.default' system variable", ex);
-        }
-        return 0;
     }
 
     private Optional<String> getPageUrl(HttpServletRequest request) {
