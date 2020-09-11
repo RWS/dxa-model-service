@@ -103,7 +103,7 @@ public class ContentServiceTest {
         doReturn(expected).when(pageContentMock).getString();
 
         //when
-        String pageContent = contentService.loadPageContent(pageRequestDto, false);
+        String pageContent = contentService.loadPageContentNotCached(pageRequestDto);
 
         //then
         assertEquals(expected, pageContent);
@@ -118,7 +118,7 @@ public class ContentServiceTest {
         doReturn(new String[]{"tcm:1-2"}).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
-        String content = contentService.loadPageContent(pageRequestDto, false);
+        String content = contentService.loadPageContentNotCached(pageRequestDto);
 
         //then
         assertEquals("characterData", content);
@@ -132,7 +132,7 @@ public class ContentServiceTest {
         doReturn(new String[0]).when(queryLoader).constructQueryAndSetResultFilter(anyObject(), anyObject());
 
         //when
-        contentService.loadPageContent(pageRequestDto, false);
+        contentService.loadPageContentNotCached(pageRequestDto);
 
         //then
         //exception

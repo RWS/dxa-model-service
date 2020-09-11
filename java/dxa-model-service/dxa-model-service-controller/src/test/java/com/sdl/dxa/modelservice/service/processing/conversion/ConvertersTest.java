@@ -79,17 +79,20 @@ public class ConvertersTest {
         r2PageDataModel = r2ObjectMapper.readValue(r2Source, PageModelData.class);
 
         doReturn(IOUtils.toString(new ClassPathResource("models/dd4t_header.json").getInputStream(), "UTF-8"))
-                .when(contentService).loadPageContent(pageRequestDto.toBuilder().path("/example/system/include/header")
-                .build(), false);
+                .when(contentService).loadPageContentNotCached(pageRequestDto.toBuilder()
+                .path("/example/system/include/header")
+                .build());
 
         doReturn(IOUtils.toString(new ClassPathResource("models/dd4t_footer.json").getInputStream(), "UTF-8"))
-                .when(contentService).loadPageContent(pageRequestDto.toBuilder().path("/example/system/include/footer")
-                .build(), false);
+                .when(contentService).loadPageContentNotCached(pageRequestDto.toBuilder()
+                .path("/example/system/include/footer")
+                .build());
 
 
         doReturn(IOUtils.toString(new ClassPathResource("models/navigation.json").getInputStream(), "UTF-8"))
-                .when(contentService).loadPageContent(pageRequestDto.toBuilder().path("/example/navigation.json")
-                .build(), false);
+                .when(contentService).loadPageContentNotCached(pageRequestDto.toBuilder()
+                .path("/example/navigation.json")
+                .build());
     }
 
 

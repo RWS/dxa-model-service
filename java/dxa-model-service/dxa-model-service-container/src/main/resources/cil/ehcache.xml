@@ -58,6 +58,12 @@
         </expiry>
         <heap unit="MB">100</heap>
     </cache>
+    <cache alias="pageContents">
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="MB">100</heap>
+    </cache>
     <cache alias="entityModels">
         <expiry>
             <ttl unit="seconds">30</ttl>

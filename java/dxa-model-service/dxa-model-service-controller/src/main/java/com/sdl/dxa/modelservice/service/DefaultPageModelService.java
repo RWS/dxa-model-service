@@ -86,7 +86,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public Page loadLegacyPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         try {
-            String pageContent = contentService.loadPageContent(pageRequest, false);
+            String pageContent = contentService.loadPageContentNotCached(pageRequest);
             log.trace("Loaded page content for {}", pageRequest);
             return _processDd4tPageModel(pageContent, pageRequest);
         } catch (DxaItemNotFoundException ex) {
@@ -101,7 +101,7 @@ public class DefaultPageModelService implements PageModelService, LegacyPageMode
     @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
     public PageModelData loadPageModel(PageRequestDto pageRequest) throws ContentProviderException {
         try {
-            String pageContent = contentService.loadPageContent(pageRequest, false);
+            String pageContent = contentService.loadPageContentNotCached(pageRequest);
             log.trace("Loaded page content for {}", pageRequest);
             return _processR2PageModel(pageContent, pageRequest);
         } catch (DxaItemNotFoundException ex) {
