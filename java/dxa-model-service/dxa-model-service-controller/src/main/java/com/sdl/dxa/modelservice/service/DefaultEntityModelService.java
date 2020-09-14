@@ -92,7 +92,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
     }
 
     @Override
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest }", sync = true)
+    @Cacheable(value = "entityModels", key = "{ #entityRequest }", sync = true)
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
         return loadEntityNotCached(entityRequest);
     }

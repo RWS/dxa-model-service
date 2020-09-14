@@ -112,7 +112,7 @@ public class ContentService {
     }
 
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}", sync = true)
+    @Cacheable(value = "componentPresentations", key = "{ #entityRequest}", sync = true)
     public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
         return loadComponentPresentationNotCached(entityRequest);
     }

@@ -60,6 +60,12 @@
     </cache>
 
     <!-- Entity and Page Models. Restricted -->
+    <cache alias="legacyPageModels">
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="GB">2</heap>
+    </cache>
     <cache alias="pageModels">
         <expiry>
             <ttl unit="seconds">30</ttl>
@@ -67,6 +73,12 @@
         <heap unit="GB">2</heap>
     </cache>
     <cache alias="pageContents">
+        <expiry>
+            <ttl unit="seconds">30</ttl>
+        </expiry>
+        <heap unit="GB">2</heap>
+    </cache>
+    <cache alias="componentPresentations">
         <expiry>
             <ttl unit="seconds">30</ttl>
         </expiry>
