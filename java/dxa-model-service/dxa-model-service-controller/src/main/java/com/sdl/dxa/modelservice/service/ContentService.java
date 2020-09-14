@@ -66,7 +66,7 @@ public class ContentService {
     }
 
     @NotNull
-    @Cacheable(value = "pageContents", key = "{ #root.methodName, #pageRequest }", sync = true)
+    @Cacheable(value = "pageContents", key = "{ #pageRequest }", sync = true)
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
         return loadPageContentNotCached(pageRequest);
     }
