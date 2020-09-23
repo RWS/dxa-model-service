@@ -132,7 +132,11 @@ public class PageModelController {
 
     @ExceptionHandler({DxaItemNotFoundException.class})
     public void handleNotFoundException(Exception ex) throws PageNotFoundException {
-        LOG.error("Could not load page model", ex);
+        if (LOG.isTraceEnabled()){
+            LOG.trace("Could not load page model", ex);
+        } else {
+            LOG.error("Could not load page model: '{}'", ex.getMessage());
+        }
         throw new PageNotFoundException(ex);
     }
 
