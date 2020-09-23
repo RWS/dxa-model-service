@@ -70,15 +70,19 @@ public class EntityModelController {
                 : entityModelService.loadEntity(entityRequest));
     }
 
-    @ExceptionHandler({ DxaItemNotFoundException.class })
+    @ExceptionHandler({DxaItemNotFoundException.class})
     public void handleNotFoundException(Exception ex) throws PageNotFoundException {
-        LOG.error("Could not load page model", ex);
+        if (LOG.isTraceEnabled()){
+            LOG.trace("Could not load entity model", ex);
+        } else {
+            LOG.error("Could not load entity model: '{}'", ex.getMessage());
+        }
         throw new PageNotFoundException(ex);
     }
 
     @ExceptionHandler({ Exception.class })
     public void handleAnyException(Exception ex) throws RuntimeException {
-        LOG.error("Could not load page model", ex);
+        LOG.error("Could not load entity model", ex);
         throw new RuntimeException(ex);
     }
 }
