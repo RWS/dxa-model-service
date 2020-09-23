@@ -8,8 +8,8 @@ import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToDd4tConverter;
 import com.sdl.dxa.modelservice.service.processing.conversion.ToR2Converter;
 import com.sdl.dxa.modelservice.service.processing.expansion.EntityModelExpander;
-import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
+import com.sdl.dxa.tridion.linking.api.BatchLinkResolver;
 import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.LinkResolver;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
@@ -23,8 +23,8 @@ import org.dd4t.core.util.HttpRequestContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
 
 import static com.sdl.dxa.modelservice.service.ContentService.getModelType;
 
@@ -80,7 +80,7 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
 
     public EntityModelData loadEntity(EntityRequestDto entityRequest, boolean resolveLinks) throws ContentProviderException {
         try {
-            String content = contentService.loadComponentPresentation(entityRequest).getContent();
+            String content = contentService.loadComponentPresentationNotCached(entityRequest).getContent();
             log.trace("Loaded entity content for {}", entityRequest);
             return _processR2EntityModel(content, entityRequest, resolveLinks);
         } catch (PageNotFoundException ex) {
@@ -92,13 +92,18 @@ public class DefaultEntityModelService implements EntityModelServiceSuppressLink
     }
 
     @Override
+    @Cacheable(value = "entityModels", key = "{ #entityRequest }", sync = true)
     public EntityModelData loadEntity(EntityRequestDto entityRequest) throws ContentProviderException {
+        return loadEntityNotCached(entityRequest);
+    }
+
+    public EntityModelData loadEntityNotCached(EntityRequestDto entityRequest) throws ContentProviderException {
         return loadEntity(entityRequest, true);
     }
 
     public org.dd4t.contentmodel.ComponentPresentation loadLegacyEntityModel(EntityRequestDto entityRequest) throws ContentProviderException {
         try {
-            String content = contentService.loadComponentPresentation(entityRequest).getContent();
+            String content = contentService.loadComponentPresentationNotCached(entityRequest).getContent();
             log.trace("Loaded entity content for {}", entityRequest);
             return _processDd4tEntityModel(content, entityRequest);
         } catch (PageNotFoundException ex) {

@@ -452,7 +452,7 @@ public class ToR2ConverterImpl implements ToR2Converter {
     private RegionModelData _loadInclude(String include, PageRequestDto pageRequest) throws ContentProviderException {
         String includeUrl = PathUtils.combinePath(metadataService.getPublicationMeta(pageRequest.getPublicationId()).getPublicationUrl(), include);
         try {
-            String content = contentService.loadPageContent(pageRequest.toBuilder().path(includeUrl).build());
+            String content = contentService.loadPageContentNotCached(pageRequest.toBuilder().path(includeUrl).build());
             DataModelType publishedModelType = getModelType(content);
             if (publishedModelType == DataModelType.DD4T) {
                 return _convertDD4TPageToRegion(objectMapper.readTree(content), pageRequest);

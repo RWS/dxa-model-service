@@ -1,6 +1,5 @@
 package com.sdl.dxa.modelservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sdl.dxa.common.dto.DataModelType;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto.PageInclusion;
@@ -76,11 +75,11 @@ public class PageModelController {
 
     @RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> getPage(@PathVariable String uriType,
-                                  @PathVariable int localizationId,
-                                  @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
-                                  @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
-                                  @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
-                                  HttpServletRequest request) throws ContentProviderException {
+                                     @PathVariable int localizationId,
+                                     @RequestParam(value = "includes", required = false, defaultValue = "INCLUDE") PageInclusion pageInclusion,
+                                     @RequestParam(value = "modelType", required = false, defaultValue = "R2") DataModelType dataModelType,
+                                     @RequestParam(value = "raw", required = false, defaultValue = "false") boolean isRawContent,
+                                     HttpServletRequest request) throws ContentProviderException {
         localizationIdProvider.setCurrentId(localizationId);
 
         PageRequestDto pageRequestDto = buildPageRequest(uriType, localizationId, pageInclusion, dataModelType, isRawContent, request);
@@ -118,30 +117,7 @@ public class PageModelController {
                 .dataModelType(dataModelType)
                 .includePages(pageInclusion)
                 .contentType(isRawContent ? RAW : MODEL);
-        int expansionDepth = getDepth(localizationId);
-        if (expansionDepth > 0) {
-            log.info("For publication {} will be used expansion depth {}", localizationId, expansionDepth);
-            return builder.expansionDepth(expansionDepth).build();
-        }
         return builder.build();
-    }
-
-    private int getDepth(int localizationId) {
-        try {
-            String depthForPub = System.getProperty("dxa.expansion.depth." + localizationId);
-            if (depthForPub != null && !depthForPub.isEmpty() && depthForPub.matches("^\\d++$")) {
-                int result = Integer.parseInt(depthForPub);
-                return Math.max(result, 0);
-            }
-            String defaultDepth = System.getProperty("dxa.expansion.depth.default");
-            if (defaultDepth != null && !defaultDepth.isEmpty() && defaultDepth.matches("^\\d++$")) {
-                int result = Integer.parseInt(defaultDepth);
-                return Math.max(result, 0);
-            }
-        } catch (Exception ex) {
-            log.warn("Could not read depth from 'dxa.expansion.depth.default' system variable", ex);
-        }
-        return 0;
     }
 
     private Optional<String> getPageUrl(HttpServletRequest request) {
@@ -154,13 +130,17 @@ public class PageModelController {
         return Optional.empty();
     }
 
-    @ExceptionHandler({ DxaItemNotFoundException.class })
+    @ExceptionHandler({DxaItemNotFoundException.class})
     public void handleNotFoundException(Exception ex) throws PageNotFoundException {
-        LOG.error("Could not load page model", ex);
+        if (LOG.isTraceEnabled()){
+            LOG.trace("Could not load page model", ex);
+        } else {
+            LOG.error("Could not load page model: '{}'", ex.getMessage());
+        }
         throw new PageNotFoundException(ex);
     }
 
-    @ExceptionHandler({ Exception.class })
+    @ExceptionHandler({Exception.class})
     public void handleAnyException(Exception ex) throws RuntimeException {
         LOG.error("Could not load page model", ex);
         throw new RuntimeException(ex);

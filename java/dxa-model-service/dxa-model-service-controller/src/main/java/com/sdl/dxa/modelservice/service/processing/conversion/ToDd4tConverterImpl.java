@@ -15,6 +15,7 @@ import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.common.util.PathUtils;
 import com.sdl.dxa.modelservice.service.ConfigService;
 import com.sdl.dxa.modelservice.service.ContentService;
+import com.sdl.dxa.modelservice.service.DefaultEntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.AdoptedRichTextField;
 import com.sdl.dxa.modelservice.service.processing.conversion.models.LightSitemapItem;
@@ -177,7 +178,7 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
                 .build();
         Optional<LightSitemapItem> sitemapItem;
         try {
-            String content = contentService.loadPageContent(navigationJsonRequest);
+            String content = contentService.loadPageContentNotCached(navigationJsonRequest);
             sitemapItem = objectMapper.readValue(content, LightSitemapItem.class).findWithId(TcmUtils.buildTcmUri(
                     pageRequest.getPublicationId(), toConvert.getStructureGroupId(), TcmUtils.STRUCTURE_GROUP_ITEM_TYPE));
         } catch (IOException e) {
@@ -253,8 +254,12 @@ public class ToDd4tConverterImpl implements ToDd4tConverter {
         ComponentPresentation presentation = new ComponentPresentationImpl();
         presentation.setIsDynamic(entity.getId().matches("\\d+-\\d+"));
 
+        EntityRequestDto entityRequestDto = EntityRequestDto.builder(publicationId, entity.getId()).build();
         EntityModelData entityModelData = presentation.isDynamic() ?
-                entityModelService.loadEntity(EntityRequestDto.builder(publicationId, entity.getId()).build()) : entity;
+                (entityModelService instanceof DefaultEntityModelService ?
+                        ((DefaultEntityModelService) entityModelService).loadEntityNotCached(entityRequestDto) :
+                        entityModelService.loadEntity(entityRequestDto)) :
+                entity;
 
         presentation.setComponent(_convertEntity(entityModelData, publicationId));
         ComponentTemplateData templateData = entityModelData.getComponentTemplate();

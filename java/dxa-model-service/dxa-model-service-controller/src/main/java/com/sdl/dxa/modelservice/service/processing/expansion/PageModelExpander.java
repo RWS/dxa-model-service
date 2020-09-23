@@ -10,6 +10,7 @@ import com.sdl.dxa.api.datamodel.processing.DataModelDeepFirstSearcher;
 import com.sdl.dxa.common.dto.EntityRequestDto;
 import com.sdl.dxa.common.dto.PageRequestDto;
 import com.sdl.dxa.modelservice.service.ConfigService;
+import com.sdl.dxa.modelservice.service.DefaultEntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.dxa.modelservice.service.EntityModelServiceSuppressLinks;
 import com.sdl.dxa.tridion.linking.RichTextLinkResolver;
@@ -176,10 +177,10 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
                 List<String> links = this.richTextLinkResolver
                         .retrieveAllLinksFromFragment((String) ((ImmutablePair) fragment).getRight());
 
-                    this.batchLinkResolver.dispatchMultipleLinksResolution(
-                            new RichTextLinkDescriptor(pageRequest.getPublicationId(), this.pageId, links,
-                                    new FragmentListProcessor(richTextData, (ImmutablePair<String, String>) fragment,
-                                            this.richTextLinkResolver)));
+                this.batchLinkResolver.dispatchMultipleLinksResolution(
+                        new RichTextLinkDescriptor(pageRequest.getPublicationId(), this.pageId, links,
+                                new FragmentListProcessor(richTextData, (ImmutablePair<String, String>) fragment,
+                                        this.richTextLinkResolver)));
 
             }
         }
@@ -256,7 +257,9 @@ public class PageModelExpander extends DataModelDeepFirstSearcher {
             if (EntityModelServiceSuppressLinks.class.isAssignableFrom(entityModelService.getClass())) {
                 e = ((EntityModelServiceSuppressLinks) entityModelService).loadEntity(entityRequest, false);
             } else {
-                e = entityModelService.loadEntity(entityRequest);
+                e = entityModelService instanceof DefaultEntityModelService ?
+                        ((DefaultEntityModelService) entityModelService).loadEntityNotCached(entityRequest) :
+                        entityModelService.loadEntity(entityRequest);
             }
             log.debug("Loading of the entity with id {} has taken {} ms", entityRequest.getComponentId(),
                     System.currentTimeMillis() - startTime);
