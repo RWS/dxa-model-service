@@ -23,10 +23,10 @@ pipeline {
                         jdk8BuilderImage.inside {
                             sh "cd java/dxa-model-service"
                             //Build CIL version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -Psonatype-repository -B clean install"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -B clean install"
 
                             //Build in-process version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -Psonatype-repository -B clean install"
+                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -B clean install"
                         }
                     }
                 }
