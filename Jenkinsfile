@@ -21,12 +21,11 @@ pipeline {
                     script {
                         //Build on JDK8
                         jdk8BuilderImage.inside {
-                            sh "cd java/dxa-model-service"
                             //Build CIL version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -B clean install"
+                            sh "mvn -f java/dxa-model-service/pom.xml -s $MAVEN_SETTINGS_PATH -Pcil -B clean install"
 
                             //Build in-process version:
-                            sh "mvn -s $MAVEN_SETTINGS_PATH -Pin-process -B clean install"
+                            sh "mvn -f java/dxa-model-service/pom.xml -s $MAVEN_SETTINGS_PATH -Pin-process -B clean install"
                         }
                     }
                 }
