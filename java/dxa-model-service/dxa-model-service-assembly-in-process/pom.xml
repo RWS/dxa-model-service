@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <dxa.model-service.version>2.0.3</dxa.model-service.version>
-        <service-container.version>8.5.1-SNAPSHOT</service-container.version>
+        <service-container.version>8.5.0-SNAPSHOT</service-container.version>
         <udp.version.range>[8.5.0,8.5.0-2000)</udp.version.range>
         <standalone.path>standalone</standalone.path>
         <resources.dir>${project.basedir}../dxa-model-service-container/src/main/resources/in-process</resources.dir>
