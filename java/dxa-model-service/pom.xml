@@ -17,6 +17,7 @@
         <module>dxa-model-service-container</module>
         <module>dxa-model-service-odata</module>
         <module>dxa-model-service-in-process</module>
+        <module>dxa-model-service-assembly-in-process</module>
     </modules>
 
     <properties>
