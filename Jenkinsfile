@@ -21,7 +21,7 @@ pipeline {
                     script {
                         //Build on JDK8
                         jdk8BuilderImage.inside {
-                            cd "java/dxa-model-service"
+                            sh "cd java/dxa-model-service"
                             //Build CIL version:
                             sh "mvn -s $MAVEN_SETTINGS_PATH -Pcil -Psonatype-repository -B clean install"
 
