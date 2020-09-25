@@ -22,9 +22,9 @@
         <dd4t.version>2.1.5</dd4t.version>
         <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
 
-        <service-container.version>8.5.0-SNAPSHOT</service-container.version>
+        <service-container.version>[8.5.0,8.5.0-9000)</service-container.version>
         <springframework.version>4.3.3.RELEASE</springframework.version>
-        <udp.version.range>[8.5.0,8.5.0-2000)</udp.version.range>
+        <udp.version.range>[8.5.0,8.5.0-9000)</udp.version.range>
 
         <smarttarget.version>8.5.0</smarttarget.version>
         <standalone.path>standalone</standalone.path>
