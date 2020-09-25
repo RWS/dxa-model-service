@@ -22,7 +22,7 @@
         <dd4t.version>2.1.5</dd4t.version>
         <fast-classpath-scanner.version>2.4.7</fast-classpath-scanner.version>
 
-        <service-container.version>[8.5.0,8.5.0-9000)</service-container.version>
+        <service-container.version>8.5.0-1128</service-container.version>
         <springframework.version>4.3.3.RELEASE</springframework.version>
         <udp.version.range>[8.5.0,8.5.0-9000)</udp.version.range>
 
@@ -143,7 +143,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
@@ -164,7 +164,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>clean-leftovers</id>
