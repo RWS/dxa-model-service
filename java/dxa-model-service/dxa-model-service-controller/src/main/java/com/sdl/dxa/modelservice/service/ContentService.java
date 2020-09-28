@@ -10,7 +10,6 @@ import com.sdl.webapp.common.api.content.ContentProviderException;
 import com.sdl.webapp.common.api.content.PageNotFoundException;
 import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import com.sdl.webapp.common.util.TcmUtils;
-import com.tridion.broker.StorageException;
 import com.tridion.broker.querying.criteria.content.PageURLCriteria;
 import com.tridion.broker.querying.criteria.content.PublicationCriteria;
 import com.tridion.broker.querying.criteria.operators.AndCriteria;
@@ -26,14 +25,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 import static com.sdl.dxa.common.util.PathUtils.normalizePathToDefaults;
 
 /**
  * The service to load raw content stored in Broker database completely without or with light processing.
  * See details in Javadoc of a concrete method.
- *
+ * <p>
  * Will work both in-process and over OData.
  */
 @Slf4j
@@ -69,9 +66,14 @@ public class ContentService {
     }
 
     @NotNull
-    @Cacheable(value = "pageModels", key = "{ #root.methodName, #pageRequest }")
+    @Cacheable(value = "pageContents", key = "{ #pageRequest }", sync = true)
     public String loadPageContent(PageRequestDto pageRequest) throws ContentProviderException {
-        log.info("Page: {}, request: {} - CACHE NOT USED", pageRequest.getPublicationId(), pageRequest.getPath());
+        return loadPageContentNotCached(pageRequest);
+    }
+
+    @NotNull
+    public String loadPageContentNotCached(PageRequestDto pageRequest) throws ContentProviderException {
+        log.info("Page: {}, request: {}", pageRequest.getPublicationId(), pageRequest.getPath());
         int publicationId = pageRequest.getPublicationId();
         String path = pageRequest.getPath();
 
@@ -90,7 +92,7 @@ public class ContentService {
             String[] result =
                     queryLoader.constructQueryAndSetResultFilter(
                             new AndCriteria(urlCriteria,
-                                new PublicationCriteria(publicationId)), pageRequest);
+                                    new PublicationCriteria(publicationId)), pageRequest);
 
             log.debug("Requested publication '{}', path '{}', result is '{}'", publicationId, path, result);
             if (result.length == 0) {
@@ -99,12 +101,20 @@ public class ContentService {
             }
 
             return loadPageContent(publicationId, TcmUtils.getItemId(result[0]));
-        } catch (StorageException e) {
+        } catch (DxaItemNotFoundException ex) {
+            throw ex;
+        } catch (Exception e) {
             ContentProviderException exception = new ContentProviderException("Couldn't communicate to CD broker DB while loading a page " +
                     "with localization ID '" + publicationId + "' and page URL '" + path + "'", e);
             log.warn("Issues communicating with CD", exception);
             throw exception;
         }
+    }
+
+    @NotNull
+    @Cacheable(value = "componentPresentations", key = "{ #entityRequest}", sync = true)
+    public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
+        return loadComponentPresentationNotCached(entityRequest);
     }
 
     /**
@@ -115,8 +125,7 @@ public class ContentService {
      * @throws DxaItemNotFoundException in case there nothing was found for this request
      */
     @NotNull
-    @Cacheable(value = "entityModels", key = "{ #root.methodName, #entityRequest}")
-    public ComponentPresentation loadComponentPresentation(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
+    public ComponentPresentation loadComponentPresentationNotCached(EntityRequestDto entityRequest) throws DxaItemNotFoundException {
         int publicationId = entityRequest.getPublicationId();
 
         String componentUri = TcmUtils.buildTcmUri(publicationId, entityRequest.getComponentId());
@@ -150,11 +159,13 @@ public class ContentService {
             log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
             CharacterData data = new PageContentFactory().getPageContent(publicationId, pageId);
             if (data == null) {
-                throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
+                throw new PageNotFoundException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
             }
 
             return data.getString();
-        } catch (IOException e) {
+        } catch (DxaItemNotFoundException ex) {
+            throw ex;
+        } catch (Exception e) {
             ContentProviderException exception = new ContentProviderException("Couldn't load a page with localization ID '" + publicationId + "' and page ID '" + pageId + "'", e);
             log.warn("Failed to load page content", exception);
             throw exception;

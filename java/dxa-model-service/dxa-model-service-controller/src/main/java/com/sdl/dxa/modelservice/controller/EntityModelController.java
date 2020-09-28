@@ -8,10 +8,15 @@ import com.sdl.dxa.common.dto.EntityRequestDto.DcpType;
 import com.sdl.dxa.modelservice.service.ContentService;
 import com.sdl.dxa.modelservice.service.EntityModelService;
 import com.sdl.webapp.common.api.content.ContentProviderException;
+import com.sdl.webapp.common.api.content.PageNotFoundException;
+import com.sdl.webapp.common.exceptions.DxaItemNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/EntityModel/{uriType}/{localizationId}")
 public class EntityModelController {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityModelController.class);
 
     private final ContentService contentService;
 
@@ -59,9 +65,24 @@ public class EntityModelController {
                 .contentType(isRawContent ? ContentType.RAW : ContentType.MODEL)
                 .build();
 
-        return ResponseEntity.ok(isRawContent ?
-                contentService.loadComponentPresentation(entityRequest) :
-                entityModelService.loadEntity(entityRequest));
+        return ResponseEntity.ok(isRawContent
+                ? contentService.loadComponentPresentation(entityRequest)
+                : entityModelService.loadEntity(entityRequest));
     }
 
+    @ExceptionHandler({DxaItemNotFoundException.class})
+    public void handleNotFoundException(Exception ex) throws PageNotFoundException {
+        if (LOG.isTraceEnabled()){
+            LOG.trace("Could not load entity model", ex);
+        } else {
+            LOG.error("Could not load entity model: '{}'", ex.getMessage());
+        }
+        throw new PageNotFoundException(ex);
+    }
+
+    @ExceptionHandler({ Exception.class })
+    public void handleAnyException(Exception ex) throws RuntimeException {
+        LOG.error("Could not load entity model", ex);
+        throw new RuntimeException(ex);
+    }
 }
