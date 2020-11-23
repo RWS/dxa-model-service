@@ -6,7 +6,7 @@
 
     <groupId>com.sdl.dxa</groupId>
     <artifactId>dxa-model-service</artifactId>
-    <version>2.2.3</version>
+    <version>2.2.5</version>
     <packaging>pom</packaging>
 
     <name>DXA Model Service Parent</name>
@@ -19,7 +19,7 @@
 
 
     <properties>
-        <dxa.version>2.2.3-SNAPSHOT</dxa.version>
+        <dxa.version>2.2.5</dxa.version>
         <java.version>1.8</java.version>
 
         <!-- This should match the next patch version -->
@@ -27,27 +27,27 @@
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
-        <adf.version>11.0.0-1039</adf.version>
+        <adf.version>11.0.0-1051</adf.version>
         <api.version>11.0.0-1033</api.version>
         <cache.version>11.0.0-1027</cache.version>
         <cil.version>11.0.0-1048</cil.version>
-        <cis-api.version>11.0.0-1036</cis-api.version>
-        <cis-model.version>11.0.0-1046</cis-model.version>
-        <common.version>11.0.0-1028</common.version>
-        <core.version>11.0.0-1027</core.version>
+        <cis-api.version>11.0.0-1058</cis-api.version>
+        <cis-model.version>11.0.0-1061</cis-model.version>
+        <common.version>11.0.0-1045</common.version>
+        <core.version>11.0.0-1044</core.version>
         <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1050</discovery-service.version>
+        <discovery-service.version>11.0.0-1066</discovery-service.version>
         <discovery.version>11.0.0-1030</discovery.version>
-        <model.version>11.0.0-1027</model.version>
-        <preview.version>11.0.0-1038</preview.version>
-        <publish-web.version>11.0.0-1042</publish-web.version>
+        <model.version>11.0.0-1049</model.version>
+        <preview.version>11.0.0-1060</preview.version>
+        <publish-web.version>11.0.0-1057</publish-web.version>
         <service-container.version>11.0.0-1027</service-container.version>
         <tcdl.version>11.0.0-1031</tcdl.version>
 
-        <odata.version>2.7.3</odata.version>
+        <odata.version>2.8.3</odata.version>
         <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
         <ehcache.version>3.7.1</ehcache.version>
-        <jackson.version>2.10.0</jackson.version>
+        <jackson.version>2.10.1</jackson.version>
         <stax.api.version>1.0-2</stax.api.version>
         <javax-cache.version>1.1.1</javax-cache.version>
         <javax.activation.version>1.2.0</javax.activation.version>
@@ -569,6 +569,21 @@
             </dependency>
 
             <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-afterburner</artifactId>
                 <version>${jackson.version}</version>
@@ -576,6 +591,16 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
 

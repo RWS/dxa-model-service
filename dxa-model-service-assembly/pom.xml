@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.sdl.dxa</groupId>
         <artifactId>dxa-model-service</artifactId>
-        <version>2.2.3</version>
+        <version>2.2.5</version>
     </parent>
 
     <artifactId>dxa-model-service-assembly</artifactId>
@@ -48,7 +48,6 @@
                                 <artifactItem>
                                     <groupId>com.sdl.dxa</groupId>
                                     <artifactId>dxa-model-service-odata</artifactId>
-                                    <classifier>spring-boot</classifier>
                                     <version>${project.version}</version>
                                 </artifactItem>
                             </artifactItems>
