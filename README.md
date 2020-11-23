@@ -1,5 +1,5 @@
 SDL Digital Experience Accelerator Model Service
-===
+================================================
 
 About
 -----
@@ -21,20 +21,19 @@ Build
 
 You need Maven 3.2+ to build the Model Service from source. Maven should be available in the system `PATH`. 
     
-To build DXA Model Service run the following command for the parent `dxa-model-service` project:
+To build DXA Model Service run the following command:
 
     mvn install 
     
 Note, if you intend to just use the Model Service and not to make changes, you do not need to build it.  
 
 Support
----------------
-At SDL we take your investment in Digital Experience very seriously, and will do our best to support you throughout this journey. 
-If you encounter any issues with the Digital Experience Accelerator, please reach out to us via one of the following channels:
+-------
+At SDL we take your investment in Digital Experience very seriously, if you encounter any issues with the Digital Experience Accelerator, please use one of the following channels:
 
 - Report issues directly in [this repository](https://github.com/sdl/dxa-model-service/issues)
-- Ask questions 24/7 on the SDL Web Community at https://tridion.stackexchange.com
-- Contact Technical Support through the SDL Support web portal at https://www.sdl.com/support
+- Ask questions 24/7 on the SDL Tridion Community at https://tridion.stackexchange.com
+- Contact SDL Professional Services for DXA release management support packages to accelerate your support requirements
 
 
 Documentation
@@ -78,7 +77,7 @@ Of course, it is also possible (and appreciated) to report an issue without asso
 
 License
 -------
-Copyright (c) 2014-2019 SDL Group.
+Copyright (c) 2014-2020 SDL Group.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
