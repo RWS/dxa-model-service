@@ -1,5 +1,9 @@
 SDL Digital Experience Accelerator Model Service
 ================================================
+Build status
+------------
+- Develop: [![Build Status](https://travis-ci.com/sdl/dxa-model-service.svg?branch=develop)](https://travis-ci.com/sdl/dxa-model-service)
+- 2.2: [![Build Status](https://travis-ci.com/sdl/dxa-model-service.svg?branch=release%2F2.2)](https://travis-ci.com/sdl/dxa-model-service)
 
 About
 -----
