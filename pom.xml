@@ -29,22 +29,16 @@
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
-        <adf.version>11.0.0-1051</adf.version>
-        <api.version>11.0.0-1033</api.version>
-        <cache.version>11.0.0-1027</cache.version>
-        <cil.version>11.0.0-1048</cil.version>
-        <cis-api.version>11.0.0-1058</cis-api.version>
-        <cis-model.version>11.0.0-1061</cis-model.version>
-        <common.version>11.0.0-1045</common.version>
-        <core.version>11.0.0-1044</core.version>
-        <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1066</discovery-service.version>
-        <discovery.version>11.0.0-1030</discovery.version>
-        <model.version>11.0.0-1049</model.version>
-        <preview.version>11.0.0-1060</preview.version>
-        <publish-web.version>11.0.0-1057</publish-web.version>
-        <service-container.version>11.0.0-1027</service-container.version>
-        <tcdl.version>11.0.0-1031</tcdl.version>
+        <adf.version>11.0.0-1090</adf.version>
+        <cil.version>11.0.0-1107</cil.version>
+        <cis-api.version>11.0.0-1104</cis-api.version>
+        <cis-model.version>11.0.0-1114</cis-model.version>
+        <common.version>11.0.0-1077</common.version>
+        <core.version>11.0.0-1074</core.version>
+        <discovery-service.version>11.0.0-1121</discovery-service.version>
+        <preview.version>11.0.0-1108</preview.version>
+        <publish-web.version>11.0.0-1095</publish-web.version>
+        <service-container.version>11.0.0-1077</service-container.version>
 
         <odata.version>2.8.3</odata.version>
         <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
@@ -57,6 +51,14 @@
         <jaxb.impl.version>2.3.2</jaxb.impl.version>
         <jaxb.core.version>2.3.0.1</jaxb.core.version>
         <httpcomponents.version>4.5.8</httpcomponents.version>
+
+        <!-- Used by in-process module? -->
+        <api.version>11.0.0-1033</api.version>
+        <cache.version>11.0.0-1027</cache.version>
+        <datalayer.version>11.0.0-1032</datalayer.version>
+        <discovery.version>11.0.0-1030</discovery.version>
+        <model.version>11.0.0-1049</model.version>
+        <tcdl.version>11.0.0-1031</tcdl.version>
 
         <!-- Third party dependency versions -->
         <dd4t.version>2.1.5</dd4t.version>
