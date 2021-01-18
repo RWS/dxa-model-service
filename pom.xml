@@ -36,7 +36,7 @@
         <common.version>11.0.0-1045</common.version>
         <core.version>11.0.0-1044</core.version>
         <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1066</discovery-service.version>
+        <discovery-service.version>11.0.0-1121</discovery-service.version>
         <discovery.version>11.0.0-1030</discovery.version>
         <model.version>11.0.0-1049</model.version>
         <preview.version>11.0.0-1060</preview.version>
