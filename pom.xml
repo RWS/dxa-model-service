@@ -36,15 +36,15 @@
         <common.version>11.0.0-1045</common.version>
         <core.version>11.0.0-1044</core.version>
         <datalayer.version>11.0.0-1032</datalayer.version>
-        <discovery-service.version>11.0.0-1066</discovery-service.version>
-        <discovery.version>11.0.0-1030</discovery.version>
+        <discovery-service.version>11.0.0-1121</discovery-service.version>
+        <discovery.version>11.0.0-1121</discovery.version>
         <model.version>11.0.0-1049</model.version>
         <preview.version>11.0.0-1060</preview.version>
         <publish-web.version>11.0.0-1057</publish-web.version>
         <service-container.version>11.0.0-1027</service-container.version>
         <tcdl.version>11.0.0-1031</tcdl.version>
 
-        <odata.version>2.8.3</odata.version>
+        <odata.version>2.8.8</odata.version>
         <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
         <ehcache.version>3.7.1</ehcache.version>
         <jackson.version>2.10.1</jackson.version>
