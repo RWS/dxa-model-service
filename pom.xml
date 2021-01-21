@@ -30,11 +30,11 @@
         <adf.version>11.0.0-1090</adf.version>
         <api.version>11.0.0-1107</api.version>
         <cache.version>11.0.0-1027</cache.version>
-        <cil.version>11.0.0-1095</cil.version>
-        <cis-api.version>11.0.0-1058</cis-api.version>
-        <cis-model.version>11.0.0-1061</cis-model.version>
+        <cil.version>11.0.0-1107</cil.version>
+        <cis-api.version>11.0.0-1058</cis-api.version><!-- 1104 -->
+        <cis-model.version>11.0.0-1061</cis-model.version><!-- 1114-->
         <common.version>11.0.0-1045</common.version>
-        <core.version>11.0.0-1044</core.version>
+        <core.version>11.0.0-1044</core.version> <!-- 1074 -->
         <datalayer.version>11.0.0-1032</datalayer.version>
         <discovery-service.version>11.0.0-1121</discovery-service.version>
         <discovery.version>11.0.0-1030</discovery.version>
@@ -63,7 +63,7 @@
 <!--        <service-container.version>11.0.0-1027</service-container.version>-->
 
         <!-- Third party dependency versions -->
-        <dd4t.version>2.1.5</dd4t.version>
+        <dd4t.version>2.1.7</dd4t.version>
         <aspectj.version>1.9.4</aspectj.version>
         <jansi.version>1.18</jansi.version>
         <spring.mockmvc.version>1.2.6.RELEASE</spring.mockmvc.version>
