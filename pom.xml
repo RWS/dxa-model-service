@@ -33,6 +33,7 @@
         <cil.version>11.0.0-1095</cil.version>
 	<cil-adf.version>11.0.0-1107</cil-adf.version>
 	<cil-api.version>11.0.0-1107</cil-api.version>
+	<cil-api-compatible.version>11.0.0-1107</cil-api-compatible.version>
         <cis-api.version>11.0.0-1104</cis-api.version><!-- 1104 -->
         <cis-model.version>11.0.0-1114</cis-model.version><!-- 1114-->
         <common.version>11.0.0-1045</common.version>
@@ -297,7 +298,7 @@
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-cil-api-compatible</artifactId>
-                <version>${cil.version}</version>
+                <version>${cil-api-compatibe.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
