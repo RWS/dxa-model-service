@@ -30,9 +30,9 @@
         <adf.version>11.0.0-1090</adf.version>
         <api.version>11.0.0-1107</api.version>
         <cache.version>11.0.0-1027</cache.version>
-        <cil.version>11.0.0-1083</cil.version>
-        <cis-api.version>11.0.0-1058</cis-api.version><!-- 1104 -->
-        <cis-model.version>11.0.0-1061</cis-model.version><!-- 1114-->
+        <cil.version>11.0.0-1095</cil.version>
+        <cis-api.version>11.0.0-1104</cis-api.version><!-- 1104 -->
+        <cis-model.version>11.0.0-1114</cis-model.version><!-- 1114-->
         <common.version>11.0.0-1045</common.version>
         <core.version>11.0.0-1044</core.version> <!-- 1074 -->
         <datalayer.version>11.0.0-1032</datalayer.version>
