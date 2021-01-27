@@ -64,12 +64,6 @@
                                     <type>zip</type>
                                     <version>${service-container.version}</version>
                                 </artifactItem>
-                                <artifactItem>
-                                    <groupId>com.sdl.delivery</groupId>
-                                    <artifactId>udp-service-container-cloud-assembly</artifactId>
-                                    <type>zip</type>
-                                    <version>${service-container.version}</version>
-                                </artifactItem>
                             </artifactItems>
                             <outputDirectory>${standalone.build.dir}</outputDirectory>
                             <silent>true</silent>
