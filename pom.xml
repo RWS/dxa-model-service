@@ -146,31 +146,7 @@
                 <version>${odata.version}</version>
             </dependency>
 
-            <!-- CD Dependencies -->
-<!--
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-common-config-api</artifactId>
-                <version>${common.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-common-config-legacy</artifactId>
-                <version>${common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sdl.delivery</groupId>
-                <artifactId>udp-common-config</artifactId>
-                <version>${common.version}</version>
-            </dependency>
 
--->
             <dependency>
                 <groupId>com.sdl.delivery</groupId>
                 <artifactId>udp-service-container-assembly</artifactId>
