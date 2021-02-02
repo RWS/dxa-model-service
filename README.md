@@ -2,7 +2,7 @@ SDL Digital Experience Accelerator Model Service
 ================================================
 Build status
 ------------
-- Develop: ![https://github.com/sdl/dxa-model-service/actions?query=workflow%3A%22Java+CI+with+Maven%22](https://github.com/sdl/dxa-model-service/workflows/Java%20CI%20with%20Maven/badge.svg?branch=develop)
+- Develop: ![Build Status](https://github.com/sdl/dxa-model-service/workflows/Build/badge.svg?branch=develop)
 
 About
 -----
