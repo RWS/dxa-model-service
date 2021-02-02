@@ -30,7 +30,7 @@
         <adf.version>11.0.1-1020</adf.version>
         <cil.version>11.0.1-1019</cil.version>
         <cil-adf.version>11.0.1-1017</cil-adf.version>
-        <cil-api.version> 11.0.1-1017</cil-api.version>
+        <cil-api.version>11.0.1-1017</cil-api.version>
         <cil-api-compatible.version>11.0.1-1017</cil-api-compatible.version>
         <cis-api.version>11.0.1-1020</cis-api.version>
         <cis-model.version>11.0.1-1020</cis-model.version>
@@ -525,8 +525,8 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
-	        </plugin>
-    	    </plugins>
+                </plugin>
+            </plugins>
         </pluginManagement>
 
         <plugins>
@@ -595,7 +595,7 @@
             <id>in-process</id>
             <properties>
                 <cd_version>8.5.0-1095</cd_version>
-	    </properties>
+            </properties>
             <modules>
                 <module>dxa-model-service-in-process</module>
                 <module>dxa-model-service-assembly-in-process</module>
@@ -619,20 +619,20 @@
                         </exclusions>
                     </dependency>
                     <dependency>
-                         <groupId>com.tridion</groupId>
-                         <artifactId>cd_broker</artifactId>
-                         <version>${cd_version}</version>
-                     </dependency>
+                        <groupId>com.tridion</groupId>
+                        <artifactId>cd_broker</artifactId>
+                        <version>${cd_version}</version>
+                    </dependency>
                     <dependency>
-                         <groupId>com.tridion</groupId>
-                         <artifactId>cd_dynamic</artifactId>
-                         <version>${cd_version}</version>
-                     </dependency>
-                     <dependency>
-                         <groupId>com.tridion</groupId>
-                         <artifactId>cd_linking</artifactId>
-                         <version>${cd_version}</version>
-                     </dependency>
+                        <groupId>com.tridion</groupId>
+                        <artifactId>cd_dynamic</artifactId>
+                        <version>${cd_version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.tridion</groupId>
+                        <artifactId>cd_linking</artifactId>
+                        <version>${cd_version}</version>
+                    </dependency>
                 </dependencies>
             </dependencyManagement>
         </profile>
