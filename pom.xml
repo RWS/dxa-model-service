@@ -6,7 +6,7 @@
 
     <groupId>com.sdl.dxa</groupId>
     <artifactId>dxa-model-service</artifactId>
-    <version>2.2.5</version>
+    <version>2.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DXA Model Service Parent</name>
@@ -20,12 +20,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dxa.version>2.2.11</dxa.version>
+        <dxa.version>2.2.12-SNAPSHOT</dxa.version>
         <java.version>1.8</java.version>
 
         <!-- This should match the next patch version -->
-        <parent.version.range>(,11.1.0)</parent.version.range>
-
+        <parent.version.range>[11.0.1,11.1.0)</parent.version.range>
 
         <adf.version>11.0.1-1020</adf.version>
         <cil.version>11.0.1-1019</cil.version>
@@ -59,13 +58,13 @@
     <distributionManagement>
         <repository>
             <id>releases-nexus</id>
-            <name>SDL Releases</name>
-            <url>https://nexus.sdl.com/repository/releases</url>
+            <name>OSS sonatype release</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>snapshots-nexus</id>
-            <name>SDL Snapshots</name>
-            <url>https://nexus.sdl.com/repository/snapshots</url>
+            <name>OSS sonatype snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
