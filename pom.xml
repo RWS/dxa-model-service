@@ -57,25 +57,25 @@
 
     <repositories>
         <repository>
-            <id>snapshots-repo</id>
+            <id>snapshots-nexus</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
 
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>releases-nexus</id>-->
-<!--            <name>OSS sonatype release</name>-->
-<!--            <url>https://oss.sonatype.org/content/repositories/releases</url>-->
-<!--        </repository>-->
-<!--        <snapshotRepository>-->
-<!--            <id>snapshots-nexus</id>-->
-<!--            <name>OSS sonatype snapshots</name>-->
-<!--            <url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
-<!--        </snapshotRepository>-->
-<!--    </distributionManagement>-->
+    <distributionManagement>
+        <repository>
+            <id>releases-nexus</id>
+            <name>OSS sonatype release</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots-nexus</id>
+            <name>OSS sonatype snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
