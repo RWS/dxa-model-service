@@ -1,6 +1,11 @@
 SDL Digital Experience Accelerator Model Service
 ================================================
 
+## NOTE
+It is not possible to build dxa-model-service on branch release/2.2-8.5.0
+- in-process, because it has a dependency on not redistributable artifacts (ezlicense)
+- standalone, because there are a couple of 8.5.0 SDL internal dependencies that are not publicly available.
+
 About
 -----
 The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Tridion Sites 9 and SDL Web 8 intended to help you create, design and publish an SDL Tridion/Web-based website quickly.
