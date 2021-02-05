@@ -5,38 +5,12 @@
     <parent>
         <artifactId>dxa-model-service</artifactId>
         <groupId>com.sdl.dxa</groupId>
-        <version>2.2.5</version>
+        <version>2.2.6-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dxa-model-service-in-process</artifactId>
     <name>DXA Model Service In Process</name>
-
-    <profiles>
-        <profile>
-            <id>local-repository</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>repackage</id>
-                                <goals>
-                                    <goal>repackage</goal>
-                                </goals>
-                                <configuration>
-                                    <mainClass>com.sdl.dxa.DxaModelServiceApplication</mainClass>
-                                    <classifier>spring-boot</classifier>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <dependencies>
         <dependency>
