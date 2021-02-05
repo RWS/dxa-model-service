@@ -633,9 +633,6 @@
         </profile>
         <profile>
             <id>in-process</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <modules>
                 <module>dxa-model-service-in-process</module>
                 <module>dxa-model-service-assembly-in-process</module>
