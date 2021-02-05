@@ -55,18 +55,18 @@
         <spring.mockmvc.version>1.2.6.RELEASE</spring.mockmvc.version>
     </properties>
 
-    <distributionManagement>
-        <repository>
-            <id>releases-nexus</id>
-            <name>OSS sonatype release</name>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots-nexus</id>
-            <name>OSS sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+<!--    <distributionManagement>-->
+<!--        <repository>-->
+<!--            <id>releases-nexus</id>-->
+<!--            <name>OSS sonatype release</name>-->
+<!--            <url>https://oss.sonatype.org/content/repositories/releases</url>-->
+<!--        </repository>-->
+<!--        <snapshotRepository>-->
+<!--            <id>snapshots-nexus</id>-->
+<!--            <name>OSS sonatype snapshots</name>-->
+<!--            <url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
+<!--        </snapshotRepository>-->
+<!--    </distributionManagement>-->
 
     <dependencyManagement>
         <dependencies>
@@ -667,21 +667,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>sonatype-repository</id>
-            <distributionManagement>
-                <repository>
-                    <id>sonatype-nexus-staging</id>
-                    <name>Nexus Staging Repository</name>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-                </snapshotRepository>
-            </distributionManagement>
         </profile>
     </profiles>
 </project>
