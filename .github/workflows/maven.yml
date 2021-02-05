@@ -20,5 +20,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: settings.xml
+      run: cat /home/runner/.m2/settings.xml
     - name: Build with Maven
-      run: mvn clean install --batch-mode  -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --file pom.xml
+      run: mvn clean install -B -U -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --file pom.xml
