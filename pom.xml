@@ -55,6 +55,15 @@
         <spring.mockmvc.version>1.2.6.RELEASE</spring.mockmvc.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
 <!--    <distributionManagement>-->
 <!--        <repository>-->
 <!--            <id>releases-nexus</id>-->
