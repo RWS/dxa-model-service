@@ -14,10 +14,4 @@
     <name>DXA Model Service Container</name>
     <description>DXA Model Service Container</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.sdl.dxa</groupId>
-            <artifactId>dxa-model-service-controller</artifactId>
-        </dependency>
-    </dependencies>
 </project>
