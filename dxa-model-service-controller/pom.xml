@@ -154,12 +154,12 @@
             <id>in-process</id>
             <dependencies>
                <dependency>
-                    <groupId>com.tridion</groupId>
-                    <artifactId>cd_broker</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-broker</artifactId>
                </dependency>
                 <dependency>
-                    <groupId>com.tridion</groupId>
-                    <artifactId>cd_linking</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-linking</artifactId>
                     <exclusions>
                         <exclusion>
                             <groupId>com.sdl.web</groupId>
@@ -168,8 +168,8 @@
                     </exclusions>
                 </dependency>
                 <dependency>
-                    <groupId>com.tridion</groupId>
-                    <artifactId>cd_dynamic</artifactId>
+                    <groupId>com.sdl.delivery</groupId>
+                    <artifactId>udp-api-dynamic</artifactId>
                 </dependency>
             </dependencies>
         </profile>

@@ -27,6 +27,7 @@
         <parent.version.range>[11.0.1,11.1.0)</parent.version.range>
 
         <adf.version>11.0.1-1020</adf.version>
+        <api.version>11.0.1-1019</api.version>
         <cil.version>11.0.1-1019</cil.version>
         <cil-adf.version>11.0.1-1017</cil-adf.version>
         <cil-api.version>11.0.1-1017</cil-api.version>
@@ -601,9 +602,9 @@
         </profile>
         <profile>
             <id>in-process</id>
-            <properties>
-                <cd_version>8.5.0-1095</cd_version>
-            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <modules>
                 <module>dxa-model-service-in-process</module>
                 <module>dxa-model-service-assembly-in-process</module>
@@ -627,19 +628,19 @@
                         </exclusions>
                     </dependency>
                     <dependency>
-                        <groupId>com.tridion</groupId>
-                        <artifactId>cd_broker</artifactId>
-                        <version>${cd_version}</version>
+                        <groupId>com.sdl.delivery</groupId>
+                        <artifactId>udp-api-broker</artifactId>
+                        <version>${api.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>com.tridion</groupId>
-                        <artifactId>cd_dynamic</artifactId>
-                        <version>${cd_version}</version>
+                        <groupId>com.sdl.delivery</groupId>
+                        <artifactId>udp-api-dynamic</artifactId>
+                        <version>${api.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>com.tridion</groupId>
-                        <artifactId>cd_linking</artifactId>
-                        <version>${cd_version}</version>
+                        <groupId>com.sdl.delivery</groupId>
+                        <artifactId>udp-api-linking</artifactId>
+                        <version>${api.version}</version>
                     </dependency>
                 </dependencies>
             </dependencyManagement>
