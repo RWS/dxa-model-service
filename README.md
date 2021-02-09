@@ -23,6 +23,7 @@ Build
 -----
 
 You need Maven 3.2+ to build the Model Service from source. Maven should be available in the system `PATH`. 
+
 `mvn install` 
     
 Note, if you intend to just use the Model Service and not to make changes, you do not need to build it.  
