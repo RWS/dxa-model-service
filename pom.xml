@@ -27,7 +27,7 @@
 
         <!-- These properties are automatically updated by the versions-maven-plugin at build time to pick up the latest
         released artifacts for each repository. This plugin is configured in the parent udp-common-maven pom. -->
-        <adf.version>11.0.0-1051</adf.version>
+        <adf.version>11.0.0-1090</adf.version>
         <api.version>11.0.0-1033</api.version>
         <cache.version>11.0.0-1027</cache.version>
         <cil.version>11.0.0-1048</cil.version>
