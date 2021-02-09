@@ -23,10 +23,7 @@ Build
 -----
 
 You need Maven 3.2+ to build the Model Service from source. Maven should be available in the system `PATH`. 
-    
-To build DXA Model Service run the following command:
-
-    mvn install 
+`mvn install` 
     
 Note, if you intend to just use the Model Service and not to make changes, you do not need to build it.  
 
@@ -69,6 +66,9 @@ Furthermore, Pull Requests on release branches are expected to be extensively te
 
 Of course, it is also possible (and appreciated) to report an issue without associated Pull Requests.
 
+Snapshots
+---------
+DXA publishes SNAPSHOT versions to Sonatype. To use them, configure `https://oss.sonatype.org/content/repositories/snapshots` as a repository in your Maven settings. Read [this](https://maven.apache.org/settings.html#Repositories) for instructions.
 
 License
 -------
