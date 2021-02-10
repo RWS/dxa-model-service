@@ -23,10 +23,8 @@ Build
 -----
 
 You need Maven 3.2+ to build the Model Service from source. Maven should be available in the system `PATH`. 
-    
-To build DXA Model Service run the following command:
 
-    mvn install 
+`mvn install` 
     
 Note, if you intend to just use the Model Service and not to make changes, you do not need to build it.  
 
@@ -46,25 +44,17 @@ Documentation can be found online in the SDL documentation portal: https://docs.
 
 Repositories
 ------------
-The following repositories with DXA source code are available:
-
- - https://github.com/sdl/dxa-content-management - CM-side framework (.NET Template Building Blocks)
- - https://github.com/sdl/dxa-html-design - Whitelabel HTML Design
- - https://github.com/sdl/dxa-model-service - Model Service (Java)
- - https://github.com/sdl/dxa-modules - Modules (.NET and Java)
- - https://github.com/sdl/dxa-web-application-dotnet - ASP.NET MVC web application (including framework)
- - https://github.com/sdl/dxa-web-application-java - Java Spring MVC web application (including framework)
+You can find all the DXA related repositories [here](https://github.com/sdl/?q=dxa&type=source&language=)
 
 
 Branches and Contributions
 --------------------------
 We are using the following branching strategy:
 
- - `master` - Represents the latest stable version. This may be a pre-release version (tagged as `DXA x.y Sprint z`). Updated each development Sprint (approximately bi-weekly).
- - `develop` - Represents the latest development version. Updated very frequently (typically nightly).
+ - `develop` - Represents the latest development version.
  - `release/x.y` - Represents the x.y Release. If hotfixes are applicable, they will be applied to the appropriate release branch so that the branch actually represents the initial release plus hotfixes.
 
-All releases (including pre-releases and hotfix releases) are tagged. 
+All releases are tagged using the convention DXA_<major>.<minor>.<hotfix>
 
 Note that development sources (on `develop` branch) have dependencies on SNAPSHOT versions of the DXA artifacts, which are available here: https://oss.sonatype.org/content/repositories/snapshots/com/sdl/dxa/
 
@@ -77,6 +67,9 @@ Furthermore, Pull Requests on release branches are expected to be extensively te
 
 Of course, it is also possible (and appreciated) to report an issue without associated Pull Requests.
 
+Snapshots
+---------
+DXA publishes SNAPSHOT versions to Sonatype. To use them, configure `https://oss.sonatype.org/content/repositories/snapshots` as a repository in your Maven settings. Read [this](https://maven.apache.org/settings.html#Repositories) for instructions.
 
 License
 -------
