@@ -71,7 +71,12 @@ public class ContentService {
         int publicationId = pageRequest.getPublicationId();
         if (pageRequest.getPageId() != 0) {
             log.info("Page ID is known, no need to search it, requesting pubId = {}, pageId = {}", publicationId, pageRequest.getPageId());
-            return loadPageContent(publicationId, pageRequest.getPageId());
+            try {
+                return loadPageContent(publicationId, pageRequest.getPageId());
+            } catch (DxaItemNotFoundException ex) {
+                log.error(ex.getMessage());
+                return null;
+            }
         }
 
         String path = pageRequest.getPath();
@@ -170,7 +175,7 @@ public class ContentService {
             log.trace("requesting page content for publication {} page id and {}", publicationId, pageId);
             CharacterData data = pageContentFactory.getPageContent(publicationId, pageId);
             if (data == null) {
-                throw new ContentProviderException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
+                throw new DxaItemNotFoundException("Content Service returned null for request pubId = " + publicationId + "pageId = " + pageId);
             }
             return data.getString();
         } catch (IOException e) {
