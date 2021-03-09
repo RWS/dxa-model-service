@@ -54,13 +54,6 @@
         <spring.mockmvc.version>1.2.6.RELEASE</spring.mockmvc.version>
     </properties>
 
-    <scm>
-        <url>https://github.com/sdl/dxa-model-service</url>
-        <connection>scm:git:git@github.com:sdl/dxa-model-service.git</connection>
-        <developerConnection>scm:git:git@github.com:sdl/dxa-model-service.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-
     <repositories>
         <repository>
             <id>sonatype-nexus-snapshots</id>
@@ -69,19 +62,6 @@
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>OSS sonatype release</name>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>OSS sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
