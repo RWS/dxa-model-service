@@ -85,7 +85,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>${project.build.finalName}</finalName>
+                            <finalName>${project.build.finalName}-cil-${project.version}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/standalone.xml</descriptor>
                             </descriptors>
