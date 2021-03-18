@@ -5,7 +5,7 @@
 
     <groupId>com.sdl.dxa</groupId>
     <artifactId>dxa-model-service</artifactId>
-    <version>2.2.16-SNAPSHOT</version>
+    <version>2.2.15-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>DXA Model Service Parent</name>
@@ -18,7 +18,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dxa.version>2.2.15</dxa.version>
+        <dxa.version>2.2.14</dxa.version>
         <java.version>1.8</java.version>
 
         <!-- This should match the next patch version -->
