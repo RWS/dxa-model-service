@@ -1,4 +1,4 @@
-SDL Digital Experience Accelerator Model Service
+RWS Digital Experience Accelerator Model Service
 ================================================
 Build status
 ------------
@@ -6,15 +6,15 @@ Build status
 
 About
 -----
-The SDL Digital Experience Accelerator (DXA) is a reference implementation of SDL Tridion Sites 9 and SDL Web 8 intended to help you create, design and publish an SDL Tridion/Web-based website quickly.
+The RWS Digital Experience Accelerator (DXA) is a reference implementation of RWS Tridion Sites 9 and RWS Web 8 intended to help you create, design and publish an RWS Tridion/Web-based website quickly.
 
-DXA is available for both .NET and Java web applications. Its modular architecture consists of a framework and example web application, which includes all core SDL Tridion/Web functionality as well as separate Modules for additional, optional functionality.
+DXA is available for both .NET and Java web applications. Its modular architecture consists of a framework and example web application, which includes all core Tridion/Web functionality as well as separate Modules for additional, optional functionality.
 
-This repository contains the source code of the legacy DXA Model Service: a separate microservice that can be deployed on an SDL Web CIS backend, version 8 or higher. 
+This repository contains the source code of the legacy DXA Model Service: a separate microservice that can be deployed on an Web CIS backend, version 8 or higher. 
 
 DXA 2.0 introduced the DXA Model Service to improve overall performance and to provide a more lightweight DXA framework in the web application.
 As of DXA 2.1 and DXD 11.0, the Model Service functionality is provided by the new GraphQL Content Service (as an extension of DXD 11.0 called the DXA Model Extension). 
-SDL continues to provide the standalone DXA Model Service for backward compatibility with SDL Web 8.x and to facilitate rolling upgrades.
+RWS continues to provide the standalone DXA Model Service for backward compatibility with RWS Web 8.x and to facilitate rolling upgrades.
 
 The compiled code for the both the legacy, standalone DXA Model Service and the DXA Model Extension is downloadable from the [SDL AppStore](https://appstore.sdl.com/list/?search=dxa) as part of a DXA .NET or Java distributions.
 
@@ -30,11 +30,11 @@ Note, if you intend to just use the Model Service and not to make changes, you d
 
 Support
 -------
-At SDL we take your investment in Digital Experience very seriously, if you encounter any issues with the Digital Experience Accelerator, please use one of the following channels:
+At RWS we take your investment in Digital Experience very seriously, if you encounter any issues with the Digital Experience Accelerator, please use one of the following channels:
 
 - Report issues directly in [this repository](https://github.com/sdl/dxa-model-service/issues)
-- Ask questions 24/7 on the SDL Tridion Community at https://tridion.stackexchange.com
-- Contact SDL Professional Services for DXA release management support packages to accelerate your support requirements
+- Ask questions 24/7 on the Tridion Community at https://tridion.stackexchange.com
+- Contact RWS Professional Services for DXA release management support packages to accelerate your support requirements
 
 
 Documentation
@@ -73,7 +73,7 @@ DXA publishes SNAPSHOT versions to Sonatype. To use them, configure `https://oss
 
 License
 -------
-Copyright (c) 2014-2021 SDL Group.
+Copyright (c) 2014-2021 RWS Group.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
