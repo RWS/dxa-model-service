@@ -36,7 +36,7 @@
         <service-container.version>11.0.1-1016</service-container.version>
 
         <odata.version>2.8.8</odata.version>
-        <spring-boot.version>1.5.21.RELEASE</spring-boot.version>
+        <spring-boot.version>2.2.11.RELEASE</spring-boot.version>
         <ehcache.version>3.7.1</ehcache.version>
         <jackson.version>2.10.5</jackson.version>
         <stax.api.version>1.0-2</stax.api.version>
